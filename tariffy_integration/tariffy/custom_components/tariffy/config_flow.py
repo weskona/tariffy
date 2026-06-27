@@ -52,19 +52,17 @@ def _opt(key: str, default: Any = None) -> vol.Optional:
     return vol.Optional(key, description={"suggested_value": default})
 
 
-def _preis(step: float) -> selector.NumberSelector:
+def _preis(step=None) -> selector.NumberSelector:
     return selector.NumberSelector(
         selector.NumberSelectorConfig(
-            min=0, step=step, mode=selector.NumberSelectorMode.BOX
+            min=0, step="any", mode=selector.NumberSelectorMode.BOX
         )
     )
 
 
 def _verbrauch() -> selector.NumberSelector:
     return selector.NumberSelector(
-        selector.NumberSelectorConfig(
-            min=0,
-            step=1,
+        selector.NumberSelectorConfig(min=0, step="any",
             mode=selector.NumberSelectorMode.BOX,
             unit_of_measurement=VERBRAUCH_EINHEIT,
         )
@@ -73,9 +71,7 @@ def _verbrauch() -> selector.NumberSelector:
 
 def _verbrauch_m3() -> selector.NumberSelector:
     return selector.NumberSelector(
-        selector.NumberSelectorConfig(
-            min=0,
-            step=1,
+        selector.NumberSelectorConfig(min=0, step="any",
             mode=selector.NumberSelectorMode.BOX,
             unit_of_measurement=VERBRAUCH_M3_EINHEIT,
         )
@@ -93,15 +89,11 @@ def _select(options, translation_key=None, custom=False) -> selector.SelectSelec
     )
 
 
-def _notify_select(hass: HomeAssistant) -> selector.SelectSelector:
+def _notify_options(hass: HomeAssistant) -> list:
     dienste = sorted(hass.services.async_services().get("notify", {}))
-    options = [
+    return [
         selector.SelectOptionDict(value=n, label=f"notify.{n}") for n in dienste
     ]
-    # SelectSelector mit leerer Liste → 400. Mindestens einen Platzhalter einfügen.
-    if not options:
-        options = [selector.SelectOptionDict(value="", label="– kein notify-Dienst –")]
-    return _select(options, custom=True)
 
 
 # ------------------------------------------------------------------- schemas
@@ -115,7 +107,7 @@ def _common_schema(
         # verhindert den 400-Fehler beim Laden des Config-Flows
         fields[vol.Required("name")] = selector.TextSelector()
     fields[vol.Required(CONF_SPARTE, default=d.get(CONF_SPARTE, "strom"))] = _select(
-        SPARTEN, translation_key="sparte"
+        SPARTEN
     )
     # FIX: leerer String-Default durch vol.Optional ersetzt
     if d.get(CONF_ANBIETER):
@@ -130,8 +122,10 @@ def _common_schema(
         vol.Required(
             CONF_ERINNERUNG_MONATE, default=d.get(CONF_ERINNERUNG_MONATE, "3")
         )
-    ] = _select(ERINNERUNG_OPTIONS, translation_key="erinnerung")
-    fields[_opt(CONF_NOTIFY_TARGET, d.get(CONF_NOTIFY_TARGET))] = _notify_select(hass)
+    ] = _select(ERINNERUNG_OPTIONS)
+    notify_options = _notify_options(hass)
+    if notify_options:
+        fields[_opt(CONF_NOTIFY_TARGET, d.get(CONF_NOTIFY_TARGET))] = _select(notify_options, custom=True)
     return vol.Schema(fields)
 
 
@@ -179,15 +173,13 @@ def _gas_schema(d: dict[str, Any]) -> vol.Schema:
             vol.Required(
                 CONF_BRENNWERT, default=d.get(CONF_BRENNWERT, 11.0)
             ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=0, step=0.001, mode=selector.NumberSelectorMode.BOX
+                selector.NumberSelectorConfig(min=0, step="any", mode=selector.NumberSelectorMode.BOX
                 )
             ),
             vol.Required(
                 CONF_ZUSTANDSZAHL, default=d.get(CONF_ZUSTANDSZAHL, 0.95)
             ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=0, step=0.0001, mode=selector.NumberSelectorMode.BOX
+                selector.NumberSelectorConfig(min=0, step="any", mode=selector.NumberSelectorMode.BOX
                 )
             ),
             _opt(CONF_BONUS, d.get(CONF_BONUS)): _preis(0.01),
@@ -255,6 +247,7 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         if user_input is not None:
             self._data = dict(user_input)
+            self._name = self._data.pop("name", "")
             if user_input[CONF_SPARTE] == GAS_SPARTE:
                 return await self.async_step_gas()
             if user_input[CONF_SPARTE] in ENERGIE_SPARTEN:
@@ -269,8 +262,7 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         if user_input is not None:
             data = {**self._data, **user_input}
-            name = data.pop("name")
-            return self.async_create_entry(title=name, data=data)
+            return self.async_create_entry(title=self._name, data=data)
         return self.async_show_form(
             step_id="energie", data_schema=_energie_schema({})
         )
@@ -280,8 +272,7 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         if user_input is not None:
             data = {**self._data, **user_input}
-            name = data.pop("name")
-            return self.async_create_entry(title=name, data=data)
+            return self.async_create_entry(title=self._name, data=data)
         return self.async_show_form(
             step_id="pauschal", data_schema=_pauschal_schema({})
         )
