@@ -1,4 +1,6 @@
-# Verträge (Home Assistant Integration)
+# Tariffy
+
+_Vertragsverwaltung für Home Assistant_ (Integrations-Domain: `vertraege`)
 
 Verwaltet Versorgungs- und sonstige Verträge (Strom, Gas, Wasser, Internet, …) als
 Home-Assistant-Geräte: aktueller Tarif, Anbieter, Kundennummer, Laufzeit – plus einen
