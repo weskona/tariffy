@@ -1,0 +1,229 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Neuen Vertrag anlegen",
+        "description": "Allgemeine Vertragsdaten.",
+        "data": {
+          "name": "Bezeichnung (z. B. Strom Haus)",
+          "sparte": "Sparte",
+          "anbieter": "Anbieter",
+          "kundennummer": "Kundennummer",
+          "tarif": "Tarifname",
+          "beginn": "Vertragsbeginn",
+          "ende": "Vertragsende / Laufzeit bis",
+          "erinnerung_monate": "Kündigung erinnern",
+          "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
+        }
+      },
+      "reconfigure": {
+        "title": "Vertrag bearbeiten",
+        "description": "Allgemeine Vertragsdaten.",
+        "data": {
+          "sparte": "Sparte",
+          "anbieter": "Anbieter",
+          "kundennummer": "Kundennummer",
+          "tarif": "Tarifname",
+          "beginn": "Vertragsbeginn",
+          "ende": "Vertragsende / Laufzeit bis",
+          "erinnerung_monate": "Kündigung erinnern",
+          "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
+        }
+      },
+      "energie": {
+        "title": "Strom-Details",
+        "description": "Preise, Verbrauch und Zählerdaten.",
+        "data": {
+          "arbeitspreis": "Arbeitspreis (€/kWh)",
+          "grundpreis": "Grundpreis (€/Monat)",
+          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
+          "bonus": "Neukundenbonus / Sofortbonus (€)",
+          "oekostrom": "Ökostrom",
+          "zaehlernummer": "Zählernummer",
+          "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
+          "preisgarantie": "Preisgarantie bis",
+          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)"
+        }
+      },
+      "reconfigure_energie": {
+        "title": "Strom-Details",
+        "description": "Preise, Verbrauch und Zählerdaten.",
+        "data": {
+          "arbeitspreis": "Arbeitspreis (€/kWh)",
+          "grundpreis": "Grundpreis (€/Monat)",
+          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
+          "bonus": "Neukundenbonus / Sofortbonus (€)",
+          "oekostrom": "Ökostrom",
+          "zaehlernummer": "Zählernummer",
+          "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
+          "preisgarantie": "Preisgarantie bis",
+          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)"
+        }
+      },
+      "gas": {
+        "title": "Gas-Details",
+        "description": "Preise, Verbrauch (m³) und Umrechnung auf kWh über Brennwert und Zustandszahl.",
+        "data": {
+          "arbeitspreis": "Arbeitspreis (€/kWh)",
+          "grundpreis": "Grundpreis (€/Monat)",
+          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch (m³)",
+          "brennwert": "Brennwert (kWh/m³)",
+          "zustandszahl": "Zustandszahl",
+          "bonus": "Neukundenbonus / Sofortbonus (€)",
+          "oekostrom": "Ökostrom",
+          "zaehlernummer": "Zählernummer",
+          "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
+          "preisgarantie": "Preisgarantie bis",
+          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)"
+        }
+      },
+      "reconfigure_gas": {
+        "title": "Gas-Details",
+        "description": "Preise, Verbrauch (m³) und Umrechnung auf kWh über Brennwert und Zustandszahl.",
+        "data": {
+          "arbeitspreis": "Arbeitspreis (€/kWh)",
+          "grundpreis": "Grundpreis (€/Monat)",
+          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch (m³)",
+          "brennwert": "Brennwert (kWh/m³)",
+          "zustandszahl": "Zustandszahl",
+          "bonus": "Neukundenbonus / Sofortbonus (€)",
+          "oekostrom": "Ökostrom",
+          "zaehlernummer": "Zählernummer",
+          "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
+          "preisgarantie": "Preisgarantie bis",
+          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)"
+        }
+      },
+      "pauschal": {
+        "title": "Kosten",
+        "description": "Monatliche Kosten des Vertrags.",
+        "data": {
+          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "grundpreis": "Grundpreis (€/Monat)"
+        }
+      },
+      "reconfigure_pauschal": {
+        "title": "Kosten",
+        "description": "Monatliche Kosten des Vertrags.",
+        "data": {
+          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "grundpreis": "Grundpreis (€/Monat)"
+        }
+      }
+    },
+    "abort": {
+      "reconfigure_successful": "Vertrag wurde aktualisiert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Nächsten Vertrag planen",
+        "description": "Kommenden Tarif eintragen. Am Wechseldatum übernimmt Home Assistant alles automatisch. Nicht ausgefüllte Felder behalten den aktuellen Wert. 'Wechseldatum' leer lassen entfernt einen geplanten Wechsel.",
+        "data": {
+          "next_beginn": "Wechseldatum (Beginn neuer Vertrag)",
+          "next_anbieter": "Anbieter (neu)",
+          "next_kundennummer": "Kundennummer (neu)",
+          "next_tarif": "Tarifname (neu)",
+          "next_arbeitspreis": "Arbeitspreis neu (€/kWh)",
+          "next_grundpreis": "Grundpreis neu (€/Monat)",
+          "next_abschlag": "Abschlag neu (€/Monat)",
+          "next_jahresverbrauch": "Jahresverbrauch neu (kWh bzw. m³)",
+          "next_ende": "Vertragsende neu / Laufzeit bis"
+        }
+      }
+    }
+  },
+  "selector": {
+    "sparte": {
+      "options": {
+        "strom": "Strom",
+        "gas": "Gas",
+        "wasser": "Wasser",
+        "internet": "Internet",
+        "mobilfunk": "Mobilfunk",
+        "versicherung": "Versicherung",
+        "sonstiges": "Sonstiges"
+      }
+    },
+    "erinnerung": {
+      "options": {
+        "0": "Keine Erinnerung",
+        "1": "1 Monat vorher",
+        "2": "2 Monate vorher",
+        "3": "3 Monate vorher",
+        "4": "4 Monate vorher"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "arbeitspreis": {
+        "name": "Arbeitspreis"
+      },
+      "grundpreis": {
+        "name": "Grundpreis"
+      },
+      "monatliche_kosten": {
+        "name": "Monatliche Kosten"
+      },
+      "jahreskosten": {
+        "name": "Jahreskosten (Abschlag)"
+      },
+      "geschaetzte_jahreskosten": {
+        "name": "Geschätzte Jahreskosten"
+      },
+      "verbrauch_kwh": {
+        "name": "Jahresverbrauch (kWh)"
+      },
+      "prognose": {
+        "name": "Abrechnungsprognose"
+      },
+      "restlaufzeit": {
+        "name": "Restlaufzeit"
+      },
+      "ende": {
+        "name": "Vertragsende"
+      },
+      "anbieter": {
+        "name": "Anbieter"
+      },
+      "kundennummer": {
+        "name": "Kundennummer"
+      },
+      "zaehlernummer": {
+        "name": "Zählernummer"
+      },
+      "tarif": {
+        "name": "Tarif"
+      },
+      "naechster_wechsel": {
+        "name": "Nächster Wechsel"
+      },
+      "kuendigung_erinnerung": {
+        "name": "Kündigungs-Erinnerung"
+      },
+      "verbrauch_bisher": {
+        "name": "Verbrauch bisher (Vertrag)"
+      },
+      "verbrauch_hochgerechnet": {
+        "name": "Hochgerechneter Jahresverbrauch"
+      },
+      "prognose_real": {
+        "name": "Abrechnungsprognose (real)"
+      }
+    },
+    "button": {
+      "jetzt_wechseln": {
+        "name": "Jetzt wechseln"
+      },
+      "kuendigung_bestaetigen": {
+        "name": "Kündigung bestätigen"
+      }
+    }
+  }
+}
