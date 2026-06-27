@@ -1,0 +1,216 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add contract",
+        "description": "General contract data.",
+        "data": {
+          "name": "Label (e.g. Electricity House)",
+          "sparte": "Category",
+          "anbieter": "Provider",
+          "kundennummer": "Customer number",
+          "tarif": "Tariff name",
+          "beginn": "Contract start",
+          "ende": "Contract end / valid until",
+          "erinnerung_monate": "Cancellation reminder",
+          "notify_target": "Notification target (notify service)"
+        }
+      },
+      "reconfigure": {
+        "title": "Edit contract",
+        "description": "General contract data.",
+        "data": {
+          "sparte": "Category",
+          "anbieter": "Provider",
+          "kundennummer": "Customer number",
+          "tarif": "Tariff name",
+          "beginn": "Contract start",
+          "ende": "Contract end / valid until",
+          "erinnerung_monate": "Cancellation reminder",
+          "notify_target": "Notification target (notify service)"
+        }
+      },
+      "energie": {
+        "title": "Electricity details",
+        "description": "Prices, usage and meter data.",
+        "data": {
+          "arbeitspreis": "Unit price (€/kWh)",
+          "grundpreis": "Base price (€/month)",
+          "abschlag": "Monthly instalment (€/month)",
+          "jahresverbrauch": "Estimated annual usage (kWh)",
+          "bonus": "Sign-up bonus (€)",
+          "oekostrom": "Green energy",
+          "zaehlernummer": "Meter number",
+          "marktlokation": "Market location (MaLo) / metering point",
+          "preisgarantie": "Price guarantee until"
+        }
+      },
+      "reconfigure_energie": {
+        "title": "Electricity details",
+        "description": "Prices, usage and meter data.",
+        "data": {
+          "arbeitspreis": "Unit price (€/kWh)",
+          "grundpreis": "Base price (€/month)",
+          "abschlag": "Monthly instalment (€/month)",
+          "jahresverbrauch": "Estimated annual usage (kWh)",
+          "bonus": "Sign-up bonus (€)",
+          "oekostrom": "Green energy",
+          "zaehlernummer": "Meter number",
+          "marktlokation": "Market location (MaLo) / metering point",
+          "preisgarantie": "Price guarantee until"
+        }
+      },
+      "gas": {
+        "title": "Gas details",
+        "description": "Prices, usage (m³) and conversion to kWh via calorific value and state number.",
+        "data": {
+          "arbeitspreis": "Unit price (€/kWh)",
+          "grundpreis": "Base price (€/month)",
+          "abschlag": "Monthly instalment (€/month)",
+          "jahresverbrauch": "Estimated annual usage (m³)",
+          "brennwert": "Calorific value (kWh/m³)",
+          "zustandszahl": "State number (Z)",
+          "bonus": "Sign-up bonus (€)",
+          "oekostrom": "Green energy",
+          "zaehlernummer": "Meter number",
+          "marktlokation": "Market location (MaLo) / metering point",
+          "preisgarantie": "Price guarantee until"
+        }
+      },
+      "reconfigure_gas": {
+        "title": "Gas details",
+        "description": "Prices, usage (m³) and conversion to kWh via calorific value and state number.",
+        "data": {
+          "arbeitspreis": "Unit price (€/kWh)",
+          "grundpreis": "Base price (€/month)",
+          "abschlag": "Monthly instalment (€/month)",
+          "jahresverbrauch": "Estimated annual usage (m³)",
+          "brennwert": "Calorific value (kWh/m³)",
+          "zustandszahl": "State number (Z)",
+          "bonus": "Sign-up bonus (€)",
+          "oekostrom": "Green energy",
+          "zaehlernummer": "Meter number",
+          "marktlokation": "Market location (MaLo) / metering point",
+          "preisgarantie": "Price guarantee until"
+        }
+      },
+      "pauschal": {
+        "title": "Cost",
+        "description": "Monthly cost of the contract.",
+        "data": {
+          "abschlag": "Monthly instalment (€/month)",
+          "grundpreis": "Base price (€/month)"
+        }
+      },
+      "reconfigure_pauschal": {
+        "title": "Cost",
+        "description": "Monthly cost of the contract.",
+        "data": {
+          "abschlag": "Monthly instalment (€/month)",
+          "grundpreis": "Base price (€/month)"
+        }
+      }
+    },
+    "abort": {
+      "reconfigure_successful": "Contract updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Plan next contract",
+        "description": "Enter the upcoming tariff. On the switch date Home Assistant promotes it automatically. Empty fields keep the current value. Leave 'Switch date' empty to remove a planned switch.",
+        "data": {
+          "next_beginn": "Switch date (start of new contract)",
+          "next_anbieter": "Provider (new)",
+          "next_kundennummer": "Customer number (new)",
+          "next_tarif": "Tariff name (new)",
+          "next_arbeitspreis": "Unit price new (€/kWh)",
+          "next_grundpreis": "Base price new (€/month)",
+          "next_abschlag": "Instalment new (€/month)",
+          "next_jahresverbrauch": "Annual usage new (kWh / m³)",
+          "next_ende": "Contract end new / valid until"
+        }
+      }
+    }
+  },
+  "selector": {
+    "sparte": {
+      "options": {
+        "strom": "Electricity",
+        "gas": "Gas",
+        "wasser": "Water",
+        "internet": "Internet",
+        "mobilfunk": "Mobile",
+        "versicherung": "Insurance",
+        "sonstiges": "Other"
+      }
+    },
+    "erinnerung": {
+      "options": {
+        "0": "No reminder",
+        "1": "1 month before",
+        "2": "2 months before",
+        "3": "3 months before",
+        "4": "4 months before"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "arbeitspreis": {
+        "name": "Unit price"
+      },
+      "grundpreis": {
+        "name": "Base price"
+      },
+      "monatliche_kosten": {
+        "name": "Monthly cost"
+      },
+      "jahreskosten": {
+        "name": "Annual cost (instalment)"
+      },
+      "geschaetzte_jahreskosten": {
+        "name": "Estimated annual cost"
+      },
+      "verbrauch_kwh": {
+        "name": "Annual usage (kWh)"
+      },
+      "prognose": {
+        "name": "Billing forecast"
+      },
+      "restlaufzeit": {
+        "name": "Remaining term"
+      },
+      "ende": {
+        "name": "Contract end"
+      },
+      "anbieter": {
+        "name": "Provider"
+      },
+      "kundennummer": {
+        "name": "Customer number"
+      },
+      "zaehlernummer": {
+        "name": "Meter number"
+      },
+      "tarif": {
+        "name": "Tariff"
+      },
+      "naechster_wechsel": {
+        "name": "Next switch"
+      },
+      "kuendigung_erinnerung": {
+        "name": "Cancellation reminder"
+      }
+    },
+    "button": {
+      "jetzt_wechseln": {
+        "name": "Switch now"
+      },
+      "kuendigung_bestaetigen": {
+        "name": "Confirm cancellation"
+      }
+    }
+  }
+}
