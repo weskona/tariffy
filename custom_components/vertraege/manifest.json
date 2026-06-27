@@ -1,0 +1,12 @@
+{
+  "domain": "vertraege",
+  "name": "Verträge",
+  "version": "1.4.0",
+  "config_flow": true,
+  "documentation": "https://github.com/weskona/vertraege",
+  "issue_tracker": "https://github.com/weskona/vertraege/issues",
+  "codeowners": ["@weskona"],
+  "iot_class": "calculated",
+  "integration_type": "service",
+  "requirements": []
+}
