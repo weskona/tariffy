@@ -19,11 +19,12 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
-    ABSCHLAG_EINHEIT,
-    ARBEITSPREIS_EINHEIT,
     CONF_ABSCHLAG,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
+    CONF_ARBEITSPREIS_ABWASSER,
+    CONF_ARBEITSPREIS_NACHT,
+    CONF_EINSPEISEVERGUETUNG,
     CONF_BONUS,
     CONF_BRENNWERT,
     CONF_ENDE,
@@ -37,15 +38,12 @@ from .const import (
     CONF_TARIF,
     CONF_ZAEHLERNUMMER,
     CONF_ZUSTANDSZAHL,
-    DEFAULT_ARBEITSPREIS_EINHEIT,
     DOMAIN,
     ENERGIE_SPARTEN,
-    EURO_EINHEIT,
     GAS_SPARTE,
-    GRUNDPREIS_EINHEIT,
-    JAHRESKOSTEN_EINHEIT,
     NEXT_PREFIX,
-    VERBRAUCH_EINHEIT,
+    VERBRAUCH_KWH_EINHEIT,
+    WASSER_SPARTE,
 )
 from .coordinator import TariffyCoordinator
 
@@ -101,6 +99,8 @@ class VertragSensorDescription(SensorEntityDescription):
     attr_fn: Callable[[dict[str, Any]], dict[str, Any]] | None = None
     energie_only: bool = False
     gas_only: bool = False
+    wasser_only: bool = False
+    strom_only: bool = False
 
 
 SENSOREN: tuple[VertragSensorDescription, ...] = (
@@ -115,7 +115,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
     VertragSensorDescription(
         key=CONF_GRUNDPREIS,
         translation_key="grundpreis",
-        native_unit_of_measurement=GRUNDPREIS_EINHEIT,
+        # Einheit wird dynamisch gesetzt
         state_class=SensorStateClass.MEASUREMENT,
         energie_only=True,
         value_fn=lambda d: d.get(CONF_GRUNDPREIS),
@@ -123,21 +123,21 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
     VertragSensorDescription(
         key="monatliche_kosten",
         translation_key="monatliche_kosten",
-        native_unit_of_measurement=ABSCHLAG_EINHEIT,
+        # Einheit wird dynamisch gesetzt
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda d: d.get(CONF_ABSCHLAG),
     ),
     VertragSensorDescription(
         key="jahreskosten",
         translation_key="jahreskosten",
-        native_unit_of_measurement=JAHRESKOSTEN_EINHEIT,
+        # Einheit wird dynamisch gesetzt
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda d: d.get("jahreskosten"),
     ),
     VertragSensorDescription(
         key="geschaetzte_jahreskosten",
         translation_key="geschaetzte_jahreskosten",
-        native_unit_of_measurement=JAHRESKOSTEN_EINHEIT,
+        # Einheit wird dynamisch gesetzt
         state_class=SensorStateClass.MEASUREMENT,
         energie_only=True,
         value_fn=lambda d: d.get("geschaetzte_jahreskosten"),
@@ -145,7 +145,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
     VertragSensorDescription(
         key="verbrauch_kwh",
         translation_key="verbrauch_kwh",
-        native_unit_of_measurement=VERBRAUCH_EINHEIT,
+        native_unit_of_measurement=VERBRAUCH_KWH_EINHEIT,
         state_class=SensorStateClass.MEASUREMENT,
         gas_only=True,
         value_fn=lambda d: d.get("verbrauch_kwh"),
@@ -158,7 +158,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
     VertragSensorDescription(
         key="prognose",
         translation_key="prognose",
-        native_unit_of_measurement=EURO_EINHEIT,
+        # Einheit wird dynamisch gesetzt
         energie_only=True,
         value_fn=lambda d: d.get("prognose"),
         attr_fn=_prognose_attrs,
@@ -218,6 +218,77 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         },
     ),
     VertragSensorDescription(
+        key="arbeitspreis_abwasser",
+        translation_key="arbeitspreis_abwasser",
+        state_class=SensorStateClass.MEASUREMENT,
+        wasser_only=True,
+        value_fn=lambda d: d.get(CONF_ARBEITSPREIS_ABWASSER),
+        attr_fn=lambda d: {
+            "typ": d.get("abwasser_typ"),
+            "pauschal_monat": d.get("abwasser_pauschal_monat"),
+        },
+    ),
+    VertragSensorDescription(
+        key="arbeitspreis_gesamt_wasser",
+        translation_key="arbeitspreis_gesamt_wasser",
+        state_class=SensorStateClass.MEASUREMENT,
+        wasser_only=True,
+        value_fn=lambda d: d.get("arbeitspreis_gesamt_wasser"),
+    ),
+    VertragSensorDescription(
+        key="einspeiseverguetung",
+        translation_key="einspeiseverguetung",
+        state_class=SensorStateClass.MEASUREMENT,
+        strom_only=True,
+        value_fn=lambda d: d.get(CONF_EINSPEISEVERGUETUNG),
+    ),
+    VertragSensorDescription(
+        key="einnahmen_einspeisung",
+        translation_key="einnahmen_einspeisung",
+        state_class=SensorStateClass.MEASUREMENT,
+        strom_only=True,
+        value_fn=lambda d: d.get("einnahmen_einspeisung"),
+        attr_fn=lambda d: {
+            "einspeisung_kwh": d.get("einspeisung_kwh"),
+        },
+    ),
+    VertragSensorDescription(
+        key="nettokosten",
+        translation_key="nettokosten",
+        state_class=SensorStateClass.MEASUREMENT,
+        strom_only=True,
+        value_fn=lambda d: d.get("nettokosten"),
+        attr_fn=lambda d: {
+            "jahreskosten_abschlag": d.get("jahreskosten"),
+            "einnahmen_einspeisung": d.get("einnahmen_einspeisung"),
+        },
+    ),
+    VertragSensorDescription(
+        key="arbeitspreis_nacht",
+        translation_key="arbeitspreis_nacht",
+        state_class=SensorStateClass.MEASUREMENT,
+        energie_only=True,
+        value_fn=lambda d: d.get("arbeitspreis_nacht"),
+        attr_fn=lambda d: {
+            "verbrauch_tag": d.get("jahresverbrauch_tag"),
+            "verbrauch_nacht": d.get("jahresverbrauch_nacht"),
+            "tou_jahreskosten": d.get("tou_jahreskosten"),
+        },
+    ),
+    VertragSensorDescription(
+        key="effektiver_arbeitspreis",
+        translation_key="effektiver_arbeitspreis",
+        state_class=SensorStateClass.MEASUREMENT,
+        energie_only=True,
+        value_fn=lambda d: d.get("effektiver_arbeitspreis"),
+        attr_fn=lambda d: {
+            "tier_limits": d.get("tier_limits"),
+            "tier_prices": d.get("tier_prices"),
+            "tiered_jahreskosten": d.get("tiered_jahreskosten"),
+            "aktiv": d.get("ist_tiered"),
+        },
+    ),
+    VertragSensorDescription(
         key="verbrauch_bisher",
         translation_key="verbrauch_bisher",
         state_class=SensorStateClass.MEASUREMENT,
@@ -237,7 +308,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
     VertragSensorDescription(
         key="prognose_real",
         translation_key="prognose_real",
-        native_unit_of_measurement=EURO_EINHEIT,
+        # Einheit wird dynamisch gesetzt
         energie_only=True,
         value_fn=lambda d: d.get("prognose_real"),
         attr_fn=lambda d: {
@@ -260,10 +331,17 @@ async def async_setup_entry(
     ist_energie = sparte in ENERGIE_SPARTEN
     ist_gas = sparte == GAS_SPARTE
 
+    ist_wasser = sparte == WASSER_SPARTE
+    ist_strom = sparte in ("electricity", "strom")
+
     def _passend(desc: VertragSensorDescription) -> bool:
         if desc.energie_only and not ist_energie:
             return False
         if desc.gas_only and not ist_gas:
+            return False
+        if desc.wasser_only and not ist_wasser:
+            return False
+        if desc.strom_only and not ist_strom:
             return False
         return True
 
@@ -292,10 +370,34 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
             manufacturer=coordinator.data.get(CONF_ANBIETER) or None,
             model=(sparte or "").capitalize() or None,
         )
-        if description.key == CONF_ARBEITSPREIS:
-            self._attr_native_unit_of_measurement = ARBEITSPREIS_EINHEIT.get(
-                sparte, DEFAULT_ARBEITSPREIS_EINHEIT
-            )
+        if description.key in (CONF_ARBEITSPREIS, "arbeitspreis_abwasser", "arbeitspreis_gesamt_wasser", CONF_EINSPEISEVERGUETUNG):
+            currency = coordinator.data.get("currency", "€")
+            wasser_einheit = coordinator.data.get("wasser_einheit", "m³")
+            if sparte in ("electricity", "strom"):
+                self._attr_native_unit_of_measurement = f"{currency}/kWh"
+            elif sparte == GAS_SPARTE:
+                self._attr_native_unit_of_measurement = f"{currency}/kWh"
+            elif sparte == WASSER_SPARTE:
+                self._attr_native_unit_of_measurement = f"{currency}/{wasser_einheit}"
+            else:
+                self._attr_native_unit_of_measurement = currency
+
+    @property
+    def native_unit_of_measurement(self) -> str | None:
+        """Dynamische Einheit basierend auf HA-Währung."""
+        static = self._attr_native_unit_of_measurement
+        if static is not None:
+            return static
+        d = self.coordinator.data
+        currency = d.get("currency", "€")
+        key = self.entity_description.key
+        if key in ("monatliche_kosten", "grundpreis"):
+            return f"{currency}/month"
+        if key in ("jahreskosten", "geschaetzte_jahreskosten"):
+            return f"{currency}/year"
+        if key in ("prognose", "prognose_real", "bonus", "einnahmen_einspeisung", "nettokosten"):
+            return currency
+        return None
 
     @property
     def native_value(self) -> Any:

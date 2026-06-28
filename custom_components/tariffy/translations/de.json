@@ -43,7 +43,23 @@
           "zaehlernummer": "Zählernummer",
           "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
           "preisgarantie": "Preisgarantie bis",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)"
+          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
+          "tiered": "Staffelpreise aktivieren",
+          "tier_limit_0": "Block 1 Obergrenze",
+          "tier_price_0": "Block 1 Preis",
+          "tier_limit_1": "Block 2 Obergrenze",
+          "tier_price_1": "Block 2 Preis",
+          "tier_limit_2": "Block 3 Obergrenze",
+          "tier_price_2": "Block 3 Preis",
+          "tier_limit_3": "Block 4 Obergrenze",
+          "tier_price_3": "Block 4 Preis",
+          "tier_limit_4": "Block 5 Obergrenze",
+          "tier_price_4": "Block 5 Preis",
+          "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
+          "jahresverbrauch_tag": "Jahresverbrauch Tag",
+          "jahresverbrauch_nacht": "Jahresverbrauch Nacht",
+          "einspeiseverguetung": "Einspeiseverguetung (pro kWh, optional)",
+          "einspeisung_sensor": "Einspeisungssensor (optional, aus dem Energy Dashboard)"
         }
       },
       "reconfigure_energie": {
@@ -59,7 +75,23 @@
           "zaehlernummer": "Zählernummer",
           "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
           "preisgarantie": "Preisgarantie bis",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)"
+          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
+          "tiered": "Staffelpreise aktivieren",
+          "tier_limit_0": "Block 1 Obergrenze",
+          "tier_price_0": "Block 1 Preis",
+          "tier_limit_1": "Block 2 Obergrenze",
+          "tier_price_1": "Block 2 Preis",
+          "tier_limit_2": "Block 3 Obergrenze",
+          "tier_price_2": "Block 3 Preis",
+          "tier_limit_3": "Block 4 Obergrenze",
+          "tier_price_3": "Block 4 Preis",
+          "tier_limit_4": "Block 5 Obergrenze",
+          "tier_price_4": "Block 5 Preis",
+          "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
+          "jahresverbrauch_tag": "Jahresverbrauch Tag",
+          "jahresverbrauch_nacht": "Jahresverbrauch Nacht",
+          "einspeiseverguetung": "Einspeiseverguetung (pro kWh, optional)",
+          "einspeisung_sensor": "Einspeisungssensor (optional, aus dem Energy Dashboard)"
         }
       },
       "gas": {
@@ -77,7 +109,22 @@
           "zaehlernummer": "Zählernummer",
           "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
           "preisgarantie": "Preisgarantie bis",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)"
+          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
+          "gas_einheit": "Gaseinheit",
+          "tiered": "Staffelpreise aktivieren",
+          "tier_limit_0": "Block 1 Obergrenze",
+          "tier_price_0": "Block 1 Preis",
+          "tier_limit_1": "Block 2 Obergrenze",
+          "tier_price_1": "Block 2 Preis",
+          "tier_limit_2": "Block 3 Obergrenze",
+          "tier_price_2": "Block 3 Preis",
+          "tier_limit_3": "Block 4 Obergrenze",
+          "tier_price_3": "Block 4 Preis",
+          "tier_limit_4": "Block 5 Obergrenze",
+          "tier_price_4": "Block 5 Preis",
+          "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
+          "jahresverbrauch_tag": "Jahresverbrauch Tag",
+          "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
         }
       },
       "reconfigure_gas": {
@@ -95,7 +142,22 @@
           "zaehlernummer": "Zählernummer",
           "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
           "preisgarantie": "Preisgarantie bis",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)"
+          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
+          "gas_einheit": "Gaseinheit",
+          "tiered": "Staffelpreise aktivieren",
+          "tier_limit_0": "Block 1 Obergrenze",
+          "tier_price_0": "Block 1 Preis",
+          "tier_limit_1": "Block 2 Obergrenze",
+          "tier_price_1": "Block 2 Preis",
+          "tier_limit_2": "Block 3 Obergrenze",
+          "tier_price_2": "Block 3 Preis",
+          "tier_limit_3": "Block 4 Obergrenze",
+          "tier_price_3": "Block 4 Preis",
+          "tier_limit_4": "Block 5 Obergrenze",
+          "tier_price_4": "Block 5 Preis",
+          "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
+          "jahresverbrauch_tag": "Jahresverbrauch Tag",
+          "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
         }
       },
       "pauschal": {
@@ -112,6 +174,56 @@
         "data": {
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "grundpreis": "Grundpreis (€/Monat)"
+        }
+      },
+      "wasser": {
+        "title": "Wasservertrag Details",
+        "data": {
+          "wasser_einheit": "Wassereinheit",
+          "arbeitspreis": "Frischwasserpreis (pro Einheit)",
+          "arbeitspreis_abwasser": "Abwasser: Preis/Einheit, oder % des Frischwassers, oder Pauschale/Monat",
+          "grundpreis": "Grundpreis (pro Monat)",
+          "abschlag": "Monatlicher Abschlag",
+          "jahresverbrauch": "Jahresverbrauch",
+          "zaehlernummer": "Zählernummer",
+          "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "abwasser_typ": "Abwasser-Abrechnungstyp",
+          "tiered": "Staffelpreise aktivieren",
+          "tier_limit_0": "Block 1 Obergrenze",
+          "tier_price_0": "Block 1 Preis",
+          "tier_limit_1": "Block 2 Obergrenze",
+          "tier_price_1": "Block 2 Preis",
+          "tier_limit_2": "Block 3 Obergrenze",
+          "tier_price_2": "Block 3 Preis",
+          "tier_limit_3": "Block 4 Obergrenze",
+          "tier_price_3": "Block 4 Preis",
+          "tier_limit_4": "Block 5 Obergrenze",
+          "tier_price_4": "Block 5 Preis"
+        }
+      },
+      "reconfigure_wasser": {
+        "title": "Wasservertrag Details",
+        "data": {
+          "wasser_einheit": "Wassereinheit",
+          "arbeitspreis": "Frischwasserpreis (pro Einheit)",
+          "arbeitspreis_abwasser": "Abwasser: Preis/Einheit, oder % des Frischwassers, oder Pauschale/Monat",
+          "grundpreis": "Grundpreis (pro Monat)",
+          "abschlag": "Monatlicher Abschlag",
+          "jahresverbrauch": "Jahresverbrauch",
+          "zaehlernummer": "Zählernummer",
+          "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "abwasser_typ": "Abwasser-Abrechnungstyp",
+          "tiered": "Staffelpreise aktivieren",
+          "tier_limit_0": "Block 1 Obergrenze",
+          "tier_price_0": "Block 1 Preis",
+          "tier_limit_1": "Block 2 Obergrenze",
+          "tier_price_1": "Block 2 Preis",
+          "tier_limit_2": "Block 3 Obergrenze",
+          "tier_price_2": "Block 3 Preis",
+          "tier_limit_3": "Block 4 Obergrenze",
+          "tier_price_3": "Block 4 Preis",
+          "tier_limit_4": "Block 5 Obergrenze",
+          "tier_price_4": "Block 5 Preis"
         }
       }
     },
@@ -157,6 +269,13 @@
         "2": "2 Monate vorher",
         "3": "3 Monate vorher",
         "4": "4 Monate vorher"
+      }
+    },
+    "abwasser_typ": {
+      "options": {
+        "price_per_unit": "Fixer Preis pro Einheit (z.B. DE, AT, CH)",
+        "percentage": "Prozentsatz des Frischwasserpreises (z.B. US, UK, AU)",
+        "flat_rate": "Monatliche Pauschale (z.B. FR, BE)"
       }
     }
   },
@@ -215,6 +334,27 @@
       },
       "prognose_real": {
         "name": "Abrechnungsprognose (real)"
+      },
+      "arbeitspreis_abwasser": {
+        "name": "Abwasserpreis"
+      },
+      "arbeitspreis_gesamt_wasser": {
+        "name": "Gesamtwasserpreis (Frisch + Abwasser)"
+      },
+      "effektiver_arbeitspreis": {
+        "name": "Effektiver Arbeitspreis (Staffel-Ø)"
+      },
+      "arbeitspreis_nacht": {
+        "name": "Nachttarif"
+      },
+      "einspeiseverguetung": {
+        "name": "Einspeiseverguetung"
+      },
+      "einnahmen_einspeisung": {
+        "name": "Einspeiseeinnahmen"
+      },
+      "nettokosten": {
+        "name": "Nettostromkosten"
       }
     },
     "button": {
