@@ -1,10 +1,131 @@
-# Tariffy – Vertragsverwaltung für Home Assistant
+# Tariffy – Contract Management for Home Assistant
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/Home%20Assistant-2026.6%2B-blue.svg)](https://www.home-assistant.io)
 [![Version](https://img.shields.io/github/v/release/weskona/tariffy)](https://github.com/weskona/tariffy/releases)
 
-**[🇬🇧 English version below](#-english)**
+**[🇩🇪 Deutsche Version weiter unten](#-deutsch)**
+
+---
+
+## 🇬🇧 English
+
+Tariffy is a Home Assistant custom integration for managing utility and service contracts. Electricity, gas, water, internet, mobile, insurance and more — each contract becomes its own HA device with dedicated sensors. Tariffy automatically reminds you of cancellation deadlines, switches tariffs on the switch date, and calculates costs and billing forecasts based on real consumption data.
+
+---
+
+### Features
+
+- **Categories:** Electricity, Gas, Water, Internet, Mobile, Insurance, Other
+- **Real consumption tracking** – connect any HA sensor as your meter; Tariffy reads the meter value at contract start from Long-Term Statistics and calculates consumption since contract start and projected annual usage
+- **Real billing forecast** – forecast based on actual measured consumption (credit or surcharge)
+- **Automatic tariff switch** – store the next tariff, HA promotes it automatically on the switch date
+- **Cancellation reminder** – 1–4 months before contract end, persistent notification + optional notify service
+- **Gas conversion** – annual consumption in m³ is automatically converted to kWh via calorific value & state number
+- **Water** – fresh water + wastewater (fixed price, % or flat rate)
+- **Tiered pricing** – country-specific (US, AU, ES, …)
+- **Time-of-Use / Night rate** – Economy 7, TOU (GB, US, AU, …)
+- **Feed-in tariff** – per kWh fed into the grid (solar)
+- **Auto-refresh after HA startup** – sensors update automatically once Long-Term Statistics are ready after a restart
+- **Check interval** – every 6 hours
+
+---
+
+### Sensors per contract
+
+| Sensor | Unit | Category | Description |
+|--------|------|----------|-------------|
+| Unit price | €/kWh | Energy | Consumption-based price |
+| Base price | €/month | Energy | Monthly base fee |
+| Monthly cost | €/month | All | Monthly instalment |
+| Annual cost (instalment) | €/year | All | Instalment × 12 |
+| Estimated annual cost | €/year | Energy | Usage × unit price + base price × 12 |
+| Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
+| Annual usage (kWh) | kWh | Gas | m³ converted via calorific value & state number |
+| Fresh water price | €/m³ | Water | Price per unit |
+| Wastewater price | €/m³ | Water | Wastewater charge |
+| Combined water price | €/m³ | Water | Fresh water + wastewater |
+| Consumption so far | kWh/m³ | Energy+Water | Measured consumption since contract start |
+| Projected annual consumption | kWh/m³ | Energy+Water | Current consumption extrapolated to 12 months |
+| Billing forecast (real) | € | Energy+Water | Forecast based on real consumption |
+| Remaining term | Days | All | Days until contract end |
+| Contract start | Date | All | Start date of contract |
+| Contract end | Date | All | End of current contract |
+| Next switch | Date | All | Date of planned tariff switch |
+| Cancellation reminder | Date | All | Date from which the reminder is active |
+| Provider | – | All | Provider name |
+| Tariff | – | All | Tariff name |
+| Customer number | – | All | Customer number (diagnostic) |
+| Meter number | – | Energy | Meter number (diagnostic) |
+
+> **Night rate** and **tiered pricing** sensors only appear when enabled in the config flow.
+
+---
+
+### Real consumption tracking
+
+When a **consumption sensor** is configured, Tariffy reads the historical meter value at contract start from **Long-Term Statistics** and calculates:
+
+```
+Consumption so far      = current meter value − meter value at contract start
+Projected annual        = consumption so far ÷ days elapsed × 365
+Estimated annual cost   = projected × unit price + base price × 12
+Billing forecast        = annual instalment − estimated annual cost
+```
+
+**Positive** = credit · **Negative** = surcharge
+
+> The sensor must have Long-Term Statistics enabled and must have existed since at least the contract start date.
+
+---
+
+### Buttons per contract
+
+| Button | Description |
+|--------|-------------|
+| Switch now | Promotes the stored next tariff immediately (without waiting for the switch date) |
+| Confirm cancellation | Acknowledges the reminder and removes the persistent notification |
+
+---
+
+### Tariff switch
+
+Under **Settings → Integrations → Tariffy → [Contract] → Options** you can store a successor tariff:
+
+- Switch date, new provider, customer number, tariff name
+- New prices and consumption values
+
+On the switch date HA promotes the new tariff automatically. Fields left blank keep their current value.
+
+---
+
+### Cancellation reminder
+
+When contract end is set and the reminder period is reached:
+
+1. **Persistent notification** in the HA notification centre
+2. One-time **push notification** via the configured notify service
+3. **"Confirm cancellation"** button to acknowledge
+
+---
+
+### Installation via HACS
+
+1. HACS → Integrations → ⋮ → **Custom repositories**
+2. URL: `https://github.com/weskona/tariffy` – Category: **Integration**
+3. Install Tariffy → restart HA
+4. Settings → Integrations → **Tariffy** → Add
+
+### Manual installation
+
+```bash
+cp -r custom_components/tariffy /config/custom_components/
+```
+Restart HA.
+
+### Requirements
+
+- Home Assistant 2026.6 or newer
 
 ---
 
@@ -195,80 +316,6 @@ HA neu starten.
 ### Anforderungen
 
 - Home Assistant 2026.6 oder neuer
-
----
-
-## 🇬🇧 English
-
-Tariffy is a Home Assistant custom integration for managing utility and service contracts. Electricity, gas, water, internet, mobile, insurance and more — each contract becomes its own HA device with dedicated sensors. Tariffy automatically reminds you of cancellation deadlines, switches tariffs on the switch date, and calculates costs and billing forecasts based on real consumption data.
-
----
-
-### Features
-
-- **Categories:** Electricity, Gas, Water, Internet, Mobile, Insurance, Other
-- **Real consumption tracking** – connect any HA sensor as your meter; Tariffy reads the meter value at contract start from Long-Term Statistics and calculates consumption since contract start and projected annual usage
-- **Real billing forecast** – forecast based on actual measured consumption (credit or surcharge)
-- **Automatic tariff switch** – store the next tariff, HA promotes it automatically on the switch date
-- **Cancellation reminder** – 1–4 months before contract end, persistent notification + optional notify service
-- **Gas conversion** – annual consumption in m³ is automatically converted to kWh via calorific value & state number
-- **Water** – fresh water + wastewater (fixed price, % or flat rate)
-- **Tiered pricing** – country-specific (US, AU, ES, …)
-- **Time-of-Use / Night rate** – Economy 7, TOU (GB, US, AU, …)
-- **Feed-in tariff** – per kWh fed into the grid (solar)
-- **Auto-refresh after HA startup** – sensors update automatically once Long-Term Statistics are ready after a restart
-- **Check interval** – every 6 hours
-
----
-
-### Sensors per contract
-
-| Sensor | Unit | Category | Description |
-|--------|------|----------|-------------|
-| Unit price | €/kWh | Energy | Consumption-based price |
-| Base price | €/month | Energy | Monthly base fee |
-| Monthly cost | €/month | All | Monthly instalment |
-| Annual cost (instalment) | €/year | All | Instalment × 12 |
-| Estimated annual cost | €/year | Energy | Usage × unit price + base price × 12 |
-| Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
-| Annual usage (kWh) | kWh | Gas | m³ converted via calorific value & state number |
-| Fresh water price | €/m³ | Water | Price per unit |
-| Wastewater price | €/m³ | Water | Wastewater charge |
-| Combined water price | €/m³ | Water | Fresh water + wastewater |
-| Consumption so far | kWh/m³ | Energy+Water | Measured consumption since contract start |
-| Projected annual consumption | kWh/m³ | Energy+Water | Current consumption extrapolated to 12 months |
-| Billing forecast (real) | € | Energy+Water | Forecast based on real consumption |
-| Remaining term | Days | All | Days until contract end |
-| Contract start | Date | All | Start date of contract |
-| Contract end | Date | All | End of current contract |
-| Next switch | Date | All | Date of planned tariff switch |
-| Cancellation reminder | Date | All | Date from which the reminder is active |
-| Provider | – | All | Provider name |
-| Tariff | – | All | Tariff name |
-| Customer number | – | All | Customer number (diagnostic) |
-| Meter number | – | Energy | Meter number (diagnostic) |
-
-> **Night rate** and **tiered pricing** sensors only appear when enabled in the config flow.
-
----
-
-### Installation via HACS
-
-1. HACS → Integrations → ⋮ → **Custom repositories**
-2. URL: `https://github.com/weskona/tariffy` – Category: **Integration**
-3. Install Tariffy → restart HA
-4. Settings → Integrations → **Tariffy** → Add
-
-### Manual installation
-
-```bash
-cp -r custom_components/tariffy /config/custom_components/
-```
-Restart HA.
-
-### Requirements
-
-- Home Assistant 2026.6 or newer
 
 ---
 
