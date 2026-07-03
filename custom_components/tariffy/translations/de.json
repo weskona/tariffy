@@ -14,6 +14,16 @@
           "ende": "Vertragsende / Laufzeit bis",
           "erinnerung_monate": "Kündigung erinnern",
           "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
+        },
+        "data_description": {
+          "name": "Kurze Bezeichnung, die im Gerätenamen erscheint, z. B. 'Strom Haus'",
+          "anbieter": "Name des Energieversorgers oder Anbieters",
+          "kundennummer": "Deine Kundennummer aus den Vertragsunterlagen",
+          "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
+          "beginn": "Datum, ab dem der Vertrag gilt",
+          "ende": "Letzter Gültigkeitstag des Vertrags",
+          "erinnerung_monate": "Wie viele Monate vor Vertragsende soll eine Kündigungs-Erinnerung erscheinen?",
+          "notify_target": "HA-Benachrichtigungsdienst für die Kündigungs-Erinnerung (z. B. notify.mobile_app)"
         }
       },
       "reconfigure": {
@@ -28,6 +38,15 @@
           "ende": "Vertragsende / Laufzeit bis",
           "erinnerung_monate": "Kündigung erinnern",
           "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
+        },
+        "data_description": {
+          "anbieter": "Name des Energieversorgers oder Anbieters",
+          "kundennummer": "Deine Kundennummer aus den Vertragsunterlagen",
+          "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
+          "beginn": "Datum, ab dem der Vertrag gilt",
+          "ende": "Letzter Gültigkeitstag des Vertrags",
+          "erinnerung_monate": "Wie viele Monate vor Vertragsende soll eine Kündigungs-Erinnerung erscheinen?",
+          "notify_target": "HA-Benachrichtigungsdienst für die Kündigungs-Erinnerung (z. B. notify.mobile_app)"
         }
       },
       "energie": {
@@ -38,12 +57,13 @@
           "grundpreis": "Grundpreis (€/Monat)",
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
+          "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "einspeiseverguetung": "Einspeisevergütung (€/kWh, optional)",
           "bonus": "Neukundenbonus / Sofortbonus (€)",
           "oekostrom": "Ökostrom",
           "zaehlernummer": "Zählernummer",
           "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
           "preisgarantie": "Preisgarantie bis",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
           "tiered": "Staffelpreise aktivieren",
           "tier_limit_0": "Block 1 Obergrenze",
           "tier_price_0": "Block 1 Preis",
@@ -57,9 +77,19 @@
           "tier_price_4": "Block 5 Preis",
           "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
           "jahresverbrauch_tag": "Jahresverbrauch Tag",
-          "jahresverbrauch_nacht": "Jahresverbrauch Nacht",
-          "einspeiseverguetung": "Einspeiseverguetung (pro kWh, optional)",
-          "einspeisung_sensor": "Einspeisungssensor (optional, aus dem Energy Dashboard)"
+          "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
+        },
+        "data_description": {
+          "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung",
+          "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
+          "abschlag": "Monatliche Vorauszahlung an den Anbieter",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch in kWh — wird für die Kostenprognose verwendet",
+          "verbrauch_sensor": "HA-Sensor deines Stromzählers — ermöglicht echte Verbrauchsmessung und Abrechnungsprognose",
+          "einspeiseverguetung": "Vergütung pro eingespeister kWh ins Netz (z. B. bei Photovoltaik)",
+          "bonus": "Einmaliger Wechsel- oder Neukundenbonus des Anbieters",
+          "zaehlernummer": "Zählernummer auf deiner Stromrechnung",
+          "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
         }
       },
       "reconfigure_energie": {
@@ -70,12 +100,13 @@
           "grundpreis": "Grundpreis (€/Monat)",
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
+          "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "einspeiseverguetung": "Einspeisevergütung (€/kWh, optional)",
           "bonus": "Neukundenbonus / Sofortbonus (€)",
           "oekostrom": "Ökostrom",
           "zaehlernummer": "Zählernummer",
           "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
           "preisgarantie": "Preisgarantie bis",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
           "tiered": "Staffelpreise aktivieren",
           "tier_limit_0": "Block 1 Obergrenze",
           "tier_price_0": "Block 1 Preis",
@@ -89,19 +120,31 @@
           "tier_price_4": "Block 5 Preis",
           "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
           "jahresverbrauch_tag": "Jahresverbrauch Tag",
-          "jahresverbrauch_nacht": "Jahresverbrauch Nacht",
-          "einspeiseverguetung": "Einspeiseverguetung (pro kWh, optional)",
-          "einspeisung_sensor": "Einspeisungssensor (optional, aus dem Energy Dashboard)"
+          "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
+        },
+        "data_description": {
+          "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung",
+          "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
+          "abschlag": "Monatliche Vorauszahlung an den Anbieter",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch in kWh — wird für die Kostenprognose verwendet",
+          "verbrauch_sensor": "HA-Sensor deines Stromzählers — ermöglicht echte Verbrauchsmessung und Abrechnungsprognose",
+          "einspeiseverguetung": "Vergütung pro eingespeister kWh ins Netz (z. B. bei Photovoltaik)",
+          "bonus": "Einmaliger Wechsel- oder Neukundenbonus des Anbieters",
+          "zaehlernummer": "Zählernummer auf deiner Stromrechnung",
+          "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
         }
       },
       "gas": {
         "title": "Gas-Details",
         "description": "Preise, Verbrauch (m³) und Umrechnung auf kWh über Brennwert und Zustandszahl.",
         "data": {
+          "gas_einheit": "Gaseinheit",
           "arbeitspreis": "Arbeitspreis (€/kWh)",
           "grundpreis": "Grundpreis (€/Monat)",
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (m³)",
+          "verbrauch_sensor": "Verbrauchssensor (optional)",
           "brennwert": "Brennwert (kWh/m³)",
           "zustandszahl": "Zustandszahl",
           "bonus": "Neukundenbonus / Sofortbonus (€)",
@@ -109,8 +152,6 @@
           "zaehlernummer": "Zählernummer",
           "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
           "preisgarantie": "Preisgarantie bis",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
-          "gas_einheit": "Gaseinheit",
           "tiered": "Staffelpreise aktivieren",
           "tier_limit_0": "Block 1 Obergrenze",
           "tier_price_0": "Block 1 Preis",
@@ -125,16 +166,32 @@
           "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
           "jahresverbrauch_tag": "Jahresverbrauch Tag",
           "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
+        },
+        "data_description": {
+          "gas_einheit": "Abrechnungseinheit laut Gasrechnung",
+          "arbeitspreis": "Preis pro kWh Gas — steht auf deiner Gasrechnung",
+          "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
+          "abschlag": "Monatliche Vorauszahlung an den Anbieter",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch in der gewählten Einheit",
+          "verbrauch_sensor": "HA-Sensor deines Gaszählers — ermöglicht echte Verbrauchsmessung",
+          "brennwert": "Brennwert Hs in kWh pro Einheit — steht auf der Gasrechnung",
+          "zustandszahl": "Zustandszahl Z für die Gasvolumenumrechnung — steht auf der Gasrechnung (meist 0,9–1,0)",
+          "bonus": "Einmaliger Wechsel- oder Neukundenbonus des Anbieters",
+          "zaehlernummer": "Zählernummer auf deiner Gasrechnung",
+          "marktlokation": "Marktlokations-ID — steht auf der Gasrechnung",
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
         }
       },
       "reconfigure_gas": {
         "title": "Gas-Details",
         "description": "Preise, Verbrauch (m³) und Umrechnung auf kWh über Brennwert und Zustandszahl.",
         "data": {
+          "gas_einheit": "Gaseinheit",
           "arbeitspreis": "Arbeitspreis (€/kWh)",
           "grundpreis": "Grundpreis (€/Monat)",
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (m³)",
+          "verbrauch_sensor": "Verbrauchssensor (optional)",
           "brennwert": "Brennwert (kWh/m³)",
           "zustandszahl": "Zustandszahl",
           "bonus": "Neukundenbonus / Sofortbonus (€)",
@@ -142,8 +199,6 @@
           "zaehlernummer": "Zählernummer",
           "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
           "preisgarantie": "Preisgarantie bis",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
-          "gas_einheit": "Gaseinheit",
           "tiered": "Staffelpreise aktivieren",
           "tier_limit_0": "Block 1 Obergrenze",
           "tier_price_0": "Block 1 Preis",
@@ -158,6 +213,20 @@
           "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
           "jahresverbrauch_tag": "Jahresverbrauch Tag",
           "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
+        },
+        "data_description": {
+          "gas_einheit": "Abrechnungseinheit laut Gasrechnung",
+          "arbeitspreis": "Preis pro kWh Gas — steht auf deiner Gasrechnung",
+          "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
+          "abschlag": "Monatliche Vorauszahlung an den Anbieter",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch in der gewählten Einheit",
+          "verbrauch_sensor": "HA-Sensor deines Gaszählers — ermöglicht echte Verbrauchsmessung",
+          "brennwert": "Brennwert Hs in kWh pro Einheit — steht auf der Gasrechnung",
+          "zustandszahl": "Zustandszahl Z für die Gasvolumenumrechnung — steht auf der Gasrechnung (meist 0,9–1,0)",
+          "bonus": "Einmaliger Wechsel- oder Neukundenbonus des Anbieters",
+          "zaehlernummer": "Zählernummer auf deiner Gasrechnung",
+          "marktlokation": "Marktlokations-ID — steht auf der Gasrechnung",
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
         }
       },
       "pauschal": {
@@ -166,6 +235,10 @@
         "data": {
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "grundpreis": "Grundpreis (€/Monat)"
+        },
+        "data_description": {
+          "abschlag": "Monatliche Pauschale für diesen Vertrag",
+          "grundpreis": "Optionaler Grundbetrag, falls separat vom Abschlag ausgewiesen"
         }
       },
       "reconfigure_pauschal": {
@@ -174,6 +247,10 @@
         "data": {
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "grundpreis": "Grundpreis (€/Monat)"
+        },
+        "data_description": {
+          "abschlag": "Monatliche Pauschale für diesen Vertrag",
+          "grundpreis": "Optionaler Grundbetrag, falls separat vom Abschlag ausgewiesen"
         }
       },
       "wasser": {
@@ -181,13 +258,13 @@
         "data": {
           "wasser_einheit": "Wassereinheit",
           "arbeitspreis": "Frischwasserpreis (pro Einheit)",
-          "arbeitspreis_abwasser": "Abwasser: Preis/Einheit, oder % des Frischwassers, oder Pauschale/Monat",
           "grundpreis": "Grundpreis (pro Monat)",
           "abschlag": "Monatlicher Abschlag",
           "jahresverbrauch": "Jahresverbrauch",
-          "zaehlernummer": "Zählernummer",
           "verbrauch_sensor": "Verbrauchssensor (optional)",
           "abwasser_typ": "Abwasser-Abrechnungstyp",
+          "arbeitspreis_abwasser": "Abwassergebühr",
+          "zaehlernummer": "Zählernummer",
           "tiered": "Staffelpreise aktivieren",
           "tier_limit_0": "Block 1 Obergrenze",
           "tier_price_0": "Block 1 Preis",
@@ -199,6 +276,17 @@
           "tier_price_3": "Block 4 Preis",
           "tier_limit_4": "Block 5 Obergrenze",
           "tier_price_4": "Block 5 Preis"
+        },
+        "data_description": {
+          "wasser_einheit": "Abrechnungseinheit laut Wasserrechnung",
+          "arbeitspreis": "Preis pro Einheit Frischwasser",
+          "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
+          "abschlag": "Monatliche Vorauszahlung an den Anbieter",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch — wird für die Kostenprognose verwendet",
+          "verbrauch_sensor": "HA-Sensor deines Wasserzählers — ermöglicht echte Verbrauchsmessung",
+          "abwasser_typ": "Art der Abwasserberechnung: Festpreis pro Einheit, % des Frischwasserpreises oder Monatspauschale",
+          "arbeitspreis_abwasser": "Betrag pro Einheit / Prozentsatz / Monatspauschale — je nach gewähltem Typ",
+          "zaehlernummer": "Zählernummer auf deiner Wasserrechnung"
         }
       },
       "reconfigure_wasser": {
@@ -206,13 +294,13 @@
         "data": {
           "wasser_einheit": "Wassereinheit",
           "arbeitspreis": "Frischwasserpreis (pro Einheit)",
-          "arbeitspreis_abwasser": "Abwasser: Preis/Einheit, oder % des Frischwassers, oder Pauschale/Monat",
           "grundpreis": "Grundpreis (pro Monat)",
           "abschlag": "Monatlicher Abschlag",
           "jahresverbrauch": "Jahresverbrauch",
-          "zaehlernummer": "Zählernummer",
           "verbrauch_sensor": "Verbrauchssensor (optional)",
           "abwasser_typ": "Abwasser-Abrechnungstyp",
+          "arbeitspreis_abwasser": "Abwassergebühr",
+          "zaehlernummer": "Zählernummer",
           "tiered": "Staffelpreise aktivieren",
           "tier_limit_0": "Block 1 Obergrenze",
           "tier_price_0": "Block 1 Preis",
@@ -224,6 +312,17 @@
           "tier_price_3": "Block 4 Preis",
           "tier_limit_4": "Block 5 Obergrenze",
           "tier_price_4": "Block 5 Preis"
+        },
+        "data_description": {
+          "wasser_einheit": "Abrechnungseinheit laut Wasserrechnung",
+          "arbeitspreis": "Preis pro Einheit Frischwasser",
+          "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
+          "abschlag": "Monatliche Vorauszahlung an den Anbieter",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch — wird für die Kostenprognose verwendet",
+          "verbrauch_sensor": "HA-Sensor deines Wasserzählers — ermöglicht echte Verbrauchsmessung",
+          "abwasser_typ": "Art der Abwasserberechnung: Festpreis pro Einheit, % des Frischwasserpreises oder Monatspauschale",
+          "arbeitspreis_abwasser": "Betrag pro Einheit / Prozentsatz / Monatspauschale — je nach gewähltem Typ",
+          "zaehlernummer": "Zählernummer auf deiner Wasserrechnung"
         }
       }
     },
@@ -253,13 +352,13 @@
   "selector": {
     "sparte": {
       "options": {
-        "strom": "Strom",
+        "electricity": "Strom",
         "gas": "Gas",
-        "wasser": "Wasser",
+        "water": "Wasser",
         "internet": "Internet",
-        "mobilfunk": "Mobilfunk",
-        "versicherung": "Versicherung",
-        "sonstiges": "Sonstiges"
+        "mobile": "Mobilfunk",
+        "insurance": "Versicherung",
+        "other": "Sonstiges"
       }
     },
     "erinnerung": {
@@ -305,6 +404,9 @@
       "restlaufzeit": {
         "name": "Restlaufzeit"
       },
+      "beginn": {
+        "name": "Vertragsbeginn"
+      },
       "ende": {
         "name": "Vertragsende"
       },
@@ -349,12 +451,6 @@
       },
       "einspeiseverguetung": {
         "name": "Einspeiseverguetung"
-      },
-      "einnahmen_einspeisung": {
-        "name": "Einspeiseeinnahmen"
-      },
-      "nettokosten": {
-        "name": "Nettostromkosten"
       }
     },
     "button": {

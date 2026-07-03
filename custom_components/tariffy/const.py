@@ -72,13 +72,12 @@ CONF_VERBRAUCH_SENSOR = "verbrauch_sensor"
 
 # Einspeiseverguetung (nur Strom)
 CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"
-CONF_EINSPEISUNG_SENSOR = "einspeisung_sensor"
 
 # Feed-in tariff: available worldwide, no country restriction
 
-ENERGIE_SPARTEN = ("strom", "gas")
+ENERGIE_SPARTEN = ("electricity", "gas")
 GAS_SPARTE = "gas"
-WASSER_SPARTE = "wasser"
+WASSER_SPARTE = "water"
 ENERGIE_SPARTEN_MIT_WASSER = ("strom", "gas", "wasser")
 
 # Kündigungs-Erinnerung
@@ -125,7 +124,6 @@ BASIS_FELDER = [
     CONF_JAHRESVERBRAUCH_NACHT,
     CONF_JAHRESVERBRAUCH_TAG,
     CONF_EINSPEISEVERGUETUNG,
-    CONF_EINSPEISUNG_SENSOR,
 ]
 
 SPARTEN = [
@@ -161,6 +159,8 @@ GRUNDPREIS_SUFFIX = "/month"
 ABSCHLAG_SUFFIX = "/month"
 JAHRESKOSTEN_SUFFIX = "/year"
 VERBRAUCH_KWH_EINHEIT = "kWh"
+VERBRAUCH_EINHEIT = "kWh"
+VERBRAUCH_M3_EINHEIT = "m³"
 BRENNWERT_SUFFIX_M3 = "kWh/m³"
 BRENNWERT_SUFFIX_CCF = "kWh/CCF"
 BRENNWERT_SUFFIX_FT3 = "kWh/ft³"

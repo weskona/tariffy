@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta
 import logging
 from typing import TYPE_CHECKING, Any
 
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
@@ -43,7 +44,6 @@ from .const import (
     CONF_ARBEITSPREIS_ABWASSER,
     CONF_ARBEITSPREIS_NACHT,
     CONF_EINSPEISEVERGUETUNG,
-    CONF_EINSPEISUNG_SENSOR,
     CONF_JAHRESVERBRAUCH_NACHT,
     CONF_JAHRESVERBRAUCH_TAG,
     CONF_TIER_LIMITS,
@@ -56,6 +56,7 @@ from .const import (
     WASSER_SPARTE,
     NEXT_PREFIX,
     NOTIFY_ID_PREFIX,
+    SPARTEN_MIGRATION,
 )
 
 if TYPE_CHECKING:
@@ -142,42 +143,90 @@ def _minus_months(d: date, months: int) -> date:
 async def _get_historic_value(
     hass: HomeAssistant, entity_id: str, at_date: date
 ) -> float | None:
-    """Liest den Sensorwert zum Zeitpunkt des Vertragsbeginns aus dem Recorder."""
+    """Liest den Sensorwert zum Vertragsbeginn aus den Long-Term Statistics."""
     try:
         from homeassistant.components.recorder import get_instance
-        from homeassistant.components.recorder.history import get_last_state_changes
+        from homeassistant.components.recorder.statistics import statistics_during_period
 
-        start_dt = datetime.combine(at_date, datetime.min.time()).replace(
-            tzinfo=dt_util.get_default_time_zone()
-        )
-        end_dt = start_dt + timedelta(days=1)
+        tz = dt_util.get_default_time_zone()
+        # Suche ab dem Vortag bis 3 Tage danach um den nächsten verfügbaren Wert zu finden
+        start_dt = datetime.combine(at_date - timedelta(days=1), datetime.min.time()).replace(tzinfo=tz)
+        end_dt = datetime.combine(at_date + timedelta(days=3), datetime.min.time()).replace(tzinfo=tz)
 
         instance = get_instance(hass)
-        states = await instance.async_add_executor_job(
-            lambda: _fetch_states(hass, entity_id, start_dt, end_dt)
+        stats = await instance.async_add_executor_job(
+            lambda: statistics_during_period(
+                hass,
+                start_dt,
+                end_dt,
+                statistic_ids={entity_id},
+                period="hour",
+                units={},
+                types={"state"},
+            )
         )
 
-        if states:
-            for state in reversed(states):
-                val = _f(state.state)
+        entries = stats.get(entity_id, [])
+        if entries:
+            # Ersten Eintrag am oder nach dem Vertragsbeginn nehmen
+            # In HA 2026+ liefert statistics_during_period den start-Wert als
+            # Unix-Timestamp (float), nicht als datetime — beide Fälle abdecken
+            at_ts = datetime.combine(at_date, datetime.min.time()).replace(tzinfo=tz).timestamp()
+            for entry in entries:
+                entry_start = entry.get("start")
+                if entry_start is None:
+                    continue
+                # Normalisieren: float (Unix-ts) oder datetime → float
+                if isinstance(entry_start, (int, float)):
+                    entry_ts = float(entry_start)
+                else:
+                    entry_ts = entry_start.timestamp()
+                if entry_ts >= at_ts:
+                    val = entry.get("state")
+                    if val is not None:
+                        _LOGGER.debug(
+                            "Tariffy: LTS-Offset für %s am %s = %.3f",
+                            entity_id, at_date, val,
+                        )
+                        return float(val)
+            # Fallback: letzten Eintrag vor Vertragsbeginn nehmen
+            for entry in reversed(entries):
+                val = entry.get("state")
                 if val is not None:
-                    return val
-    except Exception as err:  # noqa: BLE001
-        _LOGGER.debug(
-            "History-Abfrage für %s fehlgeschlagen: %s", entity_id, err
+                    _LOGGER.debug(
+                        "Tariffy: LTS-Offset (vor Beginn) für %s = %.3f",
+                        entity_id, val,
+                    )
+                    return float(val)
+
+        # Kein Eintrag im Suchfenster — frühesten verfügbaren LTS-Wert suchen
+        # 730 Tage = 2 Jahre, deckt Sensoren ab die erst lange nach Vertragsbeginn
+        # existierten (z.B. neu eingerichtete Zähler)
+        stats_all = await instance.async_add_executor_job(
+            lambda: statistics_during_period(
+                hass,
+                end_dt,
+                end_dt + timedelta(days=730),
+                statistic_ids={entity_id},
+                period="hour",
+                units={},
+                types={"state"},
+            )
         )
+        early_entries = stats_all.get(entity_id, [])
+        for entry in early_entries:
+            val = entry.get("state")
+            if val is not None:
+                _LOGGER.debug(
+                    "Tariffy: Frühester LTS-Offset für %s = %.3f (Sensor existierte "
+                    "noch nicht am Vertragsbeginn)",
+                    entity_id, val,
+                )
+                return float(val)
+
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.warning("Tariffy: LTS-Abfrage für %s fehlgeschlagen: %s", entity_id, err)
     return None
-
-
-def _fetch_states(hass: HomeAssistant, entity_id: str, start: datetime, end: datetime):
-    """Synchroner Abruf der States aus dem Recorder."""
-    try:
-        from homeassistant.components.recorder.history import state_changes_during_period
-        return state_changes_during_period(
-            hass, start, end, entity_id, include_start_time_state=True
-        ).get(entity_id, [])
-    except Exception:  # noqa: BLE001
-        return []
 
 
 class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -190,6 +239,15 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.entry = entry
         self._verbrauch_offset: float | None = None
         self._verbrauch_offset_date: date | None = None
+
+        async def _startup_refresh(_event: Any) -> None:
+            """Refresh nach HA-Start, damit LTS-Daten verfügbar sind."""
+            if entry.data.get(CONF_VERBRAUCH_SENSOR):
+                await self.async_refresh()
+
+        entry.async_on_unload(
+            hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _startup_refresh)
+        )
 
     @property
     def _notification_id(self) -> str:
@@ -404,7 +462,6 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Aktuellen Sensorwert lesen
             state = self.hass.states.get(verbrauch_sensor)
             aktuell = _f(state.state) if state else None
-
             if aktuell is not None:
                 # Offset zum Vertragsbeginn holen
                 offset = await self._get_verbrauch_offset(verbrauch_sensor, beginn)
@@ -412,11 +469,12 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if offset is not None:
                     verbrauch_bisher = round(aktuell - offset, 2)
                 else:
-                    # Fallback: kein History-Eintrag → gesamten aktuellen Wert nehmen
+                    # LTS für Vertragsbeginn nicht verfügbar — Sensor bleibt unbekannt.
+                    # Kein Fallback-Offset setzen: beim nächsten Refresh erneut abfragen.
                     _LOGGER.debug(
-                        "Tariffy '%s': kein History-Offset gefunden, "
-                        "Fallback auf Schätzverbrauch",
-                        self.entry.title,
+                        "Tariffy '%s': Kein LTS-Offset für %s am %s — "
+                        "verbrauch_bisher unbekannt.",
+                        self.entry.title, verbrauch_sensor, beginn,
                     )
 
                 if verbrauch_bisher is not None and verbrauch_bisher > 0:
@@ -433,9 +491,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         else:
                             verbrauch_kwh_real = verbrauch_hochgerechnet
 
-                        if arbeitspreis is not None:
+                        ap_real = (
+                            arbeitspreis_gesamt_wasser
+                            if sparte == WASSER_SPARTE and arbeitspreis_gesamt_wasser is not None
+                            else arbeitspreis
+                        )
+                        if ap_real is not None:
                             geschaetzte_kosten_real = round(
-                                verbrauch_kwh_real * arbeitspreis
+                                verbrauch_kwh_real * ap_real
                                 + (grundpreis or 0) * 12,
                                 2,
                             )
@@ -498,7 +561,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else None
             )
 
-        # Einspeiseverguetung Platzhalter bereits oben
+        # Einspeiseverguetung — nur als Eingabewert gespeichert, keine Berechnung
+        einspeiseverguetung = _f(data.get(CONF_EINSPEISEVERGUETUNG))
+
         prognose = (
             round(abschlagssumme - geschaetzte_kosten, 2)
             if (abschlagssumme is not None and geschaetzte_kosten is not None)
@@ -528,9 +593,6 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "abwasser_pauschal_monat": abwasser_pauschal_monat,
             "hat_tag_nacht": hat_tag_nacht,
             CONF_EINSPEISEVERGUETUNG: einspeiseverguetung,
-            "einspeisung_kwh": einspeisung_kwh,
-            "einnahmen_einspeisung": einnahmen_einspeisung,
-            "nettokosten": nettokosten,
             CONF_ARBEITSPREIS_NACHT: arbeitspreis_nacht,
             CONF_JAHRESVERBRAUCH_TAG: verbrauch_tag,
             CONF_JAHRESVERBRAUCH_NACHT: verbrauch_nacht,

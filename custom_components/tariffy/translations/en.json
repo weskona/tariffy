@@ -137,13 +137,13 @@
   "selector": {
     "sparte": {
       "options": {
-        "strom": "Electricity",
+        "electricity": "Electricity",
         "gas": "Gas",
-        "wasser": "Water",
+        "water": "Water",
         "internet": "Internet",
-        "mobilfunk": "Mobile",
-        "versicherung": "Insurance",
-        "sonstiges": "Other"
+        "mobile": "Mobile",
+        "insurance": "Insurance",
+        "other": "Other"
       }
     },
     "erinnerung": {

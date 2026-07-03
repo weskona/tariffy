@@ -14,6 +14,16 @@
           "ende": "Contract end / valid until",
           "erinnerung_monate": "Cancellation reminder",
           "notify_target": "Notification target (notify service)"
+        },
+        "data_description": {
+          "name": "Short label shown in the device name, e.g. 'Electricity House'",
+          "anbieter": "Name of the energy provider or supplier",
+          "kundennummer": "Your customer number from the provider's documents",
+          "tarif": "Tariff name, e.g. 'Eco Power Plus'",
+          "beginn": "Date from which the contract is valid",
+          "ende": "Last day of the contract term",
+          "erinnerung_monate": "How many months before contract end to show a cancellation reminder",
+          "notify_target": "Home Assistant notification service for the cancellation reminder"
         }
       },
       "reconfigure": {
@@ -28,6 +38,15 @@
           "ende": "Contract end / valid until",
           "erinnerung_monate": "Cancellation reminder",
           "notify_target": "Notification target (notify service)"
+        },
+        "data_description": {
+          "anbieter": "Name of the energy provider or supplier",
+          "kundennummer": "Your customer number from the provider's documents",
+          "tarif": "Tariff name, e.g. 'Eco Power Plus'",
+          "beginn": "Date from which the contract is valid",
+          "ende": "Last day of the contract term",
+          "erinnerung_monate": "How many months before contract end to show a cancellation reminder",
+          "notify_target": "Home Assistant notification service for the cancellation reminder"
         }
       },
       "energie": {
@@ -38,12 +57,13 @@
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
           "bonus": "Sign-up bonus (€)",
           "oekostrom": "Green energy",
           "zaehlernummer": "Meter number",
           "marktlokation": "Market location (MaLo) / metering point",
           "preisgarantie": "Price guarantee until",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
           "tiered": "Enable tiered/block pricing",
           "tier_limit_0": "Block 1 limit",
           "tier_price_0": "Block 1 price",
@@ -57,9 +77,19 @@
           "tier_price_4": "Block 5 price",
           "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
           "jahresverbrauch_tag": "Annual daytime usage",
-          "jahresverbrauch_nacht": "Annual night-time usage",
-          "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
-          "einspeisung_sensor": "Feed-in energy sensor (optional, from Energy Dashboard)"
+          "jahresverbrauch_nacht": "Annual night-time usage"
+        },
+        "data_description": {
+          "arbeitspreis": "Price per kWh consumed — found on your electricity bill",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual consumption in kWh — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your electricity meter — enables real consumption tracking and billing forecast",
+          "einspeiseverguetung": "Feed-in tariff per kWh fed into the grid (e.g. for solar)",
+          "bonus": "One-time sign-up or switch bonus from the provider",
+          "zaehlernummer": "Meter number from your electricity bill",
+          "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       },
       "reconfigure_energie": {
@@ -70,12 +100,13 @@
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
           "bonus": "Sign-up bonus (€)",
           "oekostrom": "Green energy",
           "zaehlernummer": "Meter number",
           "marktlokation": "Market location (MaLo) / metering point",
           "preisgarantie": "Price guarantee until",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
           "tiered": "Enable tiered/block pricing",
           "tier_limit_0": "Block 1 limit",
           "tier_price_0": "Block 1 price",
@@ -89,19 +120,31 @@
           "tier_price_4": "Block 5 price",
           "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
           "jahresverbrauch_tag": "Annual daytime usage",
-          "jahresverbrauch_nacht": "Annual night-time usage",
-          "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
-          "einspeisung_sensor": "Feed-in energy sensor (optional, from Energy Dashboard)"
+          "jahresverbrauch_nacht": "Annual night-time usage"
+        },
+        "data_description": {
+          "arbeitspreis": "Price per kWh consumed — found on your electricity bill",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual consumption in kWh — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your electricity meter — enables real consumption tracking and billing forecast",
+          "einspeiseverguetung": "Feed-in tariff per kWh fed into the grid (e.g. for solar)",
+          "bonus": "One-time sign-up or switch bonus from the provider",
+          "zaehlernummer": "Meter number from your electricity bill",
+          "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       },
       "gas": {
         "title": "Gas details",
         "description": "Prices, usage (m³) and conversion to kWh via calorific value and state number.",
         "data": {
+          "gas_einheit": "Gas unit",
           "arbeitspreis": "Unit price (€/kWh)",
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (m³)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
           "brennwert": "Calorific value (kWh/m³)",
           "zustandszahl": "State number (Z)",
           "bonus": "Sign-up bonus (€)",
@@ -109,8 +152,6 @@
           "zaehlernummer": "Meter number",
           "marktlokation": "Market location (MaLo) / metering point",
           "preisgarantie": "Price guarantee until",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
-          "gas_einheit": "Gas unit",
           "tiered": "Enable tiered/block pricing",
           "tier_limit_0": "Block 1 limit",
           "tier_price_0": "Block 1 price",
@@ -125,16 +166,32 @@
           "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
           "jahresverbrauch_tag": "Annual daytime usage",
           "jahresverbrauch_nacht": "Annual night-time usage"
+        },
+        "data_description": {
+          "gas_einheit": "Unit used on your gas bill",
+          "arbeitspreis": "Price per kWh of gas — found on your gas bill",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual gas consumption in the selected unit",
+          "verbrauch_sensor": "HA sensor tracking your gas meter — enables real consumption tracking",
+          "brennwert": "Calorific value Hs in kWh per unit — printed on your gas bill",
+          "zustandszahl": "Conversion factor Z for gas volume — printed on your gas bill (usually 0.9–1.0)",
+          "bonus": "One-time sign-up or switch bonus",
+          "zaehlernummer": "Meter number from your gas bill",
+          "marktlokation": "Market location ID from your gas bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       },
       "reconfigure_gas": {
         "title": "Gas details",
         "description": "Prices, usage (m³) and conversion to kWh via calorific value and state number.",
         "data": {
+          "gas_einheit": "Gas unit",
           "arbeitspreis": "Unit price (€/kWh)",
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (m³)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
           "brennwert": "Calorific value (kWh/m³)",
           "zustandszahl": "State number (Z)",
           "bonus": "Sign-up bonus (€)",
@@ -142,8 +199,6 @@
           "zaehlernummer": "Meter number",
           "marktlokation": "Market location (MaLo) / metering point",
           "preisgarantie": "Price guarantee until",
-          "verbrauch_sensor": "Verbrauchssensor (optional, für Hochrechnung)",
-          "gas_einheit": "Gas unit",
           "tiered": "Enable tiered/block pricing",
           "tier_limit_0": "Block 1 limit",
           "tier_price_0": "Block 1 price",
@@ -158,6 +213,20 @@
           "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
           "jahresverbrauch_tag": "Annual daytime usage",
           "jahresverbrauch_nacht": "Annual night-time usage"
+        },
+        "data_description": {
+          "gas_einheit": "Unit used on your gas bill",
+          "arbeitspreis": "Price per kWh of gas — found on your gas bill",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual gas consumption in the selected unit",
+          "verbrauch_sensor": "HA sensor tracking your gas meter — enables real consumption tracking",
+          "brennwert": "Calorific value Hs in kWh per unit — printed on your gas bill",
+          "zustandszahl": "Conversion factor Z for gas volume — printed on your gas bill (usually 0.9–1.0)",
+          "bonus": "One-time sign-up or switch bonus",
+          "zaehlernummer": "Meter number from your gas bill",
+          "marktlokation": "Market location ID from your gas bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       },
       "pauschal": {
@@ -166,6 +235,10 @@
         "data": {
           "abschlag": "Monthly instalment (€/month)",
           "grundpreis": "Base price (€/month)"
+        },
+        "data_description": {
+          "abschlag": "Monthly flat rate for this contract",
+          "grundpreis": "Optional base charge if billed separately from the instalment"
         }
       },
       "reconfigure_pauschal": {
@@ -174,6 +247,10 @@
         "data": {
           "abschlag": "Monthly instalment (€/month)",
           "grundpreis": "Base price (€/month)"
+        },
+        "data_description": {
+          "abschlag": "Monthly flat rate for this contract",
+          "grundpreis": "Optional base charge if billed separately from the instalment"
         }
       },
       "wasser": {
@@ -181,13 +258,13 @@
         "data": {
           "wasser_einheit": "Water unit",
           "arbeitspreis": "Fresh water price (per unit)",
-          "arbeitspreis_abwasser": "Wastewater: price/unit, or % of freshwater, or flat rate/month",
           "grundpreis": "Base price (per month)",
           "abschlag": "Monthly instalment",
           "jahresverbrauch": "Annual usage",
-          "zaehlernummer": "Meter number",
           "verbrauch_sensor": "Consumption sensor (optional)",
           "abwasser_typ": "Wastewater billing type",
+          "arbeitspreis_abwasser": "Wastewater charge",
+          "zaehlernummer": "Meter number",
           "tiered": "Enable tiered/block pricing",
           "tier_limit_0": "Block 1 limit",
           "tier_price_0": "Block 1 price",
@@ -199,6 +276,17 @@
           "tier_price_3": "Block 4 price",
           "tier_limit_4": "Block 5 limit",
           "tier_price_4": "Block 5 price"
+        },
+        "data_description": {
+          "wasser_einheit": "Unit used on your water bill",
+          "arbeitspreis": "Price per unit of fresh water",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual water consumption — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your water meter — enables real consumption tracking",
+          "abwasser_typ": "How wastewater is billed: fixed price per unit, % of fresh water, or flat monthly rate",
+          "arbeitspreis_abwasser": "Price per unit / percentage / flat monthly rate depending on billing type above",
+          "zaehlernummer": "Meter number from your water bill"
         }
       },
       "reconfigure_wasser": {
@@ -206,13 +294,13 @@
         "data": {
           "wasser_einheit": "Water unit",
           "arbeitspreis": "Fresh water price (per unit)",
-          "arbeitspreis_abwasser": "Wastewater: price/unit, or % of freshwater, or flat rate/month",
           "grundpreis": "Base price (per month)",
           "abschlag": "Monthly instalment",
           "jahresverbrauch": "Annual usage",
-          "zaehlernummer": "Meter number",
           "verbrauch_sensor": "Consumption sensor (optional)",
           "abwasser_typ": "Wastewater billing type",
+          "arbeitspreis_abwasser": "Wastewater charge",
+          "zaehlernummer": "Meter number",
           "tiered": "Enable tiered/block pricing",
           "tier_limit_0": "Block 1 limit",
           "tier_price_0": "Block 1 price",
@@ -224,6 +312,17 @@
           "tier_price_3": "Block 4 price",
           "tier_limit_4": "Block 5 limit",
           "tier_price_4": "Block 5 price"
+        },
+        "data_description": {
+          "wasser_einheit": "Unit used on your water bill",
+          "arbeitspreis": "Price per unit of fresh water",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual water consumption — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your water meter — enables real consumption tracking",
+          "abwasser_typ": "How wastewater is billed: fixed price per unit, % of fresh water, or flat monthly rate",
+          "arbeitspreis_abwasser": "Price per unit / percentage / flat monthly rate depending on billing type above",
+          "zaehlernummer": "Meter number from your water bill"
         }
       }
     },
@@ -253,13 +352,13 @@
   "selector": {
     "sparte": {
       "options": {
-        "strom": "Electricity",
+        "electricity": "Electricity",
         "gas": "Gas",
-        "wasser": "Water",
+        "water": "Water",
         "internet": "Internet",
-        "mobilfunk": "Mobile",
-        "versicherung": "Insurance",
-        "sonstiges": "Other"
+        "mobile": "Mobile",
+        "insurance": "Insurance",
+        "other": "Other"
       }
     },
     "erinnerung": {
@@ -305,6 +404,9 @@
       "restlaufzeit": {
         "name": "Remaining term"
       },
+      "beginn": {
+        "name": "Contract start"
+      },
       "ende": {
         "name": "Contract end"
       },
@@ -349,12 +451,6 @@
       },
       "einspeiseverguetung": {
         "name": "Feed-in tariff"
-      },
-      "einnahmen_einspeisung": {
-        "name": "Feed-in revenue"
-      },
-      "nettokosten": {
-        "name": "Net electricity costs"
       }
     },
     "button": {
