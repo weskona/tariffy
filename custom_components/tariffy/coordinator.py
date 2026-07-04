@@ -34,6 +34,7 @@ from .const import (
     CONF_PREISGARANTIE,
     CONF_SPARTE,
     CONF_TARIF,
+    CONF_VERBRAUCH_LETZTE_LAUFZEIT,
     CONF_VERBRAUCH_SENSOR,
     CONF_ZAEHLERNUMMER,
     CONF_ZUSTANDSZAHL,
@@ -254,7 +255,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return f"{NOTIFY_ID_PREFIX}{self.entry.entry_id}"
 
     # -------------------------------------------------------------- Wechsel
-    def _switch_now(self) -> None:
+    def _switch_now(self, verbrauch_letzte: float | None = None) -> None:
         nxt = dict(self.entry.options)
         if not nxt:
             return
@@ -266,11 +267,17 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for feld in BASIS_FELDER:
             wert = nxt.get(NEXT_PREFIX + feld)
             new_data[feld] = wert if wert not in (None, "") else self.entry.data.get(feld)
+        # Verbrauch der letzten Laufzeit einfrieren
+        if verbrauch_letzte is not None:
+            new_data[CONF_VERBRAUCH_LETZTE_LAUFZEIT] = verbrauch_letzte
+        elif self.entry.data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT) is not None:
+            new_data[CONF_VERBRAUCH_LETZTE_LAUFZEIT] = self.entry.data[CONF_VERBRAUCH_LETZTE_LAUFZEIT]
         _LOGGER.info(
-            "Tariffy '%s': automatischer Wechsel zu '%s' (%s)",
+            "Tariffy '%s': automatischer Wechsel zu '%s' (%s) — Verbrauch letzte Laufzeit: %s",
             self.entry.title,
             new_data.get(CONF_ANBIETER),
             new_data.get(CONF_TARIF),
+            verbrauch_letzte,
         )
         # Offset zurücksetzen — neuer Vertrag, neuer Startpunkt
         self._verbrauch_offset = None
@@ -364,7 +371,15 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         nxt = dict(self.entry.options)
         wechsel = _parse_date(nxt.get(NEXT_PREFIX + CONF_BEGINN)) if nxt else None
         if wechsel is not None and wechsel <= heute:
-            self._switch_now()
+            # Verbrauch der letzten Laufzeit vor dem Wechsel einfrieren
+            _vll: float | None = None
+            _sensor_id = self.entry.data.get(CONF_VERBRAUCH_SENSOR)
+            if _sensor_id and self._verbrauch_offset is not None:
+                _state = self.hass.states.get(_sensor_id)
+                _aktuell = _f(_state.state) if _state else None
+                if _aktuell is not None:
+                    _vll = round(_aktuell - self._verbrauch_offset, 2)
+            self._switch_now(_vll)
             nxt = {}
 
         data = dict(self.entry.data)
@@ -570,6 +585,27 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             else None
         )
 
+        # Verbrauch letzte Laufzeit (eingefroren beim Tarifwechsel)
+        verbrauch_letzte_laufzeit = _f(data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT))
+
+        # Empfohlener Abschlag auf Basis der letzten Vertragslaufzeit
+        empfohlener_abschlag: float | None = None
+        if verbrauch_letzte_laufzeit is not None and verbrauch_letzte_laufzeit > 0:
+            # Gas: m³ → kWh
+            if sparte == GAS_SPARTE and brennwert and zustandszahl:
+                _vll_kwh = verbrauch_letzte_laufzeit * brennwert * zustandszahl
+            else:
+                _vll_kwh = verbrauch_letzte_laufzeit
+            _ap = (
+                arbeitspreis_gesamt_wasser
+                if sparte == WASSER_SPARTE and arbeitspreis_gesamt_wasser is not None
+                else arbeitspreis
+            )
+            if _ap is not None:
+                empfohlener_abschlag = round(
+                    (_vll_kwh * _ap + (grundpreis or 0) * 12) / 12, 2
+                )
+
         monate = int(data.get(CONF_ERINNERUNG_MONATE) or 0)
         bestaetigt = bool(data.get(CONF_KUENDIGUNG_BESTAETIGT))
         erinnerung_datum = (
@@ -627,6 +663,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "verbrauch_bisher": verbrauch_bisher,
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,
             "prognose_real": prognose_real,
+            "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,
+            "empfohlener_abschlag": empfohlener_abschlag,
             "erinnerung_datum": erinnerung_datum,
             "erinnerung_aktiv": aktiv,
             "erinnerung_bestaetigt": bestaetigt,

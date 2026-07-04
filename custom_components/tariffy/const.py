@@ -69,6 +69,7 @@ LAENDER_ABWASSER_PAUSCHAL = {"FR", "BE", "LU"}
 
 # Echte Verbrauchsmessung
 CONF_VERBRAUCH_SENSOR = "verbrauch_sensor"
+CONF_VERBRAUCH_LETZTE_LAUFZEIT = "verbrauch_letzte_laufzeit"
 
 # Einspeiseverguetung (nur Strom)
 CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"

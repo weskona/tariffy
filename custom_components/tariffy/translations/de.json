@@ -386,14 +386,11 @@
       "grundpreis": {
         "name": "Grundpreis"
       },
-      "monatliche_kosten": {
-        "name": "Monatliche Kosten"
-      },
       "jahreskosten": {
-        "name": "Jahreskosten (Abschlag)"
+        "name": "Jahreskosten"
       },
       "geschaetzte_jahreskosten": {
-        "name": "Geschätzte Jahreskosten"
+        "name": "Jahreskosten (Geschätzt)"
       },
       "verbrauch_kwh": {
         "name": "Jahresverbrauch (kWh)"
@@ -429,28 +426,37 @@
         "name": "Kündigungs-Erinnerung"
       },
       "verbrauch_bisher": {
-        "name": "Verbrauch bisher (Vertrag)"
+        "name": "Verbrauch (Bisher)"
       },
       "verbrauch_hochgerechnet": {
-        "name": "Hochgerechneter Jahresverbrauch"
+        "name": "Jahresverbrauch (Hochgerechnet)"
       },
       "prognose_real": {
-        "name": "Abrechnungsprognose (real)"
+        "name": "Prognose (Real)"
       },
       "arbeitspreis_abwasser": {
-        "name": "Abwasserpreis"
+        "name": "Arbeitspreis (Abwasser)"
       },
       "arbeitspreis_gesamt_wasser": {
-        "name": "Gesamtwasserpreis (Frisch + Abwasser)"
+        "name": "Wasserpreis (Gesamt)"
       },
       "effektiver_arbeitspreis": {
-        "name": "Effektiver Arbeitspreis (Staffel-Ø)"
+        "name": "Arbeitspreis (Effektiv)"
       },
       "arbeitspreis_nacht": {
-        "name": "Nachttarif"
+        "name": "Arbeitspreis (Nacht)"
       },
       "einspeiseverguetung": {
-        "name": "Einspeiseverguetung"
+        "name": "Einspeisevergütung"
+      },
+      "verbrauch_letzte_laufzeit": {
+        "name": "Verbrauch (Letzte Laufzeit)"
+      },
+      "empfohlener_abschlag": {
+        "name": "Abschlag (Empfohlen)"
+      },
+      "abschlag": {
+        "name": "Abschlag"
       }
     },
     "button": {

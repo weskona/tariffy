@@ -386,14 +386,11 @@
       "grundpreis": {
         "name": "Base price"
       },
-      "monatliche_kosten": {
-        "name": "Monthly cost"
-      },
       "jahreskosten": {
-        "name": "Annual cost (instalment)"
+        "name": "Annual cost"
       },
       "geschaetzte_jahreskosten": {
-        "name": "Estimated annual cost"
+        "name": "Annual cost (estimated)"
       },
       "verbrauch_kwh": {
         "name": "Annual usage (kWh)"
@@ -429,28 +426,37 @@
         "name": "Cancellation reminder"
       },
       "verbrauch_bisher": {
-        "name": "Consumption so far (contract)"
+        "name": "Consumption (so far)"
       },
       "verbrauch_hochgerechnet": {
-        "name": "Projected annual consumption"
+        "name": "Annual consumption (projected)"
       },
       "prognose_real": {
         "name": "Billing forecast (real)"
       },
       "arbeitspreis_abwasser": {
-        "name": "Wastewater price"
+        "name": "Unit price (wastewater)"
       },
       "arbeitspreis_gesamt_wasser": {
-        "name": "Combined water price"
+        "name": "Water price (combined)"
       },
       "effektiver_arbeitspreis": {
-        "name": "Effective unit price (tiered avg.)"
+        "name": "Unit price (effective)"
       },
       "arbeitspreis_nacht": {
-        "name": "Night rate"
+        "name": "Unit price (night)"
       },
       "einspeiseverguetung": {
         "name": "Feed-in tariff"
+      },
+      "verbrauch_letzte_laufzeit": {
+        "name": "Consumption (last period)"
+      },
+      "empfohlener_abschlag": {
+        "name": "Monthly payment (recommended)"
+      },
+      "abschlag": {
+        "name": "Monthly payment"
       }
     },
     "button": {

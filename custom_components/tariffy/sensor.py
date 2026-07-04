@@ -53,6 +53,27 @@ if TYPE_CHECKING:
     from . import TariffyConfigEntry
 
 
+_CURRENCY_ICON: dict[str, str] = {
+    "EUR": "mdi:currency-eur",
+    "USD": "mdi:currency-usd",
+    "GBP": "mdi:currency-gbp",
+    "JPY": "mdi:currency-jpy",
+    "CNY": "mdi:currency-cny",
+    "KRW": "mdi:currency-krw",
+    "INR": "mdi:currency-inr",
+    "RUB": "mdi:currency-rub",
+    "BRL": "mdi:currency-brl",
+    "TRY": "mdi:currency-try",
+    "ILS": "mdi:currency-ils",
+    "MYR": "mdi:currency-myr",
+    "NGN": "mdi:currency-ngn",
+    "PHP": "mdi:currency-php",
+    "THB": "mdi:currency-thb",
+    "TWD": "mdi:currency-twd",
+    "VND": "mdi:currency-vnd",
+}
+
+
 def _fmt_date(d: date | None) -> str | None:
     return d.strftime("%d.%m.%Y") if d else None
 
@@ -101,6 +122,7 @@ class VertragSensorDescription(SensorEntityDescription):
     strom_only: bool = False
     tag_nacht_only: bool = False
     tiered_only: bool = False
+    currency_icon: bool = False
 
 
 SENSOREN: tuple[VertragSensorDescription, ...] = (
@@ -122,10 +144,10 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get(CONF_GRUNDPREIS),
     ),
     VertragSensorDescription(
-        key="monatliche_kosten",
-        translation_key="monatliche_kosten",
-        icon="mdi:cash-monthly",
+        key=CONF_ABSCHLAG,
+        translation_key="abschlag",
         state_class=SensorStateClass.MEASUREMENT,
+        currency_icon=True,
         value_fn=lambda d: d.get(CONF_ABSCHLAG),
     ),
     VertragSensorDescription(
@@ -181,6 +203,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         key=CONF_ANBIETER,
         translation_key="anbieter",
         icon="mdi:domain",
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda d: d.get(CONF_ANBIETER),
     ),
     VertragSensorDescription(
@@ -202,6 +225,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         key=CONF_TARIF,
         translation_key="tarif",
         icon="mdi:tag-text",
+        entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda d: d.get(CONF_TARIF),
     ),
     VertragSensorDescription(
@@ -308,6 +332,31 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
             "verbrauch_hochgerechnet": d.get("verbrauch_hochgerechnet"),
         },
     ),
+    VertragSensorDescription(
+        key="verbrauch_letzte_laufzeit",
+        translation_key="verbrauch_letzte_laufzeit",
+        icon="mdi:history",
+        state_class=SensorStateClass.MEASUREMENT,
+        energie_only=True,
+        value_fn=lambda d: d.get("verbrauch_letzte_laufzeit"),
+    ),
+    VertragSensorDescription(
+        key="empfohlener_abschlag",
+        translation_key="empfohlener_abschlag",
+        icon="mdi:cash-check",
+        state_class=SensorStateClass.MEASUREMENT,
+        energie_only=True,
+        value_fn=lambda d: d.get("empfohlener_abschlag"),
+        attr_fn=lambda d: {
+            "verbrauch_letzte_laufzeit": d.get("verbrauch_letzte_laufzeit"),
+            "aktueller_abschlag": d.get("abschlag"),
+            "differenz": (
+                round(d["empfohlener_abschlag"] - d["abschlag"], 2)
+                if d.get("empfohlener_abschlag") is not None and d.get("abschlag") is not None
+                else None
+            ),
+        },
+    ),
 )
 
 
@@ -374,19 +423,28 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
                 self._attr_native_unit_of_measurement = f"{currency}/{wasser_einheit}"
             else:
                 self._attr_native_unit_of_measurement = f"{currency}/kWh"
-        elif key in ("monatliche_kosten", "grundpreis"):
+        elif key in (CONF_ABSCHLAG, "grundpreis"):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
         elif key in ("jahreskosten", "geschaetzte_jahreskosten"):
             self._attr_native_unit_of_measurement = f"{currency}/Jahr"
         elif key in ("prognose_real", "bonus"):
             self._attr_native_unit_of_measurement = currency
-        elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet"):
+        elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit"):
             if sparte == GAS_SPARTE:
                 self._attr_native_unit_of_measurement = d.get("gas_einheit", "m³")
             elif sparte == WASSER_SPARTE:
                 self._attr_native_unit_of_measurement = d.get("wasser_einheit", "m³")
             else:
                 self._attr_native_unit_of_measurement = VERBRAUCH_KWH_EINHEIT
+        elif key == "empfohlener_abschlag":
+            self._attr_native_unit_of_measurement = f"{currency}/Monat"
+
+    @property
+    def icon(self) -> str | None:
+        if self.entity_description.currency_icon:
+            currency = (self.coordinator.data or {}).get("currency", "EUR")
+            return _CURRENCY_ICON.get(currency, "mdi:cash")
+        return self.entity_description.icon
 
     @property
     def native_value(self) -> Any:
