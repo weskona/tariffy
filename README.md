@@ -19,6 +19,8 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 - **Categories:** Electricity, Gas, Water, Internet, Mobile, Insurance, Other
 - **Real consumption tracking** – connect any HA sensor as your meter; Tariffy reads the meter value at contract start from Long-Term Statistics and calculates consumption since contract start and projected annual usage
 - **Real billing forecast** – forecast based on actual measured consumption (credit or surcharge)
+- **Last contract period consumption** – frozen at tariff switch; used to calculate the recommended monthly payment for the new period
+- **Recommended monthly payment** – based on last period's real consumption × current rates
 - **Automatic tariff switch** – store the next tariff, HA promotes it automatically on the switch date
 - **Cancellation reminder** – 1–4 months before contract end, persistent notification + optional notify service
 - **Gas conversion** – annual consumption in m³ is automatically converted to kWh via calorific value & state number
@@ -36,25 +38,28 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 | Sensor | Unit | Category | Description |
 |--------|------|----------|-------------|
 | Unit price | €/kWh | Energy | Consumption-based price |
+| Unit price (night) | €/kWh | Energy | Night rate (TOU/Economy 7) |
+| Unit price (effective) | €/kWh | Energy | Effective average price (tiered) |
+| Unit price (wastewater) | €/m³ | Water | Wastewater charge |
+| Water price (combined) | €/m³ | Water | Fresh water + wastewater |
 | Base price | €/month | Energy | Monthly base fee |
-| Monthly cost | €/month | All | Monthly instalment |
-| Annual cost (instalment) | €/year | All | Instalment × 12 |
-| Estimated annual cost | €/year | Energy | Usage × unit price + base price × 12 |
+| Monthly payment | €/month | All | Monthly instalment |
+| Monthly payment (recommended) | €/month | Energy | Based on last period consumption × current rates |
+| Annual cost | €/year | All | Instalment × 12 |
+| Annual cost (estimated) | €/year | Energy | Usage × unit price + base price × 12 |
 | Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
-| Annual usage (kWh) | kWh | Gas | m³ converted via calorific value & state number |
-| Fresh water price | €/m³ | Water | Price per unit |
-| Wastewater price | €/m³ | Water | Wastewater charge |
-| Combined water price | €/m³ | Water | Fresh water + wastewater |
-| Consumption so far | kWh/m³ | Energy+Water | Measured consumption since contract start |
-| Projected annual consumption | kWh/m³ | Energy+Water | Current consumption extrapolated to 12 months |
+| Annual consumption (kWh) | kWh | Gas | m³ converted via calorific value & state number |
+| Consumption (so far) | kWh/m³ | Energy+Water | Measured consumption since contract start |
+| Annual consumption (projected) | kWh/m³ | Energy+Water | Current consumption extrapolated to 12 months |
+| Consumption (last period) | kWh/m³ | Energy | Frozen at tariff switch — basis for recommended payment |
 | Billing forecast (real) | € | Energy+Water | Forecast based on real consumption |
 | Remaining term | Days | All | Days until contract end |
 | Contract start | Date | All | Start date of contract |
 | Contract end | Date | All | End of current contract |
 | Next switch | Date | All | Date of planned tariff switch |
 | Cancellation reminder | Date | All | Date from which the reminder is active |
-| Provider | – | All | Provider name |
-| Tariff | – | All | Tariff name |
+| Provider | – | All | Provider name (diagnostic) |
+| Tariff | – | All | Tariff name (diagnostic) |
 | Customer number | – | All | Customer number (diagnostic) |
 | Meter number | – | Energy | Meter number (diagnostic) |
 
@@ -67,15 +72,28 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 When a **consumption sensor** is configured, Tariffy reads the historical meter value at contract start from **Long-Term Statistics** and calculates:
 
 ```
-Consumption so far      = current meter value − meter value at contract start
-Projected annual        = consumption so far ÷ days elapsed × 365
-Estimated annual cost   = projected × unit price + base price × 12
-Billing forecast        = annual instalment − estimated annual cost
+Consumption so far           = current meter value − meter value at contract start
+Annual consumption projected = consumption so far ÷ days elapsed × 365
+Annual cost estimated        = projected × unit price + base price × 12
+Billing forecast             = annual instalment − estimated annual cost
 ```
 
 **Positive** = credit · **Negative** = surcharge
 
 > The sensor must have Long-Term Statistics enabled and must have existed since at least the contract start date.
+
+---
+
+### Last contract period & recommended payment
+
+When a tariff switch occurs, Tariffy freezes the total consumption of the expiring contract period:
+
+```
+Consumption (last period)          = meter at switch date − meter at contract start
+Monthly payment (recommended)      = (last period consumption × new unit price + new base price × 12) / 12
+```
+
+This gives a data-driven recommendation for the monthly instalment in the new contract.
 
 ---
 
@@ -140,6 +158,8 @@ Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- u
 - **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges
 - **Echte Verbrauchsmessung** – beliebigen HA-Sensor als Zähler einbinden; Tariffy liest den Stand zum Vertragsbeginn aus den Long-Term Statistics und berechnet Verbrauch seit Vertragsbeginn sowie hochgerechneten Jahresverbrauch
 - **Abrechnungsprognose (real)** – Prognose basierend auf dem tatsächlich gemessenen Verbrauch (Guthaben oder Nachzahlung)
+- **Verbrauch letzte Vertragslaufzeit** – wird beim Tarifwechsel eingefroren; Basis für den empfohlenen Abschlag
+- **Empfohlener Abschlag** – berechnet aus realem Verbrauch der letzten Laufzeit × aktuelle Preise
 - **Automatischer Tarifwechsel** – Folgetarif hinterlegen, HA übernimmt ihn am Wechseldatum automatisch
 - **Kündigungs-Erinnerung** – 1–4 Monate vor Vertragsende, Dauerbenachrichtigung + optionaler notify-Dienst, Bestätigen-Button
 - **Gas-Umrechnung** – Jahresverbrauch in m³ wird automatisch via Brennwert & Zustandszahl in kWh umgerechnet
@@ -226,25 +246,28 @@ Wie Strom, zusätzlich:
 | Sensor | Einheit | Sparte | Beschreibung |
 |--------|---------|--------|-------------|
 | Arbeitspreis | €/kWh | Energie | Verbrauchsabhängiger Preis |
+| Arbeitspreis (Nacht) | €/kWh | Energie | Nachttarif (TOU/Economy 7) |
+| Arbeitspreis (Effektiv) | €/kWh | Energie | Effektiver Ø-Preis bei Staffeltarif |
+| Arbeitspreis (Abwasser) | €/m³ | Wasser | Abwassergebühr |
+| Wasserpreis (Gesamt) | €/m³ | Wasser | Frischwasser + Abwasser kombiniert |
 | Grundpreis | €/Monat | Energie | Monatliche Grundgebühr |
-| Monatliche Kosten | €/Monat | Alle | Monatlicher Abschlag |
-| Jahreskosten (Abschlag) | €/Jahr | Alle | Abschlag × 12 |
-| Geschätzte Jahreskosten | €/Jahr | Energie | Verbrauch × Arbeitspreis + Grundpreis × 12 |
+| Abschlag | €/Monat | Alle | Monatlicher Abschlag |
+| Abschlag (Empfohlen) | €/Monat | Energie | Basiert auf realem Verbrauch der letzten Laufzeit × aktuelle Preise |
+| Jahreskosten | €/Jahr | Alle | Abschlag × 12 |
+| Jahreskosten (Geschätzt) | €/Jahr | Energie | Verbrauch × Arbeitspreis + Grundpreis × 12 |
 | Einspeisevergütung | €/kWh | Strom | Eingetragene Vergütung pro kWh |
 | Jahresverbrauch (kWh) | kWh | Gas | m³ umgerechnet via Brennwert & Zustandszahl |
-| Frischwasserpreis | €/m³ | Wasser | Preis pro Einheit Frischwasser |
-| Abwasserpreis | €/m³ | Wasser | Abwassergebühr |
-| Gesamtwasserpreis | €/m³ | Wasser | Frischwasser + Abwasser kombiniert |
-| Verbrauch bisher (Vertrag) | kWh/m³ | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn |
-| Hochgerechneter Jahresverbrauch | kWh/m³ | Energie+Wasser | Aktueller Verbrauch auf 12 Monate hochgerechnet |
-| Abrechnungsprognose (real) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs |
+| Verbrauch (Bisher) | kWh/m³ | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn |
+| Jahresverbrauch (Hochgerechnet) | kWh/m³ | Energie+Wasser | Aktueller Verbrauch auf 12 Monate hochgerechnet |
+| Verbrauch (Letzte Laufzeit) | kWh/m³ | Energie | Eingefroren beim Tarifwechsel |
+| Prognose (Real) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs |
 | Restlaufzeit | Tage | Alle | Tage bis Vertragsende |
 | Vertragsbeginn | Datum | Alle | Startdatum des Vertrags |
 | Vertragsende | Datum | Alle | Ende des aktuellen Vertrags |
 | Nächster Wechsel | Datum | Alle | Datum des geplanten Tarifwechsels |
 | Kündigungs-Erinnerung | Datum | Alle | Datum ab dem erinnert wird |
-| Anbieter | – | Alle | Name des Anbieters |
-| Tarif | – | Alle | Tarifbezeichnung |
+| Anbieter | – | Alle | Name des Anbieters (Diagnose) |
+| Tarif | – | Alle | Tarifbezeichnung (Diagnose) |
 | Kundennummer | – | Alle | Kundennummer (Diagnose) |
 | Zählernummer | – | Energie | Zählernummer (Diagnose) |
 
@@ -257,15 +280,28 @@ Wie Strom, zusätzlich:
 Wenn ein **Verbrauchssensor** eingetragen ist, liest Tariffy beim Vertragsbeginn den historischen Zählerstand aus den **Long-Term Statistics** und berechnet:
 
 ```
-Verbrauch bisher      = aktueller Zählerstand − Zählerstand am Vertragsbeginn
-Hochgerechnet         = Verbrauch bisher ÷ vergangene Tage × 365
-Geschätzte Kosten     = Hochgerechnet × Arbeitspreis + Grundpreis × 12
-Abrechnungsprognose   = Jahresabschlag − Geschätzte Kosten
+Verbrauch (Bisher)             = aktueller Zählerstand − Zählerstand am Vertragsbeginn
+Jahresverbrauch (Hochgerechnet)= Verbrauch bisher ÷ vergangene Tage × 365
+Jahreskosten (Geschätzt)       = Hochgerechnet × Arbeitspreis + Grundpreis × 12
+Prognose (Real)                = Jahresabschlag − Geschätzte Kosten
 ```
 
 **Positiv** = Guthaben · **Negativ** = Nachzahlung
 
 > Der Sensor muss Long-Term Statistics aktiviert haben und mindestens seit Vertragsbeginn existieren.
+
+---
+
+### Verbrauch letzte Laufzeit & empfohlener Abschlag
+
+Beim Tarifwechsel friert Tariffy den Gesamtverbrauch der ablaufenden Vertragslaufzeit ein:
+
+```
+Verbrauch (Letzte Laufzeit) = Zählerstand am Wechseltag − Zählerstand am Vertragsbeginn
+Abschlag (Empfohlen)        = (Letzte Laufzeit × neuer Arbeitspreis + neuer Grundpreis × 12) / 12
+```
+
+So erhält man eine datenbasierte Empfehlung für den monatlichen Abschlag im neuen Vertrag.
 
 ---
 
