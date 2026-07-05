@@ -45,8 +45,8 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 | Base price | €/month | Energy | Monthly base fee |
 | Monthly payment | €/month | All | Monthly instalment |
 | Monthly payment (recommended) | €/month | Energy | Based on last period consumption × current rates |
-| Annual cost | €/year | All | Instalment × 12 |
-| Annual cost (estimated) | €/year | Energy | Usage × unit price + base price × 12 |
+| Cost (contract period) | € | All | Instalment × contract duration in months |
+| Cost (so far) | € | Energy+Water | Actual costs incurred since contract start (real consumption) |
 | Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
 | Annual consumption (kWh) | kWh | Gas | m³ converted via calorific value & state number |
 | Consumption (so far) | kWh/m³ | Energy+Water | Measured consumption since contract start |
@@ -74,8 +74,8 @@ When a **consumption sensor** is configured, Tariffy reads the historical meter 
 ```
 Consumption so far           = current meter value − meter value at contract start
 Annual consumption projected = consumption so far ÷ days elapsed × 365
-Annual cost estimated        = projected × unit price + base price × 12
-Billing forecast             = annual instalment − estimated annual cost
+Cost (so far)                = consumption so far × unit price + base price × months elapsed
+Billing forecast (real)      = instalment total − projected cost over contract period
 ```
 
 **Positive** = credit · **Negative** = surcharge
@@ -253,8 +253,8 @@ Wie Strom, zusätzlich:
 | Grundpreis | €/Monat | Energie | Monatliche Grundgebühr |
 | Abschlag | €/Monat | Alle | Monatlicher Abschlag |
 | Abschlag (Empfohlen) | €/Monat | Energie | Basiert auf realem Verbrauch der letzten Laufzeit × aktuelle Preise |
-| Jahreskosten | €/Jahr | Alle | Abschlag × 12 |
-| Jahreskosten (Geschätzt) | €/Jahr | Energie | Verbrauch × Arbeitspreis + Grundpreis × 12 |
+| Kosten (Vertragslaufzeit) | € | Alle | Abschlag × Laufzeit in Monaten |
+| Kosten (Bisher) | € | Energie+Wasser | Tatsächlich angefallene Kosten seit Vertragsbeginn (Echte Messung) |
 | Einspeisevergütung | €/kWh | Strom | Eingetragene Vergütung pro kWh |
 | Jahresverbrauch (kWh) | kWh | Gas | m³ umgerechnet via Brennwert & Zustandszahl |
 | Verbrauch (Bisher) | kWh/m³ | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn |
@@ -282,8 +282,8 @@ Wenn ein **Verbrauchssensor** eingetragen ist, liest Tariffy beim Vertragsbeginn
 ```
 Verbrauch (Bisher)             = aktueller Zählerstand − Zählerstand am Vertragsbeginn
 Jahresverbrauch (Hochgerechnet)= Verbrauch bisher ÷ vergangene Tage × 365
-Jahreskosten (Geschätzt)       = Hochgerechnet × Arbeitspreis + Grundpreis × 12
-Prognose (Real)                = Jahresabschlag − Geschätzte Kosten
+Kosten (Bisher)                = Verbrauch bisher × Arbeitspreis + Grundpreis × vergangene Monate
+Prognose (Real)                = Kosten (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
 ```
 
 **Positiv** = Guthaben · **Negativ** = Nachzahlung

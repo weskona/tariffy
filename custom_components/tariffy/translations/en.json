@@ -165,16 +165,10 @@
         "name": "Base price"
       },
       "jahreskosten": {
-        "name": "Annual cost"
-      },
-      "geschaetzte_jahreskosten": {
-        "name": "Annual cost (estimated)"
+        "name": "Cost (contract period)"
       },
       "verbrauch_kwh": {
         "name": "Annual usage (kWh)"
-      },
-      "prognose": {
-        "name": "Billing forecast"
       },
       "restlaufzeit": {
         "name": "Remaining term"
@@ -223,6 +217,9 @@
       },
       "einspeiseverguetung": {
         "name": "Feed-in tariff"
+      },
+      "kosten_bisher": {
+        "name": "Cost (so far)"
       },
       "verbrauch_bisher": {
         "name": "Consumption (so far)"

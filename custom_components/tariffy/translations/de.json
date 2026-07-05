@@ -387,16 +387,10 @@
         "name": "Grundpreis"
       },
       "jahreskosten": {
-        "name": "Jahreskosten"
-      },
-      "geschaetzte_jahreskosten": {
-        "name": "Jahreskosten (Geschätzt)"
+        "name": "Kosten (Vertragslaufzeit)"
       },
       "verbrauch_kwh": {
         "name": "Jahresverbrauch (kWh)"
-      },
-      "prognose": {
-        "name": "Abrechnungsprognose"
       },
       "restlaufzeit": {
         "name": "Restlaufzeit"
@@ -448,6 +442,9 @@
       },
       "einspeiseverguetung": {
         "name": "Einspeisevergütung"
+      },
+      "kosten_bisher": {
+        "name": "Kosten (Bisher)"
       },
       "verbrauch_letzte_laufzeit": {
         "name": "Verbrauch (Letzte Laufzeit)"

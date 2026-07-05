@@ -158,14 +158,6 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get("jahreskosten"),
     ),
     VertragSensorDescription(
-        key="geschaetzte_jahreskosten",
-        translation_key="geschaetzte_jahreskosten",
-        icon="mdi:calculator",
-        state_class=SensorStateClass.MEASUREMENT,
-        energie_only=True,
-        value_fn=lambda d: d.get("geschaetzte_jahreskosten"),
-    ),
-    VertragSensorDescription(
         key="verbrauch_kwh",
         translation_key="verbrauch_kwh",
         icon="mdi:fire",
@@ -333,6 +325,17 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         },
     ),
     VertragSensorDescription(
+        key="kosten_bisher",
+        translation_key="kosten_bisher",
+        currency_icon=True,
+        state_class=SensorStateClass.MEASUREMENT,
+        energie_only=True,
+        value_fn=lambda d: d.get("kosten_bisher"),
+        attr_fn=lambda d: {
+            "verbrauch_bisher": d.get("verbrauch_bisher"),
+        },
+    ),
+    VertragSensorDescription(
         key="verbrauch_letzte_laufzeit",
         translation_key="verbrauch_letzte_laufzeit",
         icon="mdi:history",
@@ -425,9 +428,9 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
                 self._attr_native_unit_of_measurement = f"{currency}/kWh"
         elif key in (CONF_ABSCHLAG, "grundpreis"):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
-        elif key in ("jahreskosten", "geschaetzte_jahreskosten"):
-            self._attr_native_unit_of_measurement = f"{currency}/Jahr"
-        elif key in ("prognose_real", "bonus"):
+        elif key == "jahreskosten":
+            self._attr_native_unit_of_measurement = currency
+        elif key in ("prognose_real", "bonus", "kosten_bisher"):
             self._attr_native_unit_of_measurement = currency
         elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit"):
             if sparte == GAS_SPARTE:

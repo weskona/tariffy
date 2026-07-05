@@ -400,6 +400,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ende = _parse_date(data.get(CONF_ENDE))
         beginn = _parse_date(data.get(CONF_BEGINN))
         restlaufzeit = (ende - heute).days if ende is not None else None
+        laufzeit_monate = (ende - beginn).days / 30.44 if (beginn and ende) else 12.0
+        laufzeit_faktor = laufzeit_monate / 12.0
 
         arbeitspreis = _f(data.get(CONF_ARBEITSPREIS))
         grundpreis = _f(data.get(CONF_GRUNDPREIS))
@@ -465,7 +467,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 abwasser_pauschal_monat = arbeitspreis_abwasser_raw
                 arbeitspreis_gesamt_wasser = arbeitspreis  # Arbeitspreis bleibt gleich
 
-        abschlagssumme = round(abschlag * 12, 2) if abschlag is not None else None
+        abschlagssumme = round(abschlag * laufzeit_monate, 2) if abschlag is not None else None
 
         # ---- Echte Verbrauchsmessung via Sensor ----
         verbrauch_sensor = data.get(CONF_VERBRAUCH_SENSOR)
@@ -513,8 +515,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         )
                         if ap_real is not None:
                             geschaetzte_kosten_real = round(
-                                verbrauch_kwh_real * ap_real
-                                + (grundpreis or 0) * 12,
+                                verbrauch_kwh_real * laufzeit_faktor * ap_real
+                                + (grundpreis or 0) * laufzeit_monate,
                                 2,
                             )
                             if abschlagssumme is not None:
@@ -522,11 +524,27 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                                     abschlagssumme - geschaetzte_kosten_real, 2
                                 )
 
-        # Geschätzte Kosten (aus eingetragenem Jahresverbrauch)
-        if sparte == WASSER_SPARTE and arbeitspreis_gesamt_wasser is not None:
-            _ap_fuer_kosten = arbeitspreis_gesamt_wasser
-        else:
-            _ap_fuer_kosten = arbeitspreis
+        # Tatsächliche Kosten bisher (auf Basis realer Messung)
+        kosten_bisher: float | None = None
+        if verbrauch_bisher is not None and beginn is not None:
+            _vergangene_tage_kb = (heute - beginn).days
+            if _vergangene_tage_kb >= 0:
+                _vergangene_monate_kb = _vergangene_tage_kb / 30.44
+                if sparte == GAS_SPARTE and brennwert and zustandszahl:
+                    _vb_abr = verbrauch_bisher * brennwert * zustandszahl
+                else:
+                    _vb_abr = verbrauch_bisher
+                _ap_kb = (
+                    arbeitspreis_gesamt_wasser
+                    if sparte == WASSER_SPARTE and arbeitspreis_gesamt_wasser is not None
+                    else arbeitspreis
+                )
+                if _ap_kb is not None:
+                    kosten_bisher = round(
+                        _vb_abr * _ap_kb + (grundpreis or 0) * _vergangene_monate_kb,
+                        2,
+                    )
+
         # Tag/Nacht-Tarif (Economy 7 / TOU)
         arbeitspreis_nacht = _f(data.get(CONF_ARBEITSPREIS_NACHT))
         verbrauch_tag = _f(data.get(CONF_JAHRESVERBRAUCH_TAG))
@@ -559,31 +577,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if tiered_jahreskosten is not None and verbrauch_kwh > 0:
                 effektiver_arbeitspreis = round(tiered_jahreskosten / verbrauch_kwh, 6)
 
-        # Geschätzte Kosten (aus eingetragenem Jahresverbrauch)
-        if hat_tag_nacht and tou_jahreskosten is not None:
-            geschaetzte_kosten = round(
-                tou_jahreskosten + (grundpreis or 0) * 12, 2
-            )
-        elif ist_tiered and tiered_jahreskosten is not None:
-            geschaetzte_kosten = round(
-                tiered_jahreskosten + (grundpreis or 0) * 12
-                + (abwasser_pauschal_monat or 0) * 12, 2
-            )
-        else:
-            geschaetzte_kosten = (
-                round(verbrauch_kwh * _ap_fuer_kosten + (grundpreis or 0) * 12, 2)
-                if (verbrauch_kwh and _ap_fuer_kosten is not None)
-                else None
-            )
-
         # Einspeiseverguetung — nur als Eingabewert gespeichert, keine Berechnung
         einspeiseverguetung = _f(data.get(CONF_EINSPEISEVERGUETUNG))
-
-        prognose = (
-            round(abschlagssumme - geschaetzte_kosten, 2)
-            if (abschlagssumme is not None and geschaetzte_kosten is not None)
-            else None
-        )
 
         # Verbrauch letzte Laufzeit (eingefroren beim Tarifwechsel)
         verbrauch_letzte_laufzeit = _f(data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT))
@@ -658,11 +653,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ENDE: ende,
             "restlaufzeit": restlaufzeit,
             "jahreskosten": abschlagssumme,
-            "geschaetzte_jahreskosten": geschaetzte_kosten,
-            "prognose": prognose,
             "verbrauch_bisher": verbrauch_bisher,
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,
             "prognose_real": prognose_real,
+            "kosten_bisher": kosten_bisher,
             "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,
             "empfohlener_abschlag": empfohlener_abschlag,
             "erinnerung_datum": erinnerung_datum,
