@@ -50,9 +50,9 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 | Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
 | Annual consumption (kWh) | kWh | Gas | m³ converted via calorific value & state number |
 | Consumption (so far) | kWh/m³ | Energy+Water | Measured consumption since contract start |
-| Annual consumption (projected) | kWh/m³ | Energy+Water | Current consumption extrapolated to 12 months |
+| Consumption (contract term projected) | kWh/m³ | Energy+Water | Current consumption extrapolated to the full contract term (not a fixed calendar year) |
 | Consumption (last period) | kWh/m³ | Energy | Frozen at tariff switch — basis for recommended payment |
-| Billing forecast (real) | € | Energy+Water | Forecast based on real consumption |
+| Cost (forecast real) | € | Energy+Water | Forecast based on real consumption |
 | Remaining term | Days | All | Days until contract end |
 | Contract start | Date | All | Start date of contract |
 | Contract end | Date | All | End of current contract |
@@ -72,13 +72,17 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 When a **consumption sensor** is configured, Tariffy reads the historical meter value at contract start from **Long-Term Statistics** and calculates:
 
 ```
-Consumption so far           = current meter value − meter value at contract start
-Annual consumption projected = consumption so far ÷ days elapsed × 365
-Cost (so far)                = consumption so far × unit price + base price × months elapsed
-Billing forecast (real)      = instalment total − projected cost over contract period
+Consumption so far                    = current meter value − meter value at contract start
+Consumption (contract term projected) = consumption so far ÷ days elapsed × contract term (days)
+Cost (so far)                         = consumption so far × unit price + base price × months elapsed
+Cost (forecast real)                  = instalment total − projected cost over contract period
 ```
 
 **Positive** = credit · **Negative** = surcharge
+
+The contract term used for the projection is `contract end − contract start` in days (falls back to 365 if no end date is set) — a contract that runs for e.g. 6 months is projected onto those 6 months, not a full calendar year.
+
+Both the current meter value and the historical value at contract start are read from the recorder's **cumulative `sum` statistic**, not the sensor's raw state. This makes the calculation robust against sensors with `state_class: total_increasing` that legitimately reset periodically (some smart-meter integrations reset their raw counter on every reading cycle) — the recorder's `sum` already accounts for such resets. A meter that never resets at all is still preferable where available.
 
 > The sensor must have Long-Term Statistics enabled and must have existed since at least the contract start date.
 
@@ -90,8 +94,10 @@ When a tariff switch occurs, Tariffy freezes the total consumption of the expiri
 
 ```
 Consumption (last period)          = meter at switch date − meter at contract start
-Monthly payment (recommended)      = (last period consumption × new unit price + new base price × 12) / 12
+Monthly payment (recommended)      = (last period consumption × new unit price + new base price × months) / months
 ```
+
+`months` is the **actual duration of the expiring contract period** in months (frozen at the moment of switching), not a fixed 12 — relevant if the previous contract ran shorter or longer than a year. Falls back to 12 for periods frozen before this was tracked.
 
 This gives a data-driven recommendation for the monthly instalment in the new contract.
 
@@ -217,6 +223,8 @@ Wie Strom, zusätzlich:
 | Zustandszahl | ✅ | Umrechnungsfaktor Z (ca. 0,95, steht auf der Gasrechnung) |
 
 > **Umrechnung:** kWh = m³ × Brennwert × Zustandszahl
+>
+> Brennwert und Zustandszahl akzeptieren sowohl Dezimalpunkt (`11.2`) als auch Dezimalkomma (`11,2`).
 
 #### Schritt 2c – Wasser-Details
 
@@ -258,9 +266,9 @@ Wie Strom, zusätzlich:
 | Einspeisevergütung | €/kWh | Strom | Eingetragene Vergütung pro kWh |
 | Jahresverbrauch (kWh) | kWh | Gas | m³ umgerechnet via Brennwert & Zustandszahl |
 | Verbrauch (Bisher) | kWh/m³ | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn |
-| Jahresverbrauch (Hochgerechnet) | kWh/m³ | Energie+Wasser | Aktueller Verbrauch auf 12 Monate hochgerechnet |
+| Verbrauch (Vertragslaufzeit hochgerechnet) | kWh/m³ | Energie+Wasser | Aktueller Verbrauch auf die tatsächliche Vertragslaufzeit hochgerechnet (kein festes Kalenderjahr) |
 | Verbrauch (Letzte Laufzeit) | kWh/m³ | Energie | Eingefroren beim Tarifwechsel |
-| Prognose (Real) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs |
+| Kosten (Prognose Real) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs |
 | Restlaufzeit | Tage | Alle | Tage bis Vertragsende |
 | Vertragsbeginn | Datum | Alle | Startdatum des Vertrags |
 | Vertragsende | Datum | Alle | Ende des aktuellen Vertrags |
@@ -280,13 +288,17 @@ Wie Strom, zusätzlich:
 Wenn ein **Verbrauchssensor** eingetragen ist, liest Tariffy beim Vertragsbeginn den historischen Zählerstand aus den **Long-Term Statistics** und berechnet:
 
 ```
-Verbrauch (Bisher)             = aktueller Zählerstand − Zählerstand am Vertragsbeginn
-Jahresverbrauch (Hochgerechnet)= Verbrauch bisher ÷ vergangene Tage × 365
-Kosten (Bisher)                = Verbrauch bisher × Arbeitspreis + Grundpreis × vergangene Monate
-Prognose (Real)                = Kosten (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
+Verbrauch (Bisher)                          = aktueller Zählerstand − Zählerstand am Vertragsbeginn
+Verbrauch (Vertragslaufzeit hochgerechnet)  = Verbrauch bisher ÷ vergangene Tage × Vertragslaufzeit (Tage)
+Kosten (Bisher)                             = Verbrauch bisher × Arbeitspreis + Grundpreis × vergangene Monate
+Kosten (Prognose Real)                      = Kosten (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
 ```
 
 **Positiv** = Guthaben · **Negativ** = Nachzahlung
+
+Die für die Hochrechnung verwendete Vertragslaufzeit ist `Vertragsende − Vertragsbeginn` in Tagen (Fallback 365 ohne Enddatum) — ein Vertrag über z. B. 6 Monate wird auf diese 6 Monate hochgerechnet, nicht auf ein volles Kalenderjahr.
+
+Sowohl der aktuelle Zählerstand als auch der historische Wert zum Vertragsbeginn werden aus der kumulierten **`sum`-Statistik** des Recorders gelesen, nicht aus dem rohen Sensor-Zustand. Das macht die Berechnung robust gegenüber Sensoren mit `state_class: total_increasing`, die erlaubterweise periodisch zurücksetzen (manche Smart-Meter-Integrationen setzen ihren Rohzähler bei jedem Ablesezyklus zurück) — die `sum`-Statistik des Recorders berücksichtigt solche Resets bereits. Ein Zähler, der nie zurücksetzt, ist trotzdem vorzuziehen, wo verfügbar.
 
 > Der Sensor muss Long-Term Statistics aktiviert haben und mindestens seit Vertragsbeginn existieren.
 
@@ -298,8 +310,10 @@ Beim Tarifwechsel friert Tariffy den Gesamtverbrauch der ablaufenden Vertragslau
 
 ```
 Verbrauch (Letzte Laufzeit) = Zählerstand am Wechseltag − Zählerstand am Vertragsbeginn
-Abschlag (Empfohlen)        = (Letzte Laufzeit × neuer Arbeitspreis + neuer Grundpreis × 12) / 12
+Abschlag (Empfohlen)        = (Letzte Laufzeit × neuer Arbeitspreis + neuer Grundpreis × Monate) / Monate
 ```
+
+`Monate` ist die **tatsächliche Dauer der ablaufenden Vertragslaufzeit** in Monaten (eingefroren im Moment des Wechsels), nicht pauschal 12 — relevant, wenn der vorherige Vertrag kürzer oder länger als ein Jahr lief. Fallback auf 12, wenn die Laufzeit vor Einführung dieser Berechnung eingefroren wurde.
 
 So erhält man eine datenbasierte Empfehlung für den monatlichen Abschlag im neuen Vertrag.
 

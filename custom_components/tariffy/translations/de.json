@@ -328,6 +328,9 @@
     },
     "abort": {
       "reconfigure_successful": "Vertrag wurde aktualisiert."
+    },
+    "error": {
+      "invalid_number": "Keine gültige Zahl. Bitte Punkt oder Komma als Dezimaltrennzeichen verwenden (z.B. 11.2 oder 11,2)."
     }
   },
   "options": {
@@ -423,10 +426,10 @@
         "name": "Verbrauch (Bisher)"
       },
       "verbrauch_hochgerechnet": {
-        "name": "Jahresverbrauch (Hochgerechnet)"
+        "name": "Verbrauch (Vertragslaufzeit hochgerechnet)"
       },
       "prognose_real": {
-        "name": "Prognose (Real)"
+        "name": "Kosten (Prognose Real)"
       },
       "arbeitspreis_abwasser": {
         "name": "Arbeitspreis (Abwasser)"

@@ -77,6 +77,50 @@ def _opt(key: str, default: Any = None) -> vol.Optional:
     return vol.Optional(key, description={"suggested_value": default})
 
 
+def _parse_dezimal(value: Any) -> float | None:
+    """Wandelt Texteingabe in float um — akzeptiert Dezimalkomma (11,2) und
+    Dezimalpunkt (11.2). HTML5-Zahlenfelder (NumberSelector) behandeln das
+    Komma je nach Browser/Locale nicht zuverlässig, daher als Textfeld mit
+    eigener Normalisierung, die NACH der Formularvalidierung im jeweiligen
+    async_step_* angewendet wird (nicht im Schema selbst — voluptuous_serialize
+    kann keine eigenen Funktionen in vol.All zu JSON fürs Frontend konvertieren).
+    Gibt None bei ungültiger Eingabe zurück, statt zu werfen.
+    """
+    if value in (None, ""):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip().replace(",", ".")
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def _validiere_dezimal_felder(user_input: dict[str, Any]) -> dict[str, str]:
+    """Parst Brennwert/Zustandszahl im user_input in-place (Komma->Punkt).
+
+    Gibt ein errors-dict im Format von async_show_form(errors=...) zurück
+    (leer, wenn alles geparst werden konnte).
+    """
+    errors: dict[str, str] = {}
+    for key in (CONF_BRENNWERT, CONF_ZUSTANDSZAHL):
+        if key in user_input:
+            parsed = _parse_dezimal(user_input[key])
+            if parsed is None:
+                errors[key] = "invalid_number"
+            else:
+                user_input[key] = parsed
+    return errors
+
+
+def _dezimal_feld() -> selector.TextSelector:
+    # Reines Textfeld im Schema (muss JSON-serialisierbar bleiben fürs
+    # Frontend) — die Komma/Punkt-Normalisierung passiert in der jeweiligen
+    # async_step_*-Funktion, siehe _parse_dezimal.
+    return selector.TextSelector()
+
+
 def _preis(step=None) -> selector.NumberSelector:
     return selector.NumberSelector(
         selector.NumberSelectorConfig(
@@ -277,16 +321,10 @@ def _gas_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
             ),
             vol.Required(
                 CONF_BRENNWERT, default=d.get(CONF_BRENNWERT, 11.0)
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, step="any", mode=selector.NumberSelectorMode.BOX
-                )
-            ),
+            ): _dezimal_feld(),
             vol.Required(
                 CONF_ZUSTANDSZAHL, default=d.get(CONF_ZUSTANDSZAHL, 0.95)
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, step="any", mode=selector.NumberSelectorMode.BOX
-                )
-            ),
+            ): _dezimal_feld(),
             _opt(CONF_BONUS, d.get(CONF_BONUS)): _preis(0.01),
             vol.Required(
                 CONF_OEKOSTROM, default=bool(d.get(CONF_OEKOSTROM, False))
@@ -449,12 +487,16 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_gas(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
         if user_input is not None:
-            data = {**self._data, **user_input}
-            return self.async_create_entry(title=self._entry_title, data=data)
+            errors = _validiere_dezimal_felder(user_input)
+            if not errors:
+                data = {**self._data, **user_input}
+                return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(
             step_id="gas",
-            data_schema=_gas_schema({}, _country_features(self.hass))
+            data_schema=_gas_schema(user_input or {}, _country_features(self.hass)),
+            errors=errors,
         )
 
     async def async_step_wasser(
@@ -517,13 +559,17 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
         if user_input is not None:
-            return self.async_update_reload_and_abort(
-                entry, data={**self._data, **user_input}
-            )
+            errors = _validiere_dezimal_felder(user_input)
+            if not errors:
+                return self.async_update_reload_and_abort(
+                    entry, data={**self._data, **user_input}
+                )
         return self.async_show_form(
             step_id="reconfigure_gas",
-            data_schema=_gas_schema(dict(entry.data), _country_features(self.hass)),
+            data_schema=_gas_schema(user_input or dict(entry.data), _country_features(self.hass)),
+            errors=errors,
         )
 
     async def async_step_reconfigure_wasser(

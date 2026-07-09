@@ -113,6 +113,9 @@
     },
     "abort": {
       "reconfigure_successful": "Contract updated."
+    },
+    "error": {
+      "invalid_number": "Not a valid number. Use a dot or comma as the decimal separator (e.g. 11.2 or 11,2)."
     }
   },
   "options": {
@@ -225,10 +228,10 @@
         "name": "Consumption (so far)"
       },
       "verbrauch_hochgerechnet": {
-        "name": "Annual consumption (projected)"
+        "name": "Consumption (contract term projected)"
       },
       "prognose_real": {
-        "name": "Billing forecast (real)"
+        "name": "Cost (forecast real)"
       }
     },
     "button": {

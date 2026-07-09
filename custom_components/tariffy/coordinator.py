@@ -35,6 +35,7 @@ from .const import (
     CONF_SPARTE,
     CONF_TARIF,
     CONF_VERBRAUCH_LETZTE_LAUFZEIT,
+    CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
     CONF_VERBRAUCH_SENSOR,
     CONF_ZAEHLERNUMMER,
     CONF_ZUSTANDSZAHL,
@@ -144,7 +145,14 @@ def _minus_months(d: date, months: int) -> date:
 async def _get_historic_value(
     hass: HomeAssistant, entity_id: str, at_date: date
 ) -> float | None:
-    """Liest den Sensorwert zum Vertragsbeginn aus den Long-Term Statistics."""
+    """Liest den kumulierten 'sum'-Wert zum Vertragsbeginn aus den Long-Term
+    Statistics.
+
+    Wichtig: 'sum' statt 'state' — 'state' ist der rohe Momentanwert des
+    Sensors und bei state_class total_increasing NICHT reset-sicher (z.B.
+    Gaszähler-Sensoren, die regelmäßig auf 0 zurückspringen). 'sum' rechnet
+    solche Resets bereits korrekt zusammen.
+    """
     try:
         from homeassistant.components.recorder import get_instance
         from homeassistant.components.recorder.statistics import statistics_during_period
@@ -163,7 +171,7 @@ async def _get_historic_value(
                 statistic_ids={entity_id},
                 period="hour",
                 units={},
-                types={"state"},
+                types={"sum"},
             )
         )
 
@@ -183,19 +191,19 @@ async def _get_historic_value(
                 else:
                     entry_ts = entry_start.timestamp()
                 if entry_ts >= at_ts:
-                    val = entry.get("state")
+                    val = entry.get("sum")
                     if val is not None:
                         _LOGGER.debug(
-                            "Tariffy: LTS-Offset für %s am %s = %.3f",
+                            "Tariffy: LTS-Offset (sum) für %s am %s = %.3f",
                             entity_id, at_date, val,
                         )
                         return float(val)
             # Fallback: letzten Eintrag vor Vertragsbeginn nehmen
             for entry in reversed(entries):
-                val = entry.get("state")
+                val = entry.get("sum")
                 if val is not None:
                     _LOGGER.debug(
-                        "Tariffy: LTS-Offset (vor Beginn) für %s = %.3f",
+                        "Tariffy: LTS-Offset (sum, vor Beginn) für %s = %.3f",
                         entity_id, val,
                     )
                     return float(val)
@@ -211,15 +219,15 @@ async def _get_historic_value(
                 statistic_ids={entity_id},
                 period="hour",
                 units={},
-                types={"state"},
+                types={"sum"},
             )
         )
         early_entries = stats_all.get(entity_id, [])
         for entry in early_entries:
-            val = entry.get("state")
+            val = entry.get("sum")
             if val is not None:
                 _LOGGER.debug(
-                    "Tariffy: Frühester LTS-Offset für %s = %.3f (Sensor existierte "
+                    "Tariffy: Frühester LTS-Offset (sum) für %s = %.3f (Sensor existierte "
                     "noch nicht am Vertragsbeginn)",
                     entity_id, val,
                 )
@@ -227,6 +235,38 @@ async def _get_historic_value(
 
     except Exception as err:  # noqa: BLE001
         _LOGGER.warning("Tariffy: LTS-Abfrage für %s fehlgeschlagen: %s", entity_id, err)
+    return None
+
+
+async def _get_latest_sum(hass: HomeAssistant, entity_id: str) -> float | None:
+    """Liest den neuesten verfügbaren kumulierten 'sum'-Wert aus den Long-Term
+    Statistics — reset-sicheres Gegenstück zum rohen Live-Sensorwert.
+    """
+    try:
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        instance = get_instance(hass)
+        end_dt = dt_util.now()
+        start_dt = end_dt - timedelta(days=3)
+        stats = await instance.async_add_executor_job(
+            lambda: statistics_during_period(
+                hass,
+                start_dt,
+                end_dt,
+                statistic_ids={entity_id},
+                period="hour",
+                units={},
+                types={"sum"},
+            )
+        )
+        entries = stats.get(entity_id, [])
+        for entry in reversed(entries):
+            val = entry.get("sum")
+            if val is not None:
+                return float(val)
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.warning("Tariffy: aktueller Sum-Wert für %s fehlgeschlagen: %s", entity_id, err)
     return None
 
 
@@ -267,11 +307,22 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for feld in BASIS_FELDER:
             wert = nxt.get(NEXT_PREFIX + feld)
             new_data[feld] = wert if wert not in (None, "") else self.entry.data.get(feld)
-        # Verbrauch der letzten Laufzeit einfrieren
+        # Verbrauch der letzten Laufzeit einfrieren — inkl. ihrer tatsächlichen
+        # Dauer in Monaten, damit empfohlener_abschlag nicht von einem festen
+        # 12-Monats-Jahr ausgehen muss.
+        alte_laufzeit_monate: float | None = None
+        alte_beginn = _parse_date(self.entry.data.get(CONF_BEGINN))
+        if alte_beginn is not None:
+            heute = dt_util.now().date()
+            alte_laufzeit_monate = round((heute - alte_beginn).days / 30.44, 2)
         if verbrauch_letzte is not None:
             new_data[CONF_VERBRAUCH_LETZTE_LAUFZEIT] = verbrauch_letzte
+            if alte_laufzeit_monate is not None:
+                new_data[CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE] = alte_laufzeit_monate
         elif self.entry.data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT) is not None:
             new_data[CONF_VERBRAUCH_LETZTE_LAUFZEIT] = self.entry.data[CONF_VERBRAUCH_LETZTE_LAUFZEIT]
+            if self.entry.data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE) is not None:
+                new_data[CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE] = self.entry.data[CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE]
         _LOGGER.info(
             "Tariffy '%s': automatischer Wechsel zu '%s' (%s) — Verbrauch letzte Laufzeit: %s",
             self.entry.title,
@@ -375,8 +426,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             _vll: float | None = None
             _sensor_id = self.entry.data.get(CONF_VERBRAUCH_SENSOR)
             if _sensor_id and self._verbrauch_offset is not None:
-                _state = self.hass.states.get(_sensor_id)
-                _aktuell = _f(_state.state) if _state else None
+                _aktuell = await _get_latest_sum(self.hass, _sensor_id)
+                if _aktuell is None:
+                    _state = self.hass.states.get(_sensor_id)
+                    _aktuell = _f(_state.state) if _state else None
                 if _aktuell is not None:
                     _vll = round(_aktuell - self._verbrauch_offset, 2)
             self._switch_now(_vll)
@@ -401,7 +454,6 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         beginn = _parse_date(data.get(CONF_BEGINN))
         restlaufzeit = (ende - heute).days if ende is not None else None
         laufzeit_monate = (ende - beginn).days / 30.44 if (beginn and ende) else 12.0
-        laufzeit_faktor = laufzeit_monate / 12.0
 
         arbeitspreis = _f(data.get(CONF_ARBEITSPREIS))
         grundpreis = _f(data.get(CONF_GRUNDPREIS))
@@ -476,9 +528,13 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         prognose_real: float | None = None
 
         if verbrauch_sensor and beginn:
-            # Aktuellen Sensorwert lesen
-            state = self.hass.states.get(verbrauch_sensor)
-            aktuell = _f(state.state) if state else None
+            # Aktuellen kumulierten Wert lesen (reset-sicher über 'sum', s.o.).
+            # Fallback auf den rohen Live-Zustand, falls die Statistik (noch)
+            # keinen Sum-Wert liefert (z.B. brandneuer Sensor).
+            aktuell = await _get_latest_sum(self.hass, verbrauch_sensor)
+            if aktuell is None:
+                state = self.hass.states.get(verbrauch_sensor)
+                aktuell = _f(state.state) if state else None
             if aktuell is not None:
                 # Offset zum Vertragsbeginn holen
                 offset = await self._get_verbrauch_offset(verbrauch_sensor, beginn)
@@ -497,8 +553,12 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if verbrauch_bisher is not None and verbrauch_bisher > 0:
                     vergangene_tage = (heute - beginn).days
                     if vergangene_tage > 0:
+                        # Hochrechnung auf die tatsächliche Vertragslaufzeit,
+                        # nicht auf ein festes Kalenderjahr — ein Vertrag kann
+                        # auch mitten im Jahr beginnen/enden.
+                        vertrag_gesamttage = (ende - beginn).days if ende is not None else 365
                         verbrauch_hochgerechnet = round(
-                            verbrauch_bisher / vergangene_tage * 365, 1
+                            verbrauch_bisher / vergangene_tage * vertrag_gesamttage, 1
                         )
                         # Bei Gas: m³ hochgerechnet → kWh
                         if sparte == GAS_SPARTE and brennwert and zustandszahl:
@@ -514,8 +574,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                             else arbeitspreis
                         )
                         if ap_real is not None:
+                            # verbrauch_kwh_real ist bereits auf die gesamte
+                            # Vertragslaufzeit hochgerechnet (s.o.), braucht
+                            # hier keinen weiteren laufzeit_faktor mehr.
                             geschaetzte_kosten_real = round(
-                                verbrauch_kwh_real * laufzeit_faktor * ap_real
+                                verbrauch_kwh_real * ap_real
                                 + (grundpreis or 0) * laufzeit_monate,
                                 2,
                             )
@@ -582,6 +645,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         # Verbrauch letzte Laufzeit (eingefroren beim Tarifwechsel)
         verbrauch_letzte_laufzeit = _f(data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT))
+        verbrauch_letzte_laufzeit_monate = _f(data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE))
 
         # Empfohlener Abschlag auf Basis der letzten Vertragslaufzeit
         empfohlener_abschlag: float | None = None
@@ -596,9 +660,16 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if sparte == WASSER_SPARTE and arbeitspreis_gesamt_wasser is not None
                 else arbeitspreis
             )
+            # Tatsächliche Dauer der letzten Laufzeit verwenden, nicht fest 12
+            # Monate — nur als Fallback für vor diesem Fix eingefrorene Werte.
+            _monate_alt = (
+                verbrauch_letzte_laufzeit_monate
+                if verbrauch_letzte_laufzeit_monate and verbrauch_letzte_laufzeit_monate > 0
+                else 12.0
+            )
             if _ap is not None:
                 empfohlener_abschlag = round(
-                    (_vll_kwh * _ap + (grundpreis or 0) * 12) / 12, 2
+                    (_vll_kwh * _ap + (grundpreis or 0) * _monate_alt) / _monate_alt, 2
                 )
 
         monate = int(data.get(CONF_ERINNERUNG_MONATE) or 0)
@@ -658,6 +729,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "prognose_real": prognose_real,
             "kosten_bisher": kosten_bisher,
             "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,
+            "verbrauch_letzte_laufzeit_monate": verbrauch_letzte_laufzeit_monate,
             "empfohlener_abschlag": empfohlener_abschlag,
             "erinnerung_datum": erinnerung_datum,
             "erinnerung_aktiv": aktiv,

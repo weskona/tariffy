@@ -352,6 +352,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get("empfohlener_abschlag"),
         attr_fn=lambda d: {
             "verbrauch_letzte_laufzeit": d.get("verbrauch_letzte_laufzeit"),
+            "verbrauch_letzte_laufzeit_monate": d.get("verbrauch_letzte_laufzeit_monate"),
             "aktueller_abschlag": d.get("abschlag"),
             "differenz": (
                 round(d["empfohlener_abschlag"] - d["abschlag"], 2)
