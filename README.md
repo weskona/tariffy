@@ -325,7 +325,7 @@ So erhält man eine datenbasierte Empfehlung für den monatlichen Abschlag im ne
 
 | Button | Beschreibung |
 |--------|-------------|
-| Jetzt wechseln | Übernimmt den hinterlegten Folgetarif sofort (ohne auf das Datum zu warten) |
+| Jetzt wechseln | Übernimmt den hinterlegten Folgetarif sofort (ohne auf das Datum zu warten) — friert den Verbrauch der endenden Laufzeit exakt wie beim automatischen Wechsel ein |
 | Kündigung bestätigen | Quittiert die Erinnerung und entfernt die Dauerbenachrichtigung |
 
 ---

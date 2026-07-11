@@ -348,7 +348,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
 
     async def async_force_switch(self) -> None:
-        self._switch_now()
+        verbrauch_letzte = await self._verbrauch_letzte_laufzeit_jetzt()
+        self._switch_now(verbrauch_letzte)
 
     # ------------------------------------------------------------ Kündigung
     async def async_confirm_kuendigung(self) -> None:
@@ -426,6 +427,20 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return val
 
     # --------------------------------------------------------------- Update
+    async def _verbrauch_letzte_laufzeit_jetzt(self) -> float | None:
+        """Verbrauch der (noch) laufenden Laufzeit bis jetzt, zum Einfrieren
+        beim Wechsel — automatisch wie manuell identisch berechnet."""
+        sensor_id = self.entry.data.get(CONF_VERBRAUCH_SENSOR)
+        if not sensor_id or self._verbrauch_offset is None:
+            return None
+        aktuell = await _get_latest_sum(self.hass, sensor_id)
+        if aktuell is None:
+            state = self.hass.states.get(sensor_id)
+            aktuell = _f(state.state) if state else None
+        if aktuell is None:
+            return None
+        return round(aktuell - self._verbrauch_offset, 2)
+
     async def _async_update_data(self) -> dict[str, Any]:
         heute = dt_util.now().date()
 
@@ -433,15 +448,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         wechsel = _parse_date(nxt.get(NEXT_PREFIX + CONF_BEGINN)) if nxt else None
         if wechsel is not None and wechsel <= heute:
             # Verbrauch der letzten Laufzeit vor dem Wechsel einfrieren
-            _vll: float | None = None
-            _sensor_id = self.entry.data.get(CONF_VERBRAUCH_SENSOR)
-            if _sensor_id and self._verbrauch_offset is not None:
-                _aktuell = await _get_latest_sum(self.hass, _sensor_id)
-                if _aktuell is None:
-                    _state = self.hass.states.get(_sensor_id)
-                    _aktuell = _f(_state.state) if _state else None
-                if _aktuell is not None:
-                    _vll = round(_aktuell - self._verbrauch_offset, 2)
+            _vll = await self._verbrauch_letzte_laufzeit_jetzt()
             self._switch_now(_vll)
             nxt = {}
 
