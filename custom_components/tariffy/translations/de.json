@@ -449,6 +449,9 @@
       "kosten_bisher": {
         "name": "Kosten (Bisher)"
       },
+      "guthaben_bisher": {
+        "name": "Guthaben/Nachzahlung (Bisher)"
+      },
       "verbrauch_letzte_laufzeit": {
         "name": "Verbrauch (Letzte Laufzeit)"
       },

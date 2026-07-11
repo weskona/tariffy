@@ -589,6 +589,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         # Tatsächliche Kosten bisher (auf Basis realer Messung)
         kosten_bisher: float | None = None
+        guthaben_bisher: float | None = None
         if verbrauch_bisher is not None and beginn is not None:
             _vergangene_tage_kb = (heute - beginn).days
             if _vergangene_tage_kb >= 0:
@@ -607,6 +608,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         _vb_abr * _ap_kb + (grundpreis or 0) * _vergangene_monate_kb,
                         2,
                     )
+                    # Guthaben/Nachzahlung bisher: Abschlag, der bis heute
+                    # tatsaechlich faellig war, gegen die echten Kosten bisher —
+                    # anders als prognose_real KEINE Hochrechnung auf die
+                    # gesamte Vertragslaufzeit, sondern der Stand von heute.
+                    if abschlag is not None:
+                        guthaben_bisher = round(
+                            abschlag * _vergangene_monate_kb - kosten_bisher, 2
+                        )
 
         # Tag/Nacht-Tarif (Economy 7 / TOU)
         arbeitspreis_nacht = _f(data.get(CONF_ARBEITSPREIS_NACHT))
@@ -728,6 +737,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,
             "prognose_real": prognose_real,
             "kosten_bisher": kosten_bisher,
+            "guthaben_bisher": guthaben_bisher,
             "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,
             "verbrauch_letzte_laufzeit_monate": verbrauch_letzte_laufzeit_monate,
             "empfohlener_abschlag": empfohlener_abschlag,

@@ -224,6 +224,9 @@
       "kosten_bisher": {
         "name": "Cost (so far)"
       },
+      "guthaben_bisher": {
+        "name": "Refund/balance due (so far)"
+      },
       "verbrauch_bisher": {
         "name": "Consumption (so far)"
       },

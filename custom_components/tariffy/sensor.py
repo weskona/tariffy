@@ -126,11 +126,14 @@ class VertragSensorDescription(SensorEntityDescription):
     currency_icon: bool = False
 
 
-def _prognose_real_icon(d: dict[str, Any]) -> str:
-    wert = d.get("prognose_real")
-    if wert is None:
-        return "mdi:calculator-variant"
-    return "mdi:thumb-up" if wert >= 0 else "mdi:thumb-down"
+def _guthaben_icon_fn(key: str) -> Callable[[dict[str, Any]], str]:
+    """Icon-Funktion fuer Guthaben/Nachzahlung-Sensoren (Daumen hoch/runter)."""
+    def _icon(d: dict[str, Any]) -> str:
+        wert = d.get(key)
+        if wert is None:
+            return "mdi:calculator-variant"
+        return "mdi:thumb-up" if wert >= 0 else "mdi:thumb-down"
+    return _icon
 
 
 SENSOREN: tuple[VertragSensorDescription, ...] = (
@@ -324,7 +327,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         key="prognose_real",
         translation_key="prognose_real",
         icon="mdi:calculator-variant",
-        icon_fn=_prognose_real_icon,
+        icon_fn=_guthaben_icon_fn("prognose_real"),
         value_fn=lambda d: d.get("prognose_real"),
         attr_fn=lambda d: {
             "tendenz": None if d.get("prognose_real") is None else (
@@ -342,6 +345,21 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get("kosten_bisher"),
         attr_fn=lambda d: {
             "verbrauch_bisher": d.get("verbrauch_bisher"),
+        },
+    ),
+    VertragSensorDescription(
+        key="guthaben_bisher",
+        translation_key="guthaben_bisher",
+        icon="mdi:calculator-variant",
+        icon_fn=_guthaben_icon_fn("guthaben_bisher"),
+        state_class=SensorStateClass.MEASUREMENT,
+        energie_only=True,
+        value_fn=lambda d: d.get("guthaben_bisher"),
+        attr_fn=lambda d: {
+            "tendenz": None if d.get("guthaben_bisher") is None else (
+                "Guthaben" if d.get("guthaben_bisher", 0) >= 0 else "Nachzahlung"
+            ),
+            "kosten_bisher": d.get("kosten_bisher"),
         },
     ),
     VertragSensorDescription(
@@ -440,7 +458,7 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
         elif key == "jahreskosten":
             self._attr_native_unit_of_measurement = currency
-        elif key in ("prognose_real", "bonus", "kosten_bisher"):
+        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher"):
             self._attr_native_unit_of_measurement = currency
         elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit"):
             if sparte == GAS_SPARTE:

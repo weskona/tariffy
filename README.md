@@ -263,6 +263,7 @@ Wie Strom, zusätzlich:
 | Abschlag (Empfohlen) | €/Monat | Energie | Basiert auf realem Verbrauch der letzten Laufzeit × aktuelle Preise |
 | Kosten (Vertragslaufzeit) | € | Alle | Abschlag × Laufzeit in Monaten |
 | Kosten (Bisher) | € | Energie+Wasser | Tatsächlich angefallene Kosten seit Vertragsbeginn (Echte Messung) |
+| Guthaben/Nachzahlung (Bisher) | € | Energie | Abschlag bisher gezahlt − Kosten (Bisher), Stand von heute (keine Hochrechnung). Icon zeigt 👍/👎 je nach Vorzeichen |
 | Einspeisevergütung | €/kWh | Strom | Eingetragene Vergütung pro kWh |
 | Jahresverbrauch (kWh) | kWh | Gas | m³ umgerechnet via Brennwert & Zustandszahl |
 | Verbrauch (Bisher) | kWh/m³ | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn |
@@ -291,6 +292,7 @@ Wenn ein **Verbrauchssensor** eingetragen ist, liest Tariffy beim Vertragsbeginn
 Verbrauch (Bisher)                          = aktueller Zählerstand − Zählerstand am Vertragsbeginn
 Verbrauch (Vertragslaufzeit hochgerechnet)  = Verbrauch bisher ÷ vergangene Tage × Vertragslaufzeit (Tage)
 Kosten (Bisher)                             = Verbrauch bisher × Arbeitspreis + Grundpreis × vergangene Monate
+Guthaben/Nachzahlung (Bisher)                = Abschlag × vergangene Monate − Kosten (Bisher)
 Kosten (Guthaben/Nachzahlung)                = Kosten (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
 ```
 

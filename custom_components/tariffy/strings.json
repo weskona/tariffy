@@ -437,6 +437,12 @@
       "prognose_real": {
         "name": "Cost (refund/balance due)"
       },
+      "kosten_bisher": {
+        "name": "Cost (so far)"
+      },
+      "guthaben_bisher": {
+        "name": "Refund/balance due (so far)"
+      },
       "arbeitspreis_abwasser": {
         "name": "Unit price (wastewater)"
       },
