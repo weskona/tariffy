@@ -174,7 +174,7 @@ Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- u
 - **Tag/Nacht-Tarif** – Economy 7, TOU (GB, US, AU, …)
 - **Einspeisevergütung** – Vergütung pro eingespeister kWh (Photovoltaik)
 - **Auto-Refresh nach HA-Start** – Sensoren aktualisieren sich automatisch sobald die Long-Term Statistics nach einem Neustart bereit sind
-- **Prüfintervall** – alle 6 Stunden
+- **Prüfintervall** – alle 6 Stunden, zusätzlich täglich exakt um 00:00:01 Uhr für einen pünktlichen Tarifwechsel bei Datumswechsel
 
 ---
 
@@ -337,7 +337,7 @@ Unter **Einstellungen → Integrationen → Tariffy → [Vertrag] → Optionen**
 - Wechseldatum, neuer Anbieter, Kundennummer, Tarifname
 - Neue Preise und Verbrauchswerte
 
-Am Wechseldatum übernimmt HA den neuen Tarif automatisch. Nicht angegebene Felder behalten ihren aktuellen Wert.
+Am Wechseldatum übernimmt HA den neuen Tarif automatisch — geprüft täglich exakt um 00:00:01 Uhr, zusätzlich beim regulären 6h-Poll und beim HA-Start als Fallback. Nicht angegebene Felder behalten ihren aktuellen Wert.
 
 ---
 

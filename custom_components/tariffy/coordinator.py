@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
@@ -288,6 +289,15 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         entry.async_on_unload(
             hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _startup_refresh)
+        )
+
+        async def _midnight_refresh(_now: Any) -> None:
+            """Prueft den Tarifwechsel exakt bei Datumswechsel, nicht erst
+            beim naechsten 6h-Poll."""
+            await self.async_refresh()
+
+        entry.async_on_unload(
+            async_track_time_change(hass, _midnight_refresh, hour=0, minute=0, second=1)
         )
 
     @property
