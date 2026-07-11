@@ -38,6 +38,7 @@ from .const import (
     CONF_PREISGARANTIE,
     CONF_SPARTE,
     CONF_TARIF,
+    CONF_VERBRAUCH_SENSOR,
     CONF_ZAEHLERNUMMER,
     CONF_ZUSTANDSZAHL,
     DOMAIN,
@@ -461,10 +462,18 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
         elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher"):
             self._attr_native_unit_of_measurement = currency
         elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit"):
-            if sparte == GAS_SPARTE:
-                self._attr_native_unit_of_measurement = d.get("gas_einheit", "m³")
-            elif sparte == WASSER_SPARTE:
-                self._attr_native_unit_of_measurement = d.get("wasser_einheit", "m³")
+            if sparte in (GAS_SPARTE, WASSER_SPARTE):
+                # verbrauch_bisher/hochgerechnet sind der ROHE Delta-Wert des
+                # verbrauch_sensor, in dessen tatsaechlicher Einheit (meist m³
+                # bei Gas-/Wasserzaehlern) - NICHT in gas_einheit/wasser_einheit,
+                # die nur die Einheit der manuell eingetragenen Jahresverbrauch-
+                # Schaetzung beschreiben. Reale Sensor-Einheit hat Vorrang,
+                # Config-Feld nur als Fallback falls der Sensor (noch) fehlt.
+                fallback = d.get("gas_einheit", "m³") if sparte == GAS_SPARTE else d.get("wasser_einheit", "m³")
+                sensor_id = entry.data.get(CONF_VERBRAUCH_SENSOR)
+                state = coordinator.hass.states.get(sensor_id) if sensor_id else None
+                sensor_unit = state.attributes.get("unit_of_measurement") if state else None
+                self._attr_native_unit_of_measurement = sensor_unit or fallback
             else:
                 self._attr_native_unit_of_measurement = VERBRAUCH_KWH_EINHEIT
         elif key == "empfohlener_abschlag":

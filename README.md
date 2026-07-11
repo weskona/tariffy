@@ -45,14 +45,15 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 | Base price | €/month | Energy | Monthly base fee |
 | Monthly payment | €/month | All | Monthly instalment |
 | Monthly payment (recommended) | €/month | Energy | Based on last period consumption × current rates |
-| Cost (contract period) | € | All | Instalment × contract duration in months |
+| Installment total (contract term) | € | All | Instalment × contract duration in months — a payment plan total, **not** a cost forecast |
 | Cost (so far) | € | Energy+Water | Actual costs incurred since contract start (real consumption) |
+| Refund/balance due (so far) | € | Energy | Instalments paid so far − Cost (so far), as of today (no projection). Icon shows 👍/👎 depending on sign |
 | Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
-| Annual consumption (kWh) | kWh | Gas | m³ converted via calorific value & state number |
-| Consumption (so far) | kWh/m³ | Energy+Water | Measured consumption since contract start |
-| Consumption (contract term projected) | kWh/m³ | Energy+Water | Current consumption extrapolated to the full contract term (not a fixed calendar year) |
-| Consumption (last period) | kWh/m³ | Energy | Frozen at tariff switch — basis for recommended payment |
-| Cost (forecast real) | € | Energy+Water | Forecast based on real consumption |
+| Annual consumption (kWh) | kWh | Gas | Manually entered annual estimate, converted via calorific value & state number |
+| Consumption (so far) | unit of the consumption sensor (usually m³) | Energy+Water | Measured consumption since contract start — raw meter delta, **not** automatically converted to kWh |
+| Consumption (contract term projected) | unit of the consumption sensor | Energy+Water | Current consumption extrapolated to the full contract term (not a fixed calendar year) |
+| Consumption (last period) | unit of the consumption sensor | Energy | Frozen at tariff switch — basis for recommended payment |
+| Refund/balance due (contract end) | € | Energy+Water | Forecast based on real consumption, projected to contract end. Icon shows 👍/👎 depending on sign |
 | Remaining term | Days | All | Days until contract end |
 | Contract start | Date | All | Start date of contract |
 | Contract end | Date | All | End of current contract |
@@ -72,13 +73,16 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 When a **consumption sensor** is configured, Tariffy reads the historical meter value at contract start from **Long-Term Statistics** and calculates:
 
 ```
-Consumption so far                    = current meter value − meter value at contract start
+Consumption so far                    = current meter value − meter value at contract start   (in the sensor's own unit, e.g. m³)
 Consumption (contract term projected) = consumption so far ÷ days elapsed × contract term (days)
-Cost (so far)                         = consumption so far × unit price + base price × months elapsed
-Cost (forecast real)                  = instalment total − projected cost over contract period
+Cost (so far)                         = consumption so far (in kWh) × unit price + base price × months elapsed
+Refund/balance due (so far)           = instalments paid so far − Cost (so far)                (today's exact standing, no projection)
+Refund/balance due (contract end)     = instalment total − projected cost over contract period (projected to contract end)
 ```
 
 **Positive** = credit · **Negative** = surcharge
+
+⚠️ **Unit note (gas/water):** "Consumption (so far)" and "Consumption (contract term projected)" show the raw meter delta in whatever unit your actual consumption sensor reports (usually m³) — they are **not** automatically converted to kWh, even though the `gas unit`/`water unit` setting might say "kWh". That setting only describes the unit of your manually entered annual consumption *estimate*, not your real meter. For all cost calculations (Cost so far, both refund/balance due sensors), the consumption **is** converted to kWh internally via calorific value × state number — just not for the raw "Consumption" sensors themselves.
 
 The contract term used for the projection is `contract end − contract start` in days (falls back to 365 if no end date is set) — a contract that runs for e.g. 6 months is projected onto those 6 months, not a full calendar year.
 
@@ -90,7 +94,7 @@ Both the current meter value and the historical value at contract start are read
 
 ### Last contract period & recommended payment
 
-When a tariff switch occurs, Tariffy freezes the total consumption of the expiring contract period:
+When a tariff switch occurs — automatic (date reached) or manual ("Switch now" button, identical calculation either way) — Tariffy freezes the total consumption of the expiring contract period:
 
 ```
 Consumption (last period)          = meter at switch date − meter at contract start
@@ -107,7 +111,7 @@ This gives a data-driven recommendation for the monthly instalment in the new co
 
 | Button | Description |
 |--------|-------------|
-| Switch now | Promotes the stored next tariff immediately (without waiting for the switch date) |
+| Switch now | Promotes the stored next tariff immediately (without waiting for the switch date) — freezes the ending period's consumption exactly like the automatic switch |
 | Confirm cancellation | Acknowledges the reminder and removes the persistent notification |
 
 ---
@@ -119,7 +123,7 @@ Under **Settings → Integrations → Tariffy → [Contract] → Options** you c
 - Switch date, new provider, customer number, tariff name
 - New prices and consumption values
 
-On the switch date HA promotes the new tariff automatically. Fields left blank keep their current value.
+On the switch date HA promotes the new tariff automatically — checked exactly at midnight (00:00:01) plus the regular 6-hour poll and HA-start refresh as fallback. Fields left blank keep their current value.
 
 ---
 
@@ -266,9 +270,9 @@ Wie Strom, zusätzlich:
 | Guthaben/Nachzahlung (Bisher) | € | Energie | Abschlag bisher gezahlt − Kosten (Bisher), Stand von heute (keine Hochrechnung). Icon zeigt 👍/👎 je nach Vorzeichen |
 | Einspeisevergütung | €/kWh | Strom | Eingetragene Vergütung pro kWh |
 | Jahresverbrauch (kWh) | kWh | Gas | m³ umgerechnet via Brennwert & Zustandszahl |
-| Verbrauch (Bisher) | kWh/m³ | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn |
-| Verbrauch (Vertragslaufzeit hochgerechnet) | kWh/m³ | Energie+Wasser | Aktueller Verbrauch auf die tatsächliche Vertragslaufzeit hochgerechnet (kein festes Kalenderjahr) |
-| Verbrauch (Letzte Laufzeit) | kWh/m³ | Energie | Eingefroren beim Tarifwechsel |
+| Verbrauch (Bisher) | Einheit des Verbrauchssensors (meist m³) | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn — roher Zählerstand-Delta, **nicht** automatisch in kWh umgerechnet |
+| Verbrauch (Vertragslaufzeit hochgerechnet) | Einheit des Verbrauchssensors | Energie+Wasser | Aktueller Verbrauch auf die tatsächliche Vertragslaufzeit hochgerechnet (kein festes Kalenderjahr) |
+| Verbrauch (Letzte Laufzeit) | Einheit des Verbrauchssensors | Energie | Eingefroren beim Tarifwechsel |
 | Guthaben/Nachzahlung (Vertragsende) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs. Icon zeigt 👍/👎 je nach Vorzeichen |
 | Restlaufzeit | Tage | Alle | Tage bis Vertragsende |
 | Vertragsbeginn | Datum | Alle | Startdatum des Vertrags |
