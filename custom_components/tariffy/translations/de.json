@@ -390,7 +390,7 @@
         "name": "Grundpreis"
       },
       "jahreskosten": {
-        "name": "Kosten (Vertragslaufzeit)"
+        "name": "Abschlag (Vertragslaufzeit)"
       },
       "verbrauch_kwh": {
         "name": "Jahresverbrauch (kWh)"
@@ -429,7 +429,7 @@
         "name": "Verbrauch (Vertragslaufzeit hochgerechnet)"
       },
       "prognose_real": {
-        "name": "Kosten (Guthaben/Nachzahlung)"
+        "name": "Guthaben/Nachzahlung (Vertragsende)"
       },
       "arbeitspreis_abwasser": {
         "name": "Arbeitspreis (Abwasser)"

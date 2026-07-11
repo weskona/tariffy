@@ -168,7 +168,7 @@
         "name": "Base price"
       },
       "jahreskosten": {
-        "name": "Cost (contract period)"
+        "name": "Installment total (contract term)"
       },
       "verbrauch_kwh": {
         "name": "Annual usage (kWh)"
@@ -234,7 +234,7 @@
         "name": "Consumption (contract term projected)"
       },
       "prognose_real": {
-        "name": "Cost (refund/balance due)"
+        "name": "Refund/balance due (contract end)"
       }
     },
     "button": {

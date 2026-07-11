@@ -390,7 +390,7 @@
         "name": "Base price"
       },
       "jahreskosten": {
-        "name": "Annual cost"
+        "name": "Installment total (contract term)"
       },
       "geschaetzte_jahreskosten": {
         "name": "Annual cost (estimated)"
@@ -435,7 +435,7 @@
         "name": "Consumption (contract term projected)"
       },
       "prognose_real": {
-        "name": "Cost (refund/balance due)"
+        "name": "Refund/balance due (contract end)"
       },
       "kosten_bisher": {
         "name": "Cost (so far)"

@@ -261,7 +261,7 @@ Wie Strom, zusätzlich:
 | Grundpreis | €/Monat | Energie | Monatliche Grundgebühr |
 | Abschlag | €/Monat | Alle | Monatlicher Abschlag |
 | Abschlag (Empfohlen) | €/Monat | Energie | Basiert auf realem Verbrauch der letzten Laufzeit × aktuelle Preise |
-| Kosten (Vertragslaufzeit) | € | Alle | Abschlag × Laufzeit in Monaten |
+| Abschlag (Vertragslaufzeit) | € | Alle | Abschlag × Laufzeit in Monaten (reiner Zahlungsplan, keine Kosten-Prognose) |
 | Kosten (Bisher) | € | Energie+Wasser | Tatsächlich angefallene Kosten seit Vertragsbeginn (Echte Messung) |
 | Guthaben/Nachzahlung (Bisher) | € | Energie | Abschlag bisher gezahlt − Kosten (Bisher), Stand von heute (keine Hochrechnung). Icon zeigt 👍/👎 je nach Vorzeichen |
 | Einspeisevergütung | €/kWh | Strom | Eingetragene Vergütung pro kWh |
@@ -269,7 +269,7 @@ Wie Strom, zusätzlich:
 | Verbrauch (Bisher) | kWh/m³ | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn |
 | Verbrauch (Vertragslaufzeit hochgerechnet) | kWh/m³ | Energie+Wasser | Aktueller Verbrauch auf die tatsächliche Vertragslaufzeit hochgerechnet (kein festes Kalenderjahr) |
 | Verbrauch (Letzte Laufzeit) | kWh/m³ | Energie | Eingefroren beim Tarifwechsel |
-| Kosten (Guthaben/Nachzahlung) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs. Icon zeigt 👍/👎 je nach Vorzeichen |
+| Guthaben/Nachzahlung (Vertragsende) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs. Icon zeigt 👍/👎 je nach Vorzeichen |
 | Restlaufzeit | Tage | Alle | Tage bis Vertragsende |
 | Vertragsbeginn | Datum | Alle | Startdatum des Vertrags |
 | Vertragsende | Datum | Alle | Ende des aktuellen Vertrags |
@@ -293,7 +293,7 @@ Verbrauch (Bisher)                          = aktueller Zählerstand − Zähler
 Verbrauch (Vertragslaufzeit hochgerechnet)  = Verbrauch bisher ÷ vergangene Tage × Vertragslaufzeit (Tage)
 Kosten (Bisher)                             = Verbrauch bisher × Arbeitspreis + Grundpreis × vergangene Monate
 Guthaben/Nachzahlung (Bisher)                = Abschlag × vergangene Monate − Kosten (Bisher)
-Kosten (Guthaben/Nachzahlung)                = Kosten (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
+Guthaben/Nachzahlung (Vertragsende)           = Abschlag (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
 ```
 
 **Positiv** = Guthaben · **Negativ** = Nachzahlung
