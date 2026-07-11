@@ -268,7 +268,7 @@ Wie Strom, zusätzlich:
 | Verbrauch (Bisher) | kWh/m³ | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn |
 | Verbrauch (Vertragslaufzeit hochgerechnet) | kWh/m³ | Energie+Wasser | Aktueller Verbrauch auf die tatsächliche Vertragslaufzeit hochgerechnet (kein festes Kalenderjahr) |
 | Verbrauch (Letzte Laufzeit) | kWh/m³ | Energie | Eingefroren beim Tarifwechsel |
-| Kosten (Prognose Real) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs |
+| Kosten (Guthaben/Nachzahlung) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs. Icon zeigt 👍/👎 je nach Vorzeichen |
 | Restlaufzeit | Tage | Alle | Tage bis Vertragsende |
 | Vertragsbeginn | Datum | Alle | Startdatum des Vertrags |
 | Vertragsende | Datum | Alle | Ende des aktuellen Vertrags |
@@ -291,7 +291,7 @@ Wenn ein **Verbrauchssensor** eingetragen ist, liest Tariffy beim Vertragsbeginn
 Verbrauch (Bisher)                          = aktueller Zählerstand − Zählerstand am Vertragsbeginn
 Verbrauch (Vertragslaufzeit hochgerechnet)  = Verbrauch bisher ÷ vergangene Tage × Vertragslaufzeit (Tage)
 Kosten (Bisher)                             = Verbrauch bisher × Arbeitspreis + Grundpreis × vergangene Monate
-Kosten (Prognose Real)                      = Kosten (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
+Kosten (Guthaben/Nachzahlung)                = Kosten (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
 ```
 
 **Positiv** = Guthaben · **Negativ** = Nachzahlung

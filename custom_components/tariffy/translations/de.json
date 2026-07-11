@@ -429,7 +429,7 @@
         "name": "Verbrauch (Vertragslaufzeit hochgerechnet)"
       },
       "prognose_real": {
-        "name": "Kosten (Prognose Real)"
+        "name": "Kosten (Guthaben/Nachzahlung)"
       },
       "arbeitspreis_abwasser": {
         "name": "Arbeitspreis (Abwasser)"

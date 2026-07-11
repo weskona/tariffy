@@ -231,7 +231,7 @@
         "name": "Consumption (contract term projected)"
       },
       "prognose_real": {
-        "name": "Cost (forecast real)"
+        "name": "Cost (refund/balance due)"
       }
     },
     "button": {

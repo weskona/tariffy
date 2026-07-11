@@ -116,6 +116,7 @@ def _arbeitspreis_attrs(d: dict[str, Any]) -> dict[str, Any]:
 class VertragSensorDescription(SensorEntityDescription):
     value_fn: Callable[[dict[str, Any]], Any]
     attr_fn: Callable[[dict[str, Any]], dict[str, Any]] | None = None
+    icon_fn: Callable[[dict[str, Any]], str] | None = None
     energie_only: bool = False
     gas_only: bool = False
     wasser_only: bool = False
@@ -123,6 +124,13 @@ class VertragSensorDescription(SensorEntityDescription):
     tag_nacht_only: bool = False
     tiered_only: bool = False
     currency_icon: bool = False
+
+
+def _prognose_real_icon(d: dict[str, Any]) -> str:
+    wert = d.get("prognose_real")
+    if wert is None:
+        return "mdi:calculator-variant"
+    return "mdi:thumb-up" if wert >= 0 else "mdi:thumb-down"
 
 
 SENSOREN: tuple[VertragSensorDescription, ...] = (
@@ -316,6 +324,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         key="prognose_real",
         translation_key="prognose_real",
         icon="mdi:calculator-variant",
+        icon_fn=_prognose_real_icon,
         value_fn=lambda d: d.get("prognose_real"),
         attr_fn=lambda d: {
             "tendenz": None if d.get("prognose_real") is None else (
@@ -445,6 +454,8 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
 
     @property
     def icon(self) -> str | None:
+        if self.entity_description.icon_fn is not None:
+            return self.entity_description.icon_fn(self.coordinator.data or {})
         if self.entity_description.currency_icon:
             currency = (self.coordinator.data or {}).get("currency", "EUR")
             return _CURRENCY_ICON.get(currency, "mdi:cash")
