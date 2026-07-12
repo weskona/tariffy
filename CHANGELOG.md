@@ -2,6 +2,12 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.19.0] - 2026-07-12
+
+### Fixed
+
+- **README.md/CHANGELOG.md kept getting deleted from installations by HACS**: both files previously lived only at the repo root, not inside `custom_components/tariffy/`. HACS syncs that folder 1:1 from the repo, so any local file not part of the official package got removed on every update. Both files now also live inside `custom_components/tariffy/` so they're retained as part of the package.
+
 ## [1.18.0] - 2026-07-12
 
 ### Fixed
