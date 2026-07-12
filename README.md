@@ -68,6 +68,40 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 
 ---
 
+### The four cost sensors at a glance
+
+Tariffy has four sensors with a currency unit. Behind them are two independent questions:
+
+- **When?** – the standing **so far** (actual) or the forecast for **contract end** (projected)?
+- **What?** – a **raw amount** (instalment total or actual cost) or the **balance** between them (instalments minus cost = refund/balance due)?
+
+|  | **raw amount** | **balance (instalments − cost)** |
+|---|---|---|
+| **so far** | Cost (so far) `kosten_bisher` | Refund/balance due (so far) `guthaben_bisher` |
+| **contract end** (projected) | Installment total (contract term) `jahreskosten` | Refund/balance due (contract end) `prognose_real` |
+
+Important: **Installment total (contract term)** is *not* a cost forecast — it's simply `instalment × months`, just the payment plan, independent of actual consumption. Both balance sensors (`guthaben_bisher`, `prognose_real`) are positive when in credit, negative when a balance is due (see the `tendenz` attribute and the 👍/👎 icon).
+
+**Real example** (electricity contract: instalment 40 €/month, unit price 0.2977 €/kWh, base price 11.51 €/month, term 01.01.–31.12.2026 ≈ 11.96 months; today, after 6.31 months: 1,481.17 kWh consumed):
+
+```
+Cost (so far)                       = 1,481.17 kWh × 0.2977 €  + 11.51 € × 6.31 months  =    513.54 €
+Instalments paid so far (internal)  = 40 € × 6.31 months                               =    252.40 €
+→ Refund/balance due (so far)       = 252.40 € − 513.54 €                              =   −261.24 €  (balance due)
+
+Projected onto the full term: 1,481.17 kWh / 192 days × 364 days ≈ 2,808.1 kWh
+
+Installment total (contract term)   = 40 € × 11.96 months                              =    478.32 €
+Projected real cost (internal)      = 2,808.1 kWh × 0.2977 € + 11.51 € × 11.96 months   =    973.61 €
+→ Refund/balance due (contract end)  = 478.32 € − 973.61 €                              =   −495.29 €  (balance due, projected)
+```
+
+All four values match this contract's live sensors exactly. Consumption is well above what the instalment covers — the balance due grows from −261 € (today) to a projected −495 € (contract end), roughly in step with elapsed time (6.31 → 11.96 months, nearly 2×). That's the difference between the two balance sensors: one is the **current** standing, the other the **forecast** for contract end, assuming consumption continues at the same rate.
+
+All four require `unit price`; `Cost (so far)`, `Refund/balance due (so far)` and `Refund/balance due (contract end)` additionally require a configured consumption sensor.
+
+---
+
 ### Real consumption tracking
 
 When a **consumption sensor** is configured, Tariffy reads the historical meter value at contract start from **Long-Term Statistics** and calculates:
@@ -285,6 +319,40 @@ Wie Strom, zusätzlich:
 | Zählernummer | – | Energie | Zählernummer (Diagnose) |
 
 > Sensoren für **Nachttarif** (Economy 7 / TOU) und **Staffelpreise** erscheinen nur wenn im Config Flow aktiviert.
+
+---
+
+### Die vier Kosten-Sensoren im Überblick
+
+Tariffy hat vier Sensoren mit Währungseinheit. Dahinter stecken zwei unabhängige Fragen:
+
+- **Wann?** – der Stand **bis heute** (Ist) oder die Prognose fürs **Vertragsende** (hochgerechnet)?
+- **Was?** – ein **reiner Betrag** (Abschlag-Soll oder echte Kosten) oder die **Bilanz** daraus (Abschlag minus Kosten = Guthaben/Nachzahlung)?
+
+|  | **reiner Betrag** | **Bilanz (Abschlag − Kosten)** |
+|---|---|---|
+| **Bisher** | Kosten (Bisher) `kosten_bisher` | Guthaben/Nachzahlung (Bisher) `guthaben_bisher` |
+| **Vertragsende** (hochgerechnet) | Abschlag (Vertragslaufzeit) `jahreskosten` | Guthaben/Nachzahlung (Vertragsende) `prognose_real` |
+
+Wichtig: **Abschlag (Vertragslaufzeit)** ist *keine* Kosten-Prognose — es ist einfach `abschlag × laufzeit_monate`, also nur der Zahlungsplan, unabhängig vom tatsächlichen Verbrauch. Die beiden Bilanz-Sensoren (`guthaben_bisher`, `prognose_real`) sind positiv bei Guthaben, negativ bei Nachzahlung (siehe `tendenz`-Attribut und Icon 👍/👎).
+
+**Echtes Beispiel** (Stromvertrag: Abschlag 40 €/Monat, Arbeitspreis 0,2977 €/kWh, Grundpreis 11,51 €/Monat, Laufzeit 01.01.–31.12.2026 ≈ 11,96 Monate; Stand heute nach 6,31 Monaten: 1.481,17 kWh verbraucht):
+
+```
+Kosten (Bisher)                       = 1.481,17 kWh × 0,2977 €  + 11,51 € × 6,31 Monate  =    513,54 €
+Abschlag bisher gezahlt (intern)      = 40 € × 6,31 Monate                                =    252,40 €
+→ Guthaben/Nachzahlung (Bisher)       = 252,40 € − 513,54 €                               =   −261,24 €  (Nachzahlung)
+
+Hochgerechnet auf die volle Laufzeit: 1.481,17 kWh / 192 Tage × 364 Tage ≈ 2.808,1 kWh
+
+Abschlag (Vertragslaufzeit)           = 40 € × 11,96 Monate                               =    478,32 €
+Geschaetzte Kosten real (intern)      = 2.808,1 kWh × 0,2977 € + 11,51 € × 11,96 Monate    =    973,61 €
+→ Guthaben/Nachzahlung (Vertragsende)  = 478,32 € − 973,61 €                               =   −495,29 €  (Nachzahlung, prognostiziert)
+```
+
+Alle vier Werte entsprechen exakt den live angezeigten Sensoren dieses Vertrags. Man sieht: der Verbrauch liegt deutlich über dem, was der Abschlag deckt — die Nachzahlung wächst von −261 € (heute) auf prognostizierte −495 € (Vertragsende), fast im gleichen Verhältnis wie die Zeit fortschreitet (6,31 → 11,96 Monate, fast Faktor 2). Das zeigt den Unterschied zwischen den beiden Bilanz-Sensoren: einer ist der **aktuelle** Stand, der andere die **Prognose** zum Vertragsende, unter der Annahme dass der Verbrauch im gleichen Tempo weitergeht.
+
+Alle vier benötigen `arbeitspreis`; `kosten_bisher`, `guthaben_bisher` und `prognose_real` zusätzlich einen konfigurierten `verbrauch_sensor`.
 
 ---
 

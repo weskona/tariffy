@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.20.0] - 2026-07-12
+
+### Behoben
+
+- **README.md des Standalone-Repos (die von HACS/GitHub angezeigte Version) hatte die "vier Kosten-Sensoren"-Erklärung gar nicht**: Das ausführliche 2×2-Raster mit Rechenbeispiel für `jahreskosten`/`kosten_bisher`/`guthaben_bisher`/`prognose_real` war bisher nur in dieser separaten Dokumentations-Kopie enthalten, nie im eigentlichen Top-Level-README des Standalone-Repos. Jetzt in beiden Sprachabschnitten (Englisch + Deutsch) dort ergänzt.
+
 ## [1.19.0] - 2026-07-12
 
 ### Behoben

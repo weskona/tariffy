@@ -2,6 +2,12 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.20.0] - 2026-07-12
+
+### Fixed
+
+- **README.md was missing the "four cost sensors" explanation entirely**: the detailed 2×2 grid and worked numeric example for `jahreskosten`/`kosten_bisher`/`guthaben_bisher`/`prognose_real` had only been added to a separate documentation copy, never to this repo's actual README.md (the one HACS/GitHub display). Added to both the English and German sections now.
+
 ## [1.19.0] - 2026-07-12
 
 ### Fixed
