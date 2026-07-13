@@ -74,6 +74,32 @@ _CURRENCY_ICON: dict[str, str] = {
     "VND": "mdi:currency-vnd",
 }
 
+# hass.config.currency liefert den ISO-4217-Code (z.B. "EUR"), kein Symbol.
+# Fuer Einheiten-Strings ("EUR/kWh") wollen wir aber das Symbol ("€/kWh").
+_CURRENCY_SYMBOL: dict[str, str] = {
+    "EUR": "€",
+    "USD": "$",
+    "GBP": "£",
+    "JPY": "¥",
+    "CNY": "¥",
+    "KRW": "₩",
+    "INR": "₹",
+    "RUB": "₽",
+    "BRL": "R$",
+    "TRY": "₺",
+    "ILS": "₪",
+    "MYR": "RM",
+    "NGN": "₦",
+    "PHP": "₱",
+    "THB": "฿",
+    "TWD": "NT$",
+    "VND": "₫",
+}
+
+
+def _currency_symbol(code: str) -> str:
+    return _CURRENCY_SYMBOL.get(code, code)
+
 
 def _fmt_date(d: date | None) -> str | None:
     return d.strftime("%d.%m.%Y") if d else None
@@ -135,6 +161,16 @@ def _guthaben_icon_fn(key: str) -> Callable[[dict[str, Any]], str]:
             return "mdi:calculator-variant"
         return "mdi:thumb-up" if wert >= 0 else "mdi:thumb-down"
     return _icon
+
+
+def _abschlag_anpassung_icon(d: dict[str, Any]) -> str:
+    """Daumen runter, wenn eine Erhoehung empfohlen wird (droht Nachzahlung),
+    Daumen hoch, wenn der aktuelle Abschlag ausreicht oder zu hoch ist."""
+    empfehlung = d.get("abschlag_anpassung_empfohlen")
+    aktuell = d.get(CONF_ABSCHLAG)
+    if empfehlung is None or aktuell is None:
+        return "mdi:cash-sync"
+    return "mdi:thumb-down" if empfehlung > aktuell else "mdi:thumb-up"
 
 
 SENSOREN: tuple[VertragSensorDescription, ...] = (
@@ -390,6 +426,22 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
             ),
         },
     ),
+    VertragSensorDescription(
+        key="abschlag_anpassung_empfohlen",
+        translation_key="abschlag_anpassung_empfohlen",
+        icon="mdi:cash-sync",
+        icon_fn=_abschlag_anpassung_icon,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda d: d.get("abschlag_anpassung_empfohlen"),
+        attr_fn=lambda d: {
+            "aktueller_abschlag": d.get(CONF_ABSCHLAG),
+            "differenz": (
+                round(d["abschlag_anpassung_empfohlen"] - d[CONF_ABSCHLAG], 2)
+                if d.get("abschlag_anpassung_empfohlen") is not None and d.get(CONF_ABSCHLAG) is not None
+                else None
+            ),
+        },
+    ),
 )
 
 
@@ -442,7 +494,7 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
         d = coordinator.data or {}
         sparte = d.get(CONF_SPARTE)
-        currency = d.get("currency", "€")
+        currency = _currency_symbol(d.get("currency", "€"))
         wasser_einheit = d.get("wasser_einheit", "m³")
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
@@ -477,7 +529,7 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
                 self._attr_native_unit_of_measurement = sensor_unit or fallback
             else:
                 self._attr_native_unit_of_measurement = VERBRAUCH_KWH_EINHEIT
-        elif key == "empfohlener_abschlag":
+        elif key in ("empfohlener_abschlag", "abschlag_anpassung_empfohlen"):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
 
     @property

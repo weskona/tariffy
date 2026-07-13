@@ -13,9 +13,12 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_ABSCHLAG,
+    CONF_ABSCHLAG_AB_DATUM,
+    CONF_ABSCHLAG_VORHERIGER_WERT,
     CONF_ABSCHLAG_WARNUNG,
     CONF_ABSCHLAG_WARNUNG_SCHWELLE,
     DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE,
@@ -119,6 +122,56 @@ def _validiere_dezimal_felder(
             else:
                 user_input[key] = parsed
     return errors
+
+
+def _stamp_abschlag_change(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str, Any]:
+    """Merkt Datum + vorherigen Wert, wenn sich der Abschlag beim Bearbeiten
+    aendert — sonst wuerden "Guthaben/Nachzahlung (Bisher)" und "Abschlag
+    (Anpassung empfohlen)" faelschlich den NEUEN Abschlag auf die Zeit VOR
+    der Aenderung anwenden (rueckwirkende Neuberechnung).
+
+    Mehrere Aenderungen am SELBEN Tag zaehlen als eine einzige Korrektur
+    (kein neuer Stempel) — sonst wuerde z.B. ein Tippfehler, der noch am
+    selben Tag korrigiert wird, faelschlich so behandelt, als haette der
+    Zwischenwert die ganze bisherige Vertragslaufzeit gegolten.
+    """
+    alter_abschlag = alt.get(CONF_ABSCHLAG)
+    neuer_abschlag = neu.get(CONF_ABSCHLAG)
+    heute = dt_util.now().date().isoformat()
+    bereits_heute_gestempelt = alt.get(CONF_ABSCHLAG_AB_DATUM) == heute
+    if (
+        alter_abschlag is not None
+        and neuer_abschlag is not None
+        and round(float(alter_abschlag), 2) != round(float(neuer_abschlag), 2)
+        and not bereits_heute_gestempelt
+    ):
+        return {
+            **neu,
+            CONF_ABSCHLAG_AB_DATUM: heute,
+            CONF_ABSCHLAG_VORHERIGER_WERT: float(alter_abschlag),
+        }
+    if (
+        bereits_heute_gestempelt
+        and neuer_abschlag is not None
+        and alt.get(CONF_ABSCHLAG_VORHERIGER_WERT) is not None
+        and round(float(neuer_abschlag), 2) == round(float(alt[CONF_ABSCHLAG_VORHERIGER_WERT]), 2)
+    ):
+        # Korrektur am selben Tag landet exakt wieder beim urspruenglichen
+        # Wert (Netto-Aenderung heute = keine) - Historie sauber entfernen
+        # statt einen wirkungslosen Stempel stehen zu lassen.
+        ergebnis = {
+            k: v for k, v in neu.items()
+            if k not in (CONF_ABSCHLAG_AB_DATUM, CONF_ABSCHLAG_VORHERIGER_WERT)
+        }
+        return ergebnis
+    # Kein NEUER Wechsel (gleicher Wert oder Korrektur eines Wechsels von
+    # heute) - vorhandene Historie beibehalten, falls neu sie (z.B. weil das
+    # Formular sie nicht mitfuehrt) nicht schon enthaelt.
+    ergebnis = dict(neu)
+    for key in (CONF_ABSCHLAG_AB_DATUM, CONF_ABSCHLAG_VORHERIGER_WERT):
+        if key in alt and key not in ergebnis:
+            ergebnis[key] = alt[key]
+    return ergebnis
 
 
 def _dezimal_feld() -> selector.TextSelector:
@@ -588,9 +641,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         if user_input is not None:
-            return self.async_update_reload_and_abort(
-                entry, data={**self._data, **user_input}
-            )
+            neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_energie",
             data_schema=_energie_schema(dict(entry.data), _country_features(self.hass)),
@@ -601,9 +653,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         if user_input is not None:
-            return self.async_update_reload_and_abort(
-                entry, data={**self._data, **user_input}
-            )
+            neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_pauschal",
             data_schema=_pauschal_schema(dict(entry.data)),
@@ -617,9 +668,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             errors = _validiere_dezimal_felder(user_input)
             if not errors:
-                return self.async_update_reload_and_abort(
-                    entry, data={**self._data, **user_input}
-                )
+                neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+                return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_gas",
             data_schema=_gas_schema(user_input or dict(entry.data), _country_features(self.hass)),
@@ -631,9 +681,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         if user_input is not None:
-            return self.async_update_reload_and_abort(
-                entry, data={**self._data, **user_input}
-            )
+            neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_wasser",
             data_schema=_wasser_schema(dict(entry.data), _country_features(self.hass)),

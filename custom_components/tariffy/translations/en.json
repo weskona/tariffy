@@ -217,6 +217,9 @@
       "empfohlener_abschlag": {
         "name": "Monthly payment (recommended)"
       },
+      "abschlag_anpassung_empfohlen": {
+        "name": "Instalment adjustment (recommended)"
+      },
       "abschlag": {
         "name": "Monthly payment"
       },

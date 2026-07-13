@@ -476,6 +476,9 @@
       "empfohlener_abschlag": {
         "name": "Abschlag (Empfohlen)"
       },
+      "abschlag_anpassung_empfohlen": {
+        "name": "Abschlag (Anpassung empfohlen)"
+      },
       "abschlag": {
         "name": "Abschlag"
       }

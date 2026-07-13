@@ -2,6 +2,17 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.23.0] - 2026-07-14
+
+### Hinzugefügt
+
+- **Neuer Sensor „Abschlag (Anpassung empfohlen)"**: berechnet fortlaufend, was der Abschlag ab jetzt bis Vertragsende sein müsste, um exakt auszugleichen — im Unterschied zu „Abschlag (Empfohlen)" (nur nach Tarifwechsel, auf Basis der eingefrorenen letzten Laufzeit). Die Abschlag-Warnung-Benachrichtigung nennt jetzt zusätzlich diesen konkreten Empfehlungswert statt nur "Abschlag erhöhen".
+
+### Behoben
+
+- **Einheiten zeigten "EUR" statt "€"**: `hass.config.currency` liefert den ISO-4217-Code ("EUR"), kein Symbol. Alle Kosten-Sensoren (Arbeitspreis, Grundpreis, Abschlag, Kosten, Guthaben/Nachzahlung, ...) zeigten deshalb z. B. "EUR/kWh" statt "€/kWh". Wird jetzt für die gängigsten Währungen (EUR, USD, GBP, JPY, CNY, KRW, INR, RUB, BRL, TRY, ILS, MYR, NGN, PHP, THB, TWD, VND) in das jeweilige Symbol umgewandelt; unbekannte Codes zeigen weiterhin den rohen Code als Fallback.
+- **Abschlags-Änderung wurde rückwirkend auf die gesamte bisherige Vertragslaufzeit angewendet**: Erhöhte/verringerte man den Abschlag mitten im Vertrag, rechneten „Guthaben/Nachzahlung (Bisher)" und „Abschlag (Anpassung empfohlen)" fälschlich so, als hätte der NEUE Abschlag schon seit Vertragsbeginn gegolten. Tariffy merkt sich jetzt automatisch Datum und vorherigen Wert bei jeder Abschlags-Änderung (`config_flow.py::_stamp_abschlag_change`) und wendet den alten Abschlag korrekt nur bis zum Änderungsdatum an, den neuen erst danach. Mehrere Korrekturen am selben Tag zählen als eine einzige Änderung (kein rückwirkender Zwischenstand).
+
 ## [1.22.0] - 2026-07-14
 
 ### Hinzugefügt

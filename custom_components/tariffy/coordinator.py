@@ -16,6 +16,8 @@ from homeassistant.util import dt as dt_util
 from .const import (
     BASIS_FELDER,
     CONF_ABSCHLAG,
+    CONF_ABSCHLAG_AB_DATUM,
+    CONF_ABSCHLAG_VORHERIGER_WERT,
     CONF_ABSCHLAG_WARNUNG,
     CONF_ABSCHLAG_WARNUNG_BESTAETIGT,
     CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET,
@@ -128,6 +130,30 @@ def _parse_date(value: Any) -> date | None:
         return date.fromisoformat(str(value))
     except (ValueError, TypeError):
         return None
+
+
+def _abschlag_bisher_gezahlt(
+    abschlag: float, vergangene_monate: float, beginn: date, data: dict[str, Any]
+) -> float:
+    """Tatsaechlich bis heute gezahlter Abschlag — beruecksichtigt eine
+    Abschlags-Aenderung waehrend der laufenden Vertragslaufzeit (siehe
+    config_flow.py::_stamp_abschlag_change), damit ein kuerzlich geaenderter
+    Abschlag nicht rueckwirkend auf die Zeit VOR der Aenderung angewendet
+    wird (sonst wuerden "Guthaben/Nachzahlung (Bisher)" und "Abschlag
+    (Anpassung empfohlen)" faelschlich optimistischer/pessimistischer
+    ausfallen, als tatsaechlich gezahlt wurde).
+    """
+    ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
+    vorheriger_wert = data.get(CONF_ABSCHLAG_VORHERIGER_WERT)
+    if ab_datum is None or vorheriger_wert is None or ab_datum <= beginn:
+        return abschlag * vergangene_monate
+    monate_alt = (ab_datum - beginn).days / 30.44
+    if monate_alt >= vergangene_monate:
+        # Aenderung liegt (rechnerisch) noch nicht in der Vergangenheit —
+        # konservativ den alten Wert fuer die gesamte bisherige Zeit annehmen.
+        return vorheriger_wert * vergangene_monate
+    monate_neu = vergangene_monate - monate_alt
+    return vorheriger_wert * monate_alt + abschlag * monate_neu
 
 
 def _f(value: Any) -> float | None:
@@ -429,7 +455,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
 
     async def _handle_abschlag_warnung(
-        self, aktiv: bool, prognose_real: float | None, data: dict[str, Any]
+        self,
+        aktiv: bool,
+        prognose_real: float | None,
+        abschlag_empfehlung: float | None,
+        data: dict[str, Any],
     ) -> None:
         if not aktiv:
             # Bestaetigt-/Gesendet-Flags zuruecksetzen, damit eine kuenftige
@@ -451,11 +481,16 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if data.get(CONF_ABSCHLAG_WARNUNG_BESTAETIGT):
             return
         title = f"Abschlag zu niedrig: {self.entry.title}"
+        empfehlung_zeile = (
+            f"Empfehlung: Abschlag für die restliche Laufzeit auf ca. "
+            f"**{abschlag_empfehlung:.2f} €/Monat** anpassen.\n\n"
+            if abschlag_empfehlung is not None
+            else ""
+        )
         message = (
             f"Beim aktuellen Verbrauch ist am Vertragsende eine Nachzahlung "
             f"von ca. **{abs(prognose_real):.2f} €** zu erwarten.\n\n"
-            "Erwäge, deinen monatlichen Abschlag zu erhöhen, um eine hohe "
-            "Nachzahlung zu vermeiden.\n\n"
+            f"{empfehlung_zeile}"
             "_Diese Meldung bleibt bestehen, bis du sie über den Button "
             "'Abschlag-Warnung bestätigen' quittierst._"
         )
@@ -613,6 +648,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         verbrauch_bisher: float | None = None
         verbrauch_hochgerechnet: float | None = None
         prognose_real: float | None = None
+        abschlag_anpassung_empfohlen: float | None = None
 
         if verbrauch_sensor and beginn:
             # Aktuellen kumulierten Wert lesen (reset-sicher über 'sum', s.o.).
@@ -673,6 +709,22 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                                 prognose_real = round(
                                     abschlagssumme - geschaetzte_kosten_real, 2
                                 )
+                            # Abschlags-Anpassung fuer den REST des laufenden
+                            # Vertrags: was muesste der Abschlag ab jetzt sein,
+                            # um unter Beruecksichtigung des bereits gezahlten
+                            # Abschlags bis Vertragsende exakt auszugleichen?
+                            if abschlag is not None:
+                                vergangene_monate_hier = vergangene_tage / 30.44
+                                restlaufzeit_monate = laufzeit_monate - vergangene_monate_hier
+                                if restlaufzeit_monate > 0:
+                                    abschlag_bisher_gezahlt = _abschlag_bisher_gezahlt(
+                                        abschlag, vergangene_monate_hier, beginn, data
+                                    )
+                                    abschlag_anpassung_empfohlen = round(
+                                        (geschaetzte_kosten_real - abschlag_bisher_gezahlt)
+                                        / restlaufzeit_monate,
+                                        2,
+                                    )
 
         # Tatsächliche Kosten bisher (auf Basis realer Messung)
         kosten_bisher: float | None = None
@@ -701,7 +753,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     # gesamte Vertragslaufzeit, sondern der Stand von heute.
                     if abschlag is not None:
                         guthaben_bisher = round(
-                            abschlag * _vergangene_monate_kb - kosten_bisher, 2
+                            _abschlag_bisher_gezahlt(
+                                abschlag, _vergangene_monate_kb, beginn, data
+                            )
+                            - kosten_bisher,
+                            2,
                         )
 
         # Tag/Nacht-Tarif (Economy 7 / TOU)
@@ -789,7 +845,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             and prognose_real is not None
             and prognose_real < -warnung_schwelle
         )
-        await self._handle_abschlag_warnung(warnung_aktiv, prognose_real, data)
+        await self._handle_abschlag_warnung(
+            warnung_aktiv, prognose_real, abschlag_anpassung_empfohlen, data
+        )
         # warnung_aktiv bleibt bewusst unabhaengig von "bestaetigt" (siehe
         # _handle_abschlag_warnung), damit sich eine erneut verschlechterte
         # Prognose spaeter wieder frisch meldet. Fuer die Button-Sichtbarkeit
@@ -840,6 +898,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "verbrauch_bisher": verbrauch_bisher,
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,
             "prognose_real": prognose_real,
+            "abschlag_anpassung_empfohlen": abschlag_anpassung_empfohlen,
             "kosten_bisher": kosten_bisher,
             "guthaben_bisher": guthaben_bisher,
             "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,

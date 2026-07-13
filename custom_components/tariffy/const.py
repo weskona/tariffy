@@ -102,6 +102,14 @@ CONF_ABSCHLAG_WARNUNG_BESTAETIGT = "_abschlag_warnung_bestaetigt"
 CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET = "_abschlag_warnung_notify_gesendet"
 NOTIFY_ID_ABSCHLAG_PREFIX = "tariffy_abschlag_warnung_"
 
+# Abschlags-Historie: wird beim Bearbeiten eines Vertrags automatisch
+# nachgefuehrt (siehe config_flow.py::_stamp_abschlag_change), damit
+# "Guthaben/Nachzahlung (Bisher)" und "Abschlag (Anpassung empfohlen)"
+# nicht rueckwirkend mit dem NEUEN Abschlag rechnen, wenn er erst kuerzlich
+# geaendert wurde.
+CONF_ABSCHLAG_AB_DATUM = "_abschlag_ab_datum"
+CONF_ABSCHLAG_VORHERIGER_WERT = "_abschlag_vorheriger_wert"
+
 # Zukünftiger Vertrag
 NEXT_PREFIX = "next_"
 

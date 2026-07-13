@@ -2,6 +2,17 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.23.0] - 2026-07-14
+
+### Added
+
+- **New sensor "Instalment adjustment (recommended)"**: continuously calculates what the instalment should be from now until contract end to break even exactly — unlike "Monthly payment (recommended)" (only available after a tariff switch, based on the frozen last-period consumption). The low-instalment warning notification now also states this concrete recommendation instead of just "consider raising your instalment".
+
+### Fixed
+
+- **Units showed "EUR" instead of "€"**: `hass.config.currency` returns the ISO 4217 code ("EUR"), not a symbol. All cost sensors (unit price, base price, instalment, costs, refund/balance due, ...) showed e.g. "EUR/kWh" instead of "€/kWh". Now converted to the proper symbol for common currencies (EUR, USD, GBP, JPY, CNY, KRW, INR, RUB, BRL, TRY, ILS, MYR, NGN, PHP, THB, TWD, VND); unknown codes still fall back to the raw code.
+- **Instalment changes were applied retroactively to the entire elapsed contract period**: raising or lowering the instalment mid-contract made "Refund/balance due (so far)" and "Instalment adjustment (recommended)" incorrectly calculate as if the NEW instalment had applied since day one. Tariffy now automatically remembers the date and previous value on every instalment change and applies the old instalment correctly only up to that date, the new one from then on. Multiple corrections on the same day count as a single change (no retroactive intermediate state).
+
 ## [1.22.0] - 2026-07-14
 
 ### Added

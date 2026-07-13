@@ -45,6 +45,7 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 | Base price | €/month | Energy | Monthly base fee |
 | Monthly payment | €/month | All | Monthly instalment |
 | Monthly payment (recommended) | €/month | Energy | Based on last period consumption × current rates |
+| Instalment adjustment (recommended) | €/month | Energy+Water | What the instalment should be from now until contract end to break even exactly — unlike "Monthly payment (recommended)" (only after a tariff switch), this updates continuously during the current contract |
 | Installment total (contract term) | € | All | Instalment × contract duration in months — a payment plan total, **not** a cost forecast |
 | Cost (so far) | € | Energy+Water | Actual costs incurred since contract start (real consumption) |
 | Refund/balance due (so far) | € | Energy | Instalments paid so far − Cost (so far), as of today (no projection). Icon shows 👍/👎 depending on sign |
@@ -180,6 +181,9 @@ Opt-in per contract (electricity/gas/water with a configured consumption sensor)
 - **Threshold** (€ balance due, default 50 €): fires when `prognose_real < -threshold`.
 - **Acknowledge**: "Confirm low-instalment warning" button removes the notification for the current episode. If the forecast recovers above the threshold and later worsens again, the warning fires again automatically — acknowledging isn't a permanent mute, just a dismissal of the current episode.
 - The raw state (independent of acknowledgement) is exposed as the `abschlag_warnung_aktiv` attribute on the "Refund/balance due (contract end)" sensor.
+- The notification message includes a concrete recommendation ("adjust your instalment to about X €/month") from the "Instalment adjustment (recommended)" sensor, if computable.
+
+> **No retroactive recalculation on instalment changes.** If you raise or lower your instalment mid-contract, Tariffy remembers the date and the previous value and applies the old instalment correctly only up to that date, the new one from then on — "Refund/balance due (so far)" and "Instalment adjustment (recommended)" won't suddenly jump as if the new instalment had applied since day one. Multiple corrections on the same day count as a single change.
 
 ---
 
@@ -311,6 +315,7 @@ Wie Strom, zusätzlich:
 | Grundpreis | €/Monat | Energie | Monatliche Grundgebühr |
 | Abschlag | €/Monat | Alle | Monatlicher Abschlag |
 | Abschlag (Empfohlen) | €/Monat | Energie | Basiert auf realem Verbrauch der letzten Laufzeit × aktuelle Preise |
+| Abschlag (Anpassung empfohlen) | €/Monat | Energie+Wasser | Was der Abschlag ab jetzt bis Vertragsende sein müsste, um exakt auszugleichen — im Unterschied zu „Abschlag (Empfohlen)" (erst nach Tarifwechsel) läuft dieser fortlaufend während des aktuellen Vertrags mit |
 | Abschlag (Vertragslaufzeit) | € | Alle | Abschlag × Laufzeit in Monaten (reiner Zahlungsplan, keine Kosten-Prognose) |
 | Kosten (Bisher) | € | Energie+Wasser | Tatsächlich angefallene Kosten seit Vertragsbeginn (Echte Messung) |
 | Guthaben/Nachzahlung (Bisher) | € | Energie | Abschlag bisher gezahlt − Kosten (Bisher), Stand von heute (keine Hochrechnung). Icon zeigt 👍/👎 je nach Vorzeichen |
@@ -444,6 +449,9 @@ Pro Vertrag zuschaltbar (Strom/Gas/Wasser mit konfiguriertem Verbrauchssensor): 
 - **Warnschwelle** (€ Nachzahlung, Default 50 €): Warnung feuert, wenn `prognose_real < -Schwelle`.
 - **Quittieren**: Button „Abschlag-Warnung bestätigen" entfernt die Meldung für die aktuelle Episode. Verbessert sich die Prognose danach wieder über die Schwelle und verschlechtert sie sich später erneut, wird automatisch wieder gewarnt — kein dauerhaftes Stummschalten.
 - Der Rohzustand (unabhängig vom Bestätigt-Status) steht als Attribut `abschlag_warnung_aktiv` am Sensor „Guthaben/Nachzahlung (Vertragsende)".
+- Die Benachrichtigung nennt zusätzlich einen konkreten Empfehlungswert ("Abschlag auf ca. X €/Monat anpassen") aus dem Sensor „Abschlag (Anpassung empfohlen)", sofern berechenbar.
+
+> **Keine rückwirkende Neuberechnung bei Abschlags-Änderung.** Erhöhst oder senkst du deinen Abschlag mitten im Vertrag, merkt sich Tariffy Datum und vorherigen Wert und wendet den alten Abschlag korrekt nur bis zu diesem Zeitpunkt an, den neuen erst danach — „Guthaben/Nachzahlung (Bisher)" und „Abschlag (Anpassung empfohlen)" springen nicht plötzlich so, als hätte der neue Abschlag schon seit Vertragsbeginn gegolten. Mehrere Korrekturen am selben Tag zählen als eine Änderung.
 
 ---
 
