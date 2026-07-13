@@ -38,6 +38,8 @@
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "bonus": "Sign-up bonus (€)",
           "oekostrom": "Green energy",
           "zaehlernummer": "Meter number",
@@ -53,6 +55,8 @@
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "bonus": "Sign-up bonus (€)",
           "oekostrom": "Green energy",
           "zaehlernummer": "Meter number",
@@ -68,6 +72,8 @@
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (m³)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "brennwert": "Calorific value (kWh/m³)",
           "zustandszahl": "State number (Z)",
           "bonus": "Sign-up bonus (€)",
@@ -85,6 +91,8 @@
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (m³)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "brennwert": "Calorific value (kWh/m³)",
           "zustandszahl": "State number (Z)",
           "bonus": "Sign-up bonus (€)",
@@ -249,6 +257,9 @@
       },
       "kuendigung_bestaetigen": {
         "name": "Confirm cancellation"
+      },
+      "abschlag_warnung_bestaetigen": {
+        "name": "Confirm low-instalment warning"
       }
     }
   }

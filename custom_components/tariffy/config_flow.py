@@ -16,6 +16,9 @@ from homeassistant.helpers import selector
 
 from .const import (
     CONF_ABSCHLAG,
+    CONF_ABSCHLAG_WARNUNG,
+    CONF_ABSCHLAG_WARNUNG_SCHWELLE,
+    DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
     CONF_BEGINN,
@@ -141,6 +144,21 @@ def _preis(step=None) -> selector.NumberSelector:
             min=0, step="any", mode=selector.NumberSelectorMode.BOX
         )
     )
+
+
+def _abschlag_warnung_fields(d: dict[str, Any]) -> dict[Any, Any]:
+    """Optionale Warnung, wenn die Prognose zum Vertragsende eine Nachzahlung
+    ueber der Schwelle erwarten laesst. Nur sinnvoll fuer Sparten mit echter
+    Verbrauchsmessung (Energie/Wasser), daher hier statt in _common_schema."""
+    return {
+        vol.Optional(
+            CONF_ABSCHLAG_WARNUNG, default=bool(d.get(CONF_ABSCHLAG_WARNUNG, False))
+        ): selector.BooleanSelector(),
+        vol.Optional(
+            CONF_ABSCHLAG_WARNUNG_SCHWELLE,
+            default=d.get(CONF_ABSCHLAG_WARNUNG_SCHWELLE, DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE),
+        ): _preis(1.0),
+    }
 
 
 def _verbrauch() -> selector.NumberSelector:
@@ -291,6 +309,7 @@ def _energie_schema(d: dict[str, Any], features: dict | None = None) -> vol.Sche
             _opt(CONF_VERBRAUCH_SENSOR, d.get(CONF_VERBRAUCH_SENSOR)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             ),
+            **_abschlag_warnung_fields(d),
             **_einspeisung_fields(d),
             _opt(CONF_BONUS, d.get(CONF_BONUS)): _preis(0.01),
             vol.Required(
@@ -339,6 +358,7 @@ def _gas_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
             vol.Required(
                 CONF_ZUSTANDSZAHL, default=_dezimal_default(d.get(CONF_ZUSTANDSZAHL, 0.95))
             ): _dezimal_feld(),
+            **_abschlag_warnung_fields(d),
             _opt(CONF_BONUS, d.get(CONF_BONUS)): _preis(0.01),
             vol.Required(
                 CONF_OEKOSTROM, default=bool(d.get(CONF_OEKOSTROM, False))
@@ -419,6 +439,7 @@ def _wasser_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schem
             _opt(CONF_VERBRAUCH_SENSOR, d.get(CONF_VERBRAUCH_SENSOR)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             ),
+            **_abschlag_warnung_fields(d),
             _opt(CONF_ZAEHLERNUMMER, d.get(CONF_ZAEHLERNUMMER)): selector.TextSelector(),
             **_tiered_fields(d, enabled=f.get("hat_tiered", True)),
         }

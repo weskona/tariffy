@@ -58,6 +58,8 @@
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
           "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "abschlag_warnung": "Warnen, wenn Abschlag zu niedrig ist",
+          "abschlag_warnung_schwelle": "Warnschwelle (€ Nachzahlung)",
           "einspeiseverguetung": "Einspeisevergütung (€/kWh, optional)",
           "bonus": "Neukundenbonus / Sofortbonus (€)",
           "oekostrom": "Ökostrom",
@@ -101,6 +103,8 @@
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
           "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "abschlag_warnung": "Warnen, wenn Abschlag zu niedrig ist",
+          "abschlag_warnung_schwelle": "Warnschwelle (€ Nachzahlung)",
           "einspeiseverguetung": "Einspeisevergütung (€/kWh, optional)",
           "bonus": "Neukundenbonus / Sofortbonus (€)",
           "oekostrom": "Ökostrom",
@@ -145,6 +149,8 @@
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (m³)",
           "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "abschlag_warnung": "Warnen, wenn Abschlag zu niedrig ist",
+          "abschlag_warnung_schwelle": "Warnschwelle (€ Nachzahlung)",
           "brennwert": "Brennwert (kWh/m³)",
           "zustandszahl": "Zustandszahl",
           "bonus": "Neukundenbonus / Sofortbonus (€)",
@@ -192,6 +198,8 @@
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (m³)",
           "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "abschlag_warnung": "Warnen, wenn Abschlag zu niedrig ist",
+          "abschlag_warnung_schwelle": "Warnschwelle (€ Nachzahlung)",
           "brennwert": "Brennwert (kWh/m³)",
           "zustandszahl": "Zustandszahl",
           "bonus": "Neukundenbonus / Sofortbonus (€)",
@@ -262,6 +270,8 @@
           "abschlag": "Monatlicher Abschlag",
           "jahresverbrauch": "Jahresverbrauch",
           "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "abschlag_warnung": "Warnen, wenn Abschlag zu niedrig ist",
+          "abschlag_warnung_schwelle": "Warnschwelle (€ Nachzahlung)",
           "abwasser_typ": "Abwasser-Abrechnungstyp",
           "arbeitspreis_abwasser": "Abwassergebühr",
           "zaehlernummer": "Zählernummer",
@@ -298,6 +308,8 @@
           "abschlag": "Monatlicher Abschlag",
           "jahresverbrauch": "Jahresverbrauch",
           "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "abschlag_warnung": "Warnen, wenn Abschlag zu niedrig ist",
+          "abschlag_warnung_schwelle": "Warnschwelle (€ Nachzahlung)",
           "abwasser_typ": "Abwasser-Abrechnungstyp",
           "arbeitspreis_abwasser": "Abwassergebühr",
           "zaehlernummer": "Zählernummer",
@@ -474,6 +486,9 @@
       },
       "kuendigung_bestaetigen": {
         "name": "Kündigung bestätigen"
+      },
+      "abschlag_warnung_bestaetigen": {
+        "name": "Abschlag-Warnung bestätigen"
       }
     }
   }

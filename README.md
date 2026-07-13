@@ -147,6 +147,7 @@ This gives a data-driven recommendation for the monthly instalment in the new co
 |--------|-------------|
 | Switch now | Promotes the stored next tariff immediately (without waiting for the switch date) — freezes the ending period's consumption exactly like the automatic switch |
 | Confirm cancellation | Acknowledges the reminder and removes the persistent notification |
+| Confirm low-instalment warning | Acknowledges the low-instalment warning and removes the persistent notification (re-arms automatically if the forecast worsens again later) |
 
 ---
 
@@ -168,6 +169,17 @@ When contract end is set and the reminder period is reached:
 1. **Persistent notification** in the HA notification centre
 2. One-time **push notification** via the configured notify service
 3. **"Confirm cancellation"** button to acknowledge
+
+---
+
+### Low-instalment warning (optional)
+
+Opt-in per contract (electricity/gas/water with a configured consumption sensor): warns via persistent notification (+ optional push notification) when the contract-end forecast (`prognose_real`, see "Refund/balance due (contract end)" above) projects a balance due beyond a configurable threshold.
+
+- **Enable**: "Warn if instalment is too low" checkbox in the contract's config/reconfigure flow. Off by default.
+- **Threshold** (€ balance due, default 50 €): fires when `prognose_real < -threshold`.
+- **Acknowledge**: "Confirm low-instalment warning" button removes the notification for the current episode. If the forecast recovers above the threshold and later worsens again, the warning fires again automatically — acknowledging isn't a permanent mute, just a dismissal of the current episode.
+- The raw state (independent of acknowledgement) is exposed as the `abschlag_warnung_aktiv` attribute on the "Refund/balance due (contract end)" sensor.
 
 ---
 
@@ -399,6 +411,7 @@ So erhält man eine datenbasierte Empfehlung für den monatlichen Abschlag im ne
 |--------|-------------|
 | Jetzt wechseln | Übernimmt den hinterlegten Folgetarif sofort (ohne auf das Datum zu warten) — friert den Verbrauch der endenden Laufzeit exakt wie beim automatischen Wechsel ein |
 | Kündigung bestätigen | Quittiert die Erinnerung und entfernt die Dauerbenachrichtigung |
+| Abschlag-Warnung bestätigen | Quittiert die Nachzahlungs-Warnung und entfernt die Dauerbenachrichtigung (meldet sich automatisch neu, falls sich die Prognose später wieder verschlechtert) |
 
 ---
 
@@ -420,6 +433,17 @@ Wenn Vertragsende gesetzt und der Erinnerungszeitraum erreicht ist:
 1. **Dauerbenachrichtigung** im HA-Benachrichtigungscenter
 2. Einmalige **Push-Benachrichtigung** via konfiguriertem notify-Dienst
 3. Button **„Kündigung bestätigen"** zum Quittieren
+
+---
+
+### Abschlag-Warnung (optional)
+
+Pro Vertrag zuschaltbar (Strom/Gas/Wasser mit konfiguriertem Verbrauchssensor): warnt per Dauerbenachrichtigung (+ optional Push-Benachrichtigung), wenn die Prognose zum Vertragsende (`prognose_real`, siehe „Guthaben/Nachzahlung (Vertragsende)" oben) eine Nachzahlung über einer einstellbaren Schwelle erwarten lässt.
+
+- **Aktivieren**: Checkbox „Warnen, wenn Abschlag zu niedrig ist" im Config-/Reconfigure-Flow des Vertrags. Standardmäßig aus.
+- **Warnschwelle** (€ Nachzahlung, Default 50 €): Warnung feuert, wenn `prognose_real < -Schwelle`.
+- **Quittieren**: Button „Abschlag-Warnung bestätigen" entfernt die Meldung für die aktuelle Episode. Verbessert sich die Prognose danach wieder über die Schwelle und verschlechtert sie sich später erneut, wird automatisch wieder gewarnt — kein dauerhaftes Stummschalten.
+- Der Rohzustand (unabhängig vom Bestätigt-Status) steht als Attribut `abschlag_warnung_aktiv` am Sensor „Guthaben/Nachzahlung (Vertragsende)".
 
 ---
 

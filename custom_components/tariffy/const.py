@@ -93,6 +93,15 @@ CONF_NOTIFY_GESENDET = "_notify_gesendet"
 
 NOTIFY_ID_PREFIX = "tariffy_kuendigung_"
 
+# Abschlag-Warnung (optional, pro Vertrag): warnt, wenn die Prognose zum
+# Vertragsende eine Nachzahlung ueber der Schwelle erwarten laesst.
+CONF_ABSCHLAG_WARNUNG = "abschlag_warnung"
+CONF_ABSCHLAG_WARNUNG_SCHWELLE = "abschlag_warnung_schwelle"
+DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE = 50.0
+CONF_ABSCHLAG_WARNUNG_BESTAETIGT = "_abschlag_warnung_bestaetigt"
+CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET = "_abschlag_warnung_notify_gesendet"
+NOTIFY_ID_ABSCHLAG_PREFIX = "tariffy_abschlag_warnung_"
+
 # Zukünftiger Vertrag
 NEXT_PREFIX = "next_"
 

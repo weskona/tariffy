@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.22.0] - 2026-07-14
+
+### Hinzugefügt
+
+- **Optionale Abschlag-Warnung** (pro Vertrag, nur Energie/Wasser mit `verbrauch_sensor`): warnt per `persistent_notification` (+ optional `notify.*`), wenn die Prognose zum Vertragsende (`prognose_real`) eine Nachzahlung über einer einstellbaren Schwelle (Default 50 €) erwarten lässt. Neuer Button „Abschlag-Warnung bestätigen" zum Entfernen der Meldung — verschlechtert sich die Prognose danach erneut, wird automatisch wieder gewarnt (kein dauerhaftes Stummschalten). Rohzustand zusätzlich als Attribut `abschlag_warnung_aktiv` am Sensor „Guthaben/Nachzahlung (Vertragsende)".
+
 ## [1.21.0] - 2026-07-14
 
 ### Behoben

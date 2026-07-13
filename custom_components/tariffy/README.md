@@ -134,6 +134,15 @@ Aktiv für Länder wie US, CA, AU, ES, PT, IT u. a. Blockweise Berechnung über 
 
 Im Options-Flow lässt sich ein Nachfolgevertrag mit Startdatum hinterlegen. Der Wechsel wird exakt bei Datumswechsel geprüft (täglich um 00:00:01 Uhr via `async_track_time_change`), zusätzlich bei jedem regulären 6-Stunden-Poll und beim HA-Start als Fallback. Sobald das Wechseldatum erreicht ist: neue Vertragsdaten werden aktiv, der Verbrauch der endenden Laufzeit wird eingefroren (siehe „Verbrauch (Letzte Laufzeit)“ oben), und die Options werden geleert.
 
+## Abschlag-Warnung (optional)
+
+Pro Vertrag zuschaltbar (nur Energie/Wasser, benötigt einen konfigurierten `verbrauch_sensor`): warnt per `persistent_notification` (+ optional `notify.*`), wenn die Prognose zum Vertragsende (`prognose_real`, siehe „Guthaben/Nachzahlung (Vertragsende)“ oben) eine Nachzahlung über der eingestellten Schwelle erwarten lässt.
+
+- **Aktivieren**: Checkbox „Warnen, wenn Abschlag zu niedrig ist" im Config-/Reconfigure-Flow des jeweiligen Vertrags. Standardmäßig aus.
+- **Warnschwelle** (€ Nachzahlung, Default 50 €): Warnung feuert, wenn `prognose_real < -Schwelle`.
+- **Bestätigen**: Button „Abschlag-Warnung bestätigen" entfernt die Dauerbenachrichtigung für die aktuelle Episode. Verbessert sich die Prognose danach wieder über die Schwelle (z. B. durch einen höheren Abschlag oder geringeren Verbrauch) und verschlechtert sie sich später erneut, wird automatisch wieder gewarnt — die Bestätigung ist also keine dauerhafte Stummschaltung, sondern gilt nur für die aktuelle Verschlechterung.
+- Der rohe Zustand (unabhängig vom Bestätigt-Status) steht als Attribut `abschlag_warnung_aktiv` am Sensor „Guthaben/Nachzahlung (Vertragsende)".
+
 ## Bekannte Einschränkungen
 
 - Die Umrechnung „vergangene Tage → Monate“ nutzt überall den Faktor `30.44` (Durchschnittsmonatslänge), keine kalendergenaue Monatsrechnung.

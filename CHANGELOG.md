@@ -2,6 +2,12 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.22.0] - 2026-07-14
+
+### Added
+
+- **Optional low-instalment warning** (per contract, electricity/gas/water with a consumption sensor): warns via persistent notification (+ optional push notification) when the contract-end forecast (`prognose_real`) projects a balance due beyond a configurable threshold (default 50 €). New "Confirm low-instalment warning" button to dismiss — if the forecast worsens again afterwards, it fires again automatically (no permanent mute). Raw state also exposed as the `abschlag_warnung_aktiv` attribute on the "Refund/balance due (contract end)" sensor.
+
 ## [1.21.0] - 2026-07-14
 
 ### Fixed

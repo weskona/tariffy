@@ -335,6 +335,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
                 "Guthaben" if d.get("prognose_real", 0) >= 0 else "Nachzahlung"
             ),
             "verbrauch_hochgerechnet": d.get("verbrauch_hochgerechnet"),
+            "abschlag_warnung_aktiv": d.get("abschlag_warnung_aktiv"),
         },
     ),
     VertragSensorDescription(

@@ -58,6 +58,8 @@
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
           "verbrauch_sensor": "Consumption sensor (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
           "bonus": "Sign-up bonus (€)",
           "oekostrom": "Green energy",
@@ -101,6 +103,8 @@
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
           "verbrauch_sensor": "Consumption sensor (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
           "bonus": "Sign-up bonus (€)",
           "oekostrom": "Green energy",
@@ -145,6 +149,8 @@
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (m³)",
           "verbrauch_sensor": "Consumption sensor (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "brennwert": "Calorific value (kWh/m³)",
           "zustandszahl": "State number (Z)",
           "bonus": "Sign-up bonus (€)",
@@ -192,6 +198,8 @@
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (m³)",
           "verbrauch_sensor": "Consumption sensor (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "brennwert": "Calorific value (kWh/m³)",
           "zustandszahl": "State number (Z)",
           "bonus": "Sign-up bonus (€)",
@@ -262,6 +270,8 @@
           "abschlag": "Monthly instalment",
           "jahresverbrauch": "Annual usage",
           "verbrauch_sensor": "Consumption sensor (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "abwasser_typ": "Wastewater billing type",
           "arbeitspreis_abwasser": "Wastewater charge",
           "zaehlernummer": "Meter number",
@@ -298,6 +308,8 @@
           "abschlag": "Monthly instalment",
           "jahresverbrauch": "Annual usage",
           "verbrauch_sensor": "Consumption sensor (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "abwasser_typ": "Wastewater billing type",
           "arbeitspreis_abwasser": "Wastewater charge",
           "zaehlernummer": "Meter number",
@@ -480,6 +492,9 @@
       },
       "kuendigung_bestaetigen": {
         "name": "Confirm cancellation"
+      },
+      "abschlag_warnung_bestaetigen": {
+        "name": "Confirm low-instalment warning"
       }
     }
   }

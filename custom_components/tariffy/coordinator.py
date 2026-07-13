@@ -16,6 +16,12 @@ from homeassistant.util import dt as dt_util
 from .const import (
     BASIS_FELDER,
     CONF_ABSCHLAG,
+    CONF_ABSCHLAG_WARNUNG,
+    CONF_ABSCHLAG_WARNUNG_BESTAETIGT,
+    CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET,
+    CONF_ABSCHLAG_WARNUNG_SCHWELLE,
+    DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE,
+    NOTIFY_ID_ABSCHLAG_PREFIX,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
     CONF_BEGINN,
@@ -304,6 +310,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _notification_id(self) -> str:
         return f"{NOTIFY_ID_PREFIX}{self.entry.entry_id}"
 
+    @property
+    def _abschlag_notification_id(self) -> str:
+        return f"{NOTIFY_ID_ABSCHLAG_PREFIX}{self.entry.entry_id}"
+
     # -------------------------------------------------------------- Wechsel
     def _switch_now(self, verbrauch_letzte: float | None = None) -> None:
         nxt = dict(self.entry.options)
@@ -403,6 +413,66 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             await self._send_notify(title, message)
             self.hass.config_entries.async_update_entry(
                 self.entry, data={**self.entry.data, CONF_NOTIFY_GESENDET: True}
+            )
+
+    # ------------------------------------------------------ Abschlag-Warnung
+    async def async_confirm_abschlag_warnung(self) -> None:
+        await self.hass.services.async_call(
+            "persistent_notification",
+            "dismiss",
+            {"notification_id": self._abschlag_notification_id},
+            blocking=True,
+        )
+        self.hass.config_entries.async_update_entry(
+            self.entry,
+            data={**self.entry.data, CONF_ABSCHLAG_WARNUNG_BESTAETIGT: True},
+        )
+
+    async def _handle_abschlag_warnung(
+        self, aktiv: bool, prognose_real: float | None, data: dict[str, Any]
+    ) -> None:
+        if not aktiv:
+            # Bestaetigt-/Gesendet-Flags zuruecksetzen, damit eine kuenftige
+            # neue Nachzahlungs-Warnung (z.B. nach Tarifwechsel oder
+            # Abschlagserhoehung und erneuter Verschlechterung) wieder frisch
+            # ausgeloest wird, statt dauerhaft unterdrueckt zu bleiben.
+            if data.get(CONF_ABSCHLAG_WARNUNG_BESTAETIGT) or data.get(
+                CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET
+            ):
+                self.hass.config_entries.async_update_entry(
+                    self.entry,
+                    data={
+                        **self.entry.data,
+                        CONF_ABSCHLAG_WARNUNG_BESTAETIGT: False,
+                        CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET: False,
+                    },
+                )
+            return
+        if data.get(CONF_ABSCHLAG_WARNUNG_BESTAETIGT):
+            return
+        title = f"Abschlag zu niedrig: {self.entry.title}"
+        message = (
+            f"Beim aktuellen Verbrauch ist am Vertragsende eine Nachzahlung "
+            f"von ca. **{abs(prognose_real):.2f} €** zu erwarten.\n\n"
+            "Erwäge, deinen monatlichen Abschlag zu erhöhen, um eine hohe "
+            "Nachzahlung zu vermeiden.\n\n"
+            "_Diese Meldung bleibt bestehen, bis du sie über den Button "
+            "'Abschlag-Warnung bestätigen' quittierst._"
+        )
+        await self.hass.services.async_call(
+            "persistent_notification",
+            "create",
+            {
+                "notification_id": self._abschlag_notification_id,
+                "title": title,
+                "message": message,
+            },
+        )
+        if not data.get(CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET):
+            await self._send_notify(title, message)
+            self.hass.config_entries.async_update_entry(
+                self.entry,
+                data={**self.entry.data, CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET: True},
             )
 
     # ------------------------------------------------- Verbrauch Hochrechnung
@@ -711,6 +781,23 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         await self._handle_reminder(aktiv, ende, data)
 
+        warnung_schwelle = float(
+            data.get(CONF_ABSCHLAG_WARNUNG_SCHWELLE) or DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE
+        )
+        warnung_aktiv = bool(
+            data.get(CONF_ABSCHLAG_WARNUNG)
+            and prognose_real is not None
+            and prognose_real < -warnung_schwelle
+        )
+        await self._handle_abschlag_warnung(warnung_aktiv, prognose_real, data)
+        # warnung_aktiv bleibt bewusst unabhaengig von "bestaetigt" (siehe
+        # _handle_abschlag_warnung), damit sich eine erneut verschlechterte
+        # Prognose spaeter wieder frisch meldet. Fuer die Button-Sichtbarkeit
+        # (soll nach Bestaetigen verschwinden) daher ein separates Flag.
+        warnung_zu_bestaetigen = bool(
+            warnung_aktiv and not data.get(CONF_ABSCHLAG_WARNUNG_BESTAETIGT)
+        )
+
         return {
             "currency": currency,
             "gas_einheit": gas_einheit,
@@ -762,6 +849,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "erinnerung_aktiv": aktiv,
             "erinnerung_bestaetigt": bestaetigt,
             "erinnerung_monate": monate,
+            "abschlag_warnung_aktiv": warnung_aktiv,
+            "abschlag_warnung_zu_bestaetigen": warnung_zu_bestaetigen,
             "wechsel": _parse_date(nxt.get(NEXT_PREFIX + CONF_BEGINN)) if nxt else None,
             "next": nxt,
         }

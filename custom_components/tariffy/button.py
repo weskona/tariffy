@@ -27,6 +27,7 @@ async def async_setup_entry(
         [
             VertragWechselButton(coordinator, entry),
             VertragKuendigungButton(coordinator, entry),
+            VertragAbschlagWarnungButton(coordinator, entry),
         ]
     )
 
@@ -79,3 +80,19 @@ class VertragKuendigungButton(_VertragButton):
 
     async def async_press(self) -> None:
         await self.coordinator.async_confirm_kuendigung()
+
+
+class VertragAbschlagWarnungButton(_VertragButton):
+    """Bestätigt die Nachzahlungs-Warnung und entfernt die Dauerbenachrichtigung."""
+
+    def __init__(self, coordinator, entry) -> None:
+        super().__init__(coordinator, entry, "abschlag_warnung_bestaetigen")
+
+    @property
+    def available(self) -> bool:
+        return super().available and bool(
+            self.coordinator.data.get("abschlag_warnung_zu_bestaetigen")
+        )
+
+    async def async_press(self) -> None:
+        await self.coordinator.async_confirm_abschlag_warnung()
