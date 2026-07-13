@@ -132,9 +132,15 @@
           "next_grundpreis": "Base price new (€/month)",
           "next_abschlag": "Instalment new (€/month)",
           "next_jahresverbrauch": "Annual usage new (kWh / m³)",
+          "next_gas_einheit": "Gas unit new",
+          "next_brennwert": "Calorific value new",
+          "next_zustandszahl": "State number new",
           "next_ende": "Contract end new / valid until"
         }
       }
+    },
+    "error": {
+      "invalid_number": "Not a valid number. Use a dot or comma as the decimal separator (e.g. 11.2 or 11,2)."
     }
   },
   "selector": {

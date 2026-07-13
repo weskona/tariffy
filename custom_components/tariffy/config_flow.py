@@ -97,15 +97,19 @@ def _parse_dezimal(value: Any) -> float | None:
         return None
 
 
-def _validiere_dezimal_felder(user_input: dict[str, Any]) -> dict[str, str]:
-    """Parst Brennwert/Zustandszahl im user_input in-place (Komma->Punkt).
+def _validiere_dezimal_felder(
+    user_input: dict[str, Any],
+    keys: tuple[str, str] = (CONF_BRENNWERT, CONF_ZUSTANDSZAHL),
+) -> dict[str, str]:
+    """Parst Brennwert/Zustandszahl (oder deren next_-Varianten) im user_input
+    in-place (Komma->Punkt).
 
     Gibt ein errors-dict im Format von async_show_form(errors=...) zurück
     (leer, wenn alles geparst werden konnte).
     """
     errors: dict[str, str] = {}
-    for key in (CONF_BRENNWERT, CONF_ZUSTANDSZAHL):
-        if key in user_input:
+    for key in keys:
+        if user_input.get(key):
             parsed = _parse_dezimal(user_input[key])
             if parsed is None:
                 errors[key] = "invalid_number"
@@ -119,6 +123,16 @@ def _dezimal_feld() -> selector.TextSelector:
     # Frontend) — die Komma/Punkt-Normalisierung passiert in der jeweiligen
     # async_step_*-Funktion, siehe _parse_dezimal.
     return selector.TextSelector()
+
+
+def _dezimal_default(value: Any) -> str:
+    # TextSelector verlangt zwingend einen str-Default. Wird hier ein float
+    # durchgereicht (z.B. beim Bearbeiten eines bestehenden Vertrags, dessen
+    # Brennwert/Zustandszahl bereits als float gespeichert ist) und vom Nutzer
+    # unveraendert abgeschickt, kommt der rohe float statt eines Strings an —
+    # vol.Schema wirft dann "expected str", bevor _parse_dezimal ueberhaupt
+    # laeuft. Deshalb hier IMMER zu str normalisieren.
+    return "" if value in (None, "") else str(value)
 
 
 def _preis(step=None) -> selector.NumberSelector:
@@ -320,10 +334,10 @@ def _gas_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
                 selector.EntitySelectorConfig(domain="sensor")
             ),
             vol.Required(
-                CONF_BRENNWERT, default=d.get(CONF_BRENNWERT, 11.0)
+                CONF_BRENNWERT, default=_dezimal_default(d.get(CONF_BRENNWERT, 11.0))
             ): _dezimal_feld(),
             vol.Required(
-                CONF_ZUSTANDSZAHL, default=d.get(CONF_ZUSTANDSZAHL, 0.95)
+                CONF_ZUSTANDSZAHL, default=_dezimal_default(d.get(CONF_ZUSTANDSZAHL, 0.95))
             ): _dezimal_feld(),
             _opt(CONF_BONUS, d.get(CONF_BONUS)): _preis(0.01),
             vol.Required(
@@ -411,7 +425,7 @@ def _wasser_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schem
     )
 
 
-def _next_schema(d: dict[str, Any], *, energie: bool) -> vol.Schema:
+def _next_schema(d: dict[str, Any], *, energie: bool, gas: bool = False) -> vol.Schema:
     def k(b: str) -> str:
         return NEXT_PREFIX + b
 
@@ -430,6 +444,25 @@ def _next_schema(d: dict[str, Any], *, energie: bool) -> vol.Schema:
         fields[_opt(k(CONF_JAHRESVERBRAUCH), d.get(k(CONF_JAHRESVERBRAUCH)))] = (
             _verbrauch()
         )
+        if gas:
+            # Neuer Gasanbieter/-mix kann einen anderen Brennwert/Zustandszahl
+            # haben — bisher fehlten diese Felder hier komplett, wodurch der
+            # alte Wert unveraendert in den neuen Vertrag uebernommen wurde.
+            fields[
+                vol.Optional(
+                    k(CONF_GAS_EINHEIT), default=d.get(k(CONF_GAS_EINHEIT), "m³")
+                )
+            ] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=GAS_EINHEITEN, mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+            fields[
+                vol.Optional(k(CONF_BRENNWERT), default=_dezimal_default(d.get(k(CONF_BRENNWERT), "")))
+            ] = _dezimal_feld()
+            fields[
+                vol.Optional(k(CONF_ZUSTANDSZAHL), default=_dezimal_default(d.get(k(CONF_ZUSTANDSZAHL), "")))
+            ] = _dezimal_feld()
     else:
         fields[_opt(k(CONF_ABSCHLAG), d.get(k(CONF_ABSCHLAG)))] = _preis(0.01)
         fields[_opt(k(CONF_GRUNDPREIS), d.get(k(CONF_GRUNDPREIS)))] = _preis(0.01)
@@ -597,15 +630,26 @@ class TariffyOptionsFlow(OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        gas = self.config_entry.data.get(CONF_SPARTE) == GAS_SPARTE
+        errors: dict[str, str] = {}
         if user_input is not None:
-            if not user_input.get(NEXT_PREFIX + CONF_BEGINN):
-                return self.async_create_entry(title="", data={})
-            cleaned = {
-                key: val for key, val in user_input.items() if val not in (None, "")
-            }
-            return self.async_create_entry(title="", data=cleaned)
+            if gas:
+                errors = _validiere_dezimal_felder(
+                    user_input,
+                    keys=(NEXT_PREFIX + CONF_BRENNWERT, NEXT_PREFIX + CONF_ZUSTANDSZAHL),
+                )
+            if not errors:
+                if not user_input.get(NEXT_PREFIX + CONF_BEGINN):
+                    return self.async_create_entry(title="", data={})
+                cleaned = {
+                    key: val for key, val in user_input.items() if val not in (None, "")
+                }
+                return self.async_create_entry(title="", data=cleaned)
         energie = self.config_entry.data.get(CONF_SPARTE) in ENERGIE_SPARTEN
         return self.async_show_form(
             step_id="init",
-            data_schema=_next_schema(dict(self.config_entry.options), energie=energie),
+            data_schema=_next_schema(
+                user_input or dict(self.config_entry.options), energie=energie, gas=gas
+            ),
+            errors=errors,
         )

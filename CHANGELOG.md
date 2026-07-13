@@ -2,6 +2,13 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.21.0] - 2026-07-14
+
+### Fixed
+
+- **"Expected str" error on calorific value/state number when editing an existing gas contract**: the schema default for these fields was a `float` (the stored value), but `TextSelector` strictly requires a string. Submitting the pre-filled form unchanged sent a raw float instead of a string, so validation failed with "expected str" — before the comma/dot normalization logic even ran. Only actively editing the value (e.g. to a comma) produced a genuine string, which then worked. Schema defaults for these fields are now always declared as strings.
+- **Calorific value/state number/gas unit were missing entirely when planning a successor gas contract**: an automatic tariff switch would silently carry over the old contract's values with no way to correct them for the new provider. These fields are now available in the options flow for gas contracts.
+
 ## [1.20.0] - 2026-07-12
 
 ### Fixed

@@ -347,9 +347,15 @@
           "next_grundpreis": "Grundpreis neu (€/Monat)",
           "next_abschlag": "Abschlag neu (€/Monat)",
           "next_jahresverbrauch": "Jahresverbrauch neu (kWh bzw. m³)",
+          "next_gas_einheit": "Gas-Einheit neu",
+          "next_brennwert": "Brennwert neu",
+          "next_zustandszahl": "Zustandszahl neu",
           "next_ende": "Vertragsende neu / Laufzeit bis"
         }
       }
+    },
+    "error": {
+      "invalid_number": "Keine gültige Zahl. Bitte Punkt oder Komma als Dezimaltrennzeichen verwenden (z.B. 11.2 oder 11,2)."
     }
   },
   "selector": {

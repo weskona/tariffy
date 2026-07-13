@@ -2,6 +2,13 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.21.0] - 2026-07-14
+
+### Behoben
+
+- **"Expected str"-Fehler bei Brennwert/Zustandszahl beim Bearbeiten eines bestehenden Gas-Vertrags**: Der Schema-Default für diese Felder war ein `float` (der bereits gespeicherte Wert), obwohl `TextSelector` zwingend einen String erwartet. Sendete das Formular den unveränderten Vorbelegungswert unverändert ab, kam ein roher Float statt eines Strings an, und die Validierung schlug fehl — noch bevor die eigentliche Komma/Punkt-Normalisierung überhaupt lief. Erst durch aktives Ändern des Werts (z. B. auf ein Komma) wurde ein echter String übermittelt, der dann funktionierte. Schema-Defaults werden jetzt immer als String deklariert.
+- **Brennwert/Zustandszahl fehlten komplett beim Planen eines Nachfolgevertrags (Gas)**: Beim automatischen Tarifwechsel wurde dadurch stillschweigend der alte Brennwert/die alte Zustandszahl übernommen, ohne Möglichkeit zur Korrektur für den neuen Anbieter. Felder (inkl. Gas-Einheit) jetzt im Options-Flow für Gas-Verträge ergänzt.
+
 ## [1.20.0] - 2026-07-12
 
 ### Behoben
