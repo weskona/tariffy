@@ -1,5 +1,7 @@
 {
   "name": "Tariffy",
   "render_readme": true,
+  "zip_release": true,
+  "filename": "tariffy.zip",
   "homeassistant": "2024.11.0"
 }

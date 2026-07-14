@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.24.2] - 2026-07-14
+
+### Behoben
+
+- **HACS-Download-Zähler stand immer auf 0**: `hacs.json` hatte kein `zip_release`/`filename` gesetzt, wodurch HACS bei jedem Release still auf das automatisch von GitHub generierte Quellcode-Archiv auswich statt auf das von unserem Release-Workflow hochgeladene `tariffy.zip` — und GitHub zählt Downloads nur für tatsächlich hochgeladene Release-Assets, nicht für Auto-Archive. `"zip_release": true, "filename": "tariffy.zip"` ergänzt, damit HACS das getrackte Asset lädt.
+
 ## [1.24.1] - 2026-07-14
 
 ### Behoben

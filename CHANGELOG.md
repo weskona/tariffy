@@ -2,6 +2,12 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.24.2] - 2026-07-14
+
+### Fixed
+
+- **HACS download counter always showed 0**: `hacs.json` didn't set `zip_release`/`filename`, so HACS silently fell back to GitHub's auto-generated source archive for each release instead of the `tariffy.zip` asset our release workflow uploads — and GitHub only tracks download counts for actual uploaded release assets, not auto-generated source archives. Added `"zip_release": true, "filename": "tariffy.zip"` so HACS fetches the tracked asset.
+
 ## [1.24.1] - 2026-07-14
 
 ### Fixed
