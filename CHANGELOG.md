@@ -2,6 +2,12 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.24.1] - 2026-07-14
+
+### Fixed
+
+- **Units showed "€/kWh" instead of "EUR/kWh"**: the 1.23.0 code-to-symbol fix (`hass.config.currency` → "€") was a misinterpretation and exactly backwards — the raw ISO 4217 code (e.g. "EUR/kWh") was wanted throughout, not the symbol. The symbol conversion has been removed entirely; all cost sensors show the unit as the plain currency code again.
+
 ## [1.24.0] - 2026-07-14
 
 ### Added

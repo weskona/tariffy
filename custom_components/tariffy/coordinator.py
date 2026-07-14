@@ -678,8 +678,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         else:
             verbrauch_kwh = verbrauch
 
-        # Währung aus HA-Konfiguration
-        currency = self.hass.config.currency or "€"
+        # Währung aus HA-Konfiguration (ISO-4217-Code, z.B. "EUR")
+        currency = self.hass.config.currency or "EUR"
 
         # Wasser: Abwasser-Berechnung je nach Typ
         arbeitspreis_abwasser_raw = _f(data.get(CONF_ARBEITSPREIS_ABWASSER))

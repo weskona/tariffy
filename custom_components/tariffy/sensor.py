@@ -75,33 +75,6 @@ _CURRENCY_ICON: dict[str, str] = {
     "VND": "mdi:currency-vnd",
 }
 
-# hass.config.currency liefert den ISO-4217-Code (z.B. "EUR"), kein Symbol.
-# Fuer Einheiten-Strings ("EUR/kWh") wollen wir aber das Symbol ("€/kWh").
-_CURRENCY_SYMBOL: dict[str, str] = {
-    "EUR": "€",
-    "USD": "$",
-    "GBP": "£",
-    "JPY": "¥",
-    "CNY": "¥",
-    "KRW": "₩",
-    "INR": "₹",
-    "RUB": "₽",
-    "BRL": "R$",
-    "TRY": "₺",
-    "ILS": "₪",
-    "MYR": "RM",
-    "NGN": "₦",
-    "PHP": "₱",
-    "THB": "฿",
-    "TWD": "NT$",
-    "VND": "₫",
-}
-
-
-def _currency_symbol(code: str) -> str:
-    return _CURRENCY_SYMBOL.get(code, code)
-
-
 def _fmt_date(d: date | None) -> str | None:
     return d.strftime("%d.%m.%Y") if d else None
 
@@ -503,7 +476,7 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
         d = coordinator.data or {}
         sparte = d.get(CONF_SPARTE)
-        currency = _currency_symbol(d.get("currency", "€"))
+        currency = d.get("currency", "EUR")
         wasser_einheit = d.get("wasser_einheit", "m³")
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},

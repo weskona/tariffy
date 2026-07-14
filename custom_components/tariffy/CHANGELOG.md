@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.24.1] - 2026-07-14
+
+### Behoben
+
+- **Einheiten zeigten "€/kWh" statt "EUR/kWh"**: Der in 1.23.0 eingeführte Code-zu-Symbol-Fix (`hass.config.currency` → "€") war eine Fehlinterpretation und genau verkehrt herum — gewünscht war durchgehend der rohe ISO-4217-Code (z. B. "EUR/kWh"), nicht das Symbol. Die Symbol-Umwandlung wurde vollständig entfernt; alle Kosten-Sensoren zeigen die Einheit wieder als Code an.
+
 ## [1.24.0] - 2026-07-14
 
 ### Hinzugefügt
