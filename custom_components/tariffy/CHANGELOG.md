@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.24.3] - 2026-07-14
+
+### Behoben
+
+- **1.24.2s `zip_release` hat HACS' Fähigkeit, das Release überhaupt zu sehen/installieren, komplett kaputt gemacht**: Das Release-Zip hatte alles unter `custom_components/tariffy/` (plus `hacs.json`/`README.md`/`LICENSE` im Root) verpackt, aber HACS' `zip_release`-Modus erwartet die Integrationsdateien direkt im Zip-Root (Byte für Byte gegen HACS' eigenes `hacs.zip`-Release-Asset verifiziert, das `manifest.json` etc. direkt oben liegen hat, ohne `custom_components/hacs/`-Wrapper). Der Release-Workflow zippt jetzt den *Inhalt* von `custom_components/tariffy/` direkt.
+
 ## [1.24.2] - 2026-07-14
 
 ### Behoben
