@@ -77,6 +77,12 @@ CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"
 
 # Feed-in tariff: available worldwide, no country restriction
 
+# Dynamischer Tarif (Boersen-/Spotpreis, z.B. Tibber, aWATTar, Nordpool):
+# statt eines festen Arbeitspreises wird ein externer HA-Sensor referenziert,
+# der den aktuellen Spotpreis liefert, plus ein optionaler fester Aufschlag.
+CONF_ARBEITSPREIS_SENSOR = "arbeitspreis_sensor"
+CONF_ARBEITSPREIS_AUFSCHLAG = "arbeitspreis_aufschlag"
+
 ENERGIE_SPARTEN = ("electricity", "gas")
 GAS_SPARTE = "gas"
 WASSER_SPARTE = "water"
@@ -143,6 +149,8 @@ BASIS_FELDER = [
     CONF_JAHRESVERBRAUCH_NACHT,
     CONF_JAHRESVERBRAUCH_TAG,
     CONF_EINSPEISEVERGUETUNG,
+    CONF_ARBEITSPREIS_SENSOR,
+    CONF_ARBEITSPREIS_AUFSCHLAG,
 ]
 
 SPARTEN = [

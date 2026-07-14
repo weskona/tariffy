@@ -54,6 +54,8 @@ from .const import (
     CONF_ABWASSER_TYP,
     CONF_ARBEITSPREIS_ABWASSER,
     CONF_ARBEITSPREIS_NACHT,
+    CONF_ARBEITSPREIS_SENSOR,
+    CONF_ARBEITSPREIS_AUFSCHLAG,
     CONF_EINSPEISEVERGUETUNG,
     CONF_JAHRESVERBRAUCH_NACHT,
     CONF_JAHRESVERBRAUCH_TAG,
@@ -300,6 +302,42 @@ async def _get_latest_sum(hass: HomeAssistant, entity_id: str) -> float | None:
                 return float(val)
     except Exception as err:  # noqa: BLE001
         _LOGGER.warning("Tariffy: aktueller Sum-Wert für %s fehlgeschlagen: %s", entity_id, err)
+    return None
+
+
+async def _get_average_price(
+    hass: HomeAssistant, entity_id: str, start: datetime, end: datetime
+) -> float | None:
+    """Liest den mittleren Sensorwert (z.B. Boersen-/Spotpreis eines
+    dynamischen Stromtarifs) ueber den angegebenen Zeitraum aus den
+    Long-Term Statistics ('mean'). Gibt None zurueck, wenn (noch) keine
+    Statistik vorliegt — der Aufrufer faellt dann auf den manuell
+    eingegebenen Arbeitspreis zurueck."""
+    try:
+        from homeassistant.components.recorder import get_instance
+        from homeassistant.components.recorder.statistics import statistics_during_period
+
+        instance = get_instance(hass)
+        stats = await instance.async_add_executor_job(
+            lambda: statistics_during_period(
+                hass, start, end,
+                statistic_ids={entity_id},
+                period="hour",
+                units={},
+                types={"mean"},
+            )
+        )
+        means = [
+            entry["mean"] for entry in stats.get(entity_id, [])
+            if entry.get("mean") is not None
+        ]
+        if means:
+            return sum(means) / len(means)
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.warning(
+            "Tariffy: Durchschnittspreis-Abfrage für %s fehlgeschlagen: %s",
+            entity_id, err,
+        )
     return None
 
 
@@ -578,6 +616,33 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         laufzeit_monate = (ende - beginn).days / 30.44 if (beginn and ende) else 12.0
 
         arbeitspreis = _f(data.get(CONF_ARBEITSPREIS))
+
+        # ---- Dynamischer Tarif (Boersen-/Spotpreis, z.B. Tibber/aWATTar) ----
+        # Der Arbeitspreis wird hier durch den Statistik-Mittelwert des
+        # referenzierten Preissensors (+ fester Aufschlag) ueber den
+        # bisherigen Vertragszeitraum ERSETZT — alle nachfolgenden Formeln
+        # (kosten_bisher, geschaetzte_kosten_real, abschlag_anpassung_empfohlen,
+        # jahreskosten, ...) bleiben dadurch unveraendert und rechnen einfach
+        # mit dem effektiven Durchschnittspreis statt einem fixen Wert.
+        # Liegt (noch) keine Statistik vor, bleibt der manuell eingegebene
+        # arbeitspreis als Fallback erhalten.
+        arbeitspreis_sensor = data.get(CONF_ARBEITSPREIS_SENSOR)
+        arbeitspreis_aufschlag = _f(data.get(CONF_ARBEITSPREIS_AUFSCHLAG)) or 0.0
+        arbeitspreis_aktuell: float | None = None
+        if arbeitspreis_sensor:
+            state = self.hass.states.get(arbeitspreis_sensor)
+            live = _f(state.state) if state else None
+            if live is not None:
+                arbeitspreis_aktuell = round(live + arbeitspreis_aufschlag, 6)
+            if beginn is not None:
+                tz = dt_util.get_default_time_zone()
+                start_dt = datetime.combine(beginn, datetime.min.time()).replace(tzinfo=tz)
+                avg = await _get_average_price(
+                    self.hass, arbeitspreis_sensor, start_dt, dt_util.now()
+                )
+                if avg is not None:
+                    arbeitspreis = round(avg + arbeitspreis_aufschlag, 6)
+
         grundpreis = _f(data.get(CONF_GRUNDPREIS))
         abschlag = _f(data.get(CONF_ABSCHLAG))
         verbrauch = _f(data.get(CONF_JAHRESVERBRAUCH))
@@ -880,6 +945,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_KUNDENNUMMER: data.get(CONF_KUNDENNUMMER),
             CONF_TARIF: data.get(CONF_TARIF),
             CONF_ARBEITSPREIS: arbeitspreis,
+            CONF_ARBEITSPREIS_SENSOR: arbeitspreis_sensor,
+            CONF_ARBEITSPREIS_AUFSCHLAG: arbeitspreis_aufschlag,
+            "arbeitspreis_aktuell": arbeitspreis_aktuell,
             CONF_GRUNDPREIS: grundpreis,
             CONF_ABSCHLAG: abschlag,
             CONF_JAHRESVERBRAUCH: verbrauch,

@@ -54,6 +54,8 @@
         "description": "Preise, Verbrauch und Zählerdaten.",
         "data": {
           "arbeitspreis": "Arbeitspreis (€/kWh)",
+          "arbeitspreis_sensor": "Preissensor für dynamischen Tarif (optional)",
+          "arbeitspreis_aufschlag": "Aufschlag dynamischer Tarif (€/kWh)",
           "grundpreis": "Grundpreis (€/Monat)",
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
@@ -82,7 +84,9 @@
           "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
         },
         "data_description": {
-          "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung",
+          "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt",
+          "arbeitspreis_sensor": "HA-Sensor mit einem live Börsen-/Spotpreis (z.B. Tibber, aWATTar, Nordpool) — wenn gesetzt, wird der Arbeitspreis aus dem Durchschnitt dieses Sensors berechnet statt aus dem festen Wert oben",
+          "arbeitspreis_aufschlag": "Fester Aufschlag, der auf den Preis des dynamischen Tarif-Sensors aufgeschlagen wird (z.B. die Marge des Anbieters in ct/kWh)",
           "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
           "abschlag": "Monatliche Vorauszahlung an den Anbieter",
           "jahresverbrauch": "Geschätzter Jahresverbrauch in kWh — wird für die Kostenprognose verwendet",
@@ -99,6 +103,8 @@
         "description": "Preise, Verbrauch und Zählerdaten.",
         "data": {
           "arbeitspreis": "Arbeitspreis (€/kWh)",
+          "arbeitspreis_sensor": "Preissensor für dynamischen Tarif (optional)",
+          "arbeitspreis_aufschlag": "Aufschlag dynamischer Tarif (€/kWh)",
           "grundpreis": "Grundpreis (€/Monat)",
           "abschlag": "Monatlicher Abschlag (€/Monat)",
           "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
@@ -127,7 +133,9 @@
           "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
         },
         "data_description": {
-          "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung",
+          "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt",
+          "arbeitspreis_sensor": "HA-Sensor mit einem live Börsen-/Spotpreis (z.B. Tibber, aWATTar, Nordpool) — wenn gesetzt, wird der Arbeitspreis aus dem Durchschnitt dieses Sensors berechnet statt aus dem festen Wert oben",
+          "arbeitspreis_aufschlag": "Fester Aufschlag, der auf den Preis des dynamischen Tarif-Sensors aufgeschlagen wird (z.B. die Marge des Anbieters in ct/kWh)",
           "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
           "abschlag": "Monatliche Vorauszahlung an den Anbieter",
           "jahresverbrauch": "Geschätzter Jahresverbrauch in kWh — wird für die Kostenprognose verwendet",
@@ -356,6 +364,8 @@
           "next_kundennummer": "Kundennummer (neu)",
           "next_tarif": "Tarifname (neu)",
           "next_arbeitspreis": "Arbeitspreis neu (€/kWh)",
+          "next_arbeitspreis_sensor": "Preissensor dynamischer Tarif neu (optional)",
+          "next_arbeitspreis_aufschlag": "Aufschlag dynamischer Tarif neu (€/kWh)",
           "next_grundpreis": "Grundpreis neu (€/Monat)",
           "next_abschlag": "Abschlag neu (€/Monat)",
           "next_jahresverbrauch": "Jahresverbrauch neu (kWh bzw. m³)",

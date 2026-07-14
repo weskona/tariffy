@@ -132,6 +132,16 @@ Aktiv für Länder wie US, CA, AU, ES, PT, IT u. a. Blockweise Berechnung über 
 - Block 1: 0–1.000 kWh × 0,25 € = 250 €; Block 2 (kein Limit mehr): restliche 2.500 kWh × 0,35 € = 875 € → **Tiered-Jahreskosten = 1.125 €**
 - **Effektiver Arbeitspreis** = `tiered_jahreskosten / verbrauch_kwh` → `1.125 € / 3.500 kWh` = **0,3214 €/kWh** (Durchschnittspreis über alle Blöcke, nur zur Anzeige).
 
+### Dynamischer Tarif (Börsen-/Spotpreis)
+
+Für Strom-Verträge, deren Arbeitspreis sich nach dem Börsen-/Spotmarkt richtet (z. B. Tibber, aWATTar, Nordpool): statt eines festen Werts wird ein bestehender HA-Sensor referenziert, der den aktuellen Preis liefert, plus ein optionaler fester Aufschlag (z. B. die Marge des Anbieters).
+
+- **Preissensor** (`arbeitspreis_sensor`): ein beliebiger HA-Sensor mit numerischem Zustand, typischerweise von der Tibber-, aWATTar- oder Nordpool-Integration.
+- **Aufschlag** (`arbeitspreis_aufschlag`): wird auf den Preis des Sensors aufaddiert (gleiche Einheit wie der Arbeitspreis, z. B. €/kWh).
+- Der Arbeitspreis für alle Berechnungen (`kosten_bisher`, `guthaben_bisher`, `abschlag_anpassung_empfohlen`, `prognose_real`, ...) wird als **Durchschnitt des Preissensors über die bisherige Vertragslaufzeit** (via HA Long-Term Statistics) + Aufschlag ermittelt — nicht stundengenau, sondern als vereinfachter Mittelwert.
+- Liegt für den Sensor (noch) keine ausreichende Statistik-Historie vor (z. B. direkt nach dem Einrichten), fällt Tariffy auf den manuell eingegebenen `arbeitspreis` zurück.
+- Der **aktuelle Live-Preis** (Sensor-Zustand + Aufschlag, jetzt gerade) steht zusätzlich als Attribut `arbeitspreis_aktuell` am Sensor „Arbeitspreis" zur Verfügung; das Attribut `dynamischer_tarif` zeigt, ob ein Preissensor konfiguriert ist. Bei aktivem dynamischen Tarif bekommt der Sensor außerdem ein eigenes Icon (📈 statt ⚡).
+
 ## Automatischer Tarifwechsel
 
 Im Options-Flow lässt sich ein Nachfolgevertrag mit Startdatum hinterlegen. Der Wechsel wird exakt bei Datumswechsel geprüft (täglich um 00:00:01 Uhr via `async_track_time_change`), zusätzlich bei jedem regulären 6-Stunden-Poll und beim HA-Start als Fallback. Sobald das Wechseldatum erreicht ist: neue Vertragsdaten werden aktiv, der Verbrauch der endenden Laufzeit wird eingefroren (siehe „Verbrauch (Letzte Laufzeit)“ oben), und die Options werden geleert.
@@ -150,3 +160,4 @@ Pro Vertrag zuschaltbar (nur Energie/Wasser, benötigt einen konfigurierten `ver
 - Die Umrechnung „vergangene Tage → Monate“ nutzt überall den Faktor `30.44` (Durchschnittsmonatslänge), keine kalendergenaue Monatsrechnung.
 - `empfohlener_abschlag` fällt auf eine 12-Monats-Annahme zurück, wenn die Dauer der letzten Laufzeit nicht bekannt ist (z. B. bei Verträgen, die vor Einführung dieses Felds gewechselt haben).
 - Ohne konfigurierten `verbrauch_sensor` bleiben alle "echten" Verbrauchssensoren (`verbrauch_bisher`, `verbrauch_hochgerechnet`, `prognose_real`, `kosten_bisher`) auf `unknown` — nur die eingetragenen Vertragsdaten (Preise, Restlaufzeit, Kosten laut Abschlag) sind dann verfügbar.
+- Beim dynamischen Tarif wird mit dem **Durchschnittspreis** über den bisherigen Zeitraum gerechnet, nicht stundengenau mit Preis × Verbrauch je Stunde — bei starken Verbrauchsspitzen zu ungünstigen Preiszeiten weicht die tatsächliche Rechnung des Anbieters entsprechend ab.

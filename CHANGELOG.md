@@ -2,6 +2,12 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.24.0] - 2026-07-14
+
+### Added
+
+- **Dynamic tariff for electricity (spot price)**: new optional fields "Dynamic tariff price sensor" and "Dynamic tariff markup" on electricity contracts. Instead of a fixed unit price, you can now reference an existing HA sensor providing a live spot-market price (e.g. from Tibber, aWATTar, Nordpool) — the unit price is then calculated as that sensor's statistical average over the contract-to-date (+ fixed markup) and automatically feeds into all existing calculations (cost so far, refund/balance due, instalment adjustment recommendation, real billing forecast). The manually entered unit price remains as a fallback while no sufficient statistics history exists yet for the sensor. The current live price (sensor + markup) is additionally exposed as the `arbeitspreis_aktuell` attribute on the "Unit price" sensor, which also gets its own icon while a dynamic tariff is active.
+
 ## [1.23.0] - 2026-07-14
 
 ### Added

@@ -35,6 +35,8 @@
         "description": "Prices, usage and meter data.",
         "data": {
           "arbeitspreis": "Unit price (€/kWh)",
+          "arbeitspreis_sensor": "Dynamic tariff price sensor (optional)",
+          "arbeitspreis_aufschlag": "Dynamic tariff markup (€/kWh)",
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
@@ -52,6 +54,8 @@
         "description": "Prices, usage and meter data.",
         "data": {
           "arbeitspreis": "Unit price (€/kWh)",
+          "arbeitspreis_sensor": "Dynamic tariff price sensor (optional)",
+          "arbeitspreis_aufschlag": "Dynamic tariff markup (€/kWh)",
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
@@ -137,6 +141,8 @@
           "next_kundennummer": "Customer number (new)",
           "next_tarif": "Tariff name (new)",
           "next_arbeitspreis": "Unit price new (€/kWh)",
+          "next_arbeitspreis_sensor": "Dynamic tariff price sensor new (optional)",
+          "next_arbeitspreis_aufschlag": "Dynamic tariff markup new (€/kWh)",
           "next_grundpreis": "Base price new (€/month)",
           "next_abschlag": "Instalment new (€/month)",
           "next_jahresverbrauch": "Annual usage new (kWh / m³)",

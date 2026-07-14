@@ -26,6 +26,7 @@ from .const import (
     CONF_BEGINN,
     CONF_ARBEITSPREIS_ABWASSER,
     CONF_ARBEITSPREIS_NACHT,
+    CONF_ARBEITSPREIS_SENSOR,
     CONF_EINSPEISEVERGUETUNG,
     CONF_BONUS,
     CONF_BRENNWERT,
@@ -135,7 +136,15 @@ def _arbeitspreis_attrs(d: dict[str, Any]) -> dict[str, Any]:
             if d.get(CONF_PREISGARANTIE)
             else None
         ),
+        "dynamischer_tarif": bool(d.get(CONF_ARBEITSPREIS_SENSOR)),
+        "arbeitspreis_aktuell": d.get("arbeitspreis_aktuell"),
     }
+
+
+def _arbeitspreis_icon(d: dict[str, Any]) -> str:
+    """Eigenes Icon fuer dynamische (Boersen-/Spot-)Tarife, damit sie sich
+    auf einen Blick vom festen Arbeitspreis unterscheiden."""
+    return "mdi:chart-line" if d.get(CONF_ARBEITSPREIS_SENSOR) else "mdi:lightning-bolt"
 
 
 
@@ -177,11 +186,11 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
     VertragSensorDescription(
         key=CONF_ARBEITSPREIS,
         translation_key="arbeitspreis",
-        icon="mdi:lightning-bolt",
         state_class=SensorStateClass.MEASUREMENT,
         energie_only=True,
         value_fn=lambda d: d.get(CONF_ARBEITSPREIS),
         attr_fn=_arbeitspreis_attrs,
+        icon_fn=_arbeitspreis_icon,
     ),
     VertragSensorDescription(
         key=CONF_GRUNDPREIS,

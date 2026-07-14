@@ -48,6 +48,8 @@ from .const import (
     CONF_ARBEITSPREIS_ABWASSER,
     CONF_GAS_EINHEIT,
     CONF_ARBEITSPREIS_NACHT,
+    CONF_ARBEITSPREIS_SENSOR,
+    CONF_ARBEITSPREIS_AUFSCHLAG,
     CONF_EINSPEISEVERGUETUNG,
     CONF_JAHRESVERBRAUCH_NACHT,
     CONF_JAHRESVERBRAUCH_TAG,
@@ -296,6 +298,19 @@ def _tiered_fields(d: dict, enabled: bool = True) -> dict:
     return fields
 
 
+def _dynamischer_tarif_fields(d: dict[str, Any]) -> dict:
+    """Dynamischer Tarif (Boersen-/Spotpreis): externer Preissensor + Aufschlag.
+
+    Der manuell eingegebene Arbeitspreis bleibt als Fallback erhalten, falls
+    fuer den Sensor noch keine ausreichende Statistik-Historie vorliegt."""
+    return {
+        _opt(CONF_ARBEITSPREIS_SENSOR, d.get(CONF_ARBEITSPREIS_SENSOR)): selector.EntitySelector(
+            selector.EntitySelectorConfig(domain="sensor")
+        ),
+        _opt(CONF_ARBEITSPREIS_AUFSCHLAG, d.get(CONF_ARBEITSPREIS_AUFSCHLAG)): _preis(0.0001),
+    }
+
+
 def _tag_nacht_fields(d: dict, enabled: bool = True) -> dict:
     """Tag/Nacht-Felder (Economy 7, TOU) — nur wenn im Land verfügbar."""
     if not enabled:
@@ -352,6 +367,7 @@ def _energie_schema(d: dict[str, Any], features: dict | None = None) -> vol.Sche
             vol.Required(
                 CONF_ARBEITSPREIS, default=d.get(CONF_ARBEITSPREIS, 0.0)
             ): _preis(0.0001),
+            **_dynamischer_tarif_fields(d),
             vol.Required(
                 CONF_GRUNDPREIS, default=d.get(CONF_GRUNDPREIS, 0.0)
             ): _preis(0.01),
@@ -513,6 +529,13 @@ def _next_schema(d: dict[str, Any], *, energie: bool, gas: bool = False) -> vol.
     }
     if energie:
         fields[_opt(k(CONF_ARBEITSPREIS), d.get(k(CONF_ARBEITSPREIS)))] = _preis(0.0001)
+        if not gas:
+            fields[_opt(k(CONF_ARBEITSPREIS_SENSOR), d.get(k(CONF_ARBEITSPREIS_SENSOR)))] = (
+                selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor"))
+            )
+            fields[_opt(k(CONF_ARBEITSPREIS_AUFSCHLAG), d.get(k(CONF_ARBEITSPREIS_AUFSCHLAG)))] = (
+                _preis(0.0001)
+            )
         fields[_opt(k(CONF_GRUNDPREIS), d.get(k(CONF_GRUNDPREIS)))] = _preis(0.01)
         fields[_opt(k(CONF_ABSCHLAG), d.get(k(CONF_ABSCHLAG)))] = _preis(0.01)
         fields[_opt(k(CONF_JAHRESVERBRAUCH), d.get(k(CONF_JAHRESVERBRAUCH)))] = (

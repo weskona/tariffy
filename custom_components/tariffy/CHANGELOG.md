@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.24.0] - 2026-07-14
+
+### Hinzugefügt
+
+- **Dynamischer Tarif für Strom (Börsen-/Spotpreis)**: neue optionale Felder „Preissensor für dynamischen Tarif" und „Aufschlag dynamischer Tarif" bei Strom-Verträgen. Statt eines festen Arbeitspreises kann jetzt ein bestehender HA-Sensor referenziert werden, der einen live Spotpreis liefert (z. B. von Tibber, aWATTar, Nordpool) — der Arbeitspreis wird dann als Durchschnitt dieses Sensors über die bisherige Vertragslaufzeit (+ fester Aufschlag) berechnet und fließt automatisch in alle bestehenden Berechnungen ein (Kosten bisher, Guthaben/Nachzahlung, Abschlag-Anpassungsempfehlung, Abrechnungsprognose). Der manuell eingegebene Arbeitspreis bleibt als Fallback erhalten, solange für den Sensor noch keine ausreichende Statistik-Historie vorliegt. Der aktuelle Live-Preis (Sensor + Aufschlag) wird zusätzlich als Attribut `arbeitspreis_aktuell` am Sensor „Arbeitspreis" angezeigt, der bei aktivem dynamischen Tarif außerdem ein eigenes Icon erhält.
+
 ## [1.23.0] - 2026-07-14
 
 ### Hinzugefügt

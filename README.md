@@ -27,6 +27,7 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 - **Water** – fresh water + wastewater (fixed price, % or flat rate)
 - **Tiered pricing** – country-specific (US, AU, ES, …)
 - **Time-of-Use / Night rate** – Economy 7, TOU (GB, US, AU, …)
+- **Dynamic tariff (spot price)** – reference an external HA sensor (Tibber, aWATTar, Nordpool, …) instead of a fixed unit price; the effective price is calculated as the sensor's statistical average over the contract-to-date plus a fixed markup, with automatic fallback to the manual price while no statistics history exists yet
 - **Feed-in tariff** – per kWh fed into the grid (solar)
 - **Auto-refresh after HA startup** – sensors update automatically once Long-Term Statistics are ready after a restart
 - **Check interval** – every 6 hours
@@ -37,7 +38,7 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 
 | Sensor | Unit | Category | Description |
 |--------|------|----------|-------------|
-| Unit price | €/kWh | Energy | Consumption-based price |
+| Unit price | €/kWh | Energy | Consumption-based price. For a dynamic tariff (spot-price sensor configured), this is the statistical average over the contract-to-date + markup; attribute `arbeitspreis_aktuell` shows the live current price, `dynamischer_tarif` whether a price sensor is set |
 | Unit price (night) | €/kWh | Energy | Night rate (TOU/Economy 7) |
 | Unit price (effective) | €/kWh | Energy | Effective average price (tiered) |
 | Unit price (wastewater) | €/m³ | Water | Wastewater charge |
@@ -226,6 +227,7 @@ Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- u
 - **Wasser** – Frischwasser + Abwasser (Festpreis, % oder Monatspauschale)
 - **Staffelpreise** – länderspezifisch (US, AU, ES, …)
 - **Tag/Nacht-Tarif** – Economy 7, TOU (GB, US, AU, …)
+- **Dynamischer Tarif (Spotpreis)** – externen HA-Sensor (Tibber, aWATTar, Nordpool, …) statt eines festen Arbeitspreises referenzieren; der effektive Preis wird als Statistik-Durchschnitt des Sensors über die bisherige Vertragslaufzeit + fester Aufschlag berechnet, mit automatischem Fallback auf den manuellen Preis solange keine Statistik-Historie vorliegt
 - **Einspeisevergütung** – Vergütung pro eingespeister kWh (Photovoltaik)
 - **Auto-Refresh nach HA-Start** – Sensoren aktualisieren sich automatisch sobald die Long-Term Statistics nach einem Neustart bereit sind
 - **Prüfintervall** – alle 6 Stunden, zusätzlich täglich exakt um 00:00:01 Uhr für einen pünktlichen Tarifwechsel bei Datumswechsel
@@ -307,7 +309,7 @@ Wie Strom, zusätzlich:
 
 | Sensor | Einheit | Sparte | Beschreibung |
 |--------|---------|--------|-------------|
-| Arbeitspreis | €/kWh | Energie | Verbrauchsabhängiger Preis |
+| Arbeitspreis | €/kWh | Energie | Verbrauchsabhängiger Preis. Bei dynamischem Tarif (Preissensor konfiguriert) der Statistik-Durchschnitt über die bisherige Vertragslaufzeit + Aufschlag; Attribut `arbeitspreis_aktuell` zeigt den aktuellen Live-Preis, `dynamischer_tarif` ob ein Preissensor gesetzt ist |
 | Arbeitspreis (Nacht) | €/kWh | Energie | Nachttarif (TOU/Economy 7) |
 | Arbeitspreis (Effektiv) | €/kWh | Energie | Effektiver Ø-Preis bei Staffeltarif |
 | Arbeitspreis (Abwasser) | €/m³ | Wasser | Abwassergebühr |
