@@ -1,0 +1,103 @@
+name: Bug Report
+description: Ein Problem mit tariffy melden
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass du dir die Zeit nimmst, ein Problem zu melden! Bitte fülle die Felder unten
+        so vollständig wie möglich aus — das spart uns beiden ein paar Runden Rückfragen.
+
+  - type: input
+    id: tariffy_version
+    attributes:
+      label: tariffy-Version
+      description: Zu finden unter HACS → tariffy, oder in `custom_components/tariffy/manifest.json`.
+      placeholder: "z.B. 1.24.3"
+    validations:
+      required: true
+
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant Version
+      placeholder: "z.B. 2026.7.3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: sparte
+    attributes:
+      label: Sparte
+      description: Welche Art von Vertrag ist betroffen?
+      options:
+        - Strom
+        - Gas
+        - Wasser
+        - Internet
+        - Sonstiges / weiß nicht
+    validations:
+      required: true
+
+  - type: input
+    id: verbrauch_sensor
+    attributes:
+      label: Verbrauchssensor (entity_id)
+      description: >
+        Falls im Vertrag ein "Verbrauchssensor" konfiguriert ist (Entwicklerwerkzeuge →
+        Zustände, dort den Sensor suchen).
+      placeholder: "z.B. sensor.netzbezug_home_in"
+
+  - type: dropdown
+    id: state_class
+    attributes:
+      label: state_class des Verbrauchssensors
+      description: >
+        Steht in den Attributen des Sensors (Entwicklerwerkzeuge → Zustände → Sensor anklicken).
+        Nur relevant, falls oben ein Verbrauchssensor angegeben wurde.
+      options:
+        - total_increasing
+        - total
+        - measurement
+        - weiß ich nicht / keine Angabe
+        - nicht zutreffend
+    validations:
+      required: true
+
+  - type: input
+    id: vertragsbeginn
+    attributes:
+      label: Vertragsbeginn
+      description: Wie im Vertrag hinterlegt (Format TT.MM.JJJJ).
+      placeholder: "z.B. 28.04.2026"
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Was ist das Problem?
+      description: Was hast du erwartet, was ist stattdessen passiert?
+      placeholder: |
+        Beispiel: "Verbrauch (Bisher)" zeigt 6000 kWh, ich hätte aber nur ca. 80 kWh seit
+        Vertragsbeginn erwartet.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs (optional, aber hilfreich)
+      description: >
+        Relevante Zeilen aus Einstellungen → System → Protokolle, gefiltert auf "tariffy". Für
+        ausführlichere Logs: in configuration.yaml
+        `logger: logs: custom_components.tariffy: debug` setzen, HA neu starten, Problem
+        reproduzieren, dann die Log-Zeilen hier einfügen.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vorab-Check
+      options:
+        - label: Ich benutze die aktuellste tariffy-Version (HACS → tariffy → Update prüfen)
+        - label: Ich habe die bestehenden Issues durchsucht, ob mein Problem schon gemeldet wurde
