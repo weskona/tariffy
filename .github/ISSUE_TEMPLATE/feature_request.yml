@@ -1,0 +1,12 @@
+name: Feature Request
+description: Eine Idee oder einen Wunsch für tariffy vorschlagen
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Was soll tariffy zusätzlich können?
+      description: Beschreibe die Idee und, falls hilfreich, warum sie für dich nützlich wäre.
+    validations:
+      required: true
