@@ -1,103 +1,102 @@
 name: Bug Report
-description: Ein Problem mit tariffy melden
+description: Report a problem with tariffy
 title: "[Bug] "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Danke, dass du dir die Zeit nimmst, ein Problem zu melden! Bitte fülle die Felder unten
-        so vollständig wie möglich aus — das spart uns beiden ein paar Runden Rückfragen.
+        Thanks for taking the time to report an issue! Please fill in the fields below as
+        completely as possible — it saves us both a few rounds of follow-up questions.
 
   - type: input
     id: tariffy_version
     attributes:
-      label: tariffy-Version
-      description: Zu finden unter HACS → tariffy, oder in `custom_components/tariffy/manifest.json`.
-      placeholder: "z.B. 1.24.3"
+      label: tariffy version
+      description: Found under HACS → tariffy, or in `custom_components/tariffy/manifest.json`.
+      placeholder: "e.g. 1.24.3"
     validations:
       required: true
 
   - type: input
     id: ha_version
     attributes:
-      label: Home Assistant Version
-      placeholder: "z.B. 2026.7.3"
+      label: Home Assistant version
+      placeholder: "e.g. 2026.7.3"
     validations:
       required: true
 
   - type: dropdown
     id: sparte
     attributes:
-      label: Sparte
-      description: Welche Art von Vertrag ist betroffen?
+      label: Contract type (Sparte)
+      description: Which kind of contract is affected?
       options:
-        - Strom
+        - Electricity
         - Gas
-        - Wasser
+        - Water
         - Internet
-        - Sonstiges / weiß nicht
+        - Other / not sure
     validations:
       required: true
 
   - type: input
     id: verbrauch_sensor
     attributes:
-      label: Verbrauchssensor (entity_id)
+      label: Consumption sensor (entity_id)
       description: >
-        Falls im Vertrag ein "Verbrauchssensor" konfiguriert ist (Entwicklerwerkzeuge →
-        Zustände, dort den Sensor suchen).
-      placeholder: "z.B. sensor.netzbezug_home_in"
+        If the contract has a consumption sensor ("Verbrauchssensor" in the config UI)
+        configured (Developer tools → States, search for the sensor there).
+      placeholder: "e.g. sensor.netzbezug_home_in"
 
   - type: dropdown
     id: state_class
     attributes:
-      label: state_class des Verbrauchssensors
+      label: state_class of the consumption sensor
       description: >
-        Steht in den Attributen des Sensors (Entwicklerwerkzeuge → Zustände → Sensor anklicken).
-        Nur relevant, falls oben ein Verbrauchssensor angegeben wurde.
+        Shown in the sensor's attributes (Developer tools → States → click the sensor). Only
+        relevant if you entered a consumption sensor above.
       options:
         - total_increasing
         - total
         - measurement
-        - weiß ich nicht / keine Angabe
-        - nicht zutreffend
+        - not sure / not specified
+        - not applicable
     validations:
       required: true
 
   - type: input
     id: vertragsbeginn
     attributes:
-      label: Vertragsbeginn
-      description: Wie im Vertrag hinterlegt (Format TT.MM.JJJJ).
-      placeholder: "z.B. 28.04.2026"
+      label: Contract start date
+      description: As entered in the contract (format DD.MM.YYYY).
+      placeholder: "e.g. 28.04.2026"
 
   - type: textarea
     id: problem
     attributes:
-      label: Was ist das Problem?
-      description: Was hast du erwartet, was ist stattdessen passiert?
+      label: What's the problem?
+      description: What did you expect, and what happened instead?
       placeholder: |
-        Beispiel: "Verbrauch (Bisher)" zeigt 6000 kWh, ich hätte aber nur ca. 80 kWh seit
-        Vertragsbeginn erwartet.
+        Example: "Consumption (so far)" shows 6000 kWh, but I expected only around 80 kWh since
+        the contract start date.
     validations:
       required: true
 
   - type: textarea
     id: logs
     attributes:
-      label: Logs (optional, aber hilfreich)
+      label: Logs (optional, but helpful)
       description: >
-        Relevante Zeilen aus Einstellungen → System → Protokolle, gefiltert auf "tariffy". Für
-        ausführlichere Logs: in configuration.yaml
-        `logger: logs: custom_components.tariffy: debug` setzen, HA neu starten, Problem
-        reproduzieren, dann die Log-Zeilen hier einfügen.
+        Relevant lines from Settings → System → Logs, filtered on "tariffy". For more detail:
+        set `logger: logs: custom_components.tariffy: debug` in configuration.yaml, restart HA,
+        reproduce the issue, then paste the log lines here.
       render: shell
 
   - type: checkboxes
     id: checks
     attributes:
-      label: Vorab-Check
+      label: Before you submit
       options:
-        - label: Ich benutze die aktuellste tariffy-Version (HACS → tariffy → Update prüfen)
-        - label: Ich habe die bestehenden Issues durchsucht, ob mein Problem schon gemeldet wurde
+        - label: I'm using the latest tariffy version (HACS → tariffy → check for updates)
+        - label: I searched existing issues to see if this was already reported
