@@ -63,6 +63,7 @@ from .const import (
     LAENDER_ABWASSER_PAUSCHAL,
     MAX_TIERS,
     CONF_VERBRAUCH_SENSOR,
+    CONF_VERBRAUCH_START_WERT,
     CONF_WASSER_EINHEIT,
     DOMAIN,
     ENERGIE_SPARTEN,
@@ -234,6 +235,22 @@ def _verbrauch_m3() -> selector.NumberSelector:
     )
 
 
+def _verbrauch_start_wert_field(d: dict[str, Any]) -> dict[Any, Any]:
+    """Optionaler manueller Zaehlerstand bei Vertragsbeginn -- Fallback/
+    Override fuer die automatische Offset-Ermittlung ueber Recorder-
+    Statistiken (siehe coordinator.py). Wird verwendet, sobald gesetzt,
+    unabhaengig davon ob die Statistik verfuegbar waere, da der Nutzer den
+    wahren Wert oft besser kennt (z.B. vom Zaehler oder der Abrechnung
+    abgelesen)."""
+    return {
+        _opt(
+            CONF_VERBRAUCH_START_WERT, d.get(CONF_VERBRAUCH_START_WERT)
+        ): selector.NumberSelector(
+            selector.NumberSelectorConfig(min=0, step="any", mode=selector.NumberSelectorMode.BOX)
+        ),
+    }
+
+
 def _select(options, translation_key=None, custom=False) -> selector.SelectSelector:
     cfg: dict = dict(
         options=options,
@@ -378,6 +395,7 @@ def _energie_schema(d: dict[str, Any], features: dict | None = None) -> vol.Sche
             _opt(CONF_VERBRAUCH_SENSOR, d.get(CONF_VERBRAUCH_SENSOR)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             ),
+            **_verbrauch_start_wert_field(d),
             **_abschlag_warnung_fields(d),
             **_einspeisung_fields(d),
             _opt(CONF_BONUS, d.get(CONF_BONUS)): _preis(0.01),
@@ -421,6 +439,7 @@ def _gas_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
             _opt(CONF_VERBRAUCH_SENSOR, d.get(CONF_VERBRAUCH_SENSOR)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             ),
+            **_verbrauch_start_wert_field(d),
             vol.Required(
                 CONF_BRENNWERT, default=_dezimal_default(d.get(CONF_BRENNWERT, 11.0))
             ): _dezimal_feld(),
@@ -508,6 +527,7 @@ def _wasser_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schem
             _opt(CONF_VERBRAUCH_SENSOR, d.get(CONF_VERBRAUCH_SENSOR)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             ),
+            **_verbrauch_start_wert_field(d),
             **_abschlag_warnung_fields(d),
             _opt(CONF_ZAEHLERNUMMER, d.get(CONF_ZAEHLERNUMMER)): selector.TextSelector(),
             **_tiered_fields(d, enabled=f.get("hat_tiered", True)),
