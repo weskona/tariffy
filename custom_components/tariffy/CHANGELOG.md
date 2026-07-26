@@ -2,6 +2,21 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.25.0] - 2026-07-26
+
+### Hinzugefügt
+
+- **Optionaler manueller Zählerstand bei Vertragsbeginn** (Strom/Gas/Wasser): neues Feld
+  "Zählerstand bei Vertragsbeginn", das den automatisch über Home Assistants Recorder-
+  Langzeitstatistik ermittelten Referenzwert überschreibt, sobald gesetzt. Deckt den Fall ab,
+  dass die Statistik-Historie des Verbrauchssensors nicht bis zum Vertragsbeginn zurückreicht
+  (z.B. weil der Sensor zwischenzeitlich umbenannt oder neu angelegt wurde, auch wenn die reine
+  Zustands-Historie durchgehend aussieht) — bislang führte das zu einer falschen Berechnung
+  ("Verbrauch (Bisher)" zeigte dann den vollen Zählerstand statt der Differenz seit
+  Vertragsbeginn). Wird der manuelle Wert genutzt, rechnet Tariffy bewusst gegen den rohen
+  aktuellen Zählerstand statt gegen die reset-sichere `sum`-Statistik, da beide unterschiedliche
+  (unbekannte) Referenzpunkte haben und sich nicht mischen lassen.
+
 ## [1.24.4] - 2026-07-26
 
 ### Behoben
