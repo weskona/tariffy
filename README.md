@@ -108,6 +108,11 @@ All four require `unit price`; `Cost (so far)`, `Refund/balance due (so far)` an
 
 When a **consumption sensor** is configured, Tariffy reads the historical meter value at contract start from **Long-Term Statistics** and calculates:
 
+If the sensor's statistics history doesn't reach back to the contract start date (e.g. because it
+was renamed or recreated at some point, even if the plain state history looks continuous), you can
+optionally enter a **"Meter reading at contract start"** — this manual value takes priority over
+the automatic detection and is compared directly against the sensor's current raw reading.
+
 ```
 Consumption so far                    = current meter value − meter value at contract start   (in the sensor's own unit, e.g. m³)
 Consumption (contract term projected) = consumption so far ÷ days elapsed × contract term (days)
@@ -393,7 +398,11 @@ Die für die Hochrechnung verwendete Vertragslaufzeit ist `Vertragsende − Vert
 
 Sowohl der aktuelle Zählerstand als auch der historische Wert zum Vertragsbeginn werden aus der kumulierten **`sum`-Statistik** des Recorders gelesen, nicht aus dem rohen Sensor-Zustand. Das macht die Berechnung robust gegenüber Sensoren mit `state_class: total_increasing`, die erlaubterweise periodisch zurücksetzen (manche Smart-Meter-Integrationen setzen ihren Rohzähler bei jedem Ablesezyklus zurück) — die `sum`-Statistik des Recorders berücksichtigt solche Resets bereits. Ein Zähler, der nie zurücksetzt, ist trotzdem vorzuziehen, wo verfügbar.
 
-> Der Sensor muss Long-Term Statistics aktiviert haben und mindestens seit Vertragsbeginn existieren.
+> Der Sensor muss Long-Term Statistics aktiviert haben. Reicht dessen Statistik-Historie nicht bis
+> zum Vertragsbeginn zurück (z. B. weil der Sensor zwischenzeitlich umbenannt oder neu angelegt
+> wurde, auch wenn die reine Zustands-Historie durchgehend aussieht), kannst du optional einen
+> **manuellen "Zählerstand bei Vertragsbeginn"** eintragen — der hat dann Vorrang vor der
+> automatischen Erkennung und wird direkt gegen den aktuellen rohen Zählerstand gerechnet.
 
 ---
 
