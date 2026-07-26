@@ -71,6 +71,13 @@ LAENDER_ABWASSER_PAUSCHAL = {"FR", "BE", "LU"}
 CONF_VERBRAUCH_SENSOR = "verbrauch_sensor"
 CONF_VERBRAUCH_LETZTE_LAUFZEIT = "verbrauch_letzte_laufzeit"
 CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE = "verbrauch_letzte_laufzeit_monate"
+# Optionaler manueller Fallback/Override fuer den Zaehlerstand bei
+# Vertragsbeginn -- deckt den Fall ab, dass die Recorder-Statistik des
+# verbrauch_sensor nicht bis zum Vertragsbeginn zurueckreicht (z.B. weil der
+# Sensor zwischenzeitlich umbenannt oder neu angelegt wurde). Bewusst NICHT
+# in BASIS_FELDER, da ein Vertragswechsel ein neues Beginn-Datum hat, fuer
+# das die automatische Erkennung normalerweise funktioniert.
+CONF_VERBRAUCH_START_WERT = "verbrauch_start_wert"
 
 # Einspeiseverguetung (nur Strom)
 CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"
