@@ -2,6 +2,29 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.25.0] - 2026-07-26
+
+### Added
+
+- **Optional manual meter reading at contract start** (Electricity/Gas/Water): a new "Meter
+  reading at contract start" field overrides the automatically detected reference value from
+  Home Assistant's recorder long-term statistics as soon as it is set. Covers the case where the
+  consumption sensor's statistics history does not reach back to the contract start date (e.g.
+  because the sensor was renamed or recreated at some point, even if the plain state history
+  looks continuous) — previously this led to an incorrect calculation ("Consumption (so far)"
+  showed the full meter reading instead of the delta since contract start).
+
+## [1.24.4] - 2026-07-26
+
+### Fixed
+
+- **"Unable to remove unknown job listener" error on every reload after Home Assistant startup**:
+  the one-time `EVENT_HOMEASSISTANT_STARTED` listener was tracked via `entry.async_on_unload()`
+  even though it already removes itself once it fires — any reload happening after that point
+  tried to remove it a second time. Now checks `hass.is_running`: if HA is already running, the
+  refresh happens immediately instead of waiting for an event that will never fire again, and the
+  listener is no longer redundantly tracked for removal.
+
 ## [1.24.3] - 2026-07-14
 
 ### Fixed
