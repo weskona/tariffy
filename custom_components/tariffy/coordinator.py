@@ -352,14 +352,25 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset: float | None = None
         self._verbrauch_offset_date: date | None = None
 
-        async def _startup_refresh(_event: Any) -> None:
+        async def _startup_refresh(_event: Any = None) -> None:
             """Refresh nach HA-Start, damit LTS-Daten verfügbar sind."""
             if entry.data.get(CONF_VERBRAUCH_SENSOR):
                 await self.async_refresh()
 
-        entry.async_on_unload(
+        if hass.is_running:
+            # Setup/Reload passiert nach dem eigentlichen HA-Start (z.B. Optionen
+            # geaendert, Integration neu geladen) -- EVENT_HOMEASSISTANT_STARTED
+            # feuert dann nicht erneut, also direkt refreshen statt zu warten.
+            hass.async_create_task(_startup_refresh())
+        else:
+            # Bewusst NICHT ueber entry.async_on_unload() nachverfolgt: ein
+            # "listen_once"-Listener entfernt sich nach dem einmaligen Feuern
+            # automatisch selbst. Wuerde man ihn trotzdem in async_on_unload
+            # registrieren, versucht ein spaeteres Neuladen/Entladen -- nachdem
+            # das Event laengst gefeuert und der Listener sich schon selbst
+            # entfernt hat -- ihn ein zweites Mal zu entfernen und wirft
+            # "Unable to remove unknown job listener".
             hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, _startup_refresh)
-        )
 
         async def _midnight_refresh(_now: Any) -> None:
             """Prueft den Tarifwechsel exakt bei Datumswechsel, nicht erst
