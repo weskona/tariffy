@@ -2,6 +2,20 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.24.4] - 2026-07-26
+
+### Behoben
+
+- **"Unable to remove unknown job listener" beim Neuladen der Integration** (z.B. nach einer
+  Options-Änderung, oder manuell über "Neu laden"): der `_startup_refresh`-Listener auf
+  `EVENT_HOMEASSISTANT_STARTED` wird registriert, unabhängig davon ob HA bereits vollständig
+  gestartet ist. Feuert dieses Event vor dem Neuladen schon (der Normalfall bei jedem Reload,
+  der nicht direkt beim HA-Start passiert), entfernt sich der Listener selbst — der
+  `entry.async_on_unload()`-Aufruf beim nächsten Unload versuchte trotzdem noch, ihn zu
+  entfernen, was zu diesem Fehler im Log führte. Prüft jetzt `hass.is_running`: läuft HA
+  bereits, wird der Refresh direkt ausgeführt statt auf ein Event zu warten, das nicht mehr
+  kommt.
+
 ## [1.24.3] - 2026-07-14
 
 ### Behoben
