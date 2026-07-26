@@ -46,6 +46,7 @@ from .const import (
     CONF_VERBRAUCH_LETZTE_LAUFZEIT,
     CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
     CONF_VERBRAUCH_SENSOR,
+    CONF_VERBRAUCH_START_WERT,
     CONF_ZAEHLERNUMMER,
     CONF_ZUSTANDSZAHL,
     ABWASSER_TYP_PAUSCHAL,
@@ -727,17 +728,33 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         abschlag_anpassung_empfohlen: float | None = None
 
         if verbrauch_sensor and beginn:
-            # Aktuellen kumulierten Wert lesen (reset-sicher über 'sum', s.o.).
-            # Fallback auf den rohen Live-Zustand, falls die Statistik (noch)
-            # keinen Sum-Wert liefert (z.B. brandneuer Sensor).
-            aktuell = await _get_latest_sum(self.hass, verbrauch_sensor)
-            if aktuell is None:
+            manueller_start_wert = _f(data.get(CONF_VERBRAUCH_START_WERT))
+            if manueller_start_wert is not None:
+                # Manueller Override hat Vorrang vor der automatischen
+                # LTS-Erkennung -- deckt den Fall ab, dass die Recorder-
+                # Statistik des Sensors nicht bis zum Vertragsbeginn
+                # zurueckreicht (z.B. nach einem Rename/Neuanlegen des
+                # Sensors). WICHTIG: der Nutzer traegt hier den ECHTEN,
+                # rohen Zaehlerstand ein -- das muss gegen den ECHTEN
+                # aktuellen Zaehlerstand gerechnet werden, nicht gegen die
+                # reset-sichere 'sum'-Statistik, deren Baseline ein
+                # beliebiger, unbekannter Punkt in der Vergangenheit ist
+                # (sum und roher Zustand unterscheiden sich sonst um genau
+                # diese Baseline, was das Ergebnis unbrauchbar macht).
                 state = self.hass.states.get(verbrauch_sensor)
                 aktuell = _f(state.state) if state else None
-            if aktuell is not None:
-                # Offset zum Vertragsbeginn holen
-                offset = await self._get_verbrauch_offset(verbrauch_sensor, beginn)
+                offset = manueller_start_wert
+            else:
+                # Aktuellen kumulierten Wert lesen (reset-sicher über 'sum', s.o.).
+                # Fallback auf den rohen Live-Zustand, falls die Statistik (noch)
+                # keinen Sum-Wert liefert (z.B. brandneuer Sensor).
+                aktuell = await _get_latest_sum(self.hass, verbrauch_sensor)
+                if aktuell is None:
+                    state = self.hass.states.get(verbrauch_sensor)
+                    aktuell = _f(state.state) if state else None
+                offset = await self._get_verbrauch_offset(verbrauch_sensor, beginn) if aktuell is not None else None
 
+            if aktuell is not None:
                 if offset is not None:
                     verbrauch_bisher = round(aktuell - offset, 2)
                 else:
