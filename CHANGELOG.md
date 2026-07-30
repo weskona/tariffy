@@ -2,6 +2,24 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.25.1] - 2026-07-30
+
+### Fixed
+
+- **"Consumption (so far)" could suddenly show an implausibly high value due to an anomaly in
+  Home Assistant's own recorder `sum` long-term statistic**, even though the sensor's raw meter
+  reading stayed perfectly continuous and correct (observed: after a Home Assistant restart, the
+  `sum` statistic jumped to roughly double within a single hour, while the actual meter reading
+  changed by only 0.1 kWh in that same hour). The calculation now also reads the sensor's raw
+  `state` value alongside the `sum` statistic and cross-checks both: if the current reading
+  hasn't dropped below the value at contract start (the normal case — no real meter reset), it
+  uses the simpler, more robust state difference instead of the potentially glitched `sum`
+  statistic. A genuine meter reset (common for some gas meters) is still correctly handled via
+  the reset-safe `sum` statistic. This automatically resolves the issue reported in #1 without
+  needing the manual meter-reading override added in 1.25.0 — that option remains available for
+  the rarer case where a sensor's statistics history genuinely doesn't reach back to the contract
+  start date.
+
 ## [1.25.0] - 2026-07-26
 
 ### Added
