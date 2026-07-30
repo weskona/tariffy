@@ -2,6 +2,25 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.25.1] - 2026-07-30
+
+### Behoben
+
+- **"Verbrauch (Bisher)" konnte durch eine Anomalie in Home Assistants eigener Recorder-
+  `sum`-Langzeitstatistik plötzlich einen viel zu hohen Wert zeigen**, obwohl der rohe
+  Zählerstand des Sensors durchgehend korrekt und unauffällig weiterlief (beobachtet: die
+  `sum`-Statistik sprang nach einem HA-Neustart innerhalb einer Stunde auf etwa das Doppelte,
+  während sich der tatsächliche Zählerstand im selben Zeitraum nur um 0,1 kWh änderte). Die
+  Berechnung liest jetzt zusätzlich zur `sum`-Statistik auch den zugehörigen rohen `state`-Wert
+  mit und vergleicht beide: bleibt der aktuelle Zählerstand seit Vertragsbeginn nicht unter den
+  Anfangswert gefallen (der Normalfall, kein echter Reset), wird die einfache, robuste
+  State-Differenz verwendet statt der potenziell fehleranfälligen `sum`-Statistik. Ein echter
+  Zählerstand-Reset (z. B. bei manchen Gaszählern üblich) wird weiterhin korrekt über die
+  reset-sichere `sum`-Statistik aufgefangen. Dadurch behebt sich das in Issue #1 gemeldete
+  Problem jetzt auch automatisch, ganz ohne den in 1.25.0 hinzugefügten manuellen Zählerstand-
+  Fallback eintragen zu müssen — dieser bleibt als Option für den selteneren Fall erhalten, dass
+  die Statistik-Historie eines Sensors tatsächlich nicht bis zum Vertragsbeginn zurückreicht.
+
 ## [1.25.0] - 2026-07-26
 
 ### Hinzugefügt
