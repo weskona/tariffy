@@ -33,9 +33,12 @@ body:
       description: Which kind of contract is affected?
       options:
         - Electricity
+        - Electricity (dual tariff, HT/NT)
         - Gas
         - Water
         - Internet
+        - Mobile
+        - Insurance
         - Other / not sure
     validations:
       required: true
@@ -46,8 +49,16 @@ body:
       label: Consumption sensor (entity_id)
       description: >
         If the contract has a consumption sensor ("Verbrauchssensor" in the config UI)
-        configured (Developer tools → States, search for the sensor there).
+        configured (Developer tools → States, search for the sensor there). For a dual-tariff
+        (HT/NT) contract, this is the high-tariff (HT) sensor.
       placeholder: "e.g. sensor.netzbezug_home_in"
+
+  - type: input
+    id: verbrauch_sensor_nt
+    attributes:
+      label: Low-tariff (NT) consumption sensor (entity_id)
+      description: Only for a dual-tariff (HT/NT) electricity contract — the second, low-tariff meter.
+      placeholder: "e.g. sensor.netzbezug_home_nt"
 
   - type: dropdown
     id: state_class

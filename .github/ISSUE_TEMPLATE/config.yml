@@ -1,1 +1,5 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Question / usage help
+    url: https://github.com/weskona/tariffy/discussions
+    about: For "how do I configure X" questions rather than bugs, please check the README first.
