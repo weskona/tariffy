@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import calendar
+from collections.abc import Callable
 from datetime import date, datetime, timedelta
 import logging
 from typing import TYPE_CHECKING, Any
@@ -71,6 +72,11 @@ from .const import (
     NEXT_PREFIX,
     NOTIFY_ID_PREFIX,
     SPARTEN_MIGRATION,
+    SPARTE_ELECTRICITY_HT_NT,
+    CONF_ARBEITSPREIS_NT,
+    CONF_VERBRAUCH_SENSOR_NT,
+    CONF_VERBRAUCH_START_WERT_NT,
+    CONF_ZAEHLERNUMMER_NT,
 )
 
 if TYPE_CHECKING:
@@ -388,6 +394,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset: float | None = None
         self._verbrauch_offset_state: float | None = None
         self._verbrauch_offset_date: date | None = None
+        # Niedertarif-Register beim Zweizaehlertarif (SPARTE_ELECTRICITY_HT_NT)
+        # -- eigener Cache, unabhaengig vom Hochtarif-Register oben.
+        self._verbrauch_offset_nt: float | None = None
+        self._verbrauch_offset_state_nt: float | None = None
+        self._verbrauch_offset_date_nt: date | None = None
 
         async def _startup_refresh(_event: Any = None) -> None:
             """Refresh nach HA-Start, damit LTS-Daten verfügbar sind."""
@@ -466,6 +477,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset = None
         self._verbrauch_offset_state = None
         self._verbrauch_offset_date = None
+        self._verbrauch_offset_nt = None
+        self._verbrauch_offset_state_nt = None
+        self._verbrauch_offset_date_nt = None
         self.hass.config_entries.async_update_entry(
             self.entry, data=new_data, options={}
         )
@@ -619,10 +633,71 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             )
         return sum_val, state_val
 
+    async def _get_verbrauch_offset_nt(
+        self, entity_id: str, beginn: date
+    ) -> tuple[float | None, float | None]:
+        """Wie _get_verbrauch_offset(), aber fuer das Niedertarif-Register
+        beim Zweizaehlertarif — eigener Cache, da Hoch- und Niedertarif
+        unabhaengige Sensoren mit potenziell unterschiedlicher LTS-Historie
+        sind."""
+        if (
+            self._verbrauch_offset_nt is not None
+            and self._verbrauch_offset_date_nt == beginn
+        ):
+            return self._verbrauch_offset_nt, self._verbrauch_offset_state_nt
+
+        sum_val, state_val = await _get_historic_value(self.hass, entity_id, beginn)
+        if sum_val is not None:
+            self._verbrauch_offset_nt = sum_val
+            self._verbrauch_offset_state_nt = state_val
+            self._verbrauch_offset_date_nt = beginn
+            _LOGGER.debug(
+                "Tariffy '%s': Verbrauch-Offset (NT) zum %s = %.2f (state=%s)",
+                self.entry.title, beginn, sum_val, state_val,
+            )
+        return sum_val, state_val
+
+    async def _verbrauch_bisher_fuer_sensor(
+        self,
+        sensor_id: str | None,
+        manueller_start_wert: float | None,
+        beginn: date | None,
+        offset_getter: Callable[[str, date], Any],
+    ) -> float | None:
+        """Verbrauch seit Vertragsbeginn fuer EIN Register (Hoch- oder
+        Niedertarif-Sensor beim Zweizaehlertarif) — dieselbe Logik wie der
+        Hochtarif/Einzelzaehler-Block in _async_update_data() (manueller
+        Override hat Vorrang, sonst reset-sichere 'sum'-Statistik mit
+        State-Delta-Absicherung, siehe _pick_verbrauch_delta()), nur als
+        wiederverwendbare Methode fuer das zweite Register. `offset_getter`
+        ist _get_verbrauch_offset oder _get_verbrauch_offset_nt, je nach
+        Register."""
+        if not sensor_id or beginn is None:
+            return None
+        if manueller_start_wert is not None:
+            state = self.hass.states.get(sensor_id)
+            aktuell = _f(state.state) if state else None
+            if aktuell is None:
+                return None
+            return round(aktuell - manueller_start_wert, 2)
+
+        aktuell_sum, aktuell_state = await _get_latest_sum(self.hass, sensor_id)
+        live_state = self.hass.states.get(sensor_id)
+        live_val = _f(live_state.state) if live_state else None
+        if aktuell_sum is None:
+            aktuell_sum = live_val
+        if live_val is not None:
+            aktuell_state = live_val
+        if aktuell_sum is None:
+            return None
+        offset_sum, offset_state = await offset_getter(sensor_id, beginn)
+        return _pick_verbrauch_delta(aktuell_sum, offset_sum, aktuell_state, offset_state)
+
     # --------------------------------------------------------------- Update
     async def _verbrauch_letzte_laufzeit_jetzt(self) -> float | None:
         """Verbrauch der (noch) laufenden Laufzeit bis jetzt, zum Einfrieren
-        beim Wechsel — automatisch wie manuell identisch berechnet."""
+        beim Wechsel — automatisch wie manuell identisch berechnet. Beim
+        Zweizaehlertarif wird Hoch- + Niedertarif-Register kombiniert."""
         sensor_id = self.entry.data.get(CONF_VERBRAUCH_SENSOR)
         if not sensor_id or self._verbrauch_offset is None:
             return None
@@ -633,9 +708,28 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             aktuell_state = aktuell_sum
         if aktuell_sum is None:
             return None
-        return _pick_verbrauch_delta(
+        verbrauch_ht = _pick_verbrauch_delta(
             aktuell_sum, self._verbrauch_offset, aktuell_state, self._verbrauch_offset_state
         )
+        if self.entry.data.get(CONF_SPARTE) != SPARTE_ELECTRICITY_HT_NT:
+            return verbrauch_ht
+
+        sensor_id_nt = self.entry.data.get(CONF_VERBRAUCH_SENSOR_NT)
+        if not sensor_id_nt or self._verbrauch_offset_nt is None:
+            return verbrauch_ht
+        aktuell_sum_nt, aktuell_state_nt = await _get_latest_sum(self.hass, sensor_id_nt)
+        if aktuell_sum_nt is None:
+            state_nt = self.hass.states.get(sensor_id_nt)
+            aktuell_sum_nt = _f(state_nt.state) if state_nt else None
+            aktuell_state_nt = aktuell_sum_nt
+        if aktuell_sum_nt is None:
+            return verbrauch_ht
+        verbrauch_nt = _pick_verbrauch_delta(
+            aktuell_sum_nt, self._verbrauch_offset_nt, aktuell_state_nt, self._verbrauch_offset_state_nt
+        )
+        if verbrauch_ht is None and verbrauch_nt is None:
+            return None
+        return round((verbrauch_ht or 0.0) + (verbrauch_nt or 0.0), 2)
 
     async def _async_update_data(self) -> dict[str, Any]:
         heute = dt_util.now().date()
@@ -818,58 +912,99 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         self.entry.title, verbrauch_sensor, beginn,
                     )
 
-            if verbrauch_bisher is not None and verbrauch_bisher > 0:
-                vergangene_tage = (heute - beginn).days
-                if vergangene_tage > 0:
-                    # Hochrechnung auf die tatsächliche Vertragslaufzeit,
-                    # nicht auf ein festes Kalenderjahr — ein Vertrag kann
-                    # auch mitten im Jahr beginnen/enden.
-                    vertrag_gesamttage = (ende - beginn).days if ende is not None else 365
-                    verbrauch_hochgerechnet = round(
-                        verbrauch_bisher / vergangene_tage * vertrag_gesamttage, 1
-                    )
-                    # Bei Gas: m³ hochgerechnet → kWh
-                    if sparte == GAS_SPARTE and brennwert and zustandszahl:
-                        verbrauch_kwh_real = round(
-                            verbrauch_hochgerechnet * brennwert * zustandszahl, 1
+        # ---- Zweizaehlertarif: Niedertarif-Register dazu addieren ----
+        # verbrauch_bisher (oben) ist an dieser Stelle das Hochtarif-Register
+        # (verbrauch_sensor wird beim Zweizaehlertarif implizit als HT
+        # verwendet, siehe const.py). Wird zu einem kombinierten Wert
+        # aufaddiert; arbeitspreis wird auf den gewichteten Durchschnitt
+        # beider Register umgestellt, damit Hochrechnung/kosten_bisher/
+        # Prognose/Abschlag-Empfehlung unten UNVERAENDERT weiterrechnen
+        # koennen, einfach mit diesem effektiven Preis statt einem festen.
+        verbrauch_bisher_ht: float | None = None
+        verbrauch_bisher_nt: float | None = None
+        arbeitspreis_nt = _f(data.get(CONF_ARBEITSPREIS_NT))
+        arbeitspreis_ht = arbeitspreis  # unvermischter HT-Preis, fuer kosten_ht_bisher unten
+        kosten_ht_bisher: float | None = None
+        kosten_nt_bisher: float | None = None
+        if sparte == SPARTE_ELECTRICITY_HT_NT:
+            verbrauch_bisher_ht = verbrauch_bisher
+            verbrauch_sensor_nt = data.get(CONF_VERBRAUCH_SENSOR_NT)
+            manueller_start_wert_nt = _f(data.get(CONF_VERBRAUCH_START_WERT_NT))
+            verbrauch_bisher_nt = await self._verbrauch_bisher_fuer_sensor(
+                verbrauch_sensor_nt, manueller_start_wert_nt, beginn, self._get_verbrauch_offset_nt
+            )
+            if verbrauch_bisher_ht is not None and arbeitspreis_ht is not None:
+                kosten_ht_bisher = round(verbrauch_bisher_ht * arbeitspreis_ht, 2)
+            if verbrauch_bisher_nt is not None and arbeitspreis_nt is not None:
+                kosten_nt_bisher = round(verbrauch_bisher_nt * arbeitspreis_nt, 2)
+            if verbrauch_bisher_ht is not None or verbrauch_bisher_nt is not None:
+                verbrauch_bisher = round((verbrauch_bisher_ht or 0.0) + (verbrauch_bisher_nt or 0.0), 2)
+                if (
+                    arbeitspreis is not None
+                    and arbeitspreis_nt is not None
+                    and verbrauch_bisher > 0
+                ):
+                    arbeitspreis = round(
+                        (
+                            (verbrauch_bisher_ht or 0.0) * arbeitspreis
+                            + (verbrauch_bisher_nt or 0.0) * arbeitspreis_nt
                         )
-                    else:
-                        verbrauch_kwh_real = verbrauch_hochgerechnet
+                        / verbrauch_bisher,
+                        6,
+                    )
 
-                    ap_real = (
-                        arbeitspreis_gesamt_wasser
-                        if sparte == WASSER_SPARTE and arbeitspreis_gesamt_wasser is not None
-                        else arbeitspreis
+        if verbrauch_bisher is not None and verbrauch_bisher > 0:
+            vergangene_tage = (heute - beginn).days
+            if vergangene_tage > 0:
+                # Hochrechnung auf die tatsächliche Vertragslaufzeit,
+                # nicht auf ein festes Kalenderjahr — ein Vertrag kann
+                # auch mitten im Jahr beginnen/enden.
+                vertrag_gesamttage = (ende - beginn).days if ende is not None else 365
+                verbrauch_hochgerechnet = round(
+                    verbrauch_bisher / vergangene_tage * vertrag_gesamttage, 1
+                )
+                # Bei Gas: m³ hochgerechnet → kWh
+                if sparte == GAS_SPARTE and brennwert and zustandszahl:
+                    verbrauch_kwh_real = round(
+                        verbrauch_hochgerechnet * brennwert * zustandszahl, 1
                     )
-                    if ap_real is not None:
-                        # verbrauch_kwh_real ist bereits auf die gesamte
-                        # Vertragslaufzeit hochgerechnet (s.o.), braucht
-                        # hier keinen weiteren laufzeit_faktor mehr.
-                        geschaetzte_kosten_real = round(
-                            verbrauch_kwh_real * ap_real
-                            + (grundpreis or 0) * laufzeit_monate,
-                            2,
+                else:
+                    verbrauch_kwh_real = verbrauch_hochgerechnet
+
+                ap_real = (
+                    arbeitspreis_gesamt_wasser
+                    if sparte == WASSER_SPARTE and arbeitspreis_gesamt_wasser is not None
+                    else arbeitspreis
+                )
+                if ap_real is not None:
+                    # verbrauch_kwh_real ist bereits auf die gesamte
+                    # Vertragslaufzeit hochgerechnet (s.o.), braucht
+                    # hier keinen weiteren laufzeit_faktor mehr.
+                    geschaetzte_kosten_real = round(
+                        verbrauch_kwh_real * ap_real
+                        + (grundpreis or 0) * laufzeit_monate,
+                        2,
+                    )
+                    if abschlagssumme is not None:
+                        prognose_real = round(
+                            abschlagssumme - geschaetzte_kosten_real, 2
                         )
-                        if abschlagssumme is not None:
-                            prognose_real = round(
-                                abschlagssumme - geschaetzte_kosten_real, 2
+                    # Abschlags-Anpassung fuer den REST des laufenden
+                    # Vertrags: was muesste der Abschlag ab jetzt sein,
+                    # um unter Beruecksichtigung des bereits gezahlten
+                    # Abschlags bis Vertragsende exakt auszugleichen?
+                    if abschlag is not None:
+                        vergangene_monate_hier = vergangene_tage / 30.44
+                        restlaufzeit_monate = laufzeit_monate - vergangene_monate_hier
+                        if restlaufzeit_monate > 0:
+                            abschlag_bisher_gezahlt = _abschlag_bisher_gezahlt(
+                                abschlag, vergangene_monate_hier, beginn, data
                             )
-                        # Abschlags-Anpassung fuer den REST des laufenden
-                        # Vertrags: was muesste der Abschlag ab jetzt sein,
-                        # um unter Beruecksichtigung des bereits gezahlten
-                        # Abschlags bis Vertragsende exakt auszugleichen?
-                        if abschlag is not None:
-                            vergangene_monate_hier = vergangene_tage / 30.44
-                            restlaufzeit_monate = laufzeit_monate - vergangene_monate_hier
-                            if restlaufzeit_monate > 0:
-                                abschlag_bisher_gezahlt = _abschlag_bisher_gezahlt(
-                                    abschlag, vergangene_monate_hier, beginn, data
-                                )
-                                abschlag_anpassung_empfohlen = round(
-                                    (geschaetzte_kosten_real - abschlag_bisher_gezahlt)
-                                    / restlaufzeit_monate,
-                                    2,
-                                )
+                            abschlag_anpassung_empfohlen = round(
+                                (geschaetzte_kosten_real - abschlag_bisher_gezahlt)
+                                / restlaufzeit_monate,
+                                2,
+                            )
 
         # Tatsächliche Kosten bisher (auf Basis realer Messung)
         kosten_bisher: float | None = None
@@ -1060,4 +1195,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "abschlag_warnung_zu_bestaetigen": warnung_zu_bestaetigen,
             "wechsel": _parse_date(nxt.get(NEXT_PREFIX + CONF_BEGINN)) if nxt else None,
             "next": nxt,
+            CONF_ARBEITSPREIS_NT: arbeitspreis_nt,
+            "arbeitspreis_ht": arbeitspreis_ht,
+            CONF_ZAEHLERNUMMER_NT: data.get(CONF_ZAEHLERNUMMER_NT),
+            "verbrauch_bisher_ht": verbrauch_bisher_ht,
+            "verbrauch_bisher_nt": verbrauch_bisher_nt,
+            "kosten_ht_bisher": kosten_ht_bisher,
+            "kosten_nt_bisher": kosten_nt_bisher,
         }

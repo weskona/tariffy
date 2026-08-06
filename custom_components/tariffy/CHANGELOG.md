@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.26.0] - 2026-08-06
+
+### Hinzugefügt
+
+- **Zweizählertarif-Sparte (HT/NT — Hochtarif/Niedertarif)**: neue Sparte „Strom (Zweizählertarif, Hoch-/Niedertarif)" für einen echten Zweiregister-Stromzähler. Fügt einen zweiten Arbeitspreis, zweiten Verbrauchssensor, zweiten manuellen Zählerstand-Override und zweite Zählernummer für das Niedertarif-Register hinzu — komplett unabhängig vom Hochtarif-Register erfasst (eigener Long-Term-Statistics-Offset, eigener manueller Override-Fallback). Die bestehenden kombinierten Sensoren (Kosten/Guthaben/Prognose Bisher usw.) funktionieren wie bei jedem anderen Stromvertrag weiter — der Verbrauch beider Register wird summiert, und der von allen nachgelagerten Formeln verwendete Arbeitspreis wird automatisch zu einem gewichteten Durchschnitt beider Tarife. Vier neue eigene Sensoren zeigen die Aufschlüsselung je Register: Verbrauch Hochtarif/Niedertarif (Bisher) und Kosten Hochtarif/Niedertarif (Bisher) — Letztere sind die reinen verbrauchsbasierten Kosten dieses Registers, ohne Grundpreis-Anteil.
+
 ## [1.25.1] - 2026-07-30
 
 ### Behoben

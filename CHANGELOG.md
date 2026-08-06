@@ -2,6 +2,12 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.26.0] - 2026-08-06
+
+### Added
+
+- **Dual-tariff meter category (HT/NT — high tariff / low tariff)**: a new "Electricity (dual tariff, HT/NT)" category for a real two-register electricity meter. Adds a second unit price, second consumption sensor, second manual meter-reading override and second meter number for the low-tariff register, tracked completely independently from the high-tariff one (its own Long-Term Statistics offset, its own manual-override fallback). The existing combined sensors (Cost/Refund/Forecast so far, etc.) keep working exactly as for any other electricity contract — the two registers' consumption is summed, and the unit price used by all downstream formulas becomes an automatically weighted average of both tariffs' prices. Four new dedicated sensors expose the per-register breakdown: Consumption (high/low tariff, so far) and Cost (high/low tariff, so far) — the latter is the pure usage-based cost of that register, without a base-fee share.
+
 ## [1.25.1] - 2026-07-30
 
 ### Fixed

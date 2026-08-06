@@ -48,6 +48,9 @@ from .const import (
     NEXT_PREFIX,
     VERBRAUCH_KWH_EINHEIT,
     WASSER_SPARTE,
+    SPARTE_ELECTRICITY_HT_NT,
+    CONF_ARBEITSPREIS_NT,
+    CONF_ZAEHLERNUMMER_NT,
 )
 from .coordinator import TariffyCoordinator
 
@@ -132,6 +135,7 @@ class VertragSensorDescription(SensorEntityDescription):
     strom_only: bool = False
     tag_nacht_only: bool = False
     tiered_only: bool = False
+    ht_nt_only: bool = False
     currency_icon: bool = False
 
 
@@ -244,6 +248,14 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get(CONF_ZAEHLERNUMMER),
     ),
     VertragSensorDescription(
+        key=CONF_ZAEHLERNUMMER_NT,
+        translation_key="zaehlernummer_nt",
+        icon="mdi:counter",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        ht_nt_only=True,
+        value_fn=lambda d: d.get(CONF_ZAEHLERNUMMER_NT),
+    ),
+    VertragSensorDescription(
         key=CONF_TARIF,
         translation_key="tarif",
         icon="mdi:tag-text",
@@ -311,6 +323,14 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         },
     ),
     VertragSensorDescription(
+        key=CONF_ARBEITSPREIS_NT,
+        translation_key="arbeitspreis_nt",
+        icon="mdi:weather-night",
+        state_class=SensorStateClass.MEASUREMENT,
+        ht_nt_only=True,
+        value_fn=lambda d: d.get(CONF_ARBEITSPREIS_NT),
+    ),
+    VertragSensorDescription(
         key="effektiver_arbeitspreis",
         translation_key="effektiver_arbeitspreis",
         icon="mdi:stairs-up",
@@ -333,7 +353,27 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get("verbrauch_bisher"),
         attr_fn=lambda d: {
             "verbrauch_hochgerechnet": d.get("verbrauch_hochgerechnet"),
+            "verbrauch_bisher_ht": d.get("verbrauch_bisher_ht"),
+            "verbrauch_bisher_nt": d.get("verbrauch_bisher_nt"),
         },
+    ),
+    VertragSensorDescription(
+        key="verbrauch_ht_bisher",
+        translation_key="verbrauch_ht_bisher",
+        icon="mdi:counter",
+        native_unit_of_measurement=VERBRAUCH_KWH_EINHEIT,
+        state_class=SensorStateClass.MEASUREMENT,
+        ht_nt_only=True,
+        value_fn=lambda d: d.get("verbrauch_bisher_ht"),
+    ),
+    VertragSensorDescription(
+        key="verbrauch_nt_bisher",
+        translation_key="verbrauch_nt_bisher",
+        icon="mdi:weather-night",
+        native_unit_of_measurement=VERBRAUCH_KWH_EINHEIT,
+        state_class=SensorStateClass.MEASUREMENT,
+        ht_nt_only=True,
+        value_fn=lambda d: d.get("verbrauch_bisher_nt"),
     ),
     VertragSensorDescription(
         key="verbrauch_hochgerechnet",
@@ -365,6 +405,31 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get("kosten_bisher"),
         attr_fn=lambda d: {
             "verbrauch_bisher": d.get("verbrauch_bisher"),
+            "kosten_ht_bisher": d.get("kosten_ht_bisher"),
+            "kosten_nt_bisher": d.get("kosten_nt_bisher"),
+        },
+    ),
+    VertragSensorDescription(
+        key="kosten_ht_bisher",
+        translation_key="kosten_ht_bisher",
+        currency_icon=True,
+        state_class=SensorStateClass.MEASUREMENT,
+        ht_nt_only=True,
+        value_fn=lambda d: d.get("kosten_ht_bisher"),
+        attr_fn=lambda d: {
+            "verbrauch_bisher_ht": d.get("verbrauch_bisher_ht"),
+        },
+    ),
+    VertragSensorDescription(
+        key="kosten_nt_bisher",
+        translation_key="kosten_nt_bisher",
+        icon="mdi:weather-night",
+        currency_icon=True,
+        state_class=SensorStateClass.MEASUREMENT,
+        ht_nt_only=True,
+        value_fn=lambda d: d.get("kosten_nt_bisher"),
+        attr_fn=lambda d: {
+            "verbrauch_bisher_nt": d.get("verbrauch_bisher_nt"),
         },
     ),
     VertragSensorDescription(
@@ -437,7 +502,8 @@ async def async_setup_entry(
     ist_energie = sparte in ENERGIE_SPARTEN
     ist_gas = sparte == GAS_SPARTE
     ist_wasser = sparte == WASSER_SPARTE
-    ist_strom = sparte in ("electricity", "strom")
+    ist_strom = sparte in ("electricity", "strom", SPARTE_ELECTRICITY_HT_NT)
+    ist_ht_nt = sparte == SPARTE_ELECTRICITY_HT_NT
     hat_tag_nacht = bool(coordinator.data.get("hat_tag_nacht"))
     hat_tiered = bool(coordinator.data.get("ist_tiered"))
 
@@ -453,6 +519,8 @@ async def async_setup_entry(
         if desc.tag_nacht_only and not hat_tag_nacht:
             return False
         if desc.tiered_only and not hat_tiered:
+            return False
+        if desc.ht_nt_only and not ist_ht_nt:
             return False
         return True
 
@@ -478,14 +546,17 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
         sparte = d.get(CONF_SPARTE)
         currency = d.get("currency", "EUR")
         wasser_einheit = d.get("wasser_einheit", "m³")
+        _sparte_model = {SPARTE_ELECTRICITY_HT_NT: "Electricity (HT/NT)"}.get(
+            sparte, (sparte or "").capitalize()
+        )
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
             manufacturer=d.get(CONF_ANBIETER) or None,
-            model=(sparte or "").capitalize() or None,
+            model=_sparte_model or None,
         )
         key = description.key
-        if key in (CONF_ARBEITSPREIS, "arbeitspreis_abwasser", "arbeitspreis_gesamt_wasser", CONF_EINSPEISEVERGUETUNG, "arbeitspreis_nacht", "effektiver_arbeitspreis"):
+        if key in (CONF_ARBEITSPREIS, "arbeitspreis_abwasser", "arbeitspreis_gesamt_wasser", CONF_EINSPEISEVERGUETUNG, "arbeitspreis_nacht", "effektiver_arbeitspreis", CONF_ARBEITSPREIS_NT):
             if sparte == WASSER_SPARTE:
                 self._attr_native_unit_of_measurement = f"{currency}/{wasser_einheit}"
             else:
@@ -494,7 +565,7 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
         elif key == "jahreskosten":
             self._attr_native_unit_of_measurement = currency
-        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher"):
+        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher"):
             self._attr_native_unit_of_measurement = currency
         elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit"):
             if sparte in (GAS_SPARTE, WASSER_SPARTE):

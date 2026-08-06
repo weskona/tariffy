@@ -76,6 +76,11 @@ from .const import (
     VERBRAUCH_M3_EINHEIT,
     WASSER_EINHEITEN,
     WASSER_SPARTE,
+    SPARTE_ELECTRICITY_HT_NT,
+    CONF_ARBEITSPREIS_NT,
+    CONF_VERBRAUCH_SENSOR_NT,
+    CONF_VERBRAUCH_START_WERT_NT,
+    CONF_ZAEHLERNUMMER_NT,
 )
 
 
@@ -235,17 +240,18 @@ def _verbrauch_m3() -> selector.NumberSelector:
     )
 
 
-def _verbrauch_start_wert_field(d: dict[str, Any]) -> dict[Any, Any]:
+def _verbrauch_start_wert_field(
+    d: dict[str, Any], key: str = CONF_VERBRAUCH_START_WERT
+) -> dict[Any, Any]:
     """Optionaler manueller Zaehlerstand bei Vertragsbeginn -- Fallback/
     Override fuer die automatische Offset-Ermittlung ueber Recorder-
     Statistiken (siehe coordinator.py). Wird verwendet, sobald gesetzt,
     unabhaengig davon ob die Statistik verfuegbar waere, da der Nutzer den
     wahren Wert oft besser kennt (z.B. vom Zaehler oder der Abrechnung
-    abgelesen)."""
+    abgelesen). `key` erlaubt Wiederverwendung fuer das Niedertarif-Register
+    (CONF_VERBRAUCH_START_WERT_NT) beim Zweizaehlertarif."""
     return {
-        _opt(
-            CONF_VERBRAUCH_START_WERT, d.get(CONF_VERBRAUCH_START_WERT)
-        ): selector.NumberSelector(
+        _opt(key, d.get(key)): selector.NumberSelector(
             selector.NumberSelectorConfig(min=0, step="any", mode=selector.NumberSelectorMode.BOX)
         ),
     }
@@ -409,6 +415,55 @@ def _energie_schema(d: dict[str, Any], features: dict | None = None) -> vol.Sche
             _opt(CONF_PREISGARANTIE, d.get(CONF_PREISGARANTIE)): selector.DateSelector(),
             **_tiered_fields(d, enabled=f.get("hat_tiered", False)),
             **_tag_nacht_fields(d, enabled=f.get("hat_tag_nacht", False)),
+        }
+    )
+
+
+def _energie_ht_nt_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
+    """Schritt 2 für Strom mit Zweizählertarif (Hoch-/Niedertarif).
+
+    Identisch zu _energie_schema(), zusätzlich ein zweites Register
+    (Arbeitspreis/Verbrauchssensor/manueller Zählerstand-Fallback/
+    Zählernummer) für den Niedertarif. CONF_ARBEITSPREIS/CONF_VERBRAUCH_SENSOR/
+    CONF_ZAEHLERNUMMER (ohne Suffix) bleiben dabei implizit der Hochtarif."""
+    f = features or {}
+    return vol.Schema(
+        {
+            vol.Required(
+                CONF_ARBEITSPREIS, default=d.get(CONF_ARBEITSPREIS, 0.0)
+            ): _preis(0.0001),
+            vol.Required(
+                CONF_ARBEITSPREIS_NT, default=d.get(CONF_ARBEITSPREIS_NT, 0.0)
+            ): _preis(0.0001),
+            **_dynamischer_tarif_fields(d),
+            vol.Required(
+                CONF_GRUNDPREIS, default=d.get(CONF_GRUNDPREIS, 0.0)
+            ): _preis(0.01),
+            vol.Required(
+                CONF_ABSCHLAG, default=d.get(CONF_ABSCHLAG, 0.0)
+            ): _preis(0.01),
+            _opt(CONF_JAHRESVERBRAUCH, d.get(CONF_JAHRESVERBRAUCH)): _verbrauch(),
+            _opt(CONF_VERBRAUCH_SENSOR, d.get(CONF_VERBRAUCH_SENSOR)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            **_verbrauch_start_wert_field(d),
+            _opt(CONF_VERBRAUCH_SENSOR_NT, d.get(CONF_VERBRAUCH_SENSOR_NT)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            **_verbrauch_start_wert_field(d, key=CONF_VERBRAUCH_START_WERT_NT),
+            **_abschlag_warnung_fields(d),
+            **_einspeisung_fields(d),
+            _opt(CONF_BONUS, d.get(CONF_BONUS)): _preis(0.01),
+            vol.Required(
+                CONF_OEKOSTROM, default=bool(d.get(CONF_OEKOSTROM, False))
+            ): selector.BooleanSelector(),
+            _opt(CONF_ZAEHLERNUMMER, d.get(CONF_ZAEHLERNUMMER)): selector.TextSelector(),
+            _opt(CONF_ZAEHLERNUMMER_NT, d.get(CONF_ZAEHLERNUMMER_NT)): selector.TextSelector(),
+            _opt(
+                CONF_MARKTLOKATION, d.get(CONF_MARKTLOKATION)
+            ): selector.TextSelector(),
+            _opt(CONF_PREISGARANTIE, d.get(CONF_PREISGARANTIE)): selector.DateSelector(),
+            **_tiered_fields(d, enabled=f.get("hat_tiered", False)),
         }
     )
 
@@ -607,6 +662,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_gas()
             if user_input[CONF_SPARTE] == WASSER_SPARTE:
                 return await self.async_step_wasser()
+            if user_input[CONF_SPARTE] == SPARTE_ELECTRICITY_HT_NT:
+                return await self.async_step_energie_ht_nt()
             if user_input[CONF_SPARTE] in ENERGIE_SPARTEN:
                 return await self.async_step_energie()
             return await self.async_step_pauschal()
@@ -622,6 +679,17 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(
             step_id="energie", data_schema=_energie_schema({}, _country_features(self.hass))
+        )
+
+    async def async_step_energie_ht_nt(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if user_input is not None:
+            data = {**self._data, **user_input}
+            return self.async_create_entry(title=self._entry_title, data=data)
+        return self.async_show_form(
+            step_id="energie_ht_nt",
+            data_schema=_energie_ht_nt_schema({}, _country_features(self.hass)),
         )
 
     async def async_step_pauschal(
@@ -671,6 +739,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_reconfigure_gas()
             if user_input[CONF_SPARTE] == WASSER_SPARTE:
                 return await self.async_step_reconfigure_wasser()
+            if user_input[CONF_SPARTE] == SPARTE_ELECTRICITY_HT_NT:
+                return await self.async_step_reconfigure_energie_ht_nt()
             if user_input[CONF_SPARTE] in ENERGIE_SPARTEN:
                 return await self.async_step_reconfigure_energie()
             return await self.async_step_reconfigure_pauschal()
@@ -689,6 +759,18 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="reconfigure_energie",
             data_schema=_energie_schema(dict(entry.data), _country_features(self.hass)),
+        )
+
+    async def async_step_reconfigure_energie_ht_nt(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            return self.async_update_reload_and_abort(entry, data=neu)
+        return self.async_show_form(
+            step_id="reconfigure_energie_ht_nt",
+            data_schema=_energie_ht_nt_schema(dict(entry.data), _country_features(self.hass)),
         )
 
     async def async_step_reconfigure_pauschal(

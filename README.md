@@ -27,6 +27,7 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 - **Water** – fresh water + wastewater (fixed price, % or flat rate)
 - **Tiered pricing** – country-specific (US, AU, ES, …)
 - **Time-of-Use / Night rate** – Economy 7, TOU (GB, US, AU, …)
+- **Dual-tariff meter (HT/NT)** – separate category for a real two-register electricity meter (high tariff / low tariff): a second unit price, second consumption sensor and second meter number, tracked independently from the high-tariff register. All the usual sensors (Cost/Refund/Forecast so far) stay combined across both registers via an automatically weighted average price; dedicated Consumption/Cost sensors per register are also available
 - **Dynamic tariff (spot price)** – reference an external HA sensor (Tibber, aWATTar, Nordpool, …) instead of a fixed unit price; the effective price is calculated as the sensor's statistical average over the contract-to-date plus a fixed markup, with automatic fallback to the manual price while no statistics history exists yet
 - **Feed-in tariff** – per kWh fed into the grid (solar)
 - **Auto-refresh after HA startup** – sensors update automatically once Long-Term Statistics are ready after a restart
@@ -40,6 +41,7 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 |--------|------|----------|-------------|
 | Unit price | €/kWh | Energy | Consumption-based price. For a dynamic tariff (spot-price sensor configured), this is the statistical average over the contract-to-date + markup; attribute `arbeitspreis_aktuell` shows the live current price, `dynamischer_tarif` whether a price sensor is set |
 | Unit price (night) | €/kWh | Energy | Night rate (TOU/Economy 7) |
+| Unit price (low tariff / NT) | €/kWh | Electricity (dual meter) | Low-tariff register price, as entered in the config flow |
 | Unit price (effective) | €/kWh | Energy | Effective average price (tiered) |
 | Unit price (wastewater) | €/m³ | Water | Wastewater charge |
 | Water price (combined) | €/m³ | Water | Fresh water + wastewater |
@@ -55,6 +57,8 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 | Consumption (so far) | unit of the consumption sensor (usually m³) | Energy+Water | Measured consumption since contract start — raw meter delta, **not** automatically converted to kWh |
 | Consumption (contract term projected) | unit of the consumption sensor | Energy+Water | Current consumption extrapolated to the full contract term (not a fixed calendar year) |
 | Consumption (last period) | unit of the consumption sensor | Energy | Frozen at tariff switch — basis for recommended payment |
+| Consumption, high/low tariff (so far) | kWh | Electricity (dual meter) | Measured consumption of each register since contract start |
+| Cost, high/low tariff (so far) | € | Electricity (dual meter) | Usage-based cost of each register (no base fee share) since contract start |
 | Refund/balance due (contract end) | € | Energy+Water | Forecast based on real consumption, projected to contract end. Icon shows 👍/👎 depending on sign |
 | Remaining term | Days | All | Days until contract end |
 | Contract start | Date | All | Start date of contract |
@@ -65,8 +69,9 @@ Tariffy is a Home Assistant custom integration for managing utility and service 
 | Tariff | – | All | Tariff name (diagnostic) |
 | Customer number | – | All | Customer number (diagnostic) |
 | Meter number | – | Energy | Meter number (diagnostic) |
+| Meter number (low tariff / NT) | – | Electricity (dual meter) | Meter number of the low-tariff register (diagnostic) |
 
-> **Night rate** and **tiered pricing** sensors only appear when enabled in the config flow.
+> **Night rate**, **tiered pricing** and **dual-tariff (HT/NT)** sensors only appear when the corresponding category/option is used.
 
 ---
 
@@ -237,6 +242,7 @@ Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- u
 - **Wasser** – Frischwasser + Abwasser (Festpreis, % oder Monatspauschale)
 - **Staffelpreise** – länderspezifisch (US, AU, ES, …)
 - **Tag/Nacht-Tarif** – Economy 7, TOU (GB, US, AU, …)
+- **Zweizählertarif (HT/NT)** – eigene Sparte für einen echten Zweiregister-Stromzähler (Hochtarif/Niedertarif): zweiter Arbeitspreis, zweiter Verbrauchssensor und zweite Zählernummer, unabhängig vom Hochtarif-Register erfasst. Die üblichen Sensoren (Kosten/Guthaben/Prognose Bisher) bleiben über beide Register kombiniert, per automatisch gewichtetem Durchschnittspreis; zusätzlich stehen eigene Verbrauchs-/Kosten-Sensoren pro Register zur Verfügung
 - **Dynamischer Tarif (Spotpreis)** – externen HA-Sensor (Tibber, aWATTar, Nordpool, …) statt eines festen Arbeitspreises referenzieren; der effektive Preis wird als Statistik-Durchschnitt des Sensors über die bisherige Vertragslaufzeit + fester Aufschlag berechnet, mit automatischem Fallback auf den manuellen Preis solange keine Statistik-Historie vorliegt
 - **Einspeisevergütung** – Vergütung pro eingespeister kWh (Photovoltaik)
 - **Auto-Refresh nach HA-Start** – Sensoren aktualisieren sich automatisch sobald die Long-Term Statistics nach einem Neustart bereit sind
@@ -251,7 +257,7 @@ Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- u
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
 | Bezeichnung | ✅ | Anzeigename (z. B. „Strom Haus") |
-| Sparte | ✅ | Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges |
+| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges |
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
@@ -321,6 +327,7 @@ Wie Strom, zusätzlich:
 |--------|---------|--------|-------------|
 | Arbeitspreis | €/kWh | Energie | Verbrauchsabhängiger Preis. Bei dynamischem Tarif (Preissensor konfiguriert) der Statistik-Durchschnitt über die bisherige Vertragslaufzeit + Aufschlag; Attribut `arbeitspreis_aktuell` zeigt den aktuellen Live-Preis, `dynamischer_tarif` ob ein Preissensor gesetzt ist |
 | Arbeitspreis (Nacht) | €/kWh | Energie | Nachttarif (TOU/Economy 7) |
+| Arbeitspreis (Niedertarif/NT) | €/kWh | Strom (Zweizählertarif) | Niedertarif-Preis, wie im Config Flow eingetragen |
 | Arbeitspreis (Effektiv) | €/kWh | Energie | Effektiver Ø-Preis bei Staffeltarif |
 | Arbeitspreis (Abwasser) | €/m³ | Wasser | Abwassergebühr |
 | Wasserpreis (Gesamt) | €/m³ | Wasser | Frischwasser + Abwasser kombiniert |
@@ -336,6 +343,8 @@ Wie Strom, zusätzlich:
 | Verbrauch (Bisher) | Einheit des Verbrauchssensors (meist m³) | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn — roher Zählerstand-Delta, **nicht** automatisch in kWh umgerechnet |
 | Verbrauch (Vertragslaufzeit hochgerechnet) | Einheit des Verbrauchssensors | Energie+Wasser | Aktueller Verbrauch auf die tatsächliche Vertragslaufzeit hochgerechnet (kein festes Kalenderjahr) |
 | Verbrauch (Letzte Laufzeit) | Einheit des Verbrauchssensors | Energie | Eingefroren beim Tarifwechsel |
+| Verbrauch Hochtarif/Niedertarif (Bisher) | kWh | Strom (Zweizählertarif) | Gemessener Verbrauch je Register seit Vertragsbeginn |
+| Kosten Hochtarif/Niedertarif (Bisher) | € | Strom (Zweizählertarif) | Verbrauchskosten je Register (ohne Grundpreis-Anteil) seit Vertragsbeginn |
 | Guthaben/Nachzahlung (Vertragsende) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs. Icon zeigt 👍/👎 je nach Vorzeichen |
 | Restlaufzeit | Tage | Alle | Tage bis Vertragsende |
 | Vertragsbeginn | Datum | Alle | Startdatum des Vertrags |
@@ -346,8 +355,9 @@ Wie Strom, zusätzlich:
 | Tarif | – | Alle | Tarifbezeichnung (Diagnose) |
 | Kundennummer | – | Alle | Kundennummer (Diagnose) |
 | Zählernummer | – | Energie | Zählernummer (Diagnose) |
+| Zählernummer (Niedertarif/NT) | – | Strom (Zweizählertarif) | Zählernummer des Niedertarif-Registers (Diagnose) |
 
-> Sensoren für **Nachttarif** (Economy 7 / TOU) und **Staffelpreise** erscheinen nur wenn im Config Flow aktiviert.
+> Sensoren für **Nachttarif** (Economy 7 / TOU), **Staffelpreise** und **Zweizählertarif (HT/NT)** erscheinen nur wenn die entsprechende Sparte/Option genutzt wird.
 
 ---
 

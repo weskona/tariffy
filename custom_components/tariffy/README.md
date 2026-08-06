@@ -5,6 +5,7 @@ Home-Assistant-Integration für Energie-/Wasser-/sonstige Vertragskosten: legt p
 ## Unterstützte Sparten
 
 - `electricity` (Strom)
+- `electricity_ht_nt` (Strom, Zweizählertarif Hoch-/Niedertarif — siehe „Zweizählertarif" unten)
 - `gas`
 - `water` (Wasser)
 - `internet`, `mobile`, `insurance`, `other` (Pauschalverträge ohne Verbrauchsmessung)
@@ -124,6 +125,19 @@ Aktiv, wenn `arbeitspreis_nacht`, `arbeitspreis`, `verbrauch_tag` und `verbrauch
 
 - **Tou-Jahreskosten** = `verbrauch_tag × arbeitspreis + verbrauch_nacht × arbeitspreis_nacht` → `2.000 × 0,32 € + 1.500 × 0,18 €` = `640 € + 270 €` = **910 €**
 - Der allgemeine `verbrauch_kwh` wird in diesem Fall durch `verbrauch_tag + verbrauch_nacht` (hier 3.500 kWh) ersetzt.
+
+### Zweizählertarif (Hoch-/Niedertarif)
+
+Eigene Sparte `electricity_ht_nt` (statt Zusatzfelder auf `electricity`), für einen echten Zweiregister-Stromzähler mit zwei unabhängig verfolgten Zählern. `verbrauch_sensor`/`arbeitspreis`/`zaehlernummer` (ohne Suffix) bleiben dabei implizit das **Hochtarif**-Register; ein zweites Register kommt über `verbrauch_sensor_nt`/`arbeitspreis_nt`/`zaehlernummer_nt` (+ optionaler manueller Zählerstand-Fallback `verbrauch_start_wert_nt`, analog zum Hochtarif-Feld) hinzu — beide Register haben ihre eigene, unabhängige LTS-Offset-Ermittlung (siehe „Echte Verbrauchsmessung" oben, gilt für beide Register identisch).
+
+Beispiel (Arbeitspreis Hochtarif 0,3452 €/kWh, Niedertarif 0,15 €/kWh; seit Vertragsbeginn 1.000 kWh Hochtarif- und 500 kWh Niedertarif-Verbrauch gemessen):
+
+- **Verbrauch Hochtarif (Bisher)** = **1.000 kWh**, **Verbrauch Niedertarif (Bisher)** = **500 kWh** — jeweils eigener Sensor.
+- **Kosten Hochtarif (Bisher)** = `verbrauch_bisher_ht × arbeitspreis` → `1.000 × 0,3452 €` = **345,20 €** (reine Verbrauchskosten, ohne Grundpreis-Anteil).
+- **Kosten Niedertarif (Bisher)** = `verbrauch_bisher_nt × arbeitspreis_nt` → `500 × 0,15 €` = **75,00 €**.
+- **Verbrauch (Bisher)** (kombiniert, derselbe Sensor wie bei jedem anderen Stromvertrag) = `verbrauch_bisher_ht + verbrauch_bisher_nt` = `1.000 + 500` = **1.500 kWh**.
+- **Arbeitspreis** (kombiniert) wird auf einen gewichteten Durchschnitt beider Register umgestellt: `(verbrauch_bisher_ht × arbeitspreis + verbrauch_bisher_nt × arbeitspreis_nt) / verbrauch_bisher` → `(1.000 × 0,3452 € + 500 × 0,15 €) / 1.500` = `420,20 € / 1.500` = **0,2801 €/kWh**. Mit diesem effektiven Preis rechnen `Kosten (Bisher)`, `Guthaben/Nachzahlung (Bisher)`, `Verbrauch (Vertragslaufzeit hochgerechnet)`, `Guthaben/Nachzahlung (Vertragsende)` und `Abschlag (Anpassung empfohlen)` **unverändert** weiter — exakt dieselben Formeln wie bei einem normalen Stromvertrag mit nur einem Register, nur mit diesem kombinierten statt einem festen Preis.
+- `Verbrauch (Letzte Laufzeit)` (eingefroren beim Tarifwechsel, siehe unten) summiert bei diesem Vertragstyp ebenfalls beide Register.
 
 ### Staffelpreise (Tiered)
 

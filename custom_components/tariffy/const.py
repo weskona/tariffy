@@ -82,6 +82,20 @@ CONF_VERBRAUCH_START_WERT = "verbrauch_start_wert"
 # Einspeiseverguetung (nur Strom)
 CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"
 
+# Zweizaehlertarif (Hoch-/Niedertarif, zwei echte Zaehler-Register) --
+# eigene Sparte "electricity_ht_nt" statt Zusatzfelder auf "electricity",
+# da die Kombination aus zweitem Arbeitspreis + zweitem Verbrauchssensor +
+# eigener Kosten-Aufschluesselung eigene Sensoren braucht (siehe sensor.py).
+# Die vorhandenen CONF_ARBEITSPREIS/CONF_VERBRAUCH_SENSOR/CONF_ZAEHLERNUMMER
+# werden dabei implizit als Hochtarif-Register weiterverwendet.
+SPARTE_ELECTRICITY_HT_NT = "electricity_ht_nt"
+CONF_ARBEITSPREIS_NT = "arbeitspreis_nt"
+CONF_VERBRAUCH_SENSOR_NT = "verbrauch_sensor_nt"
+CONF_ZAEHLERNUMMER_NT = "zaehlernummer_nt"
+# Analog CONF_VERBRAUCH_START_WERT, aber fuer das Niedertarif-Register --
+# aus demselben Grund bewusst NICHT in BASIS_FELDER.
+CONF_VERBRAUCH_START_WERT_NT = "verbrauch_start_wert_nt"
+
 # Feed-in tariff: available worldwide, no country restriction
 
 # Dynamischer Tarif (Boersen-/Spotpreis, z.B. Tibber, aWATTar, Nordpool):
@@ -90,7 +104,7 @@ CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"
 CONF_ARBEITSPREIS_SENSOR = "arbeitspreis_sensor"
 CONF_ARBEITSPREIS_AUFSCHLAG = "arbeitspreis_aufschlag"
 
-ENERGIE_SPARTEN = ("electricity", "gas")
+ENERGIE_SPARTEN = ("electricity", "gas", SPARTE_ELECTRICITY_HT_NT)
 GAS_SPARTE = "gas"
 WASSER_SPARTE = "water"
 ENERGIE_SPARTEN_MIT_WASSER = ("strom", "gas", "wasser")
@@ -158,10 +172,14 @@ BASIS_FELDER = [
     CONF_EINSPEISEVERGUETUNG,
     CONF_ARBEITSPREIS_SENSOR,
     CONF_ARBEITSPREIS_AUFSCHLAG,
+    CONF_ARBEITSPREIS_NT,
+    CONF_VERBRAUCH_SENSOR_NT,
+    CONF_ZAEHLERNUMMER_NT,
 ]
 
 SPARTEN = [
     "electricity",
+    SPARTE_ELECTRICITY_HT_NT,
     "gas",
     "water",
     "internet",

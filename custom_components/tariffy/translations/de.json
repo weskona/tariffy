@@ -356,6 +356,118 @@
           "arbeitspreis_abwasser": "Betrag pro Einheit / Prozentsatz / Monatspauschale — je nach gewähltem Typ",
           "zaehlernummer": "Zählernummer auf deiner Wasserrechnung"
         }
+      },
+      "energie_ht_nt": {
+        "title": "Strom-Details (Zweizählertarif, Hoch-/Niedertarif)",
+        "description": "Preise, Verbrauch und Zählerdaten für beide Register (Hochtarif / Niedertarif).",
+        "data": {
+          "arbeitspreis": "Arbeitspreis Hochtarif / HT (€/kWh)",
+          "arbeitspreis_nt": "Arbeitspreis Niedertarif / NT (€/kWh)",
+          "arbeitspreis_sensor": "Preissensor für dynamischen Tarif (optional)",
+          "arbeitspreis_aufschlag": "Aufschlag dynamischer Tarif (€/kWh)",
+          "grundpreis": "Grundpreis (€/Monat)",
+          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
+          "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "verbrauch_start_wert": "Zählerstand bei Vertragsbeginn (optional)",
+          "verbrauch_sensor_nt": "Verbrauchssensor Niedertarif / NT (optional)",
+          "verbrauch_start_wert_nt": "Zählerstand bei Vertragsbeginn, NT (optional)",
+          "abschlag_warnung": "Warnen, wenn Abschlag zu niedrig ist",
+          "abschlag_warnung_schwelle": "Warnschwelle (€ Nachzahlung)",
+          "einspeiseverguetung": "Einspeisevergütung (€/kWh, optional)",
+          "bonus": "Neukundenbonus / Sofortbonus (€)",
+          "oekostrom": "Ökostrom",
+          "zaehlernummer": "Zählernummer",
+          "zaehlernummer_nt": "Zählernummer Niedertarif / NT",
+          "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
+          "preisgarantie": "Preisgarantie bis",
+          "tiered": "Staffelpreise aktivieren",
+          "tier_limit_0": "Block 1 Obergrenze",
+          "tier_price_0": "Block 1 Preis",
+          "tier_limit_1": "Block 2 Obergrenze",
+          "tier_price_1": "Block 2 Preis",
+          "tier_limit_2": "Block 3 Obergrenze",
+          "tier_price_2": "Block 3 Preis",
+          "tier_limit_3": "Block 4 Obergrenze",
+          "tier_price_3": "Block 4 Preis",
+          "tier_limit_4": "Block 5 Obergrenze",
+          "tier_price_4": "Block 5 Preis"
+        },
+        "data_description": {
+          "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt Das ist der Hochtarif (HT).",
+          "arbeitspreis_nt": "Preis pro verbrauchter kWh im Niedertarif (NT) — steht auf deiner Stromrechnung.",
+          "arbeitspreis_sensor": "HA-Sensor mit einem live Börsen-/Spotpreis (z.B. Tibber, aWATTar, Nordpool) — wenn gesetzt, wird der Arbeitspreis aus dem Durchschnitt dieses Sensors berechnet statt aus dem festen Wert oben",
+          "arbeitspreis_aufschlag": "Fester Aufschlag, der auf den Preis des dynamischen Tarif-Sensors aufgeschlagen wird (z.B. die Marge des Anbieters in ct/kWh)",
+          "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
+          "abschlag": "Monatliche Vorauszahlung an den Anbieter",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch in kWh — wird für die Kostenprognose verwendet",
+          "verbrauch_sensor": "HA-Sensor für dein Hochtarif-Register (HT) — ermöglicht echte Verbrauchsmessung und Abrechnungsprognose.",
+          "verbrauch_start_wert": "Manueller Override/Fallback: trag den genauen Zählerstand am Vertragsbeginn ein, falls du ihn kennst (z.B. von der Abrechnung). Hat Vorrang vor der automatischen Erkennung — hilfreich, wenn Home Assistants Statistik-Historie für den Verbrauchssensor nicht so weit zurückreicht (z.B. nach einem Umbenennen/Neuanlegen des Sensors).",
+          "verbrauch_sensor_nt": "HA-Sensor für dein Niedertarif-Register (NT).",
+          "verbrauch_start_wert_nt": "Manueller Override/Fallback für das Niedertarif-Register (NT), analog zum Hochtarif-Feld oben.",
+          "einspeiseverguetung": "Vergütung pro eingespeister kWh ins Netz (z. B. bei Photovoltaik)",
+          "bonus": "Einmaliger Wechsel- oder Neukundenbonus des Anbieters",
+          "zaehlernummer": "Zählernummer des Hochtarif-Registers (HT), von deiner Stromrechnung.",
+          "zaehlernummer_nt": "Zählernummer des Niedertarif-Registers (NT), falls abweichend vom HT-Register.",
+          "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
+        }
+      },
+      "reconfigure_energie_ht_nt": {
+        "title": "Strom-Details (Zweizählertarif, Hoch-/Niedertarif)",
+        "description": "Preise, Verbrauch und Zählerdaten für beide Register (Hochtarif / Niedertarif).",
+        "data": {
+          "arbeitspreis": "Arbeitspreis Hochtarif / HT (€/kWh)",
+          "arbeitspreis_nt": "Arbeitspreis Niedertarif / NT (€/kWh)",
+          "arbeitspreis_sensor": "Preissensor für dynamischen Tarif (optional)",
+          "arbeitspreis_aufschlag": "Aufschlag dynamischer Tarif (€/kWh)",
+          "grundpreis": "Grundpreis (€/Monat)",
+          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch (kWh)",
+          "verbrauch_sensor": "Verbrauchssensor (optional)",
+          "verbrauch_start_wert": "Zählerstand bei Vertragsbeginn (optional)",
+          "verbrauch_sensor_nt": "Verbrauchssensor Niedertarif / NT (optional)",
+          "verbrauch_start_wert_nt": "Zählerstand bei Vertragsbeginn, NT (optional)",
+          "abschlag_warnung": "Warnen, wenn Abschlag zu niedrig ist",
+          "abschlag_warnung_schwelle": "Warnschwelle (€ Nachzahlung)",
+          "einspeiseverguetung": "Einspeisevergütung (€/kWh, optional)",
+          "bonus": "Neukundenbonus / Sofortbonus (€)",
+          "oekostrom": "Ökostrom",
+          "zaehlernummer": "Zählernummer",
+          "zaehlernummer_nt": "Zählernummer Niedertarif / NT",
+          "marktlokation": "Marktlokation (MaLo-ID) / Zählpunkt",
+          "preisgarantie": "Preisgarantie bis",
+          "tiered": "Staffelpreise aktivieren",
+          "tier_limit_0": "Block 1 Obergrenze",
+          "tier_price_0": "Block 1 Preis",
+          "tier_limit_1": "Block 2 Obergrenze",
+          "tier_price_1": "Block 2 Preis",
+          "tier_limit_2": "Block 3 Obergrenze",
+          "tier_price_2": "Block 3 Preis",
+          "tier_limit_3": "Block 4 Obergrenze",
+          "tier_price_3": "Block 4 Preis",
+          "tier_limit_4": "Block 5 Obergrenze",
+          "tier_price_4": "Block 5 Preis"
+        },
+        "data_description": {
+          "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt Das ist der Hochtarif (HT).",
+          "arbeitspreis_nt": "Preis pro verbrauchter kWh im Niedertarif (NT) — steht auf deiner Stromrechnung.",
+          "arbeitspreis_sensor": "HA-Sensor mit einem live Börsen-/Spotpreis (z.B. Tibber, aWATTar, Nordpool) — wenn gesetzt, wird der Arbeitspreis aus dem Durchschnitt dieses Sensors berechnet statt aus dem festen Wert oben",
+          "arbeitspreis_aufschlag": "Fester Aufschlag, der auf den Preis des dynamischen Tarif-Sensors aufgeschlagen wird (z.B. die Marge des Anbieters in ct/kWh)",
+          "grundpreis": "Monatlicher Festbetrag unabhängig vom Verbrauch",
+          "abschlag": "Monatliche Vorauszahlung an den Anbieter",
+          "jahresverbrauch": "Geschätzter Jahresverbrauch in kWh — wird für die Kostenprognose verwendet",
+          "verbrauch_sensor": "HA-Sensor für dein Hochtarif-Register (HT) — ermöglicht echte Verbrauchsmessung und Abrechnungsprognose.",
+          "verbrauch_start_wert": "Manueller Override/Fallback: trag den genauen Zählerstand am Vertragsbeginn ein, falls du ihn kennst (z.B. von der Abrechnung). Hat Vorrang vor der automatischen Erkennung — hilfreich, wenn Home Assistants Statistik-Historie für den Verbrauchssensor nicht so weit zurückreicht (z.B. nach einem Umbenennen/Neuanlegen des Sensors).",
+          "verbrauch_sensor_nt": "HA-Sensor für dein Niedertarif-Register (NT).",
+          "verbrauch_start_wert_nt": "Manueller Override/Fallback für das Niedertarif-Register (NT), analog zum Hochtarif-Feld oben.",
+          "einspeiseverguetung": "Vergütung pro eingespeister kWh ins Netz (z. B. bei Photovoltaik)",
+          "bonus": "Einmaliger Wechsel- oder Neukundenbonus des Anbieters",
+          "zaehlernummer": "Zählernummer des Hochtarif-Registers (HT), von deiner Stromrechnung.",
+          "zaehlernummer_nt": "Zählernummer des Niedertarif-Registers (NT), falls abweichend vom HT-Register.",
+          "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
+        }
       }
     },
     "abort": {
@@ -401,7 +513,8 @@
         "internet": "Internet",
         "mobile": "Mobilfunk",
         "insurance": "Versicherung",
-        "other": "Sonstiges"
+        "other": "Sonstiges",
+        "electricity_ht_nt": "Strom (Zweizählertarif, Hoch-/Niedertarif)"
       }
     },
     "erinnerung": {
@@ -503,6 +616,24 @@
       },
       "abschlag": {
         "name": "Abschlag"
+      },
+      "arbeitspreis_nt": {
+        "name": "Arbeitspreis (Niedertarif / NT)"
+      },
+      "zaehlernummer_nt": {
+        "name": "Zählernummer (Niedertarif / NT)"
+      },
+      "verbrauch_ht_bisher": {
+        "name": "Verbrauch Hochtarif (Bisher)"
+      },
+      "verbrauch_nt_bisher": {
+        "name": "Verbrauch Niedertarif (Bisher)"
+      },
+      "kosten_ht_bisher": {
+        "name": "Kosten Hochtarif (Bisher)"
+      },
+      "kosten_nt_bisher": {
+        "name": "Kosten Niedertarif (Bisher)"
       }
     },
     "button": {
