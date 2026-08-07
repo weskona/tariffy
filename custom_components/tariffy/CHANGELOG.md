@@ -2,7 +2,7 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
-## [1.26.0] - 2026-08-06
+## [1.26.1] - 2026-08-07
 
 ### Hinzugefügt
 

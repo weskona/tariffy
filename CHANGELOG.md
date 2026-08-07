@@ -2,7 +2,7 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
-## [1.26.0] - 2026-08-06
+## [1.26.1] - 2026-08-07
 
 ### Added
 
