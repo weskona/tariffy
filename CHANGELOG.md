@@ -2,6 +2,14 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.26.2] - 2026-08-25
+
+### Fixed
+
+- **Price fields silently ignored their configured step size**: the internal `_preis()` helper used by roughly two dozen config-flow price fields (unit prices, base price, instalment, low-instalment warning threshold) accepted a `step` argument but never actually passed it to the underlying number selector — every price field always used the generic `step="any"` regardless of what precision it was meant to have (e.g. 0.0001 for unit prices, 0.01 for base price/instalment, 1.0 for the warning threshold). Fixed to use the given step — except for the eight unit-price fields requesting 0.0001: Home Assistant's `NumberSelector` hard-rejects any step below 0.001 (throws when the form is built, it doesn't just round), so those keep `"any"` since no valid finer step exists; the base price/instalment/warning-threshold fields (0.01/1.0) now correctly get a real spinner step.
+- **"Plan next contract" was missing the low-tariff (NT) fields for dual-tariff (HT/NT) contracts**: the options flow for scheduling an upcoming tariff switch only exposed a single "Unit price new" field, even for the dual-tariff meter category which tracks high and low tariff independently — there was no way to plan a rate change for the NT register alongside the HT one. Added "Unit price new, low tariff / NT", "Consumption sensor new, low tariff / NT", and "Meter number new, low tariff / NT", shown only for HT/NT contracts, right after the existing unit price field.
+- **English translations were massively incomplete — 311 of 470 keys missing**: `translations/en.json` was never kept in sync with `strings.json` (the German file, `translations/de.json`, had full parity). Missing entirely: the whole "Water" and "Electricity (dual tariff, HT/NT)" setup steps, most config-flow field labels for tiered/block pricing and day/night rates, every single field-hint description (`data_description`) across all steps, and two dropdown option labels (the HT/NT category itself, and all three wastewater-pricing-model options) — all of these showed their raw internal key instead of readable English text. Filled from `strings.json` (the authoritative English source) without touching any of the 159 keys that were already correct; both files now have identical structure and matching key sets. Also removed two orphaned translation keys (`prognose`, `geschaetzte_jahreskosten`) from `strings.json` — no sensor in the code references them anymore.
+
 ## [1.26.1] - 2026-08-07
 
 ### Added

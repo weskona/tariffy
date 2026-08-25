@@ -2,6 +2,14 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.26.2] - 2026-08-25
+
+### Behoben
+
+- **Preisfelder haben ihre konfigurierte Schrittweite stillschweigend ignoriert**: der interne Helfer `_preis()`, den rund zwei Dutzend Preisfelder im Config Flow nutzen (Arbeitspreise, Grundpreis, Abschlag, Abschlag-Warnschwelle), nahm zwar einen `step`-Parameter entgegen, gab ihn aber nie an den zugrundeliegenden Zahlen-Selector weiter — jedes Preisfeld nutzte immer die generische Schrittweite `"any"`, unabhängig von der eigentlich vorgesehenen Genauigkeit (z. B. 0,0001 für Arbeitspreise, 0,01 für Grundpreis/Abschlag, 1,0 für die Warnschwelle). Nutzt jetzt die übergebene Schrittweite — mit einer Ausnahme: die acht Arbeitspreis-Felder mit gewünschter Schrittweite 0,0001 bleiben bei `"any"`, weil Home Assistants `NumberSelector` jede Schrittweite unter 0,001 hart ablehnt (wirft beim Aufbau des Formulars, rundet nicht einfach) — es gibt dafuer schlicht keinen gueltigen feineren Wert. Grundpreis/Abschlag/Warnschwelle (0,01/1,0) bekommen jetzt korrekt eine echte Schrittweite.
+- **"Nächster Vertrag" hatte keine NT-Felder für Zweizählertarif-Verträge (HT/NT)**: der Options-Flow zum Planen eines kommenden Tarifwechsels zeigte nur ein einzelnes Feld "Arbeitspreis neu" — auch für die Zweizählertarif-Sparte, die Hoch- und Niedertarif unabhängig erfasst. Ein Tarifwechsel für das NT-Register liess sich damit nicht planen. Ergänzt: "Arbeitspreis neu, Niedertarif / NT", "Verbrauchssensor neu, Niedertarif / NT" und "Zählernummer neu, Niedertarif / NT" — nur bei HT/NT-Verträgen sichtbar, direkt nach dem bestehenden Arbeitspreis-Feld.
+- **Englische Übersetzungen waren massiv unvollständig — 311 von 470 Keys fehlten**: `translations/en.json` wurde nie mit `strings.json` synchron gehalten (die deutsche Datei, `translations/de.json`, hatte vollständige Parität). Komplett gefehlt haben: die gesamten Einrichtungsschritte "Wasser" und "Strom (Zweizählertarif, HT/NT)", die meisten Feld-Beschriftungen für Staffelpreise und Tag/Nacht-Tarife, jede einzelne Feld-Beschreibung (`data_description`) in allen Schritten, sowie zwei Dropdown-Options-Texte (die HT/NT-Sparte selbst und alle drei Abwasser-Preismodell-Optionen) — all das zeigte statt lesbarem Text nur den rohen internen Key. Aus `strings.json` (der massgeblichen englischen Quelle) ergänzt, ohne die 159 bereits korrekten Keys anzufassen — beide Dateien haben jetzt identische Struktur und Key-Menge. Zusätzlich zwei verwaiste Übersetzungs-Keys (`prognose`, `geschaetzte_jahreskosten`) aus `strings.json` entfernt, die von keinem Sensor im Code mehr referenziert werden.
+
 ## [1.26.1] - 2026-08-07
 
 ### Hinzugefügt

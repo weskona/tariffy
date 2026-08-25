@@ -14,6 +14,16 @@
           "ende": "Contract end / valid until",
           "erinnerung_monate": "Cancellation reminder",
           "notify_target": "Notification target (notify service)"
+        },
+        "data_description": {
+          "name": "Short label shown in the device name, e.g. 'Electricity House'",
+          "anbieter": "Name of the energy provider or supplier",
+          "kundennummer": "Your customer number from the provider's documents",
+          "tarif": "Tariff name, e.g. 'Eco Power Plus'",
+          "beginn": "Date from which the contract is valid",
+          "ende": "Last day of the contract term",
+          "erinnerung_monate": "How many months before contract end to show a cancellation reminder",
+          "notify_target": "Home Assistant notification service for the cancellation reminder"
         }
       },
       "reconfigure": {
@@ -28,6 +38,15 @@
           "ende": "Contract end / valid until",
           "erinnerung_monate": "Cancellation reminder",
           "notify_target": "Notification target (notify service)"
+        },
+        "data_description": {
+          "anbieter": "Name of the energy provider or supplier",
+          "kundennummer": "Your customer number from the provider's documents",
+          "tarif": "Tariff name, e.g. 'Eco Power Plus'",
+          "beginn": "Date from which the contract is valid",
+          "ende": "Last day of the contract term",
+          "erinnerung_monate": "How many months before contract end to show a cancellation reminder",
+          "notify_target": "Home Assistant notification service for the cancellation reminder"
         }
       },
       "energie": {
@@ -40,13 +59,45 @@
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "verbrauch_start_wert": "Meter reading at contract start (optional)",
           "abschlag_warnung": "Warn if instalment is too low",
           "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
+          "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
           "bonus": "Sign-up bonus (€)",
           "oekostrom": "Green energy",
           "zaehlernummer": "Meter number",
           "marktlokation": "Market location (MaLo) / metering point",
-          "preisgarantie": "Price guarantee until"
+          "preisgarantie": "Price guarantee until",
+          "tiered": "Enable tiered/block pricing",
+          "tier_limit_0": "Block 1 limit",
+          "tier_price_0": "Block 1 price",
+          "tier_limit_1": "Block 2 limit",
+          "tier_price_1": "Block 2 price",
+          "tier_limit_2": "Block 3 limit",
+          "tier_price_2": "Block 3 price",
+          "tier_limit_3": "Block 4 limit",
+          "tier_price_3": "Block 4 price",
+          "tier_limit_4": "Block 5 limit",
+          "tier_price_4": "Block 5 price",
+          "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
+          "jahresverbrauch_tag": "Annual daytime usage",
+          "jahresverbrauch_nacht": "Annual night-time usage"
+        },
+        "data_description": {
+          "arbeitspreis": "Price per kWh consumed — found on your electricity bill. Also used as a fallback while no statistics exist yet for the dynamic tariff sensor below",
+          "arbeitspreis_sensor": "HA sensor providing a live spot-market price (e.g. Tibber, aWATTar, Nordpool) — when set, the unit price is calculated from this sensor's average instead of the fixed value above",
+          "arbeitspreis_aufschlag": "Fixed markup added on top of the dynamic tariff sensor's price (e.g. the provider's ct/kWh margin)",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual consumption in kWh — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your electricity meter — enables real consumption tracking and billing forecast",
+          "verbrauch_start_wert": "Manual override/fallback: enter the exact meter reading on the contract start date if you know it (e.g. from your bill). Takes priority over automatic detection — useful if Home Assistant's statistics history for the consumption sensor doesn't reach back that far (e.g. after renaming or recreating the sensor).",
+          "einspeiseverguetung": "Feed-in tariff per kWh fed into the grid (e.g. for solar)",
+          "bonus": "One-time sign-up or switch bonus from the provider",
+          "zaehlernummer": "Meter number from your electricity bill",
+          "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       },
       "reconfigure_energie": {
@@ -59,23 +110,58 @@
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (kWh)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "verbrauch_start_wert": "Meter reading at contract start (optional)",
           "abschlag_warnung": "Warn if instalment is too low",
           "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
+          "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
           "bonus": "Sign-up bonus (€)",
           "oekostrom": "Green energy",
           "zaehlernummer": "Meter number",
           "marktlokation": "Market location (MaLo) / metering point",
-          "preisgarantie": "Price guarantee until"
+          "preisgarantie": "Price guarantee until",
+          "tiered": "Enable tiered/block pricing",
+          "tier_limit_0": "Block 1 limit",
+          "tier_price_0": "Block 1 price",
+          "tier_limit_1": "Block 2 limit",
+          "tier_price_1": "Block 2 price",
+          "tier_limit_2": "Block 3 limit",
+          "tier_price_2": "Block 3 price",
+          "tier_limit_3": "Block 4 limit",
+          "tier_price_3": "Block 4 price",
+          "tier_limit_4": "Block 5 limit",
+          "tier_price_4": "Block 5 price",
+          "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
+          "jahresverbrauch_tag": "Annual daytime usage",
+          "jahresverbrauch_nacht": "Annual night-time usage"
+        },
+        "data_description": {
+          "arbeitspreis": "Price per kWh consumed — found on your electricity bill. Also used as a fallback while no statistics exist yet for the dynamic tariff sensor below",
+          "arbeitspreis_sensor": "HA sensor providing a live spot-market price (e.g. Tibber, aWATTar, Nordpool) — when set, the unit price is calculated from this sensor's average instead of the fixed value above",
+          "arbeitspreis_aufschlag": "Fixed markup added on top of the dynamic tariff sensor's price (e.g. the provider's ct/kWh margin)",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual consumption in kWh — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your electricity meter — enables real consumption tracking and billing forecast",
+          "verbrauch_start_wert": "Manual override/fallback: enter the exact meter reading on the contract start date if you know it (e.g. from your bill). Takes priority over automatic detection — useful if Home Assistant's statistics history for the consumption sensor doesn't reach back that far (e.g. after renaming or recreating the sensor).",
+          "einspeiseverguetung": "Feed-in tariff per kWh fed into the grid (e.g. for solar)",
+          "bonus": "One-time sign-up or switch bonus from the provider",
+          "zaehlernummer": "Meter number from your electricity bill",
+          "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       },
       "gas": {
         "title": "Gas details",
         "description": "Prices, usage (m³) and conversion to kWh via calorific value and state number.",
         "data": {
+          "gas_einheit": "Gas unit",
           "arbeitspreis": "Unit price (€/kWh)",
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (m³)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "verbrauch_start_wert": "Meter reading at contract start (optional)",
           "abschlag_warnung": "Warn if instalment is too low",
           "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "brennwert": "Calorific value (kWh/m³)",
@@ -84,17 +170,49 @@
           "oekostrom": "Green energy",
           "zaehlernummer": "Meter number",
           "marktlokation": "Market location (MaLo) / metering point",
-          "preisgarantie": "Price guarantee until"
+          "preisgarantie": "Price guarantee until",
+          "tiered": "Enable tiered/block pricing",
+          "tier_limit_0": "Block 1 limit",
+          "tier_price_0": "Block 1 price",
+          "tier_limit_1": "Block 2 limit",
+          "tier_price_1": "Block 2 price",
+          "tier_limit_2": "Block 3 limit",
+          "tier_price_2": "Block 3 price",
+          "tier_limit_3": "Block 4 limit",
+          "tier_price_3": "Block 4 price",
+          "tier_limit_4": "Block 5 limit",
+          "tier_price_4": "Block 5 price",
+          "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
+          "jahresverbrauch_tag": "Annual daytime usage",
+          "jahresverbrauch_nacht": "Annual night-time usage"
+        },
+        "data_description": {
+          "gas_einheit": "Unit used on your gas bill",
+          "arbeitspreis": "Price per kWh of gas — found on your gas bill",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual gas consumption in the selected unit",
+          "verbrauch_sensor": "HA sensor tracking your gas meter — enables real consumption tracking",
+          "verbrauch_start_wert": "Manual override/fallback: enter the exact meter reading on the contract start date if you know it (e.g. from your bill). Takes priority over automatic detection — useful if Home Assistant's statistics history for the consumption sensor doesn't reach back that far (e.g. after renaming or recreating the sensor).",
+          "brennwert": "Calorific value Hs in kWh per unit — printed on your gas bill",
+          "zustandszahl": "Conversion factor Z for gas volume — printed on your gas bill (usually 0.9–1.0)",
+          "bonus": "One-time sign-up or switch bonus",
+          "zaehlernummer": "Meter number from your gas bill",
+          "marktlokation": "Market location ID from your gas bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       },
       "reconfigure_gas": {
         "title": "Gas details",
         "description": "Prices, usage (m³) and conversion to kWh via calorific value and state number.",
         "data": {
+          "gas_einheit": "Gas unit",
           "arbeitspreis": "Unit price (€/kWh)",
           "grundpreis": "Base price (€/month)",
           "abschlag": "Monthly instalment (€/month)",
           "jahresverbrauch": "Estimated annual usage (m³)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "verbrauch_start_wert": "Meter reading at contract start (optional)",
           "abschlag_warnung": "Warn if instalment is too low",
           "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
           "brennwert": "Calorific value (kWh/m³)",
@@ -103,7 +221,36 @@
           "oekostrom": "Green energy",
           "zaehlernummer": "Meter number",
           "marktlokation": "Market location (MaLo) / metering point",
-          "preisgarantie": "Price guarantee until"
+          "preisgarantie": "Price guarantee until",
+          "tiered": "Enable tiered/block pricing",
+          "tier_limit_0": "Block 1 limit",
+          "tier_price_0": "Block 1 price",
+          "tier_limit_1": "Block 2 limit",
+          "tier_price_1": "Block 2 price",
+          "tier_limit_2": "Block 3 limit",
+          "tier_price_2": "Block 3 price",
+          "tier_limit_3": "Block 4 limit",
+          "tier_price_3": "Block 4 price",
+          "tier_limit_4": "Block 5 limit",
+          "tier_price_4": "Block 5 price",
+          "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
+          "jahresverbrauch_tag": "Annual daytime usage",
+          "jahresverbrauch_nacht": "Annual night-time usage"
+        },
+        "data_description": {
+          "gas_einheit": "Unit used on your gas bill",
+          "arbeitspreis": "Price per kWh of gas — found on your gas bill",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual gas consumption in the selected unit",
+          "verbrauch_sensor": "HA sensor tracking your gas meter — enables real consumption tracking",
+          "verbrauch_start_wert": "Manual override/fallback: enter the exact meter reading on the contract start date if you know it (e.g. from your bill). Takes priority over automatic detection — useful if Home Assistant's statistics history for the consumption sensor doesn't reach back that far (e.g. after renaming or recreating the sensor).",
+          "brennwert": "Calorific value Hs in kWh per unit — printed on your gas bill",
+          "zustandszahl": "Conversion factor Z for gas volume — printed on your gas bill (usually 0.9–1.0)",
+          "bonus": "One-time sign-up or switch bonus",
+          "zaehlernummer": "Meter number from your gas bill",
+          "marktlokation": "Market location ID from your gas bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       },
       "pauschal": {
@@ -112,6 +259,10 @@
         "data": {
           "abschlag": "Monthly instalment (€/month)",
           "grundpreis": "Base price (€/month)"
+        },
+        "data_description": {
+          "abschlag": "Monthly flat rate for this contract",
+          "grundpreis": "Optional base charge if billed separately from the instalment"
         }
       },
       "reconfigure_pauschal": {
@@ -120,6 +271,202 @@
         "data": {
           "abschlag": "Monthly instalment (€/month)",
           "grundpreis": "Base price (€/month)"
+        },
+        "data_description": {
+          "abschlag": "Monthly flat rate for this contract",
+          "grundpreis": "Optional base charge if billed separately from the instalment"
+        }
+      },
+      "wasser": {
+        "title": "Water contract details",
+        "data": {
+          "wasser_einheit": "Water unit",
+          "arbeitspreis": "Fresh water price (per unit)",
+          "grundpreis": "Base price (per month)",
+          "abschlag": "Monthly instalment",
+          "jahresverbrauch": "Annual usage",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "verbrauch_start_wert": "Meter reading at contract start (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
+          "abwasser_typ": "Wastewater billing type",
+          "arbeitspreis_abwasser": "Wastewater charge",
+          "zaehlernummer": "Meter number",
+          "tiered": "Enable tiered/block pricing",
+          "tier_limit_0": "Block 1 limit",
+          "tier_price_0": "Block 1 price",
+          "tier_limit_1": "Block 2 limit",
+          "tier_price_1": "Block 2 price",
+          "tier_limit_2": "Block 3 limit",
+          "tier_price_2": "Block 3 price",
+          "tier_limit_3": "Block 4 limit",
+          "tier_price_3": "Block 4 price",
+          "tier_limit_4": "Block 5 limit",
+          "tier_price_4": "Block 5 price"
+        },
+        "data_description": {
+          "wasser_einheit": "Unit used on your water bill",
+          "arbeitspreis": "Price per unit of fresh water",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual water consumption — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your water meter — enables real consumption tracking",
+          "verbrauch_start_wert": "Manual override/fallback: enter the exact meter reading on the contract start date if you know it (e.g. from your bill). Takes priority over automatic detection — useful if Home Assistant's statistics history for the consumption sensor doesn't reach back that far (e.g. after renaming or recreating the sensor).",
+          "abwasser_typ": "How wastewater is billed: fixed price per unit, % of fresh water, or flat monthly rate",
+          "arbeitspreis_abwasser": "Price per unit / percentage / flat monthly rate depending on billing type above",
+          "zaehlernummer": "Meter number from your water bill"
+        }
+      },
+      "reconfigure_wasser": {
+        "title": "Water contract details",
+        "data": {
+          "wasser_einheit": "Water unit",
+          "arbeitspreis": "Fresh water price (per unit)",
+          "grundpreis": "Base price (per month)",
+          "abschlag": "Monthly instalment",
+          "jahresverbrauch": "Annual usage",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "verbrauch_start_wert": "Meter reading at contract start (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
+          "abwasser_typ": "Wastewater billing type",
+          "arbeitspreis_abwasser": "Wastewater charge",
+          "zaehlernummer": "Meter number",
+          "tiered": "Enable tiered/block pricing",
+          "tier_limit_0": "Block 1 limit",
+          "tier_price_0": "Block 1 price",
+          "tier_limit_1": "Block 2 limit",
+          "tier_price_1": "Block 2 price",
+          "tier_limit_2": "Block 3 limit",
+          "tier_price_2": "Block 3 price",
+          "tier_limit_3": "Block 4 limit",
+          "tier_price_3": "Block 4 price",
+          "tier_limit_4": "Block 5 limit",
+          "tier_price_4": "Block 5 price"
+        },
+        "data_description": {
+          "wasser_einheit": "Unit used on your water bill",
+          "arbeitspreis": "Price per unit of fresh water",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual water consumption — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your water meter — enables real consumption tracking",
+          "verbrauch_start_wert": "Manual override/fallback: enter the exact meter reading on the contract start date if you know it (e.g. from your bill). Takes priority over automatic detection — useful if Home Assistant's statistics history for the consumption sensor doesn't reach back that far (e.g. after renaming or recreating the sensor).",
+          "abwasser_typ": "How wastewater is billed: fixed price per unit, % of fresh water, or flat monthly rate",
+          "arbeitspreis_abwasser": "Price per unit / percentage / flat monthly rate depending on billing type above",
+          "zaehlernummer": "Meter number from your water bill"
+        }
+      },
+      "energie_ht_nt": {
+        "title": "Electricity details (dual tariff, HT/NT)",
+        "description": "Prices, usage and meter data for both registers (high tariff / low tariff).",
+        "data": {
+          "arbeitspreis": "Unit price, high tariff / HT (€/kWh)",
+          "arbeitspreis_nt": "Unit price, low tariff / NT (€/kWh)",
+          "arbeitspreis_sensor": "Dynamic tariff price sensor (optional)",
+          "arbeitspreis_aufschlag": "Dynamic tariff markup (€/kWh)",
+          "grundpreis": "Base price (€/month)",
+          "abschlag": "Monthly instalment (€/month)",
+          "jahresverbrauch": "Estimated annual usage (kWh)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "verbrauch_start_wert": "Meter reading at contract start (optional)",
+          "verbrauch_sensor_nt": "Consumption sensor, low tariff / NT (optional)",
+          "verbrauch_start_wert_nt": "Meter reading at contract start, NT (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
+          "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
+          "bonus": "Sign-up bonus (€)",
+          "oekostrom": "Green energy",
+          "zaehlernummer": "Meter number",
+          "zaehlernummer_nt": "Meter number, low tariff / NT",
+          "marktlokation": "Market location (MaLo) / metering point",
+          "preisgarantie": "Price guarantee until",
+          "tiered": "Enable tiered/block pricing",
+          "tier_limit_0": "Block 1 limit",
+          "tier_price_0": "Block 1 price",
+          "tier_limit_1": "Block 2 limit",
+          "tier_price_1": "Block 2 price",
+          "tier_limit_2": "Block 3 limit",
+          "tier_price_2": "Block 3 price",
+          "tier_limit_3": "Block 4 limit",
+          "tier_price_3": "Block 4 price",
+          "tier_limit_4": "Block 5 limit",
+          "tier_price_4": "Block 5 price"
+        },
+        "data_description": {
+          "arbeitspreis": "Price per kWh consumed — found on your electricity bill. Also used as a fallback while no statistics exist yet for the dynamic tariff sensor below This is the HIGH tariff (HT) price.",
+          "arbeitspreis_nt": "Price per kWh consumed during the low-tariff (NT) window — found on your electricity bill.",
+          "arbeitspreis_sensor": "HA sensor providing a live spot-market price (e.g. Tibber, aWATTar, Nordpool) — when set, the unit price is calculated from this sensor's average instead of the fixed value above",
+          "arbeitspreis_aufschlag": "Fixed markup added on top of the dynamic tariff sensor's price (e.g. the provider's ct/kWh margin)",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual consumption in kWh — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your HIGH-tariff (HT) meter register — enables real consumption tracking and billing forecast.",
+          "verbrauch_start_wert": "Manual override/fallback: enter the exact meter reading on the contract start date if you know it (e.g. from your bill). Takes priority over automatic detection — useful if Home Assistant's statistics history for the consumption sensor doesn't reach back that far (e.g. after renaming or recreating the sensor).",
+          "verbrauch_sensor_nt": "HA sensor tracking your LOW-tariff (NT) meter register.",
+          "verbrauch_start_wert_nt": "Manual override/fallback for the low-tariff (NT) register, same idea as the high-tariff field above.",
+          "einspeiseverguetung": "Feed-in tariff per kWh fed into the grid (e.g. for solar)",
+          "bonus": "One-time sign-up or switch bonus from the provider",
+          "zaehlernummer": "Meter number for the high-tariff (HT) register, from your electricity bill.",
+          "zaehlernummer_nt": "Meter number for the low-tariff (NT) register, if different from the HT one.",
+          "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
+        }
+      },
+      "reconfigure_energie_ht_nt": {
+        "title": "Electricity details (dual tariff, HT/NT)",
+        "description": "Prices, usage and meter data for both registers (high tariff / low tariff).",
+        "data": {
+          "arbeitspreis": "Unit price, high tariff / HT (€/kWh)",
+          "arbeitspreis_nt": "Unit price, low tariff / NT (€/kWh)",
+          "arbeitspreis_sensor": "Dynamic tariff price sensor (optional)",
+          "arbeitspreis_aufschlag": "Dynamic tariff markup (€/kWh)",
+          "grundpreis": "Base price (€/month)",
+          "abschlag": "Monthly instalment (€/month)",
+          "jahresverbrauch": "Estimated annual usage (kWh)",
+          "verbrauch_sensor": "Consumption sensor (optional)",
+          "verbrauch_start_wert": "Meter reading at contract start (optional)",
+          "verbrauch_sensor_nt": "Consumption sensor, low tariff / NT (optional)",
+          "verbrauch_start_wert_nt": "Meter reading at contract start, NT (optional)",
+          "abschlag_warnung": "Warn if instalment is too low",
+          "abschlag_warnung_schwelle": "Warning threshold (€ balance due)",
+          "einspeiseverguetung": "Feed-in tariff (per kWh, optional)",
+          "bonus": "Sign-up bonus (€)",
+          "oekostrom": "Green energy",
+          "zaehlernummer": "Meter number",
+          "zaehlernummer_nt": "Meter number, low tariff / NT",
+          "marktlokation": "Market location (MaLo) / metering point",
+          "preisgarantie": "Price guarantee until",
+          "tiered": "Enable tiered/block pricing",
+          "tier_limit_0": "Block 1 limit",
+          "tier_price_0": "Block 1 price",
+          "tier_limit_1": "Block 2 limit",
+          "tier_price_1": "Block 2 price",
+          "tier_limit_2": "Block 3 limit",
+          "tier_price_2": "Block 3 price",
+          "tier_limit_3": "Block 4 limit",
+          "tier_price_3": "Block 4 price",
+          "tier_limit_4": "Block 5 limit",
+          "tier_price_4": "Block 5 price"
+        },
+        "data_description": {
+          "arbeitspreis": "Price per kWh consumed — found on your electricity bill. Also used as a fallback while no statistics exist yet for the dynamic tariff sensor below This is the HIGH tariff (HT) price.",
+          "arbeitspreis_nt": "Price per kWh consumed during the low-tariff (NT) window — found on your electricity bill.",
+          "arbeitspreis_sensor": "HA sensor providing a live spot-market price (e.g. Tibber, aWATTar, Nordpool) — when set, the unit price is calculated from this sensor's average instead of the fixed value above",
+          "arbeitspreis_aufschlag": "Fixed markup added on top of the dynamic tariff sensor's price (e.g. the provider's ct/kWh margin)",
+          "grundpreis": "Fixed monthly charge regardless of consumption",
+          "abschlag": "Monthly advance payment to your provider",
+          "jahresverbrauch": "Estimated annual consumption in kWh — used for cost forecasting",
+          "verbrauch_sensor": "HA sensor tracking your HIGH-tariff (HT) meter register — enables real consumption tracking and billing forecast.",
+          "verbrauch_start_wert": "Manual override/fallback: enter the exact meter reading on the contract start date if you know it (e.g. from your bill). Takes priority over automatic detection — useful if Home Assistant's statistics history for the consumption sensor doesn't reach back that far (e.g. after renaming or recreating the sensor).",
+          "verbrauch_sensor_nt": "HA sensor tracking your LOW-tariff (NT) meter register.",
+          "verbrauch_start_wert_nt": "Manual override/fallback for the low-tariff (NT) register, same idea as the high-tariff field above.",
+          "einspeiseverguetung": "Feed-in tariff per kWh fed into the grid (e.g. for solar)",
+          "bonus": "One-time sign-up or switch bonus from the provider",
+          "zaehlernummer": "Meter number for the high-tariff (HT) register, from your electricity bill.",
+          "zaehlernummer_nt": "Meter number for the low-tariff (NT) register, if different from the HT one.",
+          "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
+          "preisgarantie": "Date until which the unit price is guaranteed"
         }
       }
     },
@@ -141,6 +488,9 @@
           "next_kundennummer": "Customer number (new)",
           "next_tarif": "Tariff name (new)",
           "next_arbeitspreis": "Unit price new (€/kWh)",
+          "next_arbeitspreis_nt": "Unit price new, low tariff / NT (€/kWh)",
+          "next_verbrauch_sensor_nt": "Consumption sensor new, low tariff / NT (optional)",
+          "next_zaehlernummer_nt": "Meter number new, low tariff / NT",
           "next_arbeitspreis_sensor": "Dynamic tariff price sensor new (optional)",
           "next_arbeitspreis_aufschlag": "Dynamic tariff markup new (€/kWh)",
           "next_grundpreis": "Base price new (€/month)",
@@ -166,7 +516,8 @@
         "internet": "Internet",
         "mobile": "Mobile",
         "insurance": "Insurance",
-        "other": "Other"
+        "other": "Other",
+        "electricity_ht_nt": "Electricity (dual tariff, HT/NT)"
       }
     },
     "erinnerung": {
@@ -176,6 +527,13 @@
         "2": "2 months before",
         "3": "3 months before",
         "4": "4 months before"
+      }
+    },
+    "abwasser_typ": {
+      "options": {
+        "price_per_unit": "Fixed price per unit (e.g. DE, AT, CH)",
+        "percentage": "Percentage of fresh water price (e.g. US, UK, AU)",
+        "flat_rate": "Flat monthly rate (e.g. FR, BE)"
       }
     }
   },
@@ -195,6 +553,9 @@
       },
       "restlaufzeit": {
         "name": "Remaining term"
+      },
+      "beginn": {
+        "name": "Contract start"
       },
       "ende": {
         "name": "Contract end"
@@ -217,6 +578,36 @@
       "kuendigung_erinnerung": {
         "name": "Cancellation reminder"
       },
+      "verbrauch_bisher": {
+        "name": "Consumption (so far)"
+      },
+      "verbrauch_hochgerechnet": {
+        "name": "Consumption (contract term projected)"
+      },
+      "prognose_real": {
+        "name": "Refund/balance due (contract end)"
+      },
+      "kosten_bisher": {
+        "name": "Cost (so far)"
+      },
+      "guthaben_bisher": {
+        "name": "Refund/balance due (so far)"
+      },
+      "arbeitspreis_abwasser": {
+        "name": "Unit price (wastewater)"
+      },
+      "arbeitspreis_gesamt_wasser": {
+        "name": "Water price (combined)"
+      },
+      "effektiver_arbeitspreis": {
+        "name": "Unit price (effective)"
+      },
+      "arbeitspreis_nacht": {
+        "name": "Unit price (night)"
+      },
+      "einspeiseverguetung": {
+        "name": "Feed-in tariff"
+      },
       "verbrauch_letzte_laufzeit": {
         "name": "Consumption (last period)"
       },
@@ -229,35 +620,23 @@
       "abschlag": {
         "name": "Monthly payment"
       },
-      "arbeitspreis_nacht": {
-        "name": "Unit price (night)"
+      "arbeitspreis_nt": {
+        "name": "Unit price (low tariff / NT)"
       },
-      "effektiver_arbeitspreis": {
-        "name": "Unit price (effective)"
+      "zaehlernummer_nt": {
+        "name": "Meter number (low tariff / NT)"
       },
-      "arbeitspreis_abwasser": {
-        "name": "Unit price (wastewater)"
+      "verbrauch_ht_bisher": {
+        "name": "Consumption, high tariff (so far)"
       },
-      "arbeitspreis_gesamt_wasser": {
-        "name": "Water price (combined)"
+      "verbrauch_nt_bisher": {
+        "name": "Consumption, low tariff (so far)"
       },
-      "einspeiseverguetung": {
-        "name": "Feed-in tariff"
+      "kosten_ht_bisher": {
+        "name": "Cost, high tariff (so far)"
       },
-      "kosten_bisher": {
-        "name": "Cost (so far)"
-      },
-      "guthaben_bisher": {
-        "name": "Refund/balance due (so far)"
-      },
-      "verbrauch_bisher": {
-        "name": "Consumption (so far)"
-      },
-      "verbrauch_hochgerechnet": {
-        "name": "Consumption (contract term projected)"
-      },
-      "prognose_real": {
-        "name": "Refund/balance due (contract end)"
+      "kosten_nt_bisher": {
+        "name": "Cost, low tariff (so far)"
       }
     },
     "button": {

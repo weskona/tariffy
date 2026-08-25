@@ -200,9 +200,18 @@ def _dezimal_default(value: Any) -> str:
 
 
 def _preis(step=None) -> selector.NumberSelector:
+    # HA's NumberSelectorConfig lehnt jeden numerischen step < 0.001 hart ab
+    # (vol.Range(min=1e-3) in homeassistant/helpers/selector.py) -- ein Preis-
+    # Aufruf mit 0.0001 (Arbeitspreise) wuerde also nicht bloss ungenau, sondern
+    # mit MultipleInvalid abstuerzen, sobald das Formular gerendert wird. Fuer
+    # jeden Wunsch-step unterhalb dieser Grenze bleibt "any" der einzig gueltige
+    # Fallback -- eine feinere Eingabe-Praezision laesst sich ueber step ohnehin
+    # nicht erzwingen (der Feldwert selbst wird nur per vol.Coerce(float)
+    # validiert, nicht gerundet).
+    valid_step = step if (step is not None and step >= 0.001) else "any"
     return selector.NumberSelector(
         selector.NumberSelectorConfig(
-            min=0, step="any", mode=selector.NumberSelectorMode.BOX
+            min=0, step=valid_step, mode=selector.NumberSelectorMode.BOX
         )
     )
 
@@ -590,7 +599,7 @@ def _wasser_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schem
     )
 
 
-def _next_schema(d: dict[str, Any], *, energie: bool, gas: bool = False) -> vol.Schema:
+def _next_schema(d: dict[str, Any], *, energie: bool, gas: bool = False, ht_nt: bool = False) -> vol.Schema:
     def k(b: str) -> str:
         return NEXT_PREFIX + b
 
@@ -604,6 +613,14 @@ def _next_schema(d: dict[str, Any], *, energie: bool, gas: bool = False) -> vol.
     }
     if energie:
         fields[_opt(k(CONF_ARBEITSPREIS), d.get(k(CONF_ARBEITSPREIS)))] = _preis(0.0001)
+        if ht_nt:
+            fields[_opt(k(CONF_ARBEITSPREIS_NT), d.get(k(CONF_ARBEITSPREIS_NT)))] = _preis(0.0001)
+            fields[_opt(k(CONF_VERBRAUCH_SENSOR_NT), d.get(k(CONF_VERBRAUCH_SENSOR_NT)))] = (
+                selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor"))
+            )
+            fields[_opt(k(CONF_ZAEHLERNUMMER_NT), d.get(k(CONF_ZAEHLERNUMMER_NT)))] = (
+                selector.TextSelector()
+            )
         if not gas:
             fields[_opt(k(CONF_ARBEITSPREIS_SENSOR), d.get(k(CONF_ARBEITSPREIS_SENSOR)))] = (
                 selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor"))
@@ -841,10 +858,11 @@ class TariffyOptionsFlow(OptionsFlow):
                 }
                 return self.async_create_entry(title="", data=cleaned)
         energie = self.config_entry.data.get(CONF_SPARTE) in ENERGIE_SPARTEN
+        ht_nt = self.config_entry.data.get(CONF_SPARTE) == SPARTE_ELECTRICITY_HT_NT
         return self.async_show_form(
             step_id="init",
             data_schema=_next_schema(
-                user_input or dict(self.config_entry.options), energie=energie, gas=gas
+                user_input or dict(self.config_entry.options), energie=energie, gas=gas, ht_nt=ht_nt
             ),
             errors=errors,
         )

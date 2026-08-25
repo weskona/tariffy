@@ -488,6 +488,9 @@
           "next_kundennummer": "Customer number (new)",
           "next_tarif": "Tariff name (new)",
           "next_arbeitspreis": "Unit price new (€/kWh)",
+          "next_arbeitspreis_nt": "Unit price new, low tariff / NT (€/kWh)",
+          "next_verbrauch_sensor_nt": "Consumption sensor new, low tariff / NT (optional)",
+          "next_zaehlernummer_nt": "Meter number new, low tariff / NT",
           "next_arbeitspreis_sensor": "Dynamic tariff price sensor new (optional)",
           "next_arbeitspreis_aufschlag": "Dynamic tariff markup new (€/kWh)",
           "next_grundpreis": "Base price new (€/month)",
@@ -545,14 +548,8 @@
       "jahreskosten": {
         "name": "Installment total (contract term)"
       },
-      "geschaetzte_jahreskosten": {
-        "name": "Annual cost (estimated)"
-      },
       "verbrauch_kwh": {
         "name": "Annual usage (kWh)"
-      },
-      "prognose": {
-        "name": "Billing forecast"
       },
       "restlaufzeit": {
         "name": "Remaining term"
