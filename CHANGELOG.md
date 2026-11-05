@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `manifest.json` now declares `recorder` in `after_dependencies`, since the integration reads Long-Term Statistics.
+- The coordinator now passes its config entry to `DataUpdateCoordinator` (`config_entry=`), as newer Home Assistant versions expect.
+- Removed an unused variable and two unused imports.
+- CI: added `ruff` (correctness rules only) and the official `hassfest` check.
+
 ## [1.26.3] - 2026-11-05
 
 ### Fixed

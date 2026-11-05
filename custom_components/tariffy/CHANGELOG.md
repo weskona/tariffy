@@ -7,6 +7,13 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Geändert
+
+- `manifest.json` deklariert jetzt `recorder` in `after_dependencies`, da die Integration die Long-Term Statistics liest.
+- Der Coordinator übergibt seinen Config Entry nun an `DataUpdateCoordinator` (`config_entry=`), wie es neuere Home-Assistant-Versionen erwarten.
+- Eine ungenutzte Variable und zwei ungenutzte Imports entfernt.
+- CI: `ruff` (nur Korrektheitsregeln) und die offizielle `hassfest`-Prüfung ergänzt.
+
 ## [1.26.3] - 2026-11-05
 
 ### Behoben

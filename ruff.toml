@@ -1,0 +1,5 @@
+# Only correctness rules (syntax errors, pyflakes): unused imports/variables, undefined names.
+target-version = "py312"
+
+[lint]
+select = ["E9", "F"]
