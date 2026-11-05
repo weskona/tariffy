@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.1] - 2026-11-05
+
+Beta zum Testen des neuen Seitenleisten-Panels. Das Panel liest nur, alles andere arbeitet wie in 1.26.5. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version. HACS bietet diese Version nur an, wenn „Beta-Versionen anzeigen“ aktiviert ist.
+
 ### Hinzugefügt
 
 - Beta: Das Panel zeigt die Verträge jetzt in einem dunklen, kartenbasierten Design (Übersicht mit Zusammenfassung, Kostentabelle, Vertragsdetails) auf Deutsch und Englisch, auf dem Handy in einer kompakten, aufklappbaren Ansicht. Nur lesend. Die Seite wird von der Integration ausgeliefert, nutzt die System-Schrift und braucht keinen Build-Schritt.
@@ -228,7 +232,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 Keine strukturierte Changelog-Historie vor dieser Version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.5...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...HEAD
+[1.27.0-beta.1]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.27.0-beta.1
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3
