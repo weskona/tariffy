@@ -128,7 +128,7 @@ Consumption so far                    = current meter value − meter value at c
 Consumption (contract term projected) = consumption so far ÷ days elapsed × contract term (days)
 Cost (so far)                         = consumption so far (in kWh) × unit price + base price × months elapsed
 Refund/balance due (so far)           = instalments paid so far − Cost (so far)                (today's exact standing, no projection)
-Refund/balance due (contract end)     = instalment total − projected cost over contract period (projected to contract end)
+Refund/balance due (contract end)     = instalments over the term − projected cost over the term   (instalments paid so far + current instalment × remaining term)
 ```
 
 **Positive** = credit · **Negative** = surcharge
@@ -199,7 +199,7 @@ Opt-in per contract (electricity/gas/water with a configured consumption sensor)
 - The raw state (independent of acknowledgement) is exposed as the `abschlag_warnung_aktiv` attribute on the "Refund/balance due (contract end)" sensor.
 - The notification message includes a concrete recommendation ("adjust your instalment to about X €/month") from the "Instalment adjustment (recommended)" sensor, if computable.
 
-> **No retroactive recalculation on instalment changes.** If you raise or lower your instalment mid-contract, Tariffy remembers the date and the previous value and applies the old instalment correctly only up to that date, the new one from then on — "Refund/balance due (so far)" and "Instalment adjustment (recommended)" won't suddenly jump as if the new instalment had applied since day one. Multiple corrections on the same day count as a single change.
+> **No retroactive recalculation on instalment changes.** If you raise or lower your instalment mid-contract, Tariffy remembers the date and the previous value and applies the old instalment correctly only up to that date, the new one from then on — "Refund/balance due (so far)", "Refund/balance due (contract end)" and "Instalment adjustment (recommended)" won't suddenly jump as if the new instalment had applied since day one. Multiple corrections on the same day count as a single change.
 
 ---
 
@@ -404,7 +404,7 @@ Verbrauch (Bisher)                          = aktueller Zählerstand − Zähler
 Verbrauch (Vertragslaufzeit hochgerechnet)  = Verbrauch bisher ÷ vergangene Tage × Vertragslaufzeit (Tage)
 Kosten (Bisher)                             = Verbrauch bisher × Arbeitspreis + Grundpreis × vergangene Monate
 Guthaben/Nachzahlung (Bisher)                = Abschlag × vergangene Monate − Kosten (Bisher)
-Guthaben/Nachzahlung (Vertragsende)           = Abschlag (Vertragslaufzeit) − hochgerechnete Kosten über Laufzeit
+Guthaben/Nachzahlung (Vertragsende)           = Abschläge über die Laufzeit − hochgerechnete Kosten über Laufzeit   (bisher gezahlte Abschläge + aktueller Abschlag × Restlaufzeit)
 ```
 
 **Positiv** = Guthaben · **Negativ** = Nachzahlung
@@ -476,7 +476,7 @@ Pro Vertrag zuschaltbar (Strom/Gas/Wasser mit konfiguriertem Verbrauchssensor): 
 - Der Rohzustand (unabhängig vom Bestätigt-Status) steht als Attribut `abschlag_warnung_aktiv` am Sensor „Guthaben/Nachzahlung (Vertragsende)".
 - Die Benachrichtigung nennt zusätzlich einen konkreten Empfehlungswert ("Abschlag auf ca. X €/Monat anpassen") aus dem Sensor „Abschlag (Anpassung empfohlen)", sofern berechenbar.
 
-> **Keine rückwirkende Neuberechnung bei Abschlags-Änderung.** Erhöhst oder senkst du deinen Abschlag mitten im Vertrag, merkt sich Tariffy Datum und vorherigen Wert und wendet den alten Abschlag korrekt nur bis zu diesem Zeitpunkt an, den neuen erst danach — „Guthaben/Nachzahlung (Bisher)" und „Abschlag (Anpassung empfohlen)" springen nicht plötzlich so, als hätte der neue Abschlag schon seit Vertragsbeginn gegolten. Mehrere Korrekturen am selben Tag zählen als eine Änderung.
+> **Keine rückwirkende Neuberechnung bei Abschlags-Änderung.** Erhöhst oder senkst du deinen Abschlag mitten im Vertrag, merkt sich Tariffy Datum und vorherigen Wert und wendet den alten Abschlag korrekt nur bis zu diesem Zeitpunkt an, den neuen erst danach — „Guthaben/Nachzahlung (Bisher)", „Guthaben/Nachzahlung (Vertragsende)" und „Abschlag (Anpassung empfohlen)" springen nicht plötzlich so, als hätte der neue Abschlag schon seit Vertragsbeginn gegolten. Mehrere Korrekturen am selben Tag zählen als eine Änderung.
 
 ---
 

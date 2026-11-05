@@ -1015,9 +1015,23 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         + (grundpreis or 0) * laufzeit_monate,
                         2,
                     )
-                    if abschlagssumme is not None:
+                    if abschlag is not None:
+                        # Abschlaege ueber die gesamte Laufzeit: das, was bis
+                        # heute wirklich gezahlt wurde (eine Abschlags-Aenderung
+                        # zaehlt erst ab ihrem Datum, siehe
+                        # _abschlag_bisher_gezahlt) plus der aktuelle Abschlag
+                        # fuer die Restlaufzeit. Ohne Aenderung ergibt das genau
+                        # abschlag x Laufzeit, wie bisher.
+                        _monate_bisher = vergangene_tage / 30.44
+                        abschlag_gesamt = round(
+                            _abschlag_bisher_gezahlt(
+                                abschlag, _monate_bisher, beginn, data
+                            )
+                            + abschlag * (laufzeit_monate - _monate_bisher),
+                            2,
+                        )
                         prognose_real = round(
-                            abschlagssumme - geschaetzte_kosten_real, 2
+                            abschlag_gesamt - geschaetzte_kosten_real, 2
                         )
                     # Abschlags-Anpassung fuer den REST des laufenden
                     # Vertrags: was muesste der Abschlag ab jetzt sein,
