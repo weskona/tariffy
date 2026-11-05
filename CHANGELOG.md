@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.5] - 2026-11-05
+
 ### Fixed
 
 - If a tariff switch fell into the very first refresh after a Home Assistant start, the consumption of the ended contract period was not frozen, so the new contract had no "Consumption (last period)" and no recommended monthly payment. The contract-start meter value is now read in that case too. Contracts with a manually entered start value are unchanged.
@@ -211,7 +213,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No structured changelog prior to this version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.4...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.5...HEAD
+[1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3
 [1.26.2]: https://github.com/weskona/tariffy/compare/v1.26.1...v1.26.2
