@@ -7,6 +7,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.26.5] - 2026-11-05
+
 ### Behoben
 
 - Fiel ein Tarifwechsel in den ersten Refresh nach einem Home-Assistant-Start, wurde der Verbrauch der beendeten Laufzeit nicht eingefroren, der neue Vertrag hatte dann keinen „Verbrauch (Letzte Laufzeit)“ und keinen empfohlenen Abschlag. Der Zählerstand zum Vertragsbeginn wird nun auch in diesem Fall gelesen. Verträge mit manuell eingetragenem Startwert bleiben unverändert.
@@ -217,7 +219,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 Keine strukturierte Changelog-Historie vor dieser Version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.4...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.5...HEAD
+[1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3
 [1.26.2]: https://github.com/weskona/tariffy/compare/v1.26.1...v1.26.2
