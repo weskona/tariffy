@@ -708,8 +708,22 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         beim Wechsel — automatisch wie manuell identisch berechnet. Beim
         Zweizaehlertarif wird Hoch- + Niedertarif-Register kombiniert."""
         sensor_id = self.entry.data.get(CONF_VERBRAUCH_SENSOR)
-        if not sensor_id or self._verbrauch_offset is None:
+        if not sensor_id:
             return None
+        beginn = _parse_date(self.entry.data.get(CONF_BEGINN))
+        if self._verbrauch_offset is None:
+            # Cold start: the switch can fall into the very first refresh after
+            # a Home Assistant start, before the contract-start meter value was
+            # cached. Read it now, as the regular update does. A manually
+            # entered start value keeps the previous behaviour (nothing frozen).
+            if (
+                beginn is None
+                or _f(self.entry.data.get(CONF_VERBRAUCH_START_WERT)) is not None
+            ):
+                return None
+            await self._get_verbrauch_offset(sensor_id, beginn)
+            if self._verbrauch_offset is None:
+                return None
         aktuell_sum, aktuell_state = await _get_latest_sum(self.hass, sensor_id)
         if aktuell_sum is None:
             state = self.hass.states.get(sensor_id)
@@ -724,6 +738,13 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return verbrauch_ht
 
         sensor_id_nt = self.entry.data.get(CONF_VERBRAUCH_SENSOR_NT)
+        if (
+            sensor_id_nt
+            and self._verbrauch_offset_nt is None
+            and beginn is not None
+            and _f(self.entry.data.get(CONF_VERBRAUCH_START_WERT_NT)) is None
+        ):
+            await self._get_verbrauch_offset_nt(sensor_id_nt, beginn)
         if not sensor_id_nt or self._verbrauch_offset_nt is None:
             return verbrauch_ht
         aktuell_sum_nt, aktuell_state_nt = await _get_latest_sum(self.hass, sensor_id_nt)

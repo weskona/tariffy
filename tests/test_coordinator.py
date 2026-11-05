@@ -389,15 +389,9 @@ class TestTariffSwitch:
             192 / 30.44, abs=0.01
         )
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "Known limitation: when the switch falls into the very first refresh "
-            "after a Home Assistant start, the contract-start meter value is not "
-            "cached yet and the consumption of the ended period is not frozen."
-        ),
-    )
     async def test_consumption_is_frozen_on_cold_start_switch(self, setup_contract):
+        # The switch falls into the very first refresh after a Home Assistant
+        # start: the contract-start meter value is not cached yet.
         entry, _ = await setup_contract(
             STROM,
             today="2026-07-12",
@@ -406,6 +400,70 @@ class TestTariffSwitch:
             offset=(1000.0, 1000.0),
             sensor_states={SENSOR: "2481.17"},
         )
+        assert entry.data["verbrauch_letzte_laufzeit"] == pytest.approx(1481.17)
+        assert entry.data["verbrauch_letzte_laufzeit_monate"] == pytest.approx(
+            192 / 30.44, abs=0.01
+        )
+
+    async def test_cold_start_switch_without_statistics_freezes_nothing(self, setup_contract):
+        # Same as before the fix: no start value available -> nothing frozen,
+        # and the switch itself still happens.
+        entry, _ = await setup_contract(
+            STROM,
+            today="2026-07-12",
+            options=dict(self.OPTIONS),
+            latest=(None, None),
+            offset=(None, None),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        assert entry.data["anbieter"] == "Neuer Anbieter"
+        assert "verbrauch_letzte_laufzeit" not in entry.data
+
+    async def test_cold_start_switch_with_manual_start_value_is_unchanged(self, setup_contract):
+        # Users with a manual start value never had the consumption frozen;
+        # this must not start producing different numbers.
+        entry, _ = await setup_contract(
+            {**STROM, "verbrauch_start_wert": 1000.0},
+            today="2026-07-12",
+            options=dict(self.OPTIONS),
+            latest=(2481.17, 2481.17),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "2481.17"},
+        )
+        assert entry.data["anbieter"] == "Neuer Anbieter"
+        assert "verbrauch_letzte_laufzeit" not in entry.data
+
+    async def test_cold_start_switch_sums_both_dual_tariff_registers(self, setup_contract):
+        entry, _ = await setup_contract(
+            {
+                **STROM,
+                "sparte": "electricity_ht_nt",
+                "arbeitspreis_nt": 0.20,
+                "verbrauch_sensor_nt": SENSOR_NT,
+            },
+            today="2026-07-12",
+            options=dict(self.OPTIONS),
+            latest=(1300.0, 1300.0),
+            offset=(1000.0, 1000.0),
+            latest_nt=(800.0, 800.0),
+            offset_nt=(500.0, 500.0),
+            sensor_states={SENSOR: "1300", SENSOR_NT: "800"},
+        )
+        assert entry.data["verbrauch_letzte_laufzeit"] == pytest.approx(600.0)
+
+    async def test_switch_button_freezes_consumption(self, setup_contract, hass: HomeAssistant):
+        entry, _ = await setup_contract(
+            STROM,
+            today="2026-07-12",
+            options=dict(self.OPTIONS, next_beginn="2027-01-01"),
+            latest=(2481.17, 2481.17),
+            offset=(1000.0, 1000.0),
+            sensor_states={SENSOR: "2481.17"},
+        )
+        assert entry.options["next_beginn"] == "2027-01-01"
+        await entry.runtime_data.async_force_switch()
+        await hass.async_block_till_done()
+        assert entry.data["anbieter"] == "Neuer Anbieter"
         assert entry.data["verbrauch_letzte_laufzeit"] == pytest.approx(1481.17)
 
     async def test_future_switch_date_changes_nothing(self, setup_contract):
