@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Beta: backend for a Tariffy sidebar panel. It registers the "Tariffy" panel (visible to all users) and two read-only websocket commands, `tariffy/contracts` and `tariffy/subscribe`, that deliver the calculated values of all contracts, without customer number, meter numbers, MaLo-ID and notification target. If the panel cannot be set up, a warning is logged and the integration works as before. `manifest.json` lists `frontend`, `http`, `panel_custom` and `websocket_api` in `after_dependencies`. The panel itself is a placeholder until the final design lands.
+
 ### Changed
 
 - CI: the release workflow now also runs on the `beta` branch and publishes versions like `1.27.0-beta.1` as GitHub pre-releases (never marked as latest), so HACS only offers them to users who enabled beta versions. Stable releases from `main` work as before. See `docs/beta-releases.md`.
