@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.4] - 2026-11-05
+
 ### Changed
 
 - `manifest.json` now declares `recorder` in `after_dependencies`, since the integration reads Long-Term Statistics.
@@ -200,7 +202,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No structured changelog prior to this version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.3...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.4...HEAD
+[1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3
 [1.26.2]: https://github.com/weskona/tariffy/compare/v1.26.1...v1.26.2
 [1.26.1]: https://github.com/weskona/tariffy/compare/v1.25.1...v1.26.1
