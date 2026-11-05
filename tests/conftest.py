@@ -27,15 +27,35 @@ async def _notifications(hass: HomeAssistant):
     assert await async_setup_component(hass, "persistent_notification", {})
 
 
-@pytest.fixture
-def setup_contract(hass: HomeAssistant, freezer) -> Callable[..., Any]:
-    """Create a Tariffy entry and return (entry, coordinator data).
+class Contract:
+    """Sets up a Tariffy entry with the recorder queries replaced.
 
-    Recorder access is replaced: `latest` is the (sum, state) pair read for the
-    consumption sensor now, `offset` the pair at contract start.
+    `latest` is the (sum, state) pair read for the consumption sensor now,
+    `offset` the pair at contract start. The replacements stay active for the
+    whole test, so `refresh()` and entry reloads use them as well.
     """
 
-    async def _setup(
+    def __init__(self, hass: HomeAssistant, freezer) -> None:
+        self.hass = hass
+        self.freezer = freezer
+        self.entry: MockConfigEntry | None = None
+        self.values: dict[str, Any] = {}
+
+    async def _latest(self, _hass, entity_id):
+        if entity_id == self.values.get("nt_id"):
+            return self.values["latest_nt"]
+        return self.values["latest"]
+
+    async def _offset(self, _hass, entity_id, _at_date):
+        if entity_id == self.values.get("nt_id"):
+            return self.values["offset_nt"]
+        return self.values["offset"]
+
+    async def _average(self, *_args, **_kwargs):
+        return self.values["average_price"]
+
+    async def setup(
+        self,
         data: dict[str, Any],
         *,
         today: str = "2026-07-12",
@@ -47,32 +67,45 @@ def setup_contract(hass: HomeAssistant, freezer) -> Callable[..., Any]:
         average_price: float | None = None,
         sensor_states: dict[str, str] | None = None,
     ):
-        freezer.move_to(f"{today} 12:00:00")
+        self.values = {
+            "latest": latest,
+            "offset": offset,
+            "latest_nt": latest_nt,
+            "offset_nt": offset_nt,
+            "average_price": average_price,
+            "nt_id": data.get("verbrauch_sensor_nt"),
+        }
+        self.freezer.move_to(f"{today} 12:00:00")
         for entity_id, state in (sensor_states or {}).items():
-            hass.states.async_set(entity_id, state)
+            self.hass.states.async_set(entity_id, state)
 
-        nt_id = data.get("verbrauch_sensor_nt")
-
-        async def fake_latest(_hass, entity_id):
-            return latest_nt if entity_id == nt_id else latest
-
-        async def fake_offset(_hass, entity_id, _at_date):
-            return offset_nt if entity_id == nt_id else offset
-
-        async def fake_average(*_args, **_kwargs):
-            return average_price
-
-        entry = MockConfigEntry(
+        self.entry = MockConfigEntry(
             domain=DOMAIN, title="Test", data=data, options=options or {}
         )
-        entry.add_to_hass(hass)
-        with (
-            patch(f"{COORDINATOR}._get_latest_sum", fake_latest),
-            patch(f"{COORDINATOR}._get_historic_value", fake_offset),
-            patch(f"{COORDINATOR}._get_average_price", fake_average),
-        ):
-            assert await hass.config_entries.async_setup(entry.entry_id)
-            await hass.async_block_till_done()
-        return entry, entry.runtime_data.data
+        self.entry.add_to_hass(self.hass)
+        assert await self.hass.config_entries.async_setup(self.entry.entry_id)
+        await self.hass.async_block_till_done()
+        return self.entry, self.entry.runtime_data.data
 
-    return _setup
+    async def advance_to(self, day: str):
+        """Move the clock and run a coordinator refresh, like the 6 h poll."""
+        self.freezer.move_to(f"{day} 12:00:00")
+        await self.entry.runtime_data.async_refresh()
+        await self.hass.async_block_till_done()
+        return self.entry.runtime_data.data
+
+
+@pytest.fixture
+def contract(hass: HomeAssistant, freezer):
+    c = Contract(hass, freezer)
+    with (
+        patch(f"{COORDINATOR}._get_latest_sum", c._latest),
+        patch(f"{COORDINATOR}._get_historic_value", c._offset),
+        patch(f"{COORDINATOR}._get_average_price", c._average),
+    ):
+        yield c
+
+
+@pytest.fixture
+def setup_contract(contract: Contract) -> Callable[..., Any]:
+    return contract.setup
