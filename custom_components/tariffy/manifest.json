@@ -2,7 +2,11 @@
   "domain": "tariffy",
   "name": "Tariffy",
   "after_dependencies": [
-    "recorder"
+    "frontend",
+    "http",
+    "panel_custom",
+    "recorder",
+    "websocket_api"
   ],
   "codeowners": [
     "@weskona"
