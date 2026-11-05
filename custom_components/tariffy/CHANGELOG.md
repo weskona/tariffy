@@ -9,7 +9,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ### Hinzugefügt
 
-- Beta: Backend für ein Tariffy-Seitenleisten-Panel. Es meldet das Panel „Tariffy“ an (für alle Benutzer sichtbar) und stellt zwei rein lesende Websocket-Befehle bereit, `tariffy/contracts` und `tariffy/subscribe`. Sie liefern die berechneten Werte aller Verträge, ohne Kundennummer, Zählernummern, MaLo-ID und Benachrichtigungsziel. Lässt sich das Panel nicht einrichten, wird nur eine Warnung geloggt, und die Integration arbeitet wie bisher. `manifest.json` führt `frontend`, `http`, `panel_custom` und `websocket_api` unter `after_dependencies`. Das Panel selbst ist bis zum endgültigen Design ein Platzhalter.
+- Beta: Das Panel zeigt die Verträge jetzt in einem dunklen, kartenbasierten Design (Übersicht mit Zusammenfassung, Kostentabelle, Vertragsdetails) auf Deutsch und Englisch, auf dem Handy in einer kompakten, aufklappbaren Ansicht. Nur lesend. Die Seite wird von der Integration ausgeliefert, nutzt die System-Schrift und braucht keinen Build-Schritt.
+- Beta: Backend für ein Tariffy-Seitenleisten-Panel. Es meldet das Panel „Tariffy“ an (für alle Benutzer sichtbar) und stellt zwei rein lesende Websocket-Befehle bereit, `tariffy/contracts` und `tariffy/subscribe`. Sie liefern die berechneten Werte aller Verträge, ohne Kundennummer, Zählernummern, MaLo-ID und Benachrichtigungsziel. Lässt sich das Panel nicht einrichten, wird nur eine Warnung geloggt, und die Integration arbeitet wie bisher. `manifest.json` führt `frontend`, `http`, `panel_custom` und `websocket_api` unter `after_dependencies`.
 
 ### Geändert
 

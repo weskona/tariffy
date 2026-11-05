@@ -1,0 +1,39 @@
+<!doctype html>
+<!-- Preview harness for the Tariffy panel: a mock `hass` fed with fixtures.json,
+     which tests/test_panel_fixtures.py keeps in sync with the real backend.
+     Query: ?lang=de|en  &state=loading|empty|error  &narrow=1 -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tariffy panel preview</title>
+  <style>html,body{margin:0;background:#0b0d12;height:100%}</style>
+</head>
+<body>
+<script type="module">
+  const params = new URLSearchParams(location.search);
+  const state = params.get("state");
+  const fixtures = await (await fetch("./fixtures.json")).json();
+
+  await import("/custom_components/tariffy/frontend/tariffy-panel.js");
+
+  const panel = document.createElement("tariffy-panel");
+  panel.style.minHeight = "100vh";
+  document.body.appendChild(panel);
+  panel.narrow = params.get("narrow") === "1";
+  panel.hass = {
+    language: params.get("lang") || "de",
+    locale: { language: params.get("lang") === "en" ? "en-GB" : "de-DE" },
+    connection: {
+      subscribeMessage: async (callback) => {
+        if (state === "error") throw new Error("Unknown command.");
+        if (state === "loading") return () => {};
+        callback({ contracts: state === "empty" ? [] : fixtures.contracts });
+        return () => {};
+      },
+    },
+  };
+  window.__panel = panel;
+</script>
+</body>
+</html>

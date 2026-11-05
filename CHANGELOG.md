@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Beta: backend for a Tariffy sidebar panel. It registers the "Tariffy" panel (visible to all users) and two read-only websocket commands, `tariffy/contracts` and `tariffy/subscribe`, that deliver the calculated values of all contracts, without customer number, meter numbers, MaLo-ID and notification target. If the panel cannot be set up, a warning is logged and the integration works as before. `manifest.json` lists `frontend`, `http`, `panel_custom` and `websocket_api` in `after_dependencies`. The panel itself is a placeholder until the final design lands.
+- Beta: the panel now shows the contracts in a dark, card based design (overview with summary, cost table, contract details), in German and English, with a compact expandable layout on phones. Read only. The page is delivered by the integration, uses the system font and needs no build step.
+- Beta: backend for a Tariffy sidebar panel. It registers the "Tariffy" panel (visible to all users) and two read-only websocket commands, `tariffy/contracts` and `tariffy/subscribe`, that deliver the calculated values of all contracts, without customer number, meter numbers, MaLo-ID and notification target. If the panel cannot be set up, a warning is logged and the integration works as before. `manifest.json` lists `frontend`, `http`, `panel_custom` and `websocket_api` in `after_dependencies`.
 
 ### Changed
 
