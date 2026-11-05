@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- If a tariff switch fell into the very first refresh after a Home Assistant start, the consumption of the ended contract period was not frozen, so the new contract had no "Consumption (last period)" and no recommended monthly payment. The contract-start meter value is now read in that case too. Contracts with a manually entered start value are unchanged.
 - After a tariff switch (automatic on the switch date or via the "Switch now" button) the integration reloads again, as it did before 1.26.3. Since 1.26.3 the sensor set (night rate, tiered pricing) was no longer rebuilt after a switch, so a next contract with different features did not get its sensors until Home Assistant was restarted.
 
 ### Changed

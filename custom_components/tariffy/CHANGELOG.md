@@ -9,6 +9,7 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ### Behoben
 
+- Fiel ein Tarifwechsel in den ersten Refresh nach einem Home-Assistant-Start, wurde der Verbrauch der beendeten Laufzeit nicht eingefroren, der neue Vertrag hatte dann keinen „Verbrauch (Letzte Laufzeit)“ und keinen empfohlenen Abschlag. Der Zählerstand zum Vertragsbeginn wird nun auch in diesem Fall gelesen. Verträge mit manuell eingetragenem Startwert bleiben unverändert.
 - Nach einem Tarifwechsel (automatisch zum Stichtag oder über den Button „Jetzt wechseln“) lädt die Integration wieder neu, wie vor 1.26.3. Seit 1.26.3 wurde der Sensorsatz (Nachttarif, Staffelpreise) nach einem Wechsel nicht mehr neu aufgebaut. Ein Folgevertrag mit anderen Merkmalen bekam seine Sensoren daher erst nach einem Neustart von Home Assistant.
 
 ### Geändert
