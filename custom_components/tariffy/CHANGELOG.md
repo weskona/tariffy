@@ -7,6 +7,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.26.6] - 2026-11-05
+
 ### Behoben
 
 - **„Guthaben/Nachzahlung (Vertragsende)“ (und damit die Abschlag-Warnung) war nach einer Abschlagsänderung mitten im Vertrag zu optimistisch.** Die Prognose nahm den aktuellen Abschlag für die ganze Laufzeit an, obwohl „Guthaben/Nachzahlung (Bisher)“ und die Abschlag-Empfehlung den früheren, anderen Abschlag bis zum Änderungsdatum richtig mitzählten. Beispiel: Abschlag im Juli von 40 € auf 100 € erhöht, der Sensor zeigte zum Vertragsende ein Guthaben, obwohl der Saldo bisher negativ war. Die Prognose rechnet jetzt mit den bisher tatsächlich gezahlten Abschlägen plus dem aktuellen Abschlag für die Restlaufzeit. Bei Verträgen, deren Abschlag nie geändert wurde, ist der Wert exakt derselbe wie bisher. „Abschlag (Vertragslaufzeit)“ bleibt der reine Zahlungsplan (Abschlag × Laufzeit).
@@ -227,7 +229,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 Keine strukturierte Changelog-Historie vor dieser Version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.5...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.6...HEAD
+[1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3
