@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Behoben
+
+- Nach einem Tarifwechsel (automatisch zum Stichtag oder über den Button „Jetzt wechseln“) lädt die Integration wieder neu, wie vor 1.26.3. Seit 1.26.3 wurde der Sensorsatz (Nachttarif, Staffelpreise) nach einem Wechsel nicht mehr neu aufgebaut. Ein Folgevertrag mit anderen Merkmalen bekam seine Sensoren daher erst nach einem Neustart von Home Assistant.
+
 ## [1.26.4] - 2026-11-05
 
 ### Geändert
