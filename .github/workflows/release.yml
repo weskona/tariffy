@@ -1,13 +1,18 @@
 name: Release
 
 # Creates the git tag and the GitHub release automatically once a commit with a
-# new version in custom_components/tariffy/manifest.json lands on main.
+# new version in custom_components/tariffy/manifest.json lands on a release branch:
+#   - main:  stable versions, e.g. 1.27.0
+#   - beta:  pre-releases, e.g. 1.27.0-beta.1 (published as GitHub pre-release,
+#            so HACS only offers them to users who enabled beta versions)
+# A version on the other branch is skipped (see .github/scripts/release-plan.sh).
 # Pushing a "v*" tag by hand still works. Run manually with dry_run to test.
 
 on:
   push:
     branches:
       - main
+      - beta
     tags:
       - "v*"
   workflow_dispatch:
@@ -35,25 +40,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Determine version
+      - name: Determine version and plan
         id: version
         run: |
           manifest_version="$(python3 -c 'import json;print(json.load(open("custom_components/tariffy/manifest.json"))["version"])')"
-          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
-            tag="${GITHUB_REF_NAME}"
-            if [ "${tag}" != "v${manifest_version}" ]; then
-              echo "::error::Tag ${tag} does not match manifest.json version ${manifest_version}"
-              exit 1
-            fi
-          else
-            tag="v${manifest_version}"
-          fi
-          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
-          echo "number=${tag#v}" >> "$GITHUB_OUTPUT"
-          echo "Version: ${tag}"
+          .github/scripts/release-plan.sh "${manifest_version}" "${GITHUB_REF_TYPE}" "${GITHUB_REF_NAME}" | tee -a "$GITHUB_OUTPUT"
+
+      - name: Nothing to release on this branch
+        if: steps.version.outputs.action == 'skip'
+        run: |
+          echo "::notice::Skipping ${{ steps.version.outputs.tag }} - ${{ steps.version.outputs.reason }}"
 
       - name: Skip if release already exists
         id: exists
+        if: steps.version.outputs.action == 'release'
         run: |
           if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
             echo "::notice::Release ${{ steps.version.outputs.tag }} already exists, nothing to do"
@@ -63,29 +63,31 @@ jobs:
           fi
 
       - name: Verify tests and changelog
-        if: steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true'
-        run: .github/scripts/test-release-notes.sh
+        if: steps.version.outputs.action == 'release' && (steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true')
+        run: |
+          .github/scripts/test-release-plan.sh
+          .github/scripts/test-release-notes.sh
 
       - name: Extract changelog section
-        if: steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true'
+        if: steps.version.outputs.action == 'release' && (steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true')
         run: .github/scripts/release-notes.sh "${{ steps.version.outputs.number }}" CHANGELOG.md > release_notes.md
 
       - name: Create release zip
-        if: steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true'
+        if: steps.version.outputs.action == 'release' && (steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true')
         run: |
           cd custom_components/tariffy
           zip -r ../../tariffy.zip .
 
       - name: Dry run summary
-        if: env.DRY_RUN == 'true'
+        if: steps.version.outputs.action == 'release' && env.DRY_RUN == 'true'
         run: |
-          echo "Dry run: would release ${{ steps.version.outputs.tag }} (exists: ${{ steps.exists.outputs.exists }})"
+          echo "Dry run: would release ${{ steps.version.outputs.tag }} (pre-release: ${{ steps.version.outputs.prerelease }}, exists: ${{ steps.exists.outputs.exists }})"
           unzip -l tariffy.zip | tail -15
           echo "----- release notes -----"
           cat release_notes.md
 
       - name: Create tag and GitHub Release
-        if: steps.exists.outputs.exists == 'false' && env.DRY_RUN != 'true'
+        if: steps.version.outputs.action == 'release' && steps.exists.outputs.exists == 'false' && env.DRY_RUN != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
@@ -94,3 +96,5 @@ jobs:
           files: tariffy.zip
           body_path: release_notes.md
           generate_release_notes: false
+          prerelease: ${{ steps.version.outputs.prerelease }}
+          make_latest: ${{ steps.version.outputs.prerelease == 'true' && 'false' || '' }}
