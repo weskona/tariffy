@@ -10,6 +10,7 @@ from homeassistant.config_entries import (
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlow,
+    OptionsFlowWithReload,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
@@ -836,7 +837,7 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         return TariffyOptionsFlow()
 
 
-class TariffyOptionsFlow(OptionsFlow):
+class TariffyOptionsFlow(OptionsFlowWithReload):
     """Den nächsten/zukünftigen Vertrag pflegen."""
 
     async def async_step_init(

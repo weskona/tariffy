@@ -487,6 +487,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def async_force_switch(self) -> None:
         verbrauch_letzte = await self._verbrauch_letzte_laufzeit_jetzt()
         self._switch_now(verbrauch_letzte)
+        await self.async_request_refresh()
 
     # ------------------------------------------------------------ Kündigung
     async def async_confirm_kuendigung(self) -> None:
@@ -500,6 +501,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self.entry,
             data={**self.entry.data, CONF_KUENDIGUNG_BESTAETIGT: True},
         )
+        await self.async_request_refresh()
 
     async def _send_notify(self, title: str, message: str) -> None:
         target = self.entry.data.get(CONF_NOTIFY_TARGET)
@@ -554,6 +556,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self.entry,
             data={**self.entry.data, CONF_ABSCHLAG_WARNUNG_BESTAETIGT: True},
         )
+        await self.async_request_refresh()
 
     async def _handle_abschlag_warnung(
         self,

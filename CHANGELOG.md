@@ -2,6 +2,12 @@
 
 Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.26.3] - 2026-11-05
+
+### Fixed
+
+- **HA Core warning "custom integration 'tariffy' has an update listener and should use it for scheduling a reload"** (will stop working in Home Assistant 2026.12.0, [#2](https://github.com/weskona/tariffy/issues/2)): the manual update listener was replaced by `OptionsFlowWithReload`, so saving the options flow still reloads the entry. Internal data changes (manual switch, confirming cancellation/instalment warning) now trigger a coordinator refresh instead of a full reload. Minimum Home Assistant version raised to 2025.8.0 in `hacs.json`.
+
 ## [1.26.2] - 2026-08-25
 
 ### Fixed
