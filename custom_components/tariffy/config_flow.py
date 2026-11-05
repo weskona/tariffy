@@ -552,7 +552,6 @@ def _wasser_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schem
             default_typ = ABWASSER_TYP_PREIS
     else:
         default_typ = d[CONF_ABWASSER_TYP]
-    abwasser_typ = default_typ
     return vol.Schema(
         {
             vol.Required(

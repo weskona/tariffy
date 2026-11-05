@@ -1,14 +1,17 @@
 {
   "domain": "tariffy",
   "name": "Tariffy",
-  "version": "1.26.3",
-  "config_flow": true,
-  "documentation": "https://github.com/weskona/tariffy",
-  "issue_tracker": "https://github.com/weskona/tariffy/issues",
+  "after_dependencies": [
+    "recorder"
+  ],
   "codeowners": [
     "@weskona"
   ],
-  "iot_class": "calculated",
+  "config_flow": true,
+  "documentation": "https://github.com/weskona/tariffy",
   "integration_type": "hub",
-  "requirements": []
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/weskona/tariffy/issues",
+  "requirements": [],
+  "version": "1.26.3"
 }

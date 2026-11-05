@@ -66,7 +66,6 @@ from .const import (
     CONF_TIERED,
     CONF_WASSER_EINHEIT,
     MAX_TIERS,
-    ENERGIE_SPARTEN_MIT_WASSER,
     GAS_SPARTE,
     WASSER_SPARTE,
     NEXT_PREFIX,
@@ -388,7 +387,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     def __init__(self, hass: HomeAssistant, entry: "TariffyConfigEntry") -> None:
         super().__init__(
-            hass, _LOGGER, name=entry.title, update_interval=SCAN_INTERVAL
+            hass,
+            _LOGGER,
+            config_entry=entry,
+            name=entry.title,
+            update_interval=SCAN_INTERVAL,
         )
         self.entry = entry
         self._verbrauch_offset: float | None = None
