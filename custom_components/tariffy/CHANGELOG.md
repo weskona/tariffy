@@ -1,6 +1,11 @@
 # Changelog
 
-Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
+Alle nennenswerten Änderungen an Tariffy werden in dieser Datei festgehalten.
+
+Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/),
+das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
+
+## [Unreleased]
 
 ## [1.26.3] - 2026-11-05
 
@@ -183,16 +188,37 @@ Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [
 - **Empfohlener Abschlag** nutzt jetzt die tatsächliche Dauer der letzten Vertragslaufzeit (`verbrauch_letzte_laufzeit_monate`, neu beim Tarifwechsel eingefroren) statt pauschal 12 Monate anzunehmen.
 - **Verbrauchssensor umbenannt**: „Jahresverbrauch (Hochgerechnet)" → „Verbrauch (Vertragslaufzeit hochgerechnet)", passend zum bestehenden „Verbrauch (Bisher)"-Schema.
 - **Verbrauch-Tracking auf `sum`-Statistik umgestellt**: `verbrauch_bisher` und der Offset zum Vertragsbeginn nutzen jetzt die reset-sichere `sum`-Spalte der Recorder-Langzeitstatistik statt des rohen `state`-Werts. Betrifft `_get_historic_value`, den aktuellen Sensorwert-Read sowie das Einfrieren von „Verbrauch (Letzte Laufzeit)" beim Tarifwechsel. Notwendig für Sensoren mit `state_class: total_increasing`, die erlaubterweise periodisch zurücksetzen (z. B. manche ESP-basierte Zähler) — die alte State-Differenz ergab dabei teils negative Werte.
+- Für Sensoren, die regelmäßig zurücksetzen, wo möglich einen echten, nie zurücksetzenden Zählerstand-Sensor als `verbrauch_sensor` konfigurieren (z. B. ein separates Utility-Meter mit `cycle: none`), statt sich allein auf die `sum`-Statistik zu verlassen.
 
 ### Behoben
 
 - **Absturz (500 Internal Server Error) beim Anlegen/Bearbeiten eines Gas-Vertrags**: Ein erster Versuch, Dezimalkomma-Eingabe (`11,2`) für Brennwert/Zustandszahl zu erlauben, ließ sich nicht zu JSON serialisieren (`voluptuous_serialize` kann keine eigenen Funktionen in `vol.All` konvertieren). Brennwert/Zustandszahl sind jetzt reine Textfelder im Schema; die Komma/Punkt-Normalisierung passiert nach der Formularvalidierung in der jeweiligen Step-Funktion, mit sauberer Fehlermeldung statt Absturz bei ungültiger Eingabe.
 - **Brennwert/Zustandszahl akzeptieren Dezimalkomma**: `11,2` und `11.2` funktionieren jetzt beide (Ursprungsmeldung: HTML5-Zahlenfeld verarbeitet Komma je nach Browser/Locale nicht zuverlässig).
 
-### Empfohlen
-
-- Für Sensoren, die regelmäßig zurücksetzen, wo möglich einen echten, nie zurücksetzenden Zählerstand-Sensor als `verbrauch_sensor` konfigurieren (z. B. ein separates Utility-Meter mit `cycle: none`), statt sich allein auf die `sum`-Statistik zu verlassen.
-
 ## Vor 1.12.0
 
 Keine strukturierte Changelog-Historie vor dieser Version.
+
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.3...HEAD
+[1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3
+[1.26.2]: https://github.com/weskona/tariffy/compare/v1.26.1...v1.26.2
+[1.26.1]: https://github.com/weskona/tariffy/compare/v1.25.1...v1.26.1
+[1.25.1]: https://github.com/weskona/tariffy/compare/v1.25.0...v1.25.1
+[1.25.0]: https://github.com/weskona/tariffy/compare/v1.24.4...v1.25.0
+[1.24.4]: https://github.com/weskona/tariffy/compare/v1.24.3...v1.24.4
+[1.24.3]: https://github.com/weskona/tariffy/compare/v1.24.2...v1.24.3
+[1.24.2]: https://github.com/weskona/tariffy/compare/v1.24.1...v1.24.2
+[1.24.1]: https://github.com/weskona/tariffy/compare/v1.24.0...v1.24.1
+[1.24.0]: https://github.com/weskona/tariffy/compare/v1.23.0...v1.24.0
+[1.23.0]: https://github.com/weskona/tariffy/compare/v1.22.0...v1.23.0
+[1.22.0]: https://github.com/weskona/tariffy/compare/v1.21.0...v1.22.0
+[1.21.0]: https://github.com/weskona/tariffy/compare/v1.20.0...v1.21.0
+[1.20.0]: https://github.com/weskona/tariffy/compare/v1.19.0...v1.20.0
+[1.19.0]: https://github.com/weskona/tariffy/compare/v1.18.0...v1.19.0
+[1.18.0]: https://github.com/weskona/tariffy/compare/v1.17.0...v1.18.0
+[1.17.0]: https://github.com/weskona/tariffy/compare/v1.16.0...v1.17.0
+[1.16.0]: https://github.com/weskona/tariffy/compare/v1.15.0...v1.16.0
+[1.15.0]: https://github.com/weskona/tariffy/compare/v1.14.0...v1.15.0
+[1.14.0]: https://github.com/weskona/tariffy/compare/v1.13.0...v1.14.0
+[1.13.0]: https://github.com/weskona/tariffy/compare/v1.12.0...v1.13.0
+[1.12.0]: https://github.com/weskona/tariffy/releases/tag/v1.12.0

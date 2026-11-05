@@ -1,6 +1,11 @@
 # Changelog
 
-Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
+All notable changes to Tariffy are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
 
 ## [1.26.3] - 2026-11-05
 
@@ -177,16 +182,37 @@ Format angelehnt an [Keep a Changelog](https://keepachangelog.com/).
 - **Sensor renamed**: "Annual consumption (projected)" → "Consumption (contract term projected)" / German: "Jahresverbrauch (Hochgerechnet)" → "Verbrauch (Vertragslaufzeit hochgerechnet)".
 - **Sensor renamed**: "Billing forecast (real)" → "Cost (forecast real)" / German: "Prognose (Real)" → "Kosten (Prognose Real)".
 - **Consumption tracking switched to the recorder's cumulative `sum` statistic** instead of the raw sensor state, for both the contract-start offset and the current value. Required for sensors with `state_class: total_increasing` that legitimately reset periodically (some smart-meter integrations reset their raw counter on every reading cycle) — the previous state-based subtraction could produce negative "consumption so far" values for such sensors.
+- For meters that reset periodically, configure a true never-resetting cumulative sensor as the consumption sensor where available (e.g. a separate utility meter with `cycle: none`), rather than relying solely on the `sum` statistic.
 
 ### Fixed
 
 - **Crash (500 Internal Server Error) when creating/editing a gas contract**: an initial attempt to accept decimal-comma input (`11,2`) for calorific value / state number used a schema validator that `voluptuous_serialize` could not convert to JSON for the frontend. Calorific value and state number are now plain text fields in the schema; comma/dot normalization happens after form submission, with a clean validation error instead of a crash on invalid input.
 - **Calorific value / state number now accept decimal commas** (`11,2` as well as `11.2`) — the native HTML5 number field didn't reliably handle commas depending on browser/locale.
 
-### Recommended
-
-- For meters that reset periodically, configure a true never-resetting cumulative sensor as the consumption sensor where available (e.g. a separate utility meter with `cycle: none`), rather than relying solely on the `sum` statistic.
-
 ## Before 1.12.0
 
 No structured changelog prior to this version.
+
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.3...HEAD
+[1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3
+[1.26.2]: https://github.com/weskona/tariffy/compare/v1.26.1...v1.26.2
+[1.26.1]: https://github.com/weskona/tariffy/compare/v1.25.1...v1.26.1
+[1.25.1]: https://github.com/weskona/tariffy/compare/v1.25.0...v1.25.1
+[1.25.0]: https://github.com/weskona/tariffy/compare/v1.24.4...v1.25.0
+[1.24.4]: https://github.com/weskona/tariffy/compare/v1.24.3...v1.24.4
+[1.24.3]: https://github.com/weskona/tariffy/compare/v1.24.2...v1.24.3
+[1.24.2]: https://github.com/weskona/tariffy/compare/v1.24.1...v1.24.2
+[1.24.1]: https://github.com/weskona/tariffy/compare/v1.24.0...v1.24.1
+[1.24.0]: https://github.com/weskona/tariffy/compare/v1.23.0...v1.24.0
+[1.23.0]: https://github.com/weskona/tariffy/compare/v1.22.0...v1.23.0
+[1.22.0]: https://github.com/weskona/tariffy/compare/v1.21.0...v1.22.0
+[1.21.0]: https://github.com/weskona/tariffy/compare/v1.20.0...v1.21.0
+[1.20.0]: https://github.com/weskona/tariffy/compare/v1.19.0...v1.20.0
+[1.19.0]: https://github.com/weskona/tariffy/compare/v1.18.0...v1.19.0
+[1.18.0]: https://github.com/weskona/tariffy/compare/v1.17.0...v1.18.0
+[1.17.0]: https://github.com/weskona/tariffy/compare/v1.16.0...v1.17.0
+[1.16.0]: https://github.com/weskona/tariffy/compare/v1.15.0...v1.16.0
+[1.15.0]: https://github.com/weskona/tariffy/compare/v1.14.0...v1.15.0
+[1.14.0]: https://github.com/weskona/tariffy/compare/v1.13.0...v1.14.0
+[1.13.0]: https://github.com/weskona/tariffy/compare/v1.12.0...v1.13.0
+[1.12.0]: https://github.com/weskona/tariffy/releases/tag/v1.12.0
