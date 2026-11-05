@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.1] - 2026-11-05
+
+Beta release for testing the new sidebar panel. The panel only reads, everything else works as in 1.26.5. Please report problems with the bug report form and mention this exact version. HACS offers this version only if "Show beta versions" is enabled.
+
 ### Added
 
 - Beta: the panel now shows the contracts in a dark, card based design (overview with summary, cost table, contract details), in German and English, with a compact expandable layout on phones. Read only. The page is delivered by the integration, uses the system font and needs no build step.
@@ -222,7 +226,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No structured changelog prior to this version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.5...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...HEAD
+[1.27.0-beta.1]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.27.0-beta.1
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3
