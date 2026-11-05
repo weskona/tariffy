@@ -486,11 +486,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.hass.config_entries.async_update_entry(
             self.entry, data=new_data, options={}
         )
+        # Which sensors exist (night rate, tiered, ...) is decided once when the
+        # entry is set up, so the new contract may need a different set. Reload
+        # like the removed update listener did on every entry change.
+        self.hass.config_entries.async_schedule_reload(self.entry.entry_id)
 
     async def async_force_switch(self) -> None:
         verbrauch_letzte = await self._verbrauch_letzte_laufzeit_jetzt()
         self._switch_now(verbrauch_letzte)
-        await self.async_request_refresh()
 
     # ------------------------------------------------------------ Kündigung
     async def async_confirm_kuendigung(self) -> None:

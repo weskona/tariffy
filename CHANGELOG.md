@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- After a tariff switch (automatic on the switch date or via the "Switch now" button) the integration reloads again, as it did before 1.26.3. Since 1.26.3 the sensor set (night rate, tiered pricing) was no longer rebuilt after a switch, so a next contract with different features did not get its sensors until Home Assistant was restarted.
+
+### Changed
+
+- Added automated tests for the cost and forecast calculation, tariff switch, cancellation reminder and instalment warning, including a regression test for the missing sensors after a tariff switch. CI runs them on every push and pull request.
+
 ## [1.26.4] - 2026-11-05
 
 ### Changed
