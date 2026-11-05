@@ -1,12 +1,59 @@
 name: Feature Request
 description: Suggest an idea or enhancement for tariffy
-title: "[Feature] "
+title: "[Feature] <short summary>"
 labels: ["enhancement"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! You can write in English or German. Please **replace `<short summary>`
+        in the title** with a few words.
+
+  - type: dropdown
+    id: sparte
+    attributes:
+      label: Which contract types does this concern?
+      multiple: true
+      options:
+        - Electricity
+        - Electricity (dual tariff, HT/NT)
+        - Gas
+        - Water
+        - Internet
+        - Mobile
+        - Insurance
+        - Other
+        - All / not specific
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem do you want to solve?
+      description: Describe the situation where tariffy falls short today. A concrete example helps most.
+      placeholder: "e.g. My tariff has a different price on weekends, and I cannot enter that."
+    validations:
+      required: true
+
   - type: textarea
     id: idea
     attributes:
       label: What should tariffy additionally do?
-      description: Describe the idea and, if helpful, why it would be useful to you.
+      description: Describe the idea. If you have a preferred behaviour (new sensor, new field in the setup, ...), say so.
     validations:
       required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered (optional)
+      description: Workarounds you use today, for example a template sensor or an automation.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you submit
+      options:
+        - label: I searched existing issues (open and closed) and the README to see if this exists or was requested already
+          required: true

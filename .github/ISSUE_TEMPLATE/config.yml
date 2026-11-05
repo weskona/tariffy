@@ -2,4 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: Question / usage help
     url: https://github.com/weskona/tariffy/discussions
-    about: For "how do I configure X" questions rather than bugs, please check the README first.
+    about: For "how do I configure X" questions rather than bugs, please check the README first, then ask here.
+  - name: Documentation (README)
+    url: https://github.com/weskona/tariffy#readme
+    about: Setup, sensors, the four cost sensors explained with a worked example, tariff switch and reminders (English and German).
