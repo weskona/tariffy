@@ -19,6 +19,12 @@ cat > "$tmp/c.md" <<'EOF'
 
 - new thing
 
+## [2.1.0-beta.1] - 2026-01-03
+
+### Added
+
+- beta thing
+
 ## [1.0.0] - 2026-01-01
 
 ### Fixed
@@ -36,6 +42,13 @@ EOF
 out="$("$script" 2.0.0 "$tmp/c.md")"; rc=$?
 [ $rc -eq 0 ] && [ "$out" = "$(printf '### Added\n\n- new thing')" ] && r=ok || r=bad
 check "middle section is extracted without neighbours" $r
+
+out="$("$script" 2.1.0-beta.1 "$tmp/c.md")"; rc=$?
+[ $rc -eq 0 ] && [ "$out" = "$(printf '### Added\n\n- beta thing')" ] && r=ok || r=bad
+check "pre-release section is extracted by its full version" $r
+
+"$script" 2.1.0 "$tmp/c.md" >/dev/null 2>&1 && r=bad || r=ok
+check "stable version does not match its own pre-release section" $r
 
 out="$("$script" 1.0.0 "$tmp/c.md")"; rc=$?
 [ $rc -eq 0 ] && [ "$out" = "$(printf '### Fixed\n\n- old thing')" ] && r=ok || r=bad

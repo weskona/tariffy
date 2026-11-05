@@ -27,6 +27,9 @@ jobs:
       - name: Test release notes extraction and changelog
         run: .github/scripts/test-release-notes.sh
 
+      - name: Test release planning (stable vs. beta)
+        run: .github/scripts/test-release-plan.sh
+
   hassfest:
     name: Hassfest
     runs-on: ubuntu-latest
