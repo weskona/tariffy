@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Geändert
+
+- CI: Der Release-Workflow läuft jetzt auch auf dem Branch `beta` und veröffentlicht Versionen wie `1.27.0-beta.1` als GitHub-Pre-Release (nie als „latest“). HACS bietet sie nur Nutzern an, die Beta-Versionen aktiviert haben. Stabile Releases aus `main` funktionieren wie bisher. Siehe `docs/beta-releases.md`.
+
 ## [1.26.5] - 2026-11-05
 
 ### Behoben
