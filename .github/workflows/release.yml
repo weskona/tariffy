@@ -1,47 +1,96 @@
 name: Release
 
+# Creates the git tag and the GitHub release automatically once a commit with a
+# new version in custom_components/tariffy/manifest.json lands on main.
+# Pushing a "v*" tag by hand still works. Run manually with dry_run to test.
+
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only build the zip and notes, do not create a tag or release"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get version from tag
+      - name: Determine version
         id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        run: |
+          manifest_version="$(python3 -c 'import json;print(json.load(open("custom_components/tariffy/manifest.json"))["version"])')"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tag="${GITHUB_REF_NAME}"
+            if [ "${tag}" != "v${manifest_version}" ]; then
+              echo "::error::Tag ${tag} does not match manifest.json version ${manifest_version}"
+              exit 1
+            fi
+          else
+            tag="v${manifest_version}"
+          fi
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "number=${tag#v}" >> "$GITHUB_OUTPUT"
+          echo "Version: ${tag}"
+
+      - name: Skip if release already exists
+        id: exists
+        run: |
+          if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "::notice::Release ${{ steps.version.outputs.tag }} already exists, nothing to do"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify tests and changelog
+        if: steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true'
+        run: .github/scripts/test-release-notes.sh
+
+      - name: Extract changelog section
+        if: steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true'
+        run: .github/scripts/release-notes.sh "${{ steps.version.outputs.number }}" CHANGELOG.md > release_notes.md
 
       - name: Create release zip
+        if: steps.exists.outputs.exists == 'false' || env.DRY_RUN == 'true'
         run: |
           cd custom_components/tariffy
           zip -r ../../tariffy.zip .
 
-      - name: Extract changelog section for this version
+      - name: Dry run summary
+        if: env.DRY_RUN == 'true'
         run: |
-          VERSION_NUM="${{ steps.version.outputs.VERSION }}"
-          VERSION_NUM="${VERSION_NUM#v}"
-          awk -v ver="$VERSION_NUM" '
-            $0 ~ "^## \\[" ver "\\]" { found=1; next }
-            found && /^## \[/ { exit }
-            found { print }
-          ' CHANGELOG.md > release_notes.md
-          if [ ! -s release_notes.md ]; then
-            echo "_Keine Changelog-Notizen für diese Version gefunden._" > release_notes.md
-          fi
+          echo "Dry run: would release ${{ steps.version.outputs.tag }} (exists: ${{ steps.exists.outputs.exists }})"
+          unzip -l tariffy.zip | tail -15
+          echo "----- release notes -----"
+          cat release_notes.md
 
-      - name: Create GitHub Release
+      - name: Create tag and GitHub Release
+        if: steps.exists.outputs.exists == 'false' && env.DRY_RUN != 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.version.outputs.VERSION }}
-          name: ${{ steps.version.outputs.VERSION }}
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ steps.version.outputs.tag }}
           files: tariffy.zip
           body_path: release_notes.md
           generate_release_notes: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
