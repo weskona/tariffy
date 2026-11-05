@@ -2,6 +2,12 @@
 
 Alle nennenswerten Änderungen an der Tariffy-Integration. Format angelehnt an [Keep a Changelog](https://keepachangelog.com/), Versionierung in `manifest.json`.
 
+## [1.26.3] - 2026-11-05
+
+### Behoben
+
+- **HA-Core-Warnung „custom integration 'tariffy' has an update listener and should use it for scheduling a reload"** (funktioniert ab Home Assistant 2026.12.0 nicht mehr, [#2](https://github.com/weskona/tariffy/issues/2)): der manuelle Update-Listener wurde durch `OptionsFlowWithReload` ersetzt, das Speichern des Options-Flows lädt den Eintrag weiterhin neu. Interne Datenänderungen (manueller Wechsel, Bestätigen von Kündigung/Abschlag-Warnung) lösen nun einen Coordinator-Refresh statt eines vollständigen Reloads aus. Mindestversion von Home Assistant in `hacs.json` auf 2025.8.0 angehoben.
+
 ## [1.26.2] - 2026-08-25
 
 ### Behoben
