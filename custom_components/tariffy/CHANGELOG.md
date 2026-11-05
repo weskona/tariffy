@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Behoben
+
+- **„Guthaben/Nachzahlung (Vertragsende)“ (und damit die Abschlag-Warnung) war nach einer Abschlagsänderung mitten im Vertrag zu optimistisch.** Die Prognose nahm den aktuellen Abschlag für die ganze Laufzeit an, obwohl „Guthaben/Nachzahlung (Bisher)“ und die Abschlag-Empfehlung den früheren, anderen Abschlag bis zum Änderungsdatum richtig mitzählten. Beispiel: Abschlag im Juli von 40 € auf 100 € erhöht, der Sensor zeigte zum Vertragsende ein Guthaben, obwohl der Saldo bisher negativ war. Die Prognose rechnet jetzt mit den bisher tatsächlich gezahlten Abschlägen plus dem aktuellen Abschlag für die Restlaufzeit. Bei Verträgen, deren Abschlag nie geändert wurde, ist der Wert exakt derselbe wie bisher. „Abschlag (Vertragslaufzeit)“ bleibt der reine Zahlungsplan (Abschlag × Laufzeit).
+
 ### Geändert
 
 - CI: Der Release-Workflow läuft jetzt auch auf dem Branch `beta` und veröffentlicht Versionen wie `1.27.0-beta.1` als GitHub-Pre-Release (nie als „latest“). HACS bietet sie nur Nutzern an, die Beta-Versionen aktiviert haben. Stabile Releases aus `main` funktionieren wie bisher. Siehe `docs/beta-releases.md`.
