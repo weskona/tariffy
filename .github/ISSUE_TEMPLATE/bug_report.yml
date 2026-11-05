@@ -1,20 +1,25 @@
 name: Bug Report
 description: Report a problem with tariffy
-title: "[Bug] "
+title: "[Bug] <short summary>"
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report an issue! Please fill in the fields below as
-        completely as possible — it saves us both a few rounds of follow-up questions.
+        Thanks for taking the time to report an issue! You can write in English or German.
+
+        Please **replace `<short summary>` in the title** with a few words (e.g. `Consumption (so far) too high`) —
+        it makes the issue much easier to find later.
+
+        ⚠️ **Privacy:** please do not post your customer number, meter number, MaLo-ID, tokens or
+        other personal data. Replace them with `xxx` in logs and screenshots.
 
   - type: input
     id: tariffy_version
     attributes:
       label: tariffy version
       description: Found under HACS → tariffy, or in `custom_components/tariffy/manifest.json`.
-      placeholder: "e.g. 1.24.3"
+      placeholder: "e.g. 1.26.5"
     validations:
       required: true
 
@@ -22,7 +27,33 @@ body:
     id: ha_version
     attributes:
       label: Home Assistant version
-      placeholder: "e.g. 2026.7.3"
+      placeholder: "e.g. 2026.10.3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Installation method
+      options:
+        - HACS
+        - Manual (copied into custom_components)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What is affected?
+      options:
+        - Wrong value or calculation (costs, forecast, consumption, instalment)
+        - Sensor or button missing, or wrong unit / name
+        - Setting up or editing a contract (config / reconfigure / options)
+        - Tariff switch or planned next contract
+        - Cancellation reminder or low-instalment warning
+        - Warning or error in the Home Assistant log
+        - Translation or wording
+        - Something else
     validations:
       required: true
 
@@ -43,14 +74,33 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem?
+      description: What did you expect, and what happened instead? If you can, list the steps to reproduce it.
+      placeholder: |
+        Example: "Consumption (so far)" shows 6000 kWh, but I expected only around 80 kWh since
+        the contract start date.
+
+        Steps: 1. ... 2. ...
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Consumption and cost problems (optional)
+        The next three fields are only needed if the problem is about consumption, costs or
+        forecasts. You can leave them empty otherwise.
+
   - type: input
     id: verbrauch_sensor
     attributes:
       label: Consumption sensor (entity_id)
       description: >
-        If the contract has a consumption sensor ("Verbrauchssensor" in the config UI)
-        configured (Developer tools → States, search for the sensor there). For a dual-tariff
-        (HT/NT) contract, this is the high-tariff (HT) sensor.
+        The contract's consumption sensor ("Verbrauchssensor" in the config UI), see
+        Developer tools → States. For a dual-tariff (HT/NT) contract, this is the high-tariff (HT) sensor.
       placeholder: "e.g. sensor.netzbezug_home_in"
 
   - type: input
@@ -65,16 +115,13 @@ body:
     attributes:
       label: state_class of the consumption sensor
       description: >
-        Shown in the sensor's attributes (Developer tools → States → click the sensor). Only
-        relevant if you entered a consumption sensor above.
+        Shown in the sensor's attributes (Developer tools → States → click the sensor).
       options:
         - total_increasing
         - total
         - measurement
         - not sure / not specified
         - not applicable
-    validations:
-      required: true
 
   - type: input
     id: vertragsbeginn
@@ -84,24 +131,14 @@ body:
       placeholder: "e.g. 28.04.2026"
 
   - type: textarea
-    id: problem
-    attributes:
-      label: What's the problem?
-      description: What did you expect, and what happened instead?
-      placeholder: |
-        Example: "Consumption (so far)" shows 6000 kWh, but I expected only around 80 kWh since
-        the contract start date.
-    validations:
-      required: true
-
-  - type: textarea
     id: logs
     attributes:
       label: Logs (optional, but helpful)
       description: >
         Relevant lines from Settings → System → Logs, filtered on "tariffy". For more detail:
         set `logger: logs: custom_components.tariffy: debug` in configuration.yaml, restart HA,
-        reproduce the issue, then paste the log lines here.
+        reproduce the issue, then paste the log lines here. Screenshots can be dragged into the
+        "What's the problem?" field.
       render: shell
 
   - type: checkboxes
@@ -110,4 +147,8 @@ body:
       label: Before you submit
       options:
         - label: I'm using the latest tariffy version (HACS → tariffy → check for updates)
-        - label: I searched existing issues to see if this was already reported
+          required: true
+        - label: I searched existing issues (open and closed) to see if this was already reported
+          required: true
+        - label: I removed personal data such as customer number, meter number and MaLo-ID
+          required: true
