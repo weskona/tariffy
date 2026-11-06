@@ -317,10 +317,15 @@ details { background: var(--panel); border: 1px solid var(--line); border-radius
 summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
 summary::-webkit-details-marker { display: none; }
 summary .who { flex: 1; }
-summary .end { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+summary .end { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 summary .caret { color: var(--muted); transition: transform .15s; }
-summary .chips { flex-basis: 100%; justify-content: flex-start; order: 5; }
 summary .chips:empty { display: none; }
+/* cards (overview): the chips get a line of their own below */
+details.card > summary .chips { flex-basis: 100%; justify-content: flex-start; order: 5; }
+/* rows of the contract list: name, chips, amount on one line, wrapping on narrow screens */
+details:not(.card) > summary { flex-wrap: wrap; }
+details:not(.card) > summary .who { flex: 1 1 220px; }
+details:not(.card) > summary .chips { flex: 0 1 auto; justify-content: flex-end; }
 details.card { padding: 0; }
 details.card > summary { padding: 14px 16px; flex-wrap: wrap; }
 details.card .body { padding: 0 16px 16px; }

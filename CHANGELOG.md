@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.7] - 2026-11-06
+
+Seventh beta for testing the sidebar panel. It fixes the layout of the contract list. Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- Beta: in the "Contracts" view the rows were squeezed: the name and the subtitle broke word by word and the amount was drawn over the text. The rows now show name, status and amount on one line and wrap on narrow screens. The overview cards are unchanged.
+
 ## [1.27.0-beta.6] - 2026-11-06
 
 Sixth beta for testing the sidebar panel. New: create and delete contracts directly in the panel (administrators only). Please report problems with the bug report form and mention this exact version.
