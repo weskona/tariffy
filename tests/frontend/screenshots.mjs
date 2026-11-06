@@ -48,9 +48,11 @@ for (const shot of shots) {
     if (tab === "contracts") {
       await page.evaluate(() => window.__panel.shadowRoot.querySelectorAll("details").forEach((d, i) => { if (i < 2) d.open = true; }));
     }
+    await page.waitForTimeout(300); // let the arrow finish turning
     await page.screenshot({ path: join(outDir, `${shot.name}-${tab}.png`), fullPage: true });
     if (shot.narrow && tab === "overview") {
       await page.evaluate(() => window.__panel.shadowRoot.querySelectorAll("details.card").forEach((d, i) => { if ([0, 3, 4].includes(i)) d.open = true; }));
+      await page.waitForTimeout(300);
       await page.screenshot({ path: join(outDir, `${shot.name}-${tab}-open.png`), fullPage: true });
     }
     await context.close();

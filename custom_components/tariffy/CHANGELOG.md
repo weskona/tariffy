@@ -15,6 +15,7 @@ Zehnte Beta zum Testen des Seitenleisten-Panels. Die Ansichten "Kosten" und "Ver
 
 - Beta: Die Ansicht "Kosten" hat zwei Tabellen wie die Übersicht: **Verbrauchsverträge** (Kosten bisher, Saldo bisher, Saldo zum Vertragsende, Abschlag, empfohlener Abschlag) und **Pauschalverträge** (Kosten bisher, Abschlag, Vertragsende, Restlaufzeit). Jede Tabelle hat eine eigene Summenzeile, darunter steht die Gesamtsumme. Pauschalverträge zeigen keine Zeilen voller Striche für Saldo und Prognose mehr.
 - Beta: Die Ansicht "Verträge" listet die Verträge in denselben zwei Gruppen.
+- Beta: Der kleine Pfeil zum Aufklappen einer Zeile oder Karte ist jetzt ein Symbol im Stil der anderen Symbole und dreht sich beim Aufklappen.
 - Beta: Auf einem breiten Bildschirm zeigt die Übersicht in beiden Gruppen drei Verträge pro Zeile (vorher zwei Spalten bei vier Verbrauchsverträgen).
 
 ## [1.27.0-beta.9] - 2026-11-06

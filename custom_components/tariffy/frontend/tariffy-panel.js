@@ -195,6 +195,7 @@ const ICONS = {
     ["path", { d: "M16 2v4M8 2v4M3 10h18M12 13.500v5M9.500 16h5" }],
   ],
   plus: [["path", { d: "M12 5v14M5 12h14" }]],
+  chevron: [["path", { d: "M9 6l6 6-6 6" }]],
   other: [
     ["circle", { cx: "6", cy: "12", r: "1.600", fill: "currentColor" }],
     ["circle", { cx: "12", cy: "12", r: "1.600", fill: "currentColor" }],
@@ -363,7 +364,12 @@ summary { list-style: none; cursor: pointer; display: flex; align-items: center;
 summary::-webkit-details-marker { display: none; }
 summary .who { flex: 1; }
 summary .end { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-summary .caret { color: var(--muted); transition: transform .15s; }
+summary .caret { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px;
+  border: 1px solid var(--tile-line); background: var(--tile); color: var(--muted); transition: color .15s; }
+summary .caret svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+/* icons and arrow of a list row stay together when the row wraps */
+.row-end { display: flex; align-items: center; gap: 6px; flex: none; margin-left: auto; }
+summary:hover .caret { color: var(--text); }
 summary .chips:empty { display: none; }
 /* cards (overview): the chips get a line of their own below */
 details.card > summary .chips { flex-basis: 100%; justify-content: flex-start; order: 5; }
@@ -375,7 +381,7 @@ details.card { padding: 0; }
 details.card > summary { padding: 14px 16px; flex-wrap: wrap; }
 details.card .body { padding: 0 16px 16px; }
 details.card.alert { border-color: rgba(248,113,113,.35); }
-details[open] summary .caret { transform: rotate(90deg); }
+details[open] summary .caret svg { transform: rotate(90deg); }
 .detail { padding: 4px 18px 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .sec h4 { margin: 8px 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
 .row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
@@ -398,6 +404,7 @@ details[open] summary .caret { transform: rotate(90deg); }
   .tiles { grid-template-columns: 1fr 1fr; }
   .tiles .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .grid, .grid.flat { grid-template-columns: 1fr; gap: 12px; }
+  summary .caret { width: 30px; height: 30px; }
   .group { margin-top: 18px; }
   .card { padding: 14px; }
   .big { font-size: 28px; }
@@ -927,7 +934,7 @@ class TariffyPanel extends HTMLElement {
           h("div", { class: `end ${heroTone}`, text: flat
             ? `${this._money(heroValue, c.currency, { digits: 2 })} ${this._t("perMonth")}`
             : this._money(heroValue, c.currency, { sign: d.hasMetering }) }),
-          h("span", { class: "caret", "aria-hidden": "true", text: "›" }),
+          h("span", { class: "caret", "aria-hidden": "true" }, icon("chevron")),
           this._chips(d.chips)),
         h("div", { class: "body" }, body));
       if (this._open.has(c.entry_id)) card.setAttribute("open", "");
@@ -1559,8 +1566,9 @@ class TariffyPanel extends HTMLElement {
         this._who(c),
         this._chips(d.chips),
         h("div", { class: `end ${!flat && d.hasMetering ? (c.prognose_real < 0 ? "red-t" : "green-t") : ""}`, text: endValue }),
-        this._rowActions(c),
-        h("span", { class: "caret", "aria-hidden": "true", text: "›" })),
+        h("div", { class: "row-end" },
+          this._rowActions(c),
+          h("span", { class: "caret", "aria-hidden": "true" }, icon("chevron")))),
       h("div", { class: "detail" }, sections)
     );
     if (this._open.has(c.entry_id)) details.setAttribute("open", "");
