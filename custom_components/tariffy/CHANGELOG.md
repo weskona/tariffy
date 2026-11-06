@@ -7,6 +7,16 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.1] - 2026-11-06
+
+Gleicher Inhalt wie 1.27.0-beta.10, unter neuem Namen noch einmal veröffentlicht: GitHub listet `beta.10` zwischen `beta.2` und `beta.1`, deshalb hat HACS es nicht angeboten. Bitte diese Version installieren (siehe "Beta-Versionen" in der Dokumentation; die Zählung geht jetzt mit `rc.2`, `rc.3`, ... weiter). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Die Ansicht "Kosten" hat zwei Tabellen wie die Übersicht: **Verbrauchsverträge** (Kosten bisher, Saldo bisher, Saldo zum Vertragsende, Abschlag, empfohlener Abschlag) und **Pauschalverträge** (Kosten bisher, Abschlag, Vertragsende, Restlaufzeit), jede mit eigener Summenzeile und darunter die Gesamtsumme. Die Ansicht "Verträge" listet die Verträge in denselben zwei Gruppen.
+- Auf einem breiten Bildschirm zeigt die Übersicht in beiden Gruppen drei Verträge pro Zeile. Der kleine Pfeil zum Aufklappen einer Zeile oder Karte ist jetzt ein Symbol im Stil der anderen Symbole und dreht sich beim Aufklappen.
+- Release-Ablauf: Die Versionsnummern von Vorabversionen enden pro Serie bei 9 (`beta.1` ... `beta.9`, `rc.1` ... `rc.9`), weil GitHub Release-Tags als Text sortiert und HACS `beta.10` nicht anbieten würde. Ein Test prüft das.
+
 ## [1.27.0-beta.10] - 2026-11-06
 
 Zehnte Beta zum Testen des Seitenleisten-Panels. Die Ansichten "Kosten" und "Verträge" sind jetzt wie die Übersicht getrennt. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

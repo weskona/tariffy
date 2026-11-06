@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.1] - 2026-11-06
+
+Same content as 1.27.0-beta.10, released again under a new name: GitHub lists `beta.10` between `beta.2` and `beta.1`, so HACS did not offer it. Please install this version (see "Beta releases" in the documentation; the numbering now continues with `rc.2`, `rc.3`, ...). Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The "Costs" view has two tables like the overview: **metered contracts** (cost so far, balance so far, balance at contract end, instalment, recommended instalment) and **flat-rate contracts** (cost so far, instalment, contract end, remaining term), each with its own total row and the overall total below. The "Contracts" view lists the contracts in the same two groups.
+- On a wide screen the overview shows three contracts per row, in both groups. The small arrow that opens a row or card is an icon in the style of the other icons and turns when it opens.
+- Release process: version numbers of pre-releases stop at 9 per series (`beta.1` ... `beta.9`, `rc.1` ... `rc.9`), because GitHub sorts release tags as text and HACS would not offer `beta.10`. A test guards this.
+
 ## [1.27.0-beta.10] - 2026-11-06
 
 Tenth beta for testing the sidebar panel. The "Costs" and "Contracts" views are now split like the overview. Please report problems with the bug report form and mention this exact version.
