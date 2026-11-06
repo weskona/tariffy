@@ -69,6 +69,84 @@ for (const [name, query] of [["state-empty", "state=empty"], ["state-error", "st
   await context.close();
 }
 
+// ---- interactions: the action buttons (administrators only) ----
+const check = (ok, message) => { if (!ok) errors.push(`check failed: ${message}`); };
+const calls = (page) => page.evaluate(() => window.__calls);
+const card = (page, name) => page.locator(".card", { hasText: name }).first();
+
+{
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`actions: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+
+  check((await page.locator(".actions").count()) === 3, "three contracts offer actions (warning, cancellation, switch)");
+  check((await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
+  check((await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
+  check((await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).count()) === 1, "switch button on Mobilfunk");
+  check((await card(page, "Gas Heizung").locator(".btn").count()) === 0, "no buttons where nothing is possible");
+
+  // switching asks first and does nothing until confirmed
+  await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).click();
+  check((await calls(page)).length === 0, "no call before the switch is confirmed");
+  check((await card(page, "Mobilfunk").locator(".ask").count()) === 1, "confirmation question is shown");
+  await card(page, "Mobilfunk").screenshot({ path: join(outDir, "actions-confirm.png") });
+  await card(page, "Mobilfunk").getByRole("button", { name: "Abbrechen" }).click();
+  check((await calls(page)).length === 0, "cancel does nothing");
+  check((await card(page, "Mobilfunk").locator(".ask").count()) === 0, "question is gone after cancel");
+  await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).click();
+  await card(page, "Mobilfunk").getByRole("button", { name: "Ja, wechseln" }).click();
+  check(JSON.stringify(await calls(page)) === JSON.stringify([{ type: "tariffy/action", entry_id: "contract-6", action: "switch_now" }]),
+    "confirmed switch sends exactly one switch_now for contract-6");
+
+  // acknowledgements need no question
+  await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
+  await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
+  const sent = (await calls(page)).slice(1).map((c) => `${c.entry_id}:${c.action}`);
+  check(sent.join(",") === "contract-5:confirm_cancellation,contract-1:confirm_abschlag_warning", `acknowledgements sent: ${sent}`);
+  await context.close();
+}
+
+{ // a failing action shows its error and re-enables the button
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&fail=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
+  check((await card(page, "Strom Haus").locator(".err").innerText()).includes("fehlgeschlagen"), "error text is shown");
+  check(await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).isEnabled(), "button is usable again after an error");
+  await card(page, "Strom Haus").screenshot({ path: join(outDir, "actions-error.png") });
+  await context.close();
+}
+
+{ // no buttons at all for non-administrators
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&admin=0`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  check((await page.locator(".actions").count()) === 0 && (await page.locator(".btn").count()) === 0, "non-administrators see no action buttons");
+  check((await page.locator(".card").count()) === 6, "non-administrators still see all contracts");
+  await context.close();
+}
+
+{ // phone: buttons are inside the expanded card
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  const page = await context.newPage();
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&narrow=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
+  check((await page.locator(".btn").count()) === 3, "phone: all three buttons are in the page");
+  check(!(await page.locator(".btn").first().isVisible()), "phone: buttons stay hidden until the row is expanded");
+  await page.locator("details.card", { hasText: "Internet" }).locator("summary").click();
+  check(await page.locator("details.card", { hasText: "Internet" }).getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");
+  await context.close();
+}
+
 await browser.close();
 server.close();
 if (errors.length) { console.error("Browser errors:\n" + errors.join("\n")); process.exit(1); }
