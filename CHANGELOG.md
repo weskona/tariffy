@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.4] - 2026-11-06
+
+Fourth beta for testing the sidebar panel. New: plan, edit and remove the next contract directly in the panel (administrators only). The two action buttons now ask a second question, and "Switch now" is gone from the panel because it would have replaced the current contract before the new one starts. Please report problems with the bug report form and mention this exact version.
+
 ### Added
 
 - Beta: the panel can now plan, edit and remove the next contract ("Plan next contract" on the contract card, administrators only). It shows the same form as the integration's "Configure" dialog and stores it through that dialog, so validation and storage are unchanged. When the cancellation reminder is due, a box (ticked by default) marks the cancellation as done in the same step.
