@@ -20,7 +20,8 @@ from .test_panel import GOLDEN, frontend_env  # noqa: F401  (fixture)
 FIXTURES = json.loads((Path(__file__).parent / "frontend" / "fixtures.json").read_text(encoding="utf-8"))
 FORMS = FIXTURES["flows"]
 TRANSLATIONS = Path(__file__).parent.parent / "custom_components" / "tariffy" / "translations"
-PANEL_KINDS = {"date", "text", "number", "select", "entity"}  # keep in sync with _fieldSpec()
+PANEL_KINDS = {"date", "text", "number", "select", "entity", "boolean"}  # keep in sync with _fieldSpec()
+RECONFIGURE = FIXTURES["reconfigure"]
 
 
 def _kind(field: dict) -> str:
@@ -42,6 +43,37 @@ def test_every_field_has_a_label_and_every_error_a_text(language):
             assert field["name"] in labels, f"{field['name']} has no {language} label"
     assert "invalid_number" in texts["error"]
     assert texts["step"]["init"]["description"]
+
+
+@pytest.mark.parametrize("contract_id", sorted(RECONFIGURE))
+def test_every_reconfigure_field_can_be_drawn_by_the_panel(contract_id):
+    for step in RECONFIGURE[contract_id].values():
+        for field in step["data_schema"]:
+            assert _kind(field) in PANEL_KINDS, f"{field['name']}: extend _fieldSpec()"
+
+
+@pytest.mark.parametrize("language", ["de", "en"])
+def test_every_reconfigure_field_and_option_has_a_text(language):
+    texts = json.loads((TRANSLATIONS / f"{language}.json").read_text(encoding="utf-8"))
+    for contract_id, steps in RECONFIGURE.items():
+        for step in steps.values():
+            labels = texts["config"]["step"][step["step_id"]]["data"]
+            for field in step["data_schema"]:
+                assert field["name"] in labels, f"{step['step_id']}.{field['name']} has no {language} label"
+                select = field["selector"].get("select")
+                if select and select.get("translation_key"):
+                    options = texts["selector"][select["translation_key"]]["options"]
+                    for value in select["options"]:
+                        assert value in options, f"{select['translation_key']}.{value} has no {language} text"
+    assert "invalid_number" in texts["config"]["error"]
+    assert "reconfigure_successful" in texts["config"]["abort"]
+
+
+def test_the_first_step_comes_before_the_data_of_the_sparte():
+    # the panel treats every reconfigure step except "reconfigure" as the last one (it asks before saving)
+    for steps in RECONFIGURE.values():
+        assert steps["first"]["step_id"] == "reconfigure"
+        assert steps["second"]["step_id"].startswith("reconfigure_")
 
 
 def _panel_values(form: dict, **filled) -> dict:

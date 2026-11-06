@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.5] - 2026-11-06
+
+Fifth beta for testing the sidebar panel. New: edit a contract directly in the panel (administrators only). Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- Beta: the panel can now edit a contract ("Edit contract" on the contract card, administrators only). It shows the same two forms as the integration's "Reconfigure" dialog (general data, then the data of the sparte) and stores them through that dialog, so validation and storage are unchanged. The last step asks once more before the contract data is replaced. Yes/no settings, drop-downs with translated names and free-text suggestions (notification target) are supported.
+
+### Fixed
+
+- Reconfiguring a contract no longer loses the state the integration keeps itself. Until now the "Reconfigure" dialog replaced the stored data with what the forms contain, so an acknowledged cancellation reminder or low-instalment warning came back, a push notification that was already sent could be sent again, and the consumption of the last contract term (used for the recommended instalment) was lost. It is now kept. The cancellation reminder starts over only when the contract end or the reminder lead time changes.
+- The "Cancellation reminder" drop-down shows "3 months before" instead of a bare "3" (the texts already existed but were not connected). The stored values are unchanged.
+
 ## [1.27.0-beta.4] - 2026-11-06
 
 Fourth beta for testing the sidebar panel. New: plan, edit and remove the next contract directly in the panel (administrators only). The two action buttons now ask a second question, and "Switch now" is gone from the panel because it would have replaced the current contract before the new one starts. Please report problems with the bug report form and mention this exact version.

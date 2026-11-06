@@ -86,7 +86,7 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   check((await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
   check((await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
   check((await card(page, "Mobilfunk").getByRole("button", { name: "Folgevertrag bearbeiten" }).count()) === 1, "Mobilfunk can edit its planned contract");
-  check((await card(page, "Gas Heizung").locator(".btn").allInnerTexts()).join() === "Folgevertrag planen", "Gas only offers to plan the next contract");
+  check((await card(page, "Gas Heizung").locator(".btn").allInnerTexts()).join() === "Folgevertrag planen,Vertrag bearbeiten", "Gas only offers to plan the next contract and to edit itself");
 
   // a negative recommended instalment is shown as 0 with a hint, never as a negative amount
   const gasText = await card(page, "Gas Heizung").innerText();
@@ -232,6 +232,91 @@ async function openPage(browser, query) {
   await context.close();
 }
 
+// ---- edit a contract: the two steps of the integration's "Reconfigure" dialog ----
+const configFlow = "config/config_entries/flow";
+
+{ // step 1 (general data), step 2 (data of the sparte), a question before the contract data is replaced
+  const { context, page } = await openPage(browser, "lang=de");
+  await openDialog(page, "Strom Haus", "Vertrag bearbeiten");
+  check((await dialog(page).innerText()).includes("Vertrag bearbeiten · Strom Haus"), "edit dialog names the contract");
+  check(JSON.stringify((await api(page))[0]) === JSON.stringify({ method: "POST", path: configFlow, body: { handler: "tariffy", entry_id: "contract-1" } }),
+    "editing starts the reconfigure flow of the contract");
+  check((await page.locator(".dialog [name=sparte] option:checked").innerText()) === "Strom", "the sparte drop-down shows translated names");
+  check((await page.locator(".dialog [name=anbieter]").inputValue()) === "Stadtwerke Nord", "stored provider is filled in");
+  check((await page.locator(".dialog [name=erinnerung_monate] option:checked").innerText()) === "3 Monate vorher", "the reminder lead time is readable, not a bare number");
+  check((await page.locator(".dialog [name=ende]").inputValue()) === "2026-12-31", "stored end date is filled in");
+  check((await page.locator(".dialog [name=notify_target]").count()) === 1, "the notification target field is offered");
+  check((await page.locator(".dialog .check").count()) === 0, "no cancellation box when editing the contract itself");
+
+  await page.locator(".dialog [name=anbieter]").fill("");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  check((await dialog(page).innerText()).includes("Pflichtfeld") && (await api(page)).length === 1, "a required field is checked in the panel");
+  await page.locator(".dialog [name=anbieter]").fill("Neuer Versorger");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=arbeitspreis]"));
+  const first = (await api(page))[1];
+  check(first.path === `${configFlow}/rflow-1` && first.body.anbieter === "Neuer Versorger" && first.body.sparte === "electricity",
+    "step 1 sends the general data");
+  check(Object.values(first.body).every((v) => v !== "" && v !== null), "empty optional fields are left out");
+  check(first.body.beginn === "2026-01-01" && first.body.erinnerung_monate === "3", "unchanged values are sent as they are stored");
+  check((await api(page)).length === 2, "going to step 2 asks nothing");
+
+  check((await page.locator(".dialog [name=arbeitspreis]").inputValue()) === "0.2977", "step 2 shows the stored price");
+  check(await page.locator(".dialog [name=abschlag_warnung]").isChecked(), "a stored yes/no setting is shown as ticked");
+  check(!(await page.locator(".dialog [name=oekostrom]").isChecked()), "and an unticked one as unticked");
+  await page.locator(".dialog [name=abschlag]").fill("100,5");
+  await dialog(page).screenshot({ path: join(outDir, "edit-contract-dialog.png") });
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  check((await dialog(page).innerText()).includes("Änderungen speichern?") && (await api(page)).length === 2, "saving asks first");
+  await dialog(page).getByRole("button", { name: "Abbrechen" }).first().click();
+  check((await dialog(page).getByRole("button", { name: "Speichern" }).count()) === 1 && (await api(page)).length === 2, "the question can be dismissed");
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  await dialog(page).getByRole("button", { name: "Ja, speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog")?.innerText.includes("Gespeichert"));
+  const second = (await api(page))[2];
+  check(second.body.abschlag === 100.5 && second.body.arbeitspreis === 0.2977, "numbers are sent as numbers, the decimal comma is understood");
+  check(second.body.oekostrom === false && second.body.abschlag_warnung === true, "yes/no settings are always sent");
+  check((await calls(page)).length === 0, "editing never touches the cancellation reminder");
+  await context.close();
+}
+
+{ // closing in step 2 aborts the flow; gas keeps its text fields as typed
+  const { context, page } = await openPage(browser, "lang=de");
+  await openDialog(page, "Gas Heizung", "Vertrag bearbeiten");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=brennwert]"));
+  check((await page.locator(".dialog [name=gas_einheit]").inputValue()) === "m³", "gas unit is selected");
+  check((await page.locator(".dialog [name=brennwert]").inputValue()) === "11.2", "stored calorific value is filled in");
+  await page.locator(".dialog [name=brennwert]").fill("11,5");
+  await dialog(page).getByRole("button", { name: "Abbrechen" }).click();
+  const sent = await api(page);
+  check(sent.at(-1).method === "DELETE" && sent.at(-1).path === `${configFlow}/rflow-2`, "cancel in step 2 aborts the flow");
+  check(!sent.some((c) => c.method === "POST" && c.path.endsWith("rflow-2") && c.body.brennwert === "11,5"), "nothing typed is sent without saving");
+  await openDialog(page, "Gas Heizung", "Vertrag bearbeiten");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=brennwert]"));
+  await page.locator(".dialog [name=brennwert]").fill("11,5");
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  await dialog(page).getByRole("button", { name: "Ja, speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog")?.innerText.includes("Gespeichert"));
+  check((await api(page)).at(-1).body.brennwert === "11,5", "the text field is sent as typed, the integration parses it");
+  await context.close();
+}
+
+{ // an error of the integration is shown at the field in step 2 and the input is kept
+  const { context, page } = await openPage(browser, "lang=de&flowfail=1");
+  await openDialog(page, "Internet", "Vertrag bearbeiten");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=abschlag]"));
+  await page.locator(".dialog [name=abschlag]").fill("12");
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  await dialog(page).getByRole("button", { name: "Ja, speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog .ferr"));
+  check((await page.locator(".dialog [name=abschlag]").inputValue()) === "12", "typed values survive a rejected save");
+  check(await dialog(page).getByRole("button", { name: "Speichern" }).isVisible(), "and the form can be saved again");
+  await context.close();
+}
+
 { // English and the phone layout
   const { context, page } = await openPage(browser, "lang=en");
   await openDialog(page, "Gas Heizung", "Plan next contract");
@@ -273,7 +358,7 @@ async function openPage(browser, query) {
   await page.clock.setFixedTime("2026-07-12T12:00:00Z");
   await page.goto(`${base}?lang=de&narrow=1`);
   await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
-  check((await page.locator(".btn").count()) === 8, "phone: all buttons are in the page");
+  check((await page.locator(".btn").count()) === 14, "phone: all buttons are in the page");
   check(!(await page.locator(".btn").first().isVisible()), "phone: buttons stay hidden until the row is expanded");
   await page.locator("details.card", { hasText: "Internet" }).locator("summary").click();
   check(await page.locator("details.card", { hasText: "Internet" }).getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");
