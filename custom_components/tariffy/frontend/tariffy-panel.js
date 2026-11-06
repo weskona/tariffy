@@ -59,7 +59,9 @@ const I18N = {
     actYesAck: "Yes, acknowledge", actCancel: "Cancel",
     actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
-    actNextPlan: "Plan next contract", actNextEdit: "Edit next contract",
+    actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract",
+    dlgTitleEdit: "Edit contract · {name}", dlgContinue: "Next",
+    dlgSaveAsk: "Save the changes? The contract data is replaced with what the form shows.", dlgSaveYes: "Yes, save",
     dlgTitle: "Next contract · {name}", dlgLoading: "Loading the form …", dlgSave: "Save", dlgClose: "Close",
     dlgSaving: "Saving …", dlgSaved: "Saved. Home Assistant reloads the contract.",
     dlgMarkDone: "Mark the cancellation as done",
@@ -128,7 +130,9 @@ const I18N = {
     actYesAck: "Ja, bestätigen", actCancel: "Abbrechen",
     actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
-    actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten",
+    actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten",
+    dlgTitleEdit: "Vertrag bearbeiten · {name}", dlgContinue: "Weiter",
+    dlgSaveAsk: "Änderungen speichern? Die Vertragsdaten werden durch das ersetzt, was das Formular zeigt.", dlgSaveYes: "Ja, speichern",
     dlgTitle: "Folgevertrag · {name}", dlgLoading: "Formular wird geladen …", dlgSave: "Speichern", dlgClose: "Schließen",
     dlgSaving: "Wird gespeichert …", dlgSaved: "Gespeichert. Home Assistant lädt den Vertrag neu.",
     dlgMarkDone: "Kündigung als erledigt markieren",
@@ -256,6 +260,9 @@ const STYLE = `
 .fld .lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .fld input, .fld select { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
 .fld input:focus-visible, .fld select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.fld.bool { display: flex; gap: 8px; align-items: center; }
+.fld.bool .lbl { margin: 0; font-size: 13px; color: var(--text); }
+.fld.bool input { width: auto; }
 .fld.bad input, .fld.bad select { border-color: var(--red); }
 .ferr { color: var(--red); font-size: 12px; margin-top: 4px; }
 .check { display: flex; gap: 8px; align-items: center; margin: 12px 0 0; font-size: 13px; }
@@ -361,7 +368,7 @@ function h(tag, props, ...children) {
     else if (key.startsWith("on")) el.addEventListener(key.slice(2), value);
     else el.setAttribute(key, value);
   }
-  for (const child of children.flat()) {
+  for (const child of children.flat(Infinity)) {
     if (child === null || child === undefined || child === false) continue;
     el.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
   }
@@ -383,7 +390,11 @@ function icon(sparte) {
   );
 }
 
-const FLOW_API = "config/config_entries/options/flow";
+const FLOWS = {
+  // the integration's "Configure" dialog (next contract) and its "Reconfigure" dialog (the contract itself)
+  next: { api: "config/config_entries/options/flow", body: (c) => ({ handler: c.entry_id }), category: "options" },
+  edit: { api: "config/config_entries/flow", body: (c) => ({ handler: "tariffy", entry_id: c.entry_id }), category: "config" },
+};
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
@@ -444,7 +455,7 @@ class TariffyPanel extends HTMLElement {
 
   disconnectedCallback() {
     if (this._observer) this._observer.disconnect();
-    this._closeNext();
+    this._closeFlow();
     if (this._unsub) {
       this._unsub();
       this._unsub = null;
@@ -846,9 +857,10 @@ class TariffyPanel extends HTMLElement {
       list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange", ask: "actAskCancel", yes: "actYesAck" });
     }
     list.push({
-      key: "plan_next", open: true, tone: "blue",
+      key: "plan_next", open: "next", tone: "blue",
       label: this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"),
     });
+    list.push({ key: "edit_contract", open: "edit", tone: "blue", label: this._t("actEdit") });
 
     const id = c.entry_id;
     const busy = this._busy === id;
@@ -867,7 +879,7 @@ class TariffyPanel extends HTMLElement {
         children.push(h("button", {
           class: `btn ${action.tone}`, type: "button", disabled: busy ? "" : null, text: action.label,
           onclick: () => {
-            if (action.open) { this._openNext(c); return; }
+            if (action.open) { this._openFlow(c, action.open); return; }
             this._confirming = { id, key: action.key };
             this._actionError = null;
             this._render();
@@ -896,35 +908,43 @@ class TariffyPanel extends HTMLElement {
     }
   }
 
-  /* ---------- plan the next contract ----------
-     Renders the options flow of Home Assistant (the same form as the integration's
-     "Configure" dialog) from its REST API, so validation and storage stay in the
-     integration. Empty fields are left out, exactly as Home Assistant's own form does. */
+  /* ---------- forms of the integration: next contract and contract data ----------
+     Renders the flows of Home Assistant from its REST API (the "Configure" dialog for the
+     next contract, the "Reconfigure" dialog for the contract itself), so validation and
+     storage stay in the integration. Empty optional fields are left out, exactly as Home
+     Assistant's own form does. */
 
   _errorText(err) {
     return String((err && ((err.body && err.body.message) || err.message || err.error)) || err);
   }
 
-  _fieldSpec(raw, localize) {
-    const kind = ["date", "text", "number", "select", "entity"].find((k) => raw.selector && k in raw.selector) || null;
-    const options = kind === "select" ? raw.selector.select.options || [] : [];
+  _fieldSpec(raw, dlg, step) {
+    const kind = ["date", "text", "number", "select", "entity", "boolean"].find((k) => raw.selector && k in raw.selector) || null;
+    const sel = kind === "select" ? raw.selector.select : {};
     const suggested = raw.description && raw.description.suggested_value;
     const initial = suggested !== undefined && suggested !== null ? suggested : raw.default;
-    const label = localize(`component.tariffy.options.step.init.data.${raw.name}`) ||
+    const label = dlg.localize(`component.tariffy.${dlg.category}.step.${step}.data.${raw.name}`) ||
       raw.name.replace(/^next_/, "").replace(/_/g, " ");
+    const optionLabel = (value, fallback) => (sel.translation_key
+      ? dlg.localize(`component.tariffy.selector.${sel.translation_key}.options.${value}`) : "") || fallback;
     return {
       name: raw.name, kind, label, required: Boolean(raw.required),
       min: kind === "number" && isNum(raw.selector.number.min) ? raw.selector.number.min : null,
       domains: kind === "entity" ? [].concat(raw.selector.entity.domain || []) : [],
-      options: options.map((o) => (typeof o === "string" ? { value: o, label: o } : { value: o.value, label: o.label || o.value })),
-      initial: initial === undefined || initial === null ? "" : String(initial),
+      custom: Boolean(sel.custom_value),
+      options: (sel.options || []).map((o) => {
+        const value = typeof o === "string" ? o : o.value;
+        return { value, label: optionLabel(value, typeof o === "string" ? o : o.label || o.value) };
+      }),
+      initial: kind === "boolean" ? Boolean(initial) : (initial === undefined || initial === null ? "" : String(initial)),
     };
   }
 
-  async _flowLocalize() {
+  async _flowLocalize(category) {
     try {
       if (typeof this._hass.loadBackendTranslation === "function") {
-        const localize = await this._hass.loadBackendTranslation("options", "tariffy");
+        await this._hass.loadBackendTranslation("selector", "tariffy"); // labels of the drop-downs
+        const localize = await this._hass.loadBackendTranslation(category, "tariffy");
         if (typeof localize === "function") return localize;
       }
     } catch (_err) { /* fall back to the field names */ }
@@ -932,7 +952,10 @@ class TariffyPanel extends HTMLElement {
   }
 
   _applyForm(dlg, form) {
-    if (form.type === "create_entry") { dlg.stage = "saved"; return; }
+    if (form.type === "create_entry" || (form.type === "abort" && form.reason === "reconfigure_successful")) {
+      dlg.stage = "saved";
+      return;
+    }
     if (form.type === "abort") {
       dlg.stage = "error";
       dlg.message = this._t("dlgAborted", { m: form.reason || "" });
@@ -940,35 +963,44 @@ class TariffyPanel extends HTMLElement {
     }
     dlg.flowId = form.flow_id;
     dlg.stage = "form";
-    dlg.fields = (form.data_schema || []).map((f) => this._fieldSpec(f, dlg.localize));
+    if (dlg.step !== form.step_id) { // a new step starts with its own values
+      dlg.step = form.step_id;
+      dlg.values = {};
+      dlg.refocus = true;
+    }
+    dlg.final = dlg.mode === "next" || form.step_id !== "reconfigure";
+    dlg.fields = (form.data_schema || []).map((f) => this._fieldSpec(f, dlg, form.step_id));
     dlg.unsupported = dlg.fields.some((f) => !f.kind);
-    dlg.hint = dlg.localize("component.tariffy.options.step.init.description") || "";
+    dlg.hint = dlg.localize(`component.tariffy.${dlg.category}.step.${form.step_id}.description`) || "";
     dlg.fieldErrors = {};
     dlg.message = null;
     for (const [name, code] of Object.entries(form.errors || {})) {
-      const text = dlg.localize(`component.tariffy.options.error.${code}`) || String(code);
+      const text = dlg.localize(`component.tariffy.${dlg.category}.error.${code}`) || String(code);
       if (name === "base") dlg.message = text;
       else dlg.fieldErrors[name] = text;
     }
     for (const f of dlg.fields) if (!(f.name in dlg.values)) dlg.values[f.name] = f.initial;
   }
 
-  async _openNext(c) {
-    this._closeNext();
+  async _openFlow(c, mode) {
+    this._closeFlow();
+    const flow = FLOWS[mode];
     const dlg = {
-      id: c.entry_id, name: c.title, stage: "loading", flowId: null, fields: [], values: {}, fieldErrors: {},
-      message: null, hint: "", unsupported: false, removing: false, localize: () => "",
-      hasNext: Boolean(c.next && c.next.beginn), reminder: Boolean(c.erinnerung_aktiv), markDone: true, note: null,
+      mode, api: flow.api, category: flow.category, id: c.entry_id, name: c.title, stage: "loading", flowId: null,
+      step: null, final: true, fields: [], values: {}, fieldErrors: {}, message: null, hint: "", unsupported: false,
+      asking: null, localize: () => "", refocus: false,
+      hasNext: mode === "next" && Boolean(c.next && c.next.beginn),
+      reminder: mode === "next" && Boolean(c.erinnerung_aktiv), markDone: true, note: null,
     };
     this._dlg = dlg;
     this._renderDialog();
     try {
       const [form, localize] = await Promise.all([
-        this._hass.callApi("POST", FLOW_API, { handler: c.entry_id }),
-        this._flowLocalize(),
+        this._hass.callApi("POST", flow.api, flow.body(c)),
+        this._flowLocalize(flow.category),
       ]);
       if (this._dlg !== dlg) {
-        if (form && form.flow_id) this._abortFlow(form.flow_id);
+        if (form && form.flow_id) this._abortFlow(flow.api, form.flow_id);
         return;
       }
       dlg.localize = localize;
@@ -980,26 +1012,30 @@ class TariffyPanel extends HTMLElement {
     if (this._dlg === dlg) this._renderDialog();
   }
 
-  _abortFlow(flowId) {
+  _abortFlow(api, flowId) {
     try {
-      Promise.resolve(this._hass.callApi("DELETE", `${FLOW_API}/${flowId}`)).catch(() => {});
+      Promise.resolve(this._hass.callApi("DELETE", `${api}/${flowId}`)).catch(() => {});
     } catch (_err) { /* the flow expires by itself */ }
   }
 
-  _closeNext() {
+  _closeFlow() {
     const dlg = this._dlg;
     this._dlg = null;
-    if (dlg && dlg.flowId && dlg.stage !== "saved") this._abortFlow(dlg.flowId);
+    if (dlg && dlg.flowId && dlg.stage !== "saved") this._abortFlow(dlg.api, dlg.flowId);
     if (this._dlgEl) {
       this._dlgEl.remove();
       this._dlgEl = null;
     }
   }
 
-  _collectNext(dlg) {
+  _collectFlow(dlg) {
     const values = {};
     const errors = {};
     for (const f of dlg.fields) {
+      if (f.kind === "boolean") {
+        values[f.name] = Boolean(dlg.values[f.name]);
+        continue;
+      }
       const raw = String(dlg.values[f.name] ?? "").trim();
       if (raw === "") {
         if (f.required) errors[f.name] = this._t("dlgRequired");
@@ -1016,29 +1052,28 @@ class TariffyPanel extends HTMLElement {
     return { values, errors };
   }
 
-  async _sendNext(dlg, values, removed) {
+  async _sendFlow(dlg, values, removed) {
     dlg.stage = "saving";
     dlg.message = null;
     this._renderDialog();
     let result;
     try {
-      result = await this._hass.callApi("POST", `${FLOW_API}/${dlg.flowId}`, values);
+      result = await this._hass.callApi("POST", `${dlg.api}/${dlg.flowId}`, values);
     } catch (err) {
       if (this._dlg !== dlg) return;
       dlg.stage = "form";
-      dlg.removing = false;
+      dlg.asking = null;
       dlg.message = this._t("dlgSaveFailed", { m: this._errorText(err) });
       this._renderDialog();
       return;
     }
     if (this._dlg !== dlg) return;
-    if (result.type !== "create_entry") {
-      dlg.removing = false;
-      this._applyForm(dlg, result);
+    dlg.asking = null;
+    this._applyForm(dlg, result);
+    if (dlg.stage !== "saved") {
       this._renderDialog();
       return;
     }
-    dlg.stage = "saved";
     dlg.removed = removed;
     dlg.note = null;
     this._renderDialog();
@@ -1065,71 +1100,85 @@ class TariffyPanel extends HTMLElement {
     return false;
   }
 
-  _submitNext() {
+  /* Validates the form; the last step of editing a contract asks once more before it is sent. */
+  _submitFlow(confirmed) {
     const dlg = this._dlg;
     if (!dlg || dlg.stage !== "form") return;
-    const { values, errors } = this._collectNext(dlg);
+    const { values, errors } = this._collectFlow(dlg);
     dlg.fieldErrors = errors;
     if (Object.keys(errors).length) {
       dlg.message = null;
+      dlg.asking = null;
       this._renderDialog();
       return;
     }
-    this._sendNext(dlg, values, false);
+    if (dlg.mode === "edit" && dlg.final && !confirmed) {
+      dlg.asking = "save";
+      this._renderDialog();
+      return;
+    }
+    this._sendFlow(dlg, values, false);
   }
 
   _fieldInput(dlg, f) {
+    const forget = (target) => { // an error message is outdated as soon as its field is edited
+      if (!dlg.fieldErrors[f.name]) return;
+      delete dlg.fieldErrors[f.name];
+      const label = target.closest("label");
+      if (label) {
+        label.classList.remove("bad");
+        const note = label.querySelector(".ferr");
+        if (note) note.remove();
+      }
+      target.removeAttribute("aria-invalid");
+    };
     const common = {
       id: `f-${f.name}`, name: f.name, "aria-invalid": dlg.fieldErrors[f.name] ? "true" : null,
-      oninput: (ev) => {
-        dlg.values[f.name] = ev.target.value;
-        if (dlg.fieldErrors[f.name]) { // the message is outdated as soon as the field is edited
-          delete dlg.fieldErrors[f.name];
-          const label = ev.target.closest("label");
-          if (label) {
-            label.classList.remove("bad");
-            const note = label.querySelector(".ferr");
-            if (note) note.remove();
-          }
-          ev.target.removeAttribute("aria-invalid");
-        }
-      },
+      oninput: (ev) => { dlg.values[f.name] = ev.target.value; forget(ev.target); },
     };
-    let input;
-    if (f.kind === "select") {
-      input = h("select", { ...common, onchange: (ev) => { dlg.values[f.name] = ev.target.value; } },
-        f.options.map((o) => h("option", { value: o.value, text: o.label })));
-    } else if (f.kind === "entity") {
+    if (f.kind === "boolean") {
+      return [h("input", { id: common.id, name: f.name, type: "checkbox",
+        onchange: (ev) => { dlg.values[f.name] = ev.target.checked; } })];
+    }
+    if (f.kind === "select" && !f.custom) {
+      return [h("select", { ...common, onchange: (ev) => { dlg.values[f.name] = ev.target.value; } },
+        f.options.map((o) => h("option", { value: o.value, text: o.label })))];
+    }
+    if (f.kind === "entity" || f.kind === "select") { // free text with suggestions
       const list = `dl-${f.name}`;
-      const ids = Object.keys((this._hass && this._hass.states) || {})
-        .filter((id) => !f.domains.length || f.domains.includes(id.split(".")[0])).sort();
+      const ids = f.kind === "select" ? f.options.map((o) => o.value)
+        : Object.keys((this._hass && this._hass.states) || {})
+          .filter((id) => !f.domains.length || f.domains.includes(id.split(".")[0])).sort();
       return [
         h("input", { ...common, type: "text", list, autocomplete: "off", spellcheck: "false" }),
         h("datalist", { id: list }, ids.map((id) => h("option", { value: id }))),
       ];
-    } else {
-      const type = f.kind === "date" ? "date" : "text";
-      input = h("input", { ...common, type, inputmode: f.kind === "number" ? "decimal" : null, autocomplete: "off" });
     }
-    return [input];
+    const type = f.kind === "date" ? "date" : "text";
+    return [h("input", { ...common, type, inputmode: f.kind === "number" ? "decimal" : null, autocomplete: "off" })];
   }
 
   _renderDialog() {
     const dlg = this._dlg;
     if (!dlg) return;
     const busy = dlg.stage === "saving";
-    const body = [h("h2", { id: "dlg-title", text: this._t("dlgTitle", { name: dlg.name }) })];
+    const body = [h("h2", { id: "dlg-title", text: this._t(dlg.mode === "edit" ? "dlgTitleEdit" : "dlgTitle", { name: dlg.name }) })];
     const buttons = [];
+    const ask = (text, yes, tone, onYes) => h("div", { class: "ask" },
+      h("span", { text }),
+      h("button", { class: `btn ${tone}`, type: "button", disabled: busy ? "" : null, text: yes, onclick: onYes }),
+      h("button", { class: "btn", type: "button", text: this._t("actCancel"),
+        onclick: () => { dlg.asking = null; this._renderDialog(); } }));
 
     if (dlg.stage === "loading") {
       body.push(h("p", { class: "hint", text: this._t("dlgLoading") }));
     } else if (dlg.stage === "error") {
       body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
-      buttons.push(h("button", { class: "btn", type: "button", text: this._t("dlgClose"), onclick: () => this._closeNext() }));
+      buttons.push(h("button", { class: "btn", type: "button", text: this._t("dlgClose"), onclick: () => this._closeFlow() }));
     } else if (dlg.stage === "saved") {
       body.push(h("p", { class: "hint", text: this._t(dlg.removed ? "dlgRemoved" : "dlgSaved") }));
       if (dlg.note) body.push(h("div", { class: "err", role: "alert", text: dlg.note }));
-      buttons.push(h("button", { class: "btn go", type: "button", text: this._t("dlgClose"), onclick: () => this._closeNext() }));
+      buttons.push(h("button", { class: "btn go", type: "button", text: this._t("dlgClose"), onclick: () => this._closeFlow() }));
     } else {
       if (dlg.hint) body.push(h("p", { class: "hint", text: dlg.hint }));
       if (dlg.unsupported) {
@@ -1137,9 +1186,10 @@ class TariffyPanel extends HTMLElement {
       } else {
         body.push(h("div", { class: "fields" }, dlg.fields.map((f) => {
           const error = dlg.fieldErrors[f.name];
-          return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
-            h("span", { class: "lbl", text: f.label }),
-            this._fieldInput(dlg, f),
+          const input = this._fieldInput(dlg, f);
+          const text = h("span", { class: "lbl", text: f.label });
+          return h("label", { class: `fld${f.kind === "boolean" ? " bool" : ""}${error ? " bad" : ""}`, for: `f-${f.name}` },
+            f.kind === "boolean" ? [input, text] : [text, input],
             error ? h("div", { class: "ferr", text: error }) : null);
         })));
       }
@@ -1149,42 +1199,41 @@ class TariffyPanel extends HTMLElement {
           h("input", { type: "checkbox", checked: dlg.markDone ? "" : null, onchange: (ev) => { dlg.markDone = ev.target.checked; } }),
           h("span", { text: this._t("dlgMarkDone") })));
       }
-      if (dlg.removing) {
-        buttons.push(h("div", { class: "ask" },
-          h("span", { text: this._t("dlgRemoveAsk") }),
-          h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("dlgRemoveYes"),
-            onclick: () => this._sendNext(dlg, {}, true) }),
-          h("button", { class: "btn", type: "button", text: this._t("actCancel"),
-            onclick: () => { dlg.removing = false; this._renderDialog(); } })));
+      if (dlg.asking === "remove") {
+        buttons.push(ask(this._t("dlgRemoveAsk"), this._t("dlgRemoveYes"), "red", () => this._sendFlow(dlg, {}, true)));
+      } else if (dlg.asking === "save") {
+        buttons.push(ask(this._t("dlgSaveAsk"), this._t("dlgSaveYes"), "go", () => this._submitFlow(true)));
       } else {
         if (!dlg.unsupported) {
           buttons.push(h("button", { class: "btn go", type: "button", disabled: busy ? "" : null,
-            text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._submitNext() }));
+            text: this._t(busy ? "dlgSaving" : dlg.final ? "dlgSave" : "dlgContinue"), onclick: () => this._submitFlow(false) }));
         }
         buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"),
-          onclick: () => this._closeNext() }));
+          onclick: () => this._closeFlow() }));
         if (dlg.hasNext && !dlg.unsupported) {
           buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("dlgRemove"),
-            onclick: () => { dlg.removing = true; this._renderDialog(); } }));
+            onclick: () => { dlg.asking = "remove"; this._renderDialog(); } }));
         }
       }
     }
     body.push(h("div", { class: "actions" }, buttons));
 
     const el = this._dlgEl || (this._dlgEl = h("div", { class: "overlay" }));
-    el.onkeydown = (ev) => { if (ev.key === "Escape" && !busy) this._closeNext(); };
+    el.onkeydown = (ev) => { if (ev.key === "Escape" && !busy) this._closeFlow(); };
     el.replaceChildren(h("div", { class: "dialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "dlg-title" }, body));
     if (!el.isConnected) this.shadowRoot.appendChild(el);
 
     // the inputs are filled through properties, attributes would not follow later changes
     for (const f of dlg.fields) {
       const input = el.querySelector(`[name="${f.name}"]`);
-      if (input) input.value = dlg.values[f.name] ?? "";
+      if (!input) continue;
+      if (f.kind === "boolean") input.checked = Boolean(dlg.values[f.name]);
+      else input.value = dlg.values[f.name] ?? "";
     }
-    const first = el.querySelector("input, select, button");
-    if (first && !el.dataset.focused) {
-      el.dataset.focused = "1";
-      first.focus();
+    if (dlg.refocus && dlg.stage === "form") {
+      dlg.refocus = false;
+      const first = el.querySelector("input, select");
+      if (first) first.focus();
     }
   }
 

@@ -20,6 +20,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.tariffy import panel
 from custom_components.tariffy.const import DOMAIN
 
+from .test_reconfigure import _form_defaults
+
 FIXTURE = Path(__file__).parent / "frontend" / "fixtures.json"
 TODAY = "2026-07-12"
 
@@ -100,7 +102,7 @@ CONTRACTS = [
 ]
 
 
-async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, dict]]:
+async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, dict], dict[str, dict]]:
     freezer.move_to(f"{TODAY} 12:00:00")
     sums = {}
     for _title, _data, sensors, _options in CONTRACTS:
@@ -128,6 +130,11 @@ async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, di
             assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
 
+    async def _notify(call):  # a notify service makes the "notification target" field appear
+        return None
+
+    hass.services.async_register("notify", "mobile_app_pixel", _notify)
+
     contracts = panel.async_contracts(hass)
     for index, contract in enumerate(contracts, start=1):
         contract["entry_id"] = f"contract-{index}"
@@ -139,7 +146,9 @@ async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, di
         name = "unused"
 
     serialiser = _Serialiser(hass.config_entries.options)
+    config_serialiser = _Serialiser(hass.config_entries.flow)
     flows: dict[str, dict] = {}
+    reconfigure: dict[str, dict] = {}
     for index, entry in enumerate(hass.config_entries.async_entries(DOMAIN), start=1):
         result = await hass.config_entries.options.async_init(entry.entry_id)
         form = serialiser._prepare_result_json(result)
@@ -147,12 +156,29 @@ async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, di
         form["flow_id"] = f"flow-{index}"
         form["handler"] = f"contract-{index}"
         flows[f"contract-{index}"] = form
-    return contracts, flows
+
+        # The two steps of "Reconfigure": general data, then the data of the sparte. The
+        # second form is what Home Assistant returns after the first one was sent unchanged.
+        first = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": "reconfigure", "entry_id": entry.entry_id}
+        )
+        second = await hass.config_entries.flow.async_configure(
+            first["flow_id"], _form_defaults(first)
+        )
+        steps = []
+        for number, result in enumerate((first, second), start=1):
+            form = config_serialiser._prepare_result_json(result)
+            form["flow_id"] = f"rflow-{index}"
+            form["handler"] = DOMAIN
+            steps.append(form)
+        hass.config_entries.flow.async_abort(first["flow_id"])
+        reconfigure[f"contract-{index}"] = {"first": steps[0], "second": steps[1]}
+    return contracts, flows, reconfigure
 
 
 async def test_panel_fixtures_match_the_backend(hass: HomeAssistant, freezer):
-    contracts, flows = await _build(hass, freezer)
-    document = {"today": TODAY, "contracts": contracts, "flows": flows}
+    contracts, flows, reconfigure = await _build(hass, freezer)
+    document = {"today": TODAY, "contracts": contracts, "flows": flows, "reconfigure": reconfigure}
     text = json.dumps(document, indent=2, ensure_ascii=False, sort_keys=True) + "\n"
 
     if os.environ.get("UPDATE_FIXTURES"):

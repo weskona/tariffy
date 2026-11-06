@@ -29,6 +29,7 @@
   window.__calls = [];
   window.__api = [];
   let notFound = Number(params.get("reload") || 0);
+  const reconfigureSteps = {};
   panel.hass = {
     user: { is_admin: params.get("admin") !== "0" },
     callWS: async (message) => {
@@ -47,6 +48,22 @@
       window.__api.push({ method, path, body });
       if (params.get("flowerr") === "1" && method === "POST") {
         throw { status_code: 400, body: { message: "Invalid flow specified" } };
+      }
+      // "Reconfigure": two steps, then Home Assistant aborts the flow with "reconfigure_successful"
+      if (method === "POST" && path === "config/config_entries/flow") {
+        reconfigureSteps[body.entry_id] = 0;
+        return JSON.parse(JSON.stringify(fixtures.reconfigure[body.entry_id].first));
+      }
+      const step = path.match(/^config\/config_entries\/flow\/rflow-(\d+)$/);
+      if (method === "POST" && step) {
+        const key = `contract-${step[1]}`;
+        reconfigureSteps[key] = (reconfigureSteps[key] || 0) + 1;
+        if (reconfigureSteps[key] === 1 || params.get("flowfail") === "1") {
+          const form = JSON.parse(JSON.stringify(fixtures.reconfigure[key].second));
+          if (params.get("flowfail") === "1") form.errors = { [form.data_schema[0].name]: "invalid_number" };
+          return form;
+        }
+        return { type: "abort", flow_id: `rflow-${step[1]}`, handler: "tariffy", reason: "reconfigure_successful" };
       }
       if (method === "POST" && path === "config/config_entries/options/flow") {
         return JSON.parse(JSON.stringify(fixtures.flows[body.handler]));

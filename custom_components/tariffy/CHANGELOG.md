@@ -7,6 +7,19 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.5] - 2026-11-06
+
+Fünfte Beta zum Testen des Seitenleisten-Panels. Neu: einen Vertrag direkt im Panel bearbeiten (nur Administratoren). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- Beta: Das Panel kann einen Vertrag jetzt bearbeiten ("Vertrag bearbeiten" auf der Vertragskarte, nur Administratoren). Es zeigt dieselben zwei Formulare wie der "Neu konfigurieren"-Dialog der Integration (allgemeine Daten, dann die Daten der Sparte) und speichert über diesen Dialog, Prüfung und Speicherung bleiben also unverändert. Der letzte Schritt fragt noch einmal nach, bevor die Vertragsdaten ersetzt werden. Ja/Nein-Einstellungen, Auswahllisten mit übersetzten Namen und Freitext mit Vorschlägen (Benachrichtigungs-Ziel) werden unterstützt.
+
+### Fixed
+
+- Beim Neukonfigurieren eines Vertrags gehen die Werte, die die Integration selbst führt, nicht mehr verloren. Bisher ersetzte der Dialog "Neu konfigurieren" die gespeicherten Daten durch das, was die Formulare enthalten: Eine bestätigte Kündigungs-Erinnerung oder Abschlag-Warnung kam wieder, eine schon gesendete Push-Nachricht konnte erneut gesendet werden, und der Verbrauch der letzten Laufzeit (Grundlage des empfohlenen Abschlags) ging verloren. Er bleibt jetzt erhalten. Die Kündigungs-Erinnerung beginnt nur dann neu, wenn sich Vertragsende oder Vorlaufzeit ändern.
+- Die Auswahl "Kündigung erinnern" zeigt "3 Monate vorher" statt einer nackten "3" (die Texte gab es schon, sie waren nur nicht angebunden). Die gespeicherten Werte bleiben unverändert.
+
 ## [1.27.0-beta.4] - 2026-11-06
 
 Vierte Beta zum Testen des Seitenleisten-Panels. Neu: Folgevertrag direkt im Panel planen, bearbeiten und entfernen (nur Administratoren). Die beiden Aktions-Buttons fragen jetzt eine zweite Stufe ab, und "Jetzt wechseln" gibt es im Panel nicht mehr, weil es den aktuellen Vertrag ersetzt hätte, bevor der neue beginnt. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

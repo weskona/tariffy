@@ -28,6 +28,11 @@ How it works:
 - A version on the wrong branch is **skipped** (a stable version on `beta`, a beta version on
   `main`), so merging `main` into `beta` never publishes anything. The rules live in
   `.github/scripts/release-plan.sh` and are tested in `.github/scripts/test-release-plan.sh`.
+- **One pull request per beta:** a feature pull request into `beta` also raises the version in
+  `manifest.json` and moves its `Unreleased` changelog entries into the new section. Merging it
+  publishes the beta, so no separate version pull request is needed.
+- `main` is merged into `beta` only after a stable release (or when a fix from `main` is
+  needed in the beta), not after every hotfix.
 - Hotfixes for stable users go to `main` and are released from there. They never contain
   unfinished beta code. Merge `main` into `beta` afterwards to keep the beta current.
 - To promote a beta, merge `beta` into `main` through a pull request, set the stable version

@@ -21,6 +21,8 @@ from .const import (
     CONF_ABSCHLAG_AB_DATUM,
     CONF_ABSCHLAG_VORHERIGER_WERT,
     CONF_ABSCHLAG_WARNUNG,
+    CONF_ABSCHLAG_WARNUNG_BESTAETIGT,
+    CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET,
     CONF_ABSCHLAG_WARNUNG_SCHWELLE,
     DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE,
     CONF_ANBIETER,
@@ -30,6 +32,10 @@ from .const import (
     CONF_BRENNWERT,
     CONF_ENDE,
     CONF_ERINNERUNG_MONATE,
+    CONF_KUENDIGUNG_BESTAETIGT,
+    CONF_NOTIFY_GESENDET,
+    CONF_VERBRAUCH_LETZTE_LAUFZEIT,
+    CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
     CONF_GRUNDPREIS,
     CONF_JAHRESVERBRAUCH,
     CONF_KUNDENNUMMER,
@@ -180,6 +186,39 @@ def _stamp_abschlag_change(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str
     for key in (CONF_ABSCHLAG_AB_DATUM, CONF_ABSCHLAG_VORHERIGER_WERT):
         if key in alt and key not in ergebnis:
             ergebnis[key] = alt[key]
+    return ergebnis
+
+
+# Werte, die der Coordinator selbst in entry.data ablegt und die in keinem Formular
+# vorkommen. Beim Neukonfigurieren ersetzt Home Assistant entry.data komplett durch
+# das, was die Formulare liefern; ohne diese Rueckgabe gingen sie dabei verloren
+# (bestaetigte Kuendigung/Warnung kaeme zurueck, "Benachrichtigung gesendet" wuerde
+# vergessen, der Verbrauch der letzten Laufzeit ginge verloren).
+_INTERNER_ZUSTAND = (
+    CONF_KUENDIGUNG_BESTAETIGT,
+    CONF_NOTIFY_GESENDET,
+    CONF_ABSCHLAG_WARNUNG_BESTAETIGT,
+    CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET,
+    CONF_VERBRAUCH_LETZTE_LAUFZEIT,
+    CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
+)
+
+
+def _keep_internal_state(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str, Any]:
+    """Uebernimmt den internen Zustand des Coordinators in die neuen Vertragsdaten.
+
+    Die Kuendigungs-Erinnerung gehoert zu Vertragsende und Vorlaufzeit: aendert
+    sich eines von beiden, beginnt sie neu (Bestaetigung und "Benachrichtigung
+    gesendet" werden verworfen), sonst bleibt sie wie sie war."""
+    ergebnis = dict(neu)
+    for key in _INTERNER_ZUSTAND:
+        if key in alt and key not in ergebnis:
+            ergebnis[key] = alt[key]
+    if alt.get(CONF_ENDE) != ergebnis.get(CONF_ENDE) or str(
+        alt.get(CONF_ERINNERUNG_MONATE, "")
+    ) != str(ergebnis.get(CONF_ERINNERUNG_MONATE, "")):
+        ergebnis.pop(CONF_KUENDIGUNG_BESTAETIGT, None)
+        ergebnis.pop(CONF_NOTIFY_GESENDET, None)
     return ergebnis
 
 
@@ -385,7 +424,7 @@ def _common_schema(
         vol.Required(
             CONF_ERINNERUNG_MONATE, default=d.get(CONF_ERINNERUNG_MONATE, "3")
         )
-    ] = _select(ERINNERUNG_OPTIONS)
+    ] = _select(ERINNERUNG_OPTIONS, translation_key="erinnerung")
     notify_options = _notify_options(hass)
     if notify_options:
         fields[_opt(CONF_NOTIFY_TARGET, d.get(CONF_NOTIFY_TARGET))] = _select(notify_options, custom=True)
@@ -771,7 +810,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         if user_input is not None:
-            neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            neu = _keep_internal_state(
+                entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            )
             return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_energie",
@@ -783,7 +824,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         if user_input is not None:
-            neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            neu = _keep_internal_state(
+                entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            )
             return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_energie_ht_nt",
@@ -795,7 +838,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         if user_input is not None:
-            neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            neu = _keep_internal_state(
+                entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            )
             return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_pauschal",
@@ -810,7 +855,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             errors = _validiere_dezimal_felder(user_input)
             if not errors:
-                neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+                neu = _keep_internal_state(
+                entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            )
                 return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_gas",
@@ -823,7 +870,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
         if user_input is not None:
-            neu = _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            neu = _keep_internal_state(
+                entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+            )
             return self.async_update_reload_and_abort(entry, data=neu)
         return self.async_show_form(
             step_id="reconfigure_wasser",
