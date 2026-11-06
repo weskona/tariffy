@@ -40,11 +40,11 @@ CONTRACTS = [
         {
             "sparte": "gas", "anbieter": "Energie Süd", "tarif": "Gas Basis",
             "arbeitspreis": 0.105, "grundpreis": 9.5, "abschlag": 140.0,
-            "beginn": "2026-03-01", "ende": "2027-02-28", "erinnerung_monate": "2",
+            "beginn": "2025-09-01", "ende": "2026-08-31", "erinnerung_monate": "0",
             "gas_einheit": "m³", "brennwert": "11.2", "zustandszahl": "0.95",
             "verbrauch_sensor": "sensor.gas_heizung",
         },
-        {"sensor.gas_heizung": ((1450.0, 1450.0), (1000.0, 1000.0), "m³")},
+        {"sensor.gas_heizung": ((1800.0, 1800.0), (1000.0, 1000.0), "m³")},
         {},
     ),
     (

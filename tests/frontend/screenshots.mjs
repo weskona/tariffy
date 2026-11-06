@@ -88,6 +88,25 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   check((await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).count()) === 1, "switch button on Mobilfunk");
   check((await card(page, "Gas Heizung").locator(".btn").count()) === 0, "no buttons where nothing is possible");
 
+  // a negative recommended instalment is shown as 0 with a hint, never as a negative amount
+  const gasText = await card(page, "Gas Heizung").innerText();
+  check(gasText.includes("Empfohlener Abschlag: 0,00") && gasText.includes("Guthaben deckt die Kosten"),
+    "gas card shows 0,00 and the hint instead of a negative recommendation");
+  check(!/Empfohlener Abschlag: [−-]/.test(gasText), "no negative recommended instalment on the gas card");
+  check((await card(page, "Strom Haus").innerText()).includes("Empfohlener Abschlag: 127,66"),
+    "a positive recommendation is shown unchanged");
+  await page.getByRole("tab", { name: "Kosten" }).click();
+  const gasRow = page.locator("tr", { hasText: "Gas Heizung" }).first();
+  check((await gasRow.innerText()).includes("Guthaben deckt die Kosten") && !(await gasRow.innerText()).includes("−179"),
+    "cost table: hint instead of the negative amount");
+  check((await page.locator("tr", { hasText: "Strom Haus" }).first().innerText()).includes("127,66"), "cost table: positive recommendation unchanged");
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  await page.locator("details", { hasText: "Gas Heizung" }).locator("summary").click();
+  const gasDetails = (await page.locator("details", { hasText: "Gas Heizung" }).innerText()).replace(/\u00a0/g, " ");
+  check(gasDetails.includes("0,00 € / Monat · Guthaben deckt die Kosten"),
+    "contract details: adjustment shown as 0 with the hint");
+  await page.getByRole("tab", { name: "Übersicht" }).click();
+
   // switching asks first and does nothing until confirmed
   await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).click();
   check((await calls(page)).length === 0, "no call before the switch is confirmed");

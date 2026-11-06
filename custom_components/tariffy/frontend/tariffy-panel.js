@@ -58,6 +58,7 @@ const I18N = {
     actConfirmWarning: "Acknowledge warning", actConfirmCancel: "Acknowledge cancellation",
     actSwitchNow: "Switch now", actSwitchAsk: "Switch to {name} now? This replaces the current contract data.",
     actYes: "Yes, switch", actCancel: "Cancel", actFailed: "Action failed: {m}",
+    coveredHint: "Credit covers the costs",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
       water: "Water", internet: "Internet", mobile: "Mobile", insurance: "Insurance", other: "Other",
@@ -113,6 +114,7 @@ const I18N = {
     actConfirmWarning: "Warnung bestätigen", actConfirmCancel: "Kündigung bestätigen",
     actSwitchNow: "Jetzt wechseln", actSwitchAsk: "Jetzt auf {name} wechseln? Das ersetzt die aktuellen Vertragsdaten.",
     actYes: "Ja, wechseln", actCancel: "Abbrechen", actFailed: "Aktion fehlgeschlagen: {m}",
+    coveredHint: "Guthaben deckt die Kosten",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
       water: "Wasser", internet: "Internet", mobile: "Mobilfunk", insurance: "Versicherung", other: "Sonstiges",
@@ -301,6 +303,8 @@ details[open] summary .caret { transform: rotate(90deg); }
   tr.sub td:first-child { padding: 0 0 2px; font-weight: 600; color: var(--muted); }
   tr.total td:first-child { display: none; }
   td.empty { display: none; }
+  td.rec { flex-wrap: wrap; }
+  td.rec .t2 { flex-basis: 100%; text-align: right; margin-top: 2px; }
   .detail { grid-template-columns: 1fr; gap: 6px; padding: 0 14px 14px; }
   summary { padding: 12px 14px; }
 }
@@ -479,6 +483,16 @@ class TariffyPanel extends HTMLElement {
   _price(value, currency, unit) {
     if (!isNum(value)) return "–";
     return `${this._money(value, currency, { digits: 4 })} / ${unit}`;
+  }
+
+  /* A negative recommended instalment means the credit already covers the costs
+   * until the end of the contract: show 0 instead of a negative instalment. */
+  _instalment(value, currency) {
+    return isNum(value) ? this._money(Math.max(0, value), currency, { digits: 2 }) : "–";
+  }
+
+  _covered(value) {
+    return isNum(value) && value < 0;
   }
 
   _parse(iso) {
@@ -699,7 +713,10 @@ class TariffyPanel extends HTMLElement {
     const heroTone = d.hasMetering ? (heroValue < 0 ? "red-t" : "green-t") : "";
     const heroSub = isNum(c.abschlag)
       ? `${this._t("instalment")}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
-        (isNum(c.abschlag_anpassung_empfohlen) ? ` · ${this._t("recommended")}: ${this._money(c.abschlag_anpassung_empfohlen, c.currency, { digits: 2 })}` : "")
+        (isNum(c.abschlag_anpassung_empfohlen)
+          ? ` · ${this._t("recommended")}: ${this._instalment(c.abschlag_anpassung_empfohlen, c.currency)}` +
+            (this._covered(c.abschlag_anpassung_empfohlen) ? ` (${this._t("coveredHint")})` : "")
+          : "")
       : null;
 
     const tiles = d.hasMetering
@@ -723,7 +740,7 @@ class TariffyPanel extends HTMLElement {
     const notes = [];
     if (c.abschlag_warnung_zu_bestaetigen) {
       const value = this._money(Math.abs(c.prognose_real), c.currency);
-      notes.push(h("div", { class: "callout red", text: isNum(c.abschlag_anpassung_empfohlen)
+      notes.push(h("div", { class: "callout red", text: isNum(c.abschlag_anpassung_empfohlen) && c.abschlag_anpassung_empfohlen > 0
         ? this._t("noteWarning", { v: value, a: this._money(c.abschlag_anpassung_empfohlen, c.currency) })
         : this._t("noteWarningShort", { v: value }) }));
     }
@@ -833,6 +850,14 @@ class TariffyPanel extends HTMLElement {
     }
   }
 
+  _recommendedCell(c) {
+    const raw = c.empfohlener_abschlag ?? c.abschlag_anpassung_empfohlen;
+    return h("td", {
+      "data-label": this._t("colRecommended"), class: isNum(raw) ? "rec" : "rec empty",
+    }, this._instalment(raw, c.currency),
+    this._covered(raw) ? h("span", { class: "t2", text: this._t("coveredHint") }) : null);
+  }
+
   _costs() {
     const contracts = this._contracts;
     const currency = contracts[0].currency || "EUR";
@@ -848,7 +873,7 @@ class TariffyPanel extends HTMLElement {
         cell(this._t("colBalance"), this._money(c.guthaben_bisher, c.currency, { sign: true, digits: 2 }), tone(c.guthaben_bisher)),
         cell(this._t("colForecast"), this._money(c.prognose_real, c.currency, { sign: true }), tone(c.prognose_real)),
         cell(this._t("colInstalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
-        cell(this._t("colRecommended"), this._money(c.empfohlener_abschlag ?? c.abschlag_anpassung_empfohlen, c.currency, { digits: 2 }))));
+        this._recommendedCell(c)));
       if (isNum(c.kosten_ht_bisher) || isNum(c.kosten_nt_bisher)) {
         for (const [label, key, vkey] of [["highTariff", "kosten_ht_bisher", "verbrauch_bisher_ht"], ["lowTariff", "kosten_nt_bisher", "verbrauch_bisher_nt"]]) {
           rows.push(h("tr", { class: "sub" },
@@ -926,7 +951,10 @@ class TariffyPanel extends HTMLElement {
       ]) : null,
       section(this._t("secAdvice"), [
         row(this._t("recommended"), isNum(c.empfohlener_abschlag) ? `${money(c.empfohlener_abschlag)} ${this._t("perMonth")}` : null),
-        row(this._t("adjustment"), isNum(c.abschlag_anpassung_empfohlen) ? `${money(c.abschlag_anpassung_empfohlen)} ${this._t("perMonth")}` : null),
+        row(this._t("adjustment"), isNum(c.abschlag_anpassung_empfohlen)
+          ? `${this._instalment(c.abschlag_anpassung_empfohlen, c.currency)} ${this._t("perMonth")}` +
+            (this._covered(c.abschlag_anpassung_empfohlen) ? ` · ${this._t("coveredHint")}` : "")
+          : null),
       ]),
       c.next ? section(this._t("secNext"), [
         row(this._t("nextStart"), nxt.beginn ? this._date(nxt.beginn) : null),
