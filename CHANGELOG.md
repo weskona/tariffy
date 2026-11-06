@@ -20,6 +20,16 @@ Beta release for testing the new sidebar panel. The panel only reads, everything
 
 - CI: the release workflow now also runs on the `beta` branch and publishes versions like `1.27.0-beta.1` as GitHub pre-releases (never marked as latest), so HACS only offers them to users who enabled beta versions. Stable releases from `main` work as before. See `docs/beta-releases.md`.
 
+## [1.26.6] - 2026-11-05
+
+### Fixed
+
+- **"Refund/balance due (contract end)" (and with it the low-instalment warning) was too optimistic after an instalment change during the contract.** The forecast assumed the current instalment for the whole term, although "Refund/balance due (so far)" and the instalment recommendation correctly counted the older, different instalment up to the change date. Example: instalment raised from 40 € to 100 € in July, the sensor showed a credit at contract end while the balance so far was negative. The forecast now uses the instalments actually paid so far plus the current instalment for the remaining term. For contracts whose instalment was never changed the value is exactly the same as before. "Installment total (contract term)" stays the plain payment plan (instalment × term).
+
+### Changed
+
+- CI: the release workflow now also runs on the `beta` branch and publishes versions like `1.27.0-beta.1` as GitHub pre-releases (never marked as latest), so HACS only offers them to users who enabled beta versions. Stable releases from `main` work as before. See `docs/beta-releases.md`.
+
 ## [1.26.5] - 2026-11-05
 
 ### Fixed
@@ -228,6 +238,7 @@ No structured changelog prior to this version.
 
 [Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...HEAD
 [1.27.0-beta.1]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.27.0-beta.1
+[1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
 [1.26.3]: https://github.com/weskona/tariffy/compare/v1.26.2...v1.26.3

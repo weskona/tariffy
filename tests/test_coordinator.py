@@ -7,9 +7,17 @@ coordinator data that the sensors are built from.
 
 from __future__ import annotations
 
+from datetime import date
+
 import pytest
 from homeassistant.core import HomeAssistant
 
+GOLDEN_KW = {
+    "today": "2026-07-12",
+    "latest": (2481.17, 2481.17),
+    "offset": (1000.0, 1000.0),
+    "sensor_states": {"sensor.zaehler": "2481.17"},
+}
 SENSOR = "sensor.zaehler"
 SENSOR_NT = "sensor.zaehler_nt"
 
@@ -98,6 +106,80 @@ class TestFourCostSensorsGoldenExample:
         gezahlt = d["guthaben_bisher"] + d["kosten_bisher"]
         assert gezahlt < plain  # old, lower instalment applied before 2026-04-01
         assert gezahlt > 40.0 * (192 / 30.44)
+
+
+T_MONATE = 364 / 30.44  # 2026-01-01 .. 2026-12-31
+T_BISHER = 192 / 30.44  # until 2026-07-12
+
+
+class TestForecastAfterInstalmentChange:
+    """Raised from 40 to 100 EUR on 2026-05-01: the end forecast must count the
+    older, lower instalment, exactly like "balance so far" does."""
+
+    CHANGED = {**STROM, "abschlag": 100.0, "_abschlag_ab_datum": "2026-05-01", "_abschlag_vorheriger_wert": 40.0}
+
+    @staticmethod
+    def _projected_cost(d):
+        return round(d["verbrauch_hochgerechnet"] * 0.2977 + 11.51 * T_MONATE, 2)
+
+    async def test_forecast_counts_the_instalments_really_paid(self, setup_contract):
+        _, d = await setup_contract(self.CHANGED, **GOLDEN_KW)
+        monate_alt = 120 / 30.44
+        gezahlt = 40.0 * monate_alt + 100.0 * (T_BISHER - monate_alt)
+        erwartet = gezahlt + 100.0 * (T_MONATE - T_BISHER) - self._projected_cost(d)
+        assert d["prognose_real"] == pytest.approx(erwartet, abs=0.05)
+        # before the fix this showed +222.19 although the balance so far is negative
+        assert d["guthaben_bisher"] < 0
+        assert d["prognose_real"] < 100
+
+    async def test_forecast_and_balance_so_far_are_consistent(self, setup_contract):
+        _, d = await setup_contract(self.CHANGED, **GOLDEN_KW)
+        rest = T_MONATE - T_BISHER
+        # end = balance so far + instalments still to pay - cost still to come
+        erwartet = d["guthaben_bisher"] + 100.0 * rest - (self._projected_cost(d) - d["kosten_bisher"])
+        assert d["prognose_real"] == pytest.approx(erwartet, abs=0.05)
+
+    async def test_instalment_total_stays_the_plain_payment_plan(self, setup_contract):
+        _, d = await setup_contract(self.CHANGED, **GOLDEN_KW)
+        assert d["jahreskosten"] == pytest.approx(100.0 * T_MONATE, abs=0.01)
+
+    async def test_warning_uses_the_corrected_forecast(self, setup_contract):
+        data = {**self.CHANGED, "abschlag_warnung": True, "abschlag_warnung_schwelle": 10.0}
+        _, d = await setup_contract(data, **GOLDEN_KW)
+        assert d["prognose_real"] < -10
+        assert d["abschlag_warnung_aktiv"] is True
+
+
+class TestForecastWithoutInstalmentChangeIsUnchanged:
+    """The forecast of contracts whose instalment was never changed must stay
+    exactly instalment x term - projected cost."""
+
+    @staticmethod
+    def _alt(d, abschlag, monate):
+        kosten = round(d["verbrauch_hochgerechnet"] * 0.2977 + 11.51 * monate, 2)
+        return round(round(abschlag * monate, 2) - kosten, 2)
+
+    async def test_fixed_term(self, setup_contract):
+        _, d = await setup_contract(STROM, **GOLDEN_KW)
+        assert d["prognose_real"] == self._alt(d, 40.0, T_MONATE)
+
+    async def test_contract_without_end_date_older_than_a_year(self, setup_contract):
+        data = {**STROM, "beginn": "2025-01-01"}
+        del data["ende"]
+        _, d = await setup_contract(
+            data, today="2026-07-12", latest=(2481.17, 2481.17), offset=(1000.0, 1000.0),
+            sensor_states={SENSOR: "2481.17"},
+        )
+        assert d["prognose_real"] == self._alt(d, 40.0, 12.0)
+
+    async def test_odd_amounts_and_dates(self, setup_contract):
+        data = {**STROM, "abschlag": 37.77, "beginn": "2026-02-17", "ende": "2027-02-16"}
+        _, d = await setup_contract(
+            data, today="2026-08-03", latest=(1800.0, 1800.0), offset=(1000.0, 1000.0),
+            sensor_states={SENSOR: "1800"},
+        )
+        monate = (date(2027, 2, 16) - date(2026, 2, 17)).days / 30.44
+        assert d["prognose_real"] == self._alt(d, 37.77, monate)
 
 
 class TestConsumptionTracking:
