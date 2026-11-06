@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Beta: every action button in the panel (acknowledge warning, acknowledge cancellation, switch now) now asks for a second confirmation, so nothing can be triggered by an accidental click.
+
 ## [1.27.0-beta.3] - 2026-11-06
 
 Third beta for testing the sidebar panel. New: acknowledging the warning and the cancellation reminder and switching to a planned next contract directly in the panel (administrators only), and a clearer display when a negative instalment is recommended. Please report problems with the bug report form and mention this exact version.

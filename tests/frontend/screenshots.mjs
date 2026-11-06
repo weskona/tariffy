@@ -120,9 +120,18 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   check(JSON.stringify(await calls(page)) === JSON.stringify([{ type: "tariffy/action", entry_id: "contract-6", action: "switch_now" }]),
     "confirmed switch sends exactly one switch_now for contract-6");
 
-  // acknowledgements need no question
+  // acknowledgements ask first as well, and cancel does nothing
+  const before = (await calls(page)).length;
   await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
+  check((await card(page, "Internet").locator(".ask").count()) === 1, "cancellation acknowledgement asks first");
+  check((await calls(page)).length === before, "no call before the acknowledgement is confirmed");
+  await card(page, "Internet").getByRole("button", { name: "Abbrechen" }).click();
+  check((await calls(page)).length === before, "cancelling the acknowledgement does nothing");
+  await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
+  await card(page, "Internet").getByRole("button", { name: "Ja, bestätigen" }).click();
   await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
+  check((await calls(page)).length === before + 1, "warning acknowledgement also waits for confirmation");
+  await card(page, "Strom Haus").getByRole("button", { name: "Ja, bestätigen" }).click();
   const sent = (await calls(page)).slice(1).map((c) => `${c.entry_id}:${c.action}`);
   check(sent.join(",") === "contract-5:confirm_cancellation,contract-1:confirm_abschlag_warning", `acknowledgements sent: ${sent}`);
   await context.close();
@@ -135,6 +144,7 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.goto(`${base}?lang=de&fail=1`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
   await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
+  await card(page, "Strom Haus").getByRole("button", { name: "Ja, bestätigen" }).click();
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
   check((await card(page, "Strom Haus").locator(".err").innerText()).includes("fehlgeschlagen"), "error text is shown");
   check(await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).isEnabled(), "button is usable again after an error");

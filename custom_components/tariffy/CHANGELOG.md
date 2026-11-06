@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Changed
+
+- Beta: Alle Aktions-Buttons im Panel (Warnung bestätigen, Kündigung bestätigen, Jetzt wechseln) fragen jetzt eine zweite Stufe ab, damit nichts versehentlich ausgelöst wird.
+
 ## [1.27.0-beta.3] - 2026-11-06
 
 Dritte Beta zum Testen des Seitenleisten-Panels. Neu: Warnung und Kündigungserinnerung bestätigen und auf einen geplanten Folgevertrag wechseln, direkt im Panel (nur Administratoren), sowie eine klarere Anzeige, wenn ein negativer Abschlag empfohlen wird. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

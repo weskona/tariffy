@@ -57,7 +57,9 @@ const I18N = {
     months: "{n} months", yes: "yes", no: "no",
     actConfirmWarning: "Acknowledge warning", actConfirmCancel: "Acknowledge cancellation",
     actSwitchNow: "Switch now", actSwitchAsk: "Switch to {name} now? This replaces the current contract data.",
-    actYes: "Yes, switch", actCancel: "Cancel", actFailed: "Action failed: {m}",
+    actYes: "Yes, switch", actYesAck: "Yes, acknowledge", actCancel: "Cancel",
+    actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
+    actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
     coveredHint: "Credit covers the costs",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
@@ -113,7 +115,9 @@ const I18N = {
     months: "{n} Monate", yes: "ja", no: "nein",
     actConfirmWarning: "Warnung bestätigen", actConfirmCancel: "Kündigung bestätigen",
     actSwitchNow: "Jetzt wechseln", actSwitchAsk: "Jetzt auf {name} wechseln? Das ersetzt die aktuellen Vertragsdaten.",
-    actYes: "Ja, wechseln", actCancel: "Abbrechen", actFailed: "Aktion fehlgeschlagen: {m}",
+    actYes: "Ja, wechseln", actYesAck: "Ja, bestätigen", actCancel: "Abbrechen",
+    actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
+    actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
     coveredHint: "Guthaben deckt die Kosten",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
@@ -797,25 +801,27 @@ class TariffyPanel extends HTMLElement {
     if (!this._isAdmin) return null;
     const list = [];
     if (c.abschlag_warnung_zu_bestaetigen) {
-      list.push({ key: "confirm_abschlag_warning", label: this._t("actConfirmWarning"), tone: "red" });
+      list.push({ key: "confirm_abschlag_warning", label: this._t("actConfirmWarning"), tone: "red", ask: "actAskWarning", yes: "actYesAck" });
     }
     if (c.erinnerung_aktiv) {
-      list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange" });
+      list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange", ask: "actAskCancel", yes: "actYesAck" });
     }
     if (c.next && c.next.beginn) {
-      list.push({ key: "switch_now", label: this._t("actSwitchNow"), tone: "blue", ask: true });
+      list.push({ key: "switch_now", label: this._t("actSwitchNow"), tone: "blue", ask: "actSwitchAsk", yes: "actYes" });
     }
     if (!list.length) return null;
 
     const id = c.entry_id;
     const busy = this._busy === id;
     const children = [];
-    if (this._confirming === id) {
-      const name = [c.next.anbieter, c.next.tarif].filter(Boolean).join(" · ") || c.title;
+    const pending = this._confirming && this._confirming.id === id
+      ? list.find((a) => a.key === this._confirming.key) : null;
+    if (pending) {
+      const name = c.next ? [c.next.anbieter, c.next.tarif].filter(Boolean).join(" · ") || c.title : c.title;
       children.push(h("div", { class: "ask" },
-        h("span", { text: this._t("actSwitchAsk", { name }) }),
-        h("button", { class: "btn go", type: "button", disabled: busy ? "" : null, text: this._t("actYes"),
-          onclick: () => this._run(c, "switch_now") }),
+        h("span", { text: this._t(pending.ask, { name }) }),
+        h("button", { class: "btn go", type: "button", disabled: busy ? "" : null, text: this._t(pending.yes),
+          onclick: () => this._run(c, pending.key) }),
         h("button", { class: "btn", type: "button", text: this._t("actCancel"),
           onclick: () => { this._confirming = null; this._render(); } })));
     } else {
@@ -823,8 +829,9 @@ class TariffyPanel extends HTMLElement {
         children.push(h("button", {
           class: `btn ${action.tone}`, type: "button", disabled: busy ? "" : null, text: action.label,
           onclick: () => {
-            if (action.ask) { this._confirming = id; this._actionError = null; this._render(); }
-            else this._run(c, action.key);
+            this._confirming = { id, key: action.key };
+            this._actionError = null;
+            this._render();
           },
         }));
       }
