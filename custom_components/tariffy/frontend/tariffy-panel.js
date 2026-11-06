@@ -264,7 +264,7 @@ const STYLE = `
 @container (min-width: 1000px) { .grid.metered, .grid.flat { grid-template-columns: repeat(3, 1fr); } }
 @container (min-width: 1750px) { .grid.metered, .grid.flat { grid-template-columns: repeat(4, 1fr); } }
 section.card { display: flex; flex-direction: column; }
-section.card .foot { margin-top: auto; padding-top: 12px; }
+section.card .foot { padding-top: 12px; }
 .card.flat .big { font-size: 28px; }
 .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
 .card.tone-green { background: linear-gradient(180deg, rgba(52,211,153,.085), var(--panel) 150px); }

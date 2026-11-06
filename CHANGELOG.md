@@ -14,6 +14,7 @@ Third release candidate for testing the sidebar panel. Please report problems wi
 ### Changed
 
 - The badges of a contract card in the overview ("Credit", "Switch on ...", ...) sit at the top right of the card, next to the name, instead of on a line of their own below it. On a phone the card is unchanged.
+- "Remaining term" sits directly below the cost bars instead of at the bottom edge of the card, so there is no gap when a neighbouring card is taller.
 
 ## [1.27.0-rc.2] - 2026-11-06
 

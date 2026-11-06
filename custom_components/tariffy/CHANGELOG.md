@@ -14,6 +14,7 @@ Dritter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probl
 ### Changed
 
 - Die Badges einer Vertragskarte in der Übersicht ("Guthaben", "Wechsel am ...", ...) stehen oben rechts neben dem Namen, statt in einer eigenen Zeile darunter. Auf dem Handy bleibt die Karte unverändert.
+- Die "Restlaufzeit" steht direkt unter den Kosten-Balken statt am unteren Rand der Karte, damit keine Lücke entsteht, wenn die Nachbarkarte höher ist.
 
 ## [1.27.0-rc.2] - 2026-11-06
 
