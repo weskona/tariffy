@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.8] - 2026-11-06
+
+Eighth beta for testing the sidebar panel. New: a redesigned overview. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- Beta: redesigned overview, closer to the style of the reference dashboard. The cards now flow into columns without gaps instead of a grid with holes, the top of a card is tinted by its state (green credit, red balance due, orange cancellation due), titles are set in small capitals and the key figure sits next to a smaller progress ring. A card shows at most three figures (costs so far, balance so far, consumption) plus a footer line with the remaining term; the balance so far, the consumption and the instalments remain in the "Costs" and "Contracts" views.
+- Beta: "Plan next contract" and "Edit contract" moved into a "..." menu in the card header (administrators only). Acknowledge warning and acknowledge cancellation stay on the card, next to the note they belong to. On phones the buttons stay in the opened card.
+- Beta: contracts without start or end date no longer show an empty progress ring, and empty figure tiles are left out.
+
+### Fixed
+
+- Beta: on the first day of a contract with a consumption sensor the "Consumption" block of the contract details is shown (costs and consumption so far exist, only the forecast is still missing). It used to stay hidden until the next day.
+- Beta: a menu on a card stayed open behind the dialog after choosing an entry.
+
 ## [1.27.0-beta.7] - 2026-11-06
 
 Seventh beta for testing the sidebar panel. It fixes the layout of the contract list. Please report problems with the bug report form and mention this exact version.

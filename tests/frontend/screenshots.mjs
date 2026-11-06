@@ -82,11 +82,23 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.goto(`${base}?lang=de`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
 
-  check((await page.locator(".actions").count()) === 6, "every contract offers actions (plan next contract, plus warning or cancellation where due)");
+  check((await page.locator(".actions").count()) === 2, "only the two contracts with something to acknowledge show buttons on the card");
+  check((await page.getByRole("button", { name: "Weitere Aktionen" }).count()) === 6, "every card has a menu for the less frequent actions");
   check((await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
   check((await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
-  check((await card(page, "Mobilfunk").getByRole("button", { name: "Folgevertrag bearbeiten" }).count()) === 1, "Mobilfunk can edit its planned contract");
-  check((await card(page, "Gas Heizung").locator(".btn").allInnerTexts()).join() === "Folgevertrag planen,Vertrag bearbeiten", "Gas only offers to plan the next contract and to edit itself");
+  const menuItems = async (name) => {
+    await card(page, name).getByRole("button", { name: "Weitere Aktionen" }).click();
+    const items = await card(page, name).getByRole("menuitem").allInnerTexts();
+    await page.keyboard.press("Escape");
+    return items.join();
+  };
+  check((await menuItems("Mobilfunk")) === "Folgevertrag bearbeiten,Vertrag bearbeiten", "Mobilfunk can edit its planned contract");
+  check((await menuItems("Gas Heizung")) === "Folgevertrag planen,Vertrag bearbeiten", "Gas offers to plan the next contract and to edit itself");
+  check((await page.getByRole("menuitem").count()) === 0, "Escape closes the menu");
+  await card(page, "Internet").getByRole("button", { name: "Weitere Aktionen" }).click();
+  check((await page.getByRole("menuitem").count()) === 2, "the menu opens");
+  await page.locator(".top .brand").click();
+  check((await page.getByRole("menuitem").count()) === 0, "a click outside closes the menu");
 
   // a negative recommended instalment is shown as 0 with a hint, never as a negative amount
   const gasText = await card(page, "Gas Heizung").innerText();
@@ -131,8 +143,15 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
 const flowPath = "config/config_entries/options/flow";
 const api = (page) => page.evaluate(() => window.__api);
 const dialog = (page) => page.locator(".dialog");
+// plan/edit live behind the "..." menu of a card on wide screens
+const MENU_ITEMS = new Set(["Folgevertrag planen", "Folgevertrag bearbeiten", "Vertrag bearbeiten", "Plan next contract", "Edit next contract", "Edit contract"]);
 async function openDialog(page, name, button) {
-  await card(page, name).getByRole("button", { name: button }).click();
+  if (MENU_ITEMS.has(button)) {
+    await card(page, name).getByRole("button", { name: /Weitere Aktionen|More actions/ }).click();
+    await card(page, name).getByRole("menuitem", { name: button }).click();
+  } else {
+    await card(page, name).getByRole("button", { name: button }).click();
+  }
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog input, .dialog .err"));
 }
 async function openPage(browser, query) {
@@ -422,6 +441,52 @@ for (const width of [1280, 900, 600, 390]) {
     check(!overlap(row.who, row.end) && !overlap(row.who, row.chips) && !overlap(row.chips, row.end), `list ${width}, row ${i + 1}: nothing overlaps`);
   }
   if (width === 1280 || width === 390) await page.screenshot({ path: join(outDir, `list-${width}.png`), fullPage: false });
+  await context.close();
+}
+
+// ---- the redesigned cards ----
+{
+  const { context, page } = await openPage(browser, "lang=de");
+  const tones = await page.evaluate(() => Object.fromEntries([...window.__panel.shadowRoot.querySelectorAll("section.card")]
+    .map((el) => [el.querySelector(".title").textContent, [...el.classList].filter((c) => c.startsWith("tone-"))[0] || "none"])));
+  check(tones["Strom Haus"] === "tone-red" && tones["Gas Heizung"] === "tone-green" && tones["Internet"] === "tone-orange" && tones["Mobilfunk"] === "none",
+    `the top of a card is tinted by its state: ${JSON.stringify(tones)}`);
+
+  // a contract without start and end date has nothing to show in a ring
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Mobilfunk" ? { ...c, beginn: null, ende: null } : c));
+    panel._render();
+  });
+  check((await card(page, "Mobilfunk").locator(".ring").count()) === 0, "no empty ring when start or end date is missing");
+  check((await card(page, "Strom Haus").locator(".ring").count()) === 1, "the ring stays where it has a value");
+
+  // the first day of a contract with a sensor: costs and consumption exist, the forecast does not yet
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Strom Haus" ? { ...c, prognose_real: null, hochgerechnet: null, verbrauch_hochgerechnet: null } : c));
+    panel._tab = "contracts";
+    panel._render();
+  });
+  await page.locator("details", { hasText: "Strom Haus" }).locator("summary").click();
+  const details = (await page.locator("details", { hasText: "Strom Haus" }).innerText()).replace(/ /g, " ");
+  check(/Verbrauch/i.test(details) && details.includes("Kosten bisher"), "the consumption block shows on day one although there is no forecast yet");
+  check(!details.includes("Prognose zum Vertragsende"), "and the forecast row stays out");
+  await context.close();
+}
+
+{ // the figures of a card stay readable on a phone
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&narrow=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
+  await page.locator("details.card", { hasText: "Strom Haus" }).locator("summary").click();
+  const tiles = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll("details.card[open] .tile")].map((el) => {
+    const r = el.getBoundingClientRect();
+    return { w: Math.round(r.width), v: el.querySelector(".v").getBoundingClientRect().height };
+  }));
+  check(tiles.length === 3 && tiles.every((t) => t.v <= 24), `no figure breaks into several lines on a phone: ${JSON.stringify(tiles)}`);
   await context.close();
 }
 
