@@ -55,6 +55,9 @@ const I18N = {
     nextStart: "Start", nextEnd: "End", nextProvider: "Provider", nextTariff: "Tariff",
     nextPrice: "Unit price", nextInstalment: "Instalment",
     months: "{n} months", yes: "yes", no: "no",
+    actConfirmWarning: "Acknowledge warning", actConfirmCancel: "Acknowledge cancellation",
+    actSwitchNow: "Switch now", actSwitchAsk: "Switch to {name} now? This replaces the current contract data.",
+    actYes: "Yes, switch", actCancel: "Cancel", actFailed: "Action failed: {m}",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
       water: "Water", internet: "Internet", mobile: "Mobile", insurance: "Insurance", other: "Other",
@@ -107,6 +110,9 @@ const I18N = {
     nextStart: "Beginn", nextEnd: "Ende", nextProvider: "Anbieter", nextTariff: "Tarif",
     nextPrice: "Arbeitspreis", nextInstalment: "Abschlag",
     months: "{n} Monate", yes: "ja", no: "nein",
+    actConfirmWarning: "Warnung bestätigen", actConfirmCancel: "Kündigung bestätigen",
+    actSwitchNow: "Jetzt wechseln", actSwitchAsk: "Jetzt auf {name} wechseln? Das ersetzt die aktuellen Vertragsdaten.",
+    actYes: "Ja, wechseln", actCancel: "Abbrechen", actFailed: "Aktion fehlgeschlagen: {m}",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
       water: "Wasser", internet: "Internet", mobile: "Mobilfunk", insurance: "Versicherung", other: "Sonstiges",
@@ -204,6 +210,19 @@ const STYLE = `
 .big { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; margin-top: 4px; }
 .green-t { color: var(--green); } .red-t { color: var(--red); } .muted-t { color: var(--muted); }
 .note { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.btn { appearance: none; font: inherit; font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 10px;
+  border: 1px solid var(--tile-line); background: var(--tile); color: var(--text); cursor: pointer; }
+.btn:hover { background: rgba(255,255,255,.08); }
+.btn[disabled] { opacity: .5; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.btn.red { color: var(--red); border-color: rgba(248,113,113,.4); }
+.btn.orange { color: var(--orange); border-color: rgba(251,146,60,.4); }
+.btn.blue { color: var(--blue); border-color: rgba(96,165,250,.4); }
+.btn.go { background: rgba(96,165,250,.18); color: var(--blue); border-color: rgba(96,165,250,.5); }
+.ask { width: 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
+.ask span { flex-basis: 100%; }
+.err { width: 100%; font-size: 13px; color: var(--red); }
 
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .tile { background: var(--tile); border: 1px solid var(--tile-line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
@@ -336,6 +355,9 @@ class TariffyPanel extends HTMLElement {
     this._tab = this._loadTab();
     this._open = new Set();
     this._compact = false;
+    this._confirming = null;
+    this._busy = null;
+    this._actionError = null;
     this.attachShadow({ mode: "open" });
   }
 
@@ -720,7 +742,7 @@ class TariffyPanel extends HTMLElement {
         h("div", { class: `big ${heroTone}`, text: this._money(heroValue, c.currency, { sign: d.hasMetering }) }),
         heroSub ? h("div", { class: "note", text: heroSub }) : null));
     const body = [hero, h("div", { class: "tiles" }, tiles), this._bars(c, d),
-      notes.length ? h("div", { class: "notes" }, notes) : null];
+      notes.length ? h("div", { class: "notes" }, notes) : null, this._actions(c)];
 
     if (this._compact) {
       const card = h(
@@ -747,6 +769,68 @@ class TariffyPanel extends HTMLElement {
         this._chips(d.chips)),
       body
     );
+  }
+
+  get _isAdmin() {
+    return Boolean(this._hass && this._hass.user && this._hass.user.is_admin);
+  }
+
+  /* Actions are only offered to administrators; the backend checks it again. */
+  _actions(c) {
+    if (!this._isAdmin) return null;
+    const list = [];
+    if (c.abschlag_warnung_zu_bestaetigen) {
+      list.push({ key: "confirm_abschlag_warning", label: this._t("actConfirmWarning"), tone: "red" });
+    }
+    if (c.erinnerung_aktiv) {
+      list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange" });
+    }
+    if (c.next && c.next.beginn) {
+      list.push({ key: "switch_now", label: this._t("actSwitchNow"), tone: "blue", ask: true });
+    }
+    if (!list.length) return null;
+
+    const id = c.entry_id;
+    const busy = this._busy === id;
+    const children = [];
+    if (this._confirming === id) {
+      const name = [c.next.anbieter, c.next.tarif].filter(Boolean).join(" · ") || c.title;
+      children.push(h("div", { class: "ask" },
+        h("span", { text: this._t("actSwitchAsk", { name }) }),
+        h("button", { class: "btn go", type: "button", disabled: busy ? "" : null, text: this._t("actYes"),
+          onclick: () => this._run(c, "switch_now") }),
+        h("button", { class: "btn", type: "button", text: this._t("actCancel"),
+          onclick: () => { this._confirming = null; this._render(); } })));
+    } else {
+      for (const action of list) {
+        children.push(h("button", {
+          class: `btn ${action.tone}`, type: "button", disabled: busy ? "" : null, text: action.label,
+          onclick: () => {
+            if (action.ask) { this._confirming = id; this._actionError = null; this._render(); }
+            else this._run(c, action.key);
+          },
+        }));
+      }
+    }
+    if (this._actionError && this._actionError.id === id) {
+      children.push(h("div", { class: "err", role: "alert", text: this._t("actFailed", { m: this._actionError.message }) }));
+    }
+    return h("div", { class: "actions" }, children);
+  }
+
+  async _run(c, action) {
+    this._busy = c.entry_id;
+    this._confirming = null;
+    this._actionError = null;
+    this._render();
+    try {
+      await this._hass.callWS({ type: "tariffy/action", entry_id: c.entry_id, action });
+    } catch (err) {
+      this._actionError = { id: c.entry_id, message: String((err && err.message) || err) };
+    } finally {
+      this._busy = null;
+      this._render();
+    }
   }
 
   _costs() {

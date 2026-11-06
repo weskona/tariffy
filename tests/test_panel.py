@@ -194,3 +194,111 @@ class TestJsonSafe:
         assert panel._json_safe({"a": [date(2026, 1, 1), 1.5, None]}) == {
             "a": ["2026-01-01", 1.5, None]
         }
+
+
+async def _action(client, entry_id, action):
+    await client.send_json_auto_id(
+        {"type": "tariffy/action", "entry_id": entry_id, "action": action}
+    )
+    return await client.receive_json()
+
+
+class TestActions:
+    """Switch now / confirm cancellation / confirm instalment warning.
+
+    Same coordinator methods and preconditions as the three button entities,
+    restricted to administrators."""
+
+    NEXT = {"next_beginn": "2027-01-01", "next_anbieter": "Neuer Anbieter", "next_abschlag": 55.0}
+    CANCEL = {**STROM, "ende": "2026-09-30", "erinnerung_monate": "3"}
+    WARN = {**STROM, "abschlag_warnung": True, "abschlag_warnung_schwelle": 50.0}
+
+    async def test_switch_now_promotes_the_next_contract(self, frontend_env, contract, hass, hass_ws_client):
+        client = await hass_ws_client()  # connect before the test clock moves
+        entry, _ = await contract.setup(STROM, **GOLDEN, options=dict(self.NEXT))
+        reply = await _action(client, entry.entry_id, "switch_now")
+        assert reply["success"] is True
+        await hass.async_block_till_done()
+        assert entry.data["anbieter"] == "Neuer Anbieter"
+        assert entry.data["abschlag"] == 55.0
+        assert entry.options == {}
+        assert entry.data["verbrauch_letzte_laufzeit"] == pytest.approx(1481.17)
+
+    async def test_confirm_cancellation(self, frontend_env, contract, hass, hass_ws_client):
+        client = await hass_ws_client()
+        entry, data = await contract.setup(self.CANCEL, **{**GOLDEN, "today": "2026-07-01"})
+        assert data["erinnerung_aktiv"] is True
+        assert any(k.startswith("tariffy_kuendigung_") for k in hass.data["persistent_notification"])
+
+        reply = await _action(client, entry.entry_id, "confirm_cancellation")
+        assert reply["success"] is True
+        await hass.async_block_till_done()
+        assert entry.data["_kuendigung_bestaetigt"] is True
+        assert entry.runtime_data.data["erinnerung_aktiv"] is False
+        assert not any(k.startswith("tariffy_kuendigung_") for k in hass.data["persistent_notification"])
+
+    async def test_confirm_instalment_warning(self, frontend_env, contract, hass, hass_ws_client):
+        client = await hass_ws_client()
+        entry, data = await contract.setup(self.WARN, **GOLDEN)
+        assert data["abschlag_warnung_zu_bestaetigen"] is True
+
+        reply = await _action(client, entry.entry_id, "confirm_abschlag_warning")
+        assert reply["success"] is True
+        await hass.async_block_till_done()
+        assert entry.data["_abschlag_warnung_bestaetigt"] is True
+        assert entry.runtime_data.data["abschlag_warnung_zu_bestaetigen"] is False
+
+    @pytest.mark.parametrize(
+        ("data", "options", "action"),
+        [
+            (STROM, {}, "switch_now"),  # no next contract planned
+            (STROM, {}, "confirm_cancellation"),  # reminder not active
+            (STROM, {}, "confirm_abschlag_warning"),  # warning not active
+        ],
+    )
+    async def test_unavailable_actions_are_refused(self, frontend_env, contract, hass_ws_client, data, options, action):
+        client = await hass_ws_client()
+        entry, before = await contract.setup(data, **GOLDEN, options=options)
+        reply = await _action(client, entry.entry_id, action)
+        assert reply["success"] is False
+        assert reply["error"]["code"] == "not_available"
+        assert entry.data["anbieter"] == "Stadtwerke"  # nothing changed
+
+    async def test_unknown_contract(self, frontend_env, contract, hass_ws_client):
+        client = await hass_ws_client()
+        await contract.setup(STROM, **GOLDEN)
+        reply = await _action(client, "does-not-exist", "switch_now")
+        assert reply["error"]["code"] == "not_found"
+
+    async def test_unloaded_contract(self, frontend_env, contract, hass, hass_ws_client):
+        client = await hass_ws_client()
+        entry, _ = await contract.setup(STROM, **GOLDEN, options=dict(self.NEXT))
+        assert await hass.config_entries.async_unload(entry.entry_id)
+        reply = await _action(client, entry.entry_id, "switch_now")
+        assert reply["error"]["code"] == "not_found"
+
+    async def test_unknown_action_is_rejected(self, frontend_env, contract, hass_ws_client):
+        client = await hass_ws_client()
+        entry, _ = await contract.setup(STROM, **GOLDEN)
+        reply = await _action(client, entry.entry_id, "delete_everything")
+        assert reply["success"] is False
+        assert reply["error"]["code"] == "invalid_format"
+
+    async def test_non_admin_cannot_run_actions(
+        self, frontend_env, contract, hass, hass_ws_client, hass_read_only_access_token
+    ):
+        client = await hass_ws_client(hass, hass_read_only_access_token)
+        entry, _ = await contract.setup(STROM, **GOLDEN, options=dict(self.NEXT))
+        reply = await _action(client, entry.entry_id, "switch_now")
+        assert reply["success"] is False
+        assert reply["error"]["code"] == "unauthorized"
+        assert entry.data["anbieter"] == "Stadtwerke"  # not switched
+        assert entry.options["next_anbieter"] == "Neuer Anbieter"
+
+    async def test_non_admin_can_still_read_the_contracts(
+        self, frontend_env, contract, hass, hass_ws_client, hass_read_only_access_token
+    ):
+        client = await hass_ws_client(hass, hass_read_only_access_token)
+        await contract.setup(STROM, **GOLDEN)
+        await client.send_json_auto_id({"type": "tariffy/contracts"})
+        assert len((await client.receive_json())["result"]["contracts"]) == 1

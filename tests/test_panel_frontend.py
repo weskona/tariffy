@@ -47,7 +47,10 @@ def _block(language: str) -> str:
 
 def _keys(block: str) -> set[str]:
     body = block.split("\n", 1)[1]  # without the "en: {" / "de: {" line itself
-    return set(re.findall(r"\b([A-Za-z]+): ", body))
+    # drop the text literals first, so words inside a text ("Action failed: x")
+    # are not mistaken for keys
+    body = re.sub(r'"(?:\\.|[^"\\])*"', '""', body)
+    return set(re.findall(r"\b([A-Za-z]+):", body))
 
 
 def test_german_and_english_have_the_same_texts():

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Beta: the panel can now acknowledge the low-instalment warning, acknowledge the cancellation reminder and switch to a planned next contract directly from the contract card, with a confirmation question before the switch. The same actions as the three buttons, available to administrators only (new websocket command `tariffy/action`, which checks the same conditions as the buttons). Everyone else keeps the read-only view.
+
 ## [1.27.0-beta.2] - 2026-11-06
 
 Second beta for testing the sidebar panel. It contains the forecast fix from 1.26.6, so the panel shows the corrected "Credit / balance due (contract end)" after an instalment change. The panel itself is unchanged and read only. Please report problems with the bug report form and mention this exact version.

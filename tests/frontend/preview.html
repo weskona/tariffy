@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- Preview harness for the Tariffy panel: a mock `hass` fed with fixtures.json,
      which tests/test_panel_fixtures.py keeps in sync with the real backend.
-     Query: ?lang=de|en  &state=loading|empty|error  &narrow=1 -->
+     Query: ?lang=de|en  &state=loading|empty|error  &narrow=1  &admin=0  &fail=1 -->
 <html>
 <head>
   <meta charset="utf-8">
@@ -21,7 +21,14 @@
   panel.style.minHeight = "100vh";
   document.body.appendChild(panel);
   panel.narrow = params.get("narrow") === "1";
+  window.__calls = [];
   panel.hass = {
+    user: { is_admin: params.get("admin") !== "0" },
+    callWS: async (message) => {
+      window.__calls.push(message);
+      if (params.get("fail") === "1") throw new Error("Action switch_now is not available right now");
+      return { ok: true };
+    },
     language: params.get("lang") || "de",
     locale: { language: params.get("lang") === "en" ? "en-GB" : "de-DE" },
     connection: {

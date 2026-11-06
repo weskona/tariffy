@@ -41,6 +41,14 @@ PANEL_ICON = "mdi:cash-multiple"
 STATIC_URL = "/tariffy_static"
 PANEL_FILE = "tariffy-panel.js"
 SIGNAL_CONTRACTS = f"{DOMAIN}_contracts_updated"
+
+# Actions of the panel. Same coordinator methods and same preconditions as the
+# three button entities (see button.py), so the panel can never do more than the
+# buttons can.
+ACTION_SWITCH_NOW = "switch_now"
+ACTION_CONFIRM_CANCELLATION = "confirm_cancellation"
+ACTION_CONFIRM_WARNING = "confirm_abschlag_warning"
+ACTIONS = (ACTION_SWITCH_NOW, ACTION_CONFIRM_CANCELLATION, ACTION_CONFIRM_WARNING)
 DATA_KEY = f"{DOMAIN}_panel"
 
 # Values shown by the panel. Deliberately a whitelist: the panel is visible to
@@ -173,6 +181,55 @@ def ws_subscribe(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     _push()
 
 
+def _action_available(action: str, data: dict[str, Any]) -> bool:
+    """Whether an action is currently possible, like the button's `available`."""
+    if action == ACTION_SWITCH_NOW:
+        return bool(data.get("next"))
+    if action == ACTION_CONFIRM_CANCELLATION:
+        return bool(data.get("erinnerung_aktiv"))
+    if action == ACTION_CONFIRM_WARNING:
+        return bool(data.get("abschlag_warnung_zu_bestaetigen"))
+    return False
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/action",
+        vol.Required("entry_id"): str,
+        vol.Required("action"): vol.In(ACTIONS),
+    }
+)
+@websocket_api.async_response
+async def ws_action(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Run one of the contract actions (administrators only)."""
+    entry = hass.config_entries.async_get_entry(msg["entry_id"])
+    if (
+        entry is None
+        or entry.domain != DOMAIN
+        or entry.state is not ConfigEntryState.LOADED
+        or getattr(entry, "runtime_data", None) is None
+    ):
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+
+    coordinator = entry.runtime_data
+    action = msg["action"]
+    if not _action_available(action, coordinator.data or {}):
+        connection.send_error(
+            msg["id"], "not_available", f"Action {action} is not available right now"
+        )
+        return
+
+    if action == ACTION_SWITCH_NOW:
+        await coordinator.async_force_switch()
+    elif action == ACTION_CONFIRM_CANCELLATION:
+        await coordinator.async_confirm_kuendigung()
+    else:
+        await coordinator.async_confirm_abschlag_warnung()
+    connection.send_result(msg["id"], {"ok": True})
+
+
 async def async_setup_panel(hass: HomeAssistant) -> None:
     """Register the panel once per Home Assistant. Never raises."""
     state = hass.data.setdefault(
@@ -186,6 +243,7 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
         if not state["commands"]:
             websocket_api.async_register_command(hass, ws_contracts)
             websocket_api.async_register_command(hass, ws_subscribe)
+            websocket_api.async_register_command(hass, ws_action)
             state["commands"] = True
 
         if not state["static"]:

@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Added
+
+- Beta: Das Panel kann jetzt die Abschlag-Warnung bestätigen, die Kündigungserinnerung bestätigen und auf einen geplanten Folgevertrag wechseln, direkt in der Vertragskarte, mit Rückfrage vor dem Wechsel. Es sind dieselben Aktionen wie bei den drei Buttons, nur für Administratoren (neuer Websocket-Befehl `tariffy/action`, der dieselben Bedingungen wie die Buttons prüft). Alle anderen behalten die reine Leseansicht.
+
 ## [1.27.0-beta.2] - 2026-11-06
 
 Zweite Beta zum Testen des Seitenleisten-Panels. Sie enthält den Prognose-Fix aus 1.26.6, das Panel zeigt also nach einer Abschlagsänderung das korrigierte „Guthaben/Nachzahlung (Vertragsende)“. Das Panel selbst ist unverändert und nur lesend. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
