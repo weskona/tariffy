@@ -56,8 +56,7 @@ const I18N = {
     nextPrice: "Unit price", nextInstalment: "Instalment",
     months: "{n} months", yes: "yes", no: "no",
     actConfirmWarning: "Acknowledge warning", actConfirmCancel: "Acknowledge cancellation",
-    actSwitchNow: "Switch now", actSwitchAsk: "Switch to {name} now? This replaces the current contract data.",
-    actYes: "Yes, switch", actYesAck: "Yes, acknowledge", actCancel: "Cancel",
+    actYesAck: "Yes, acknowledge", actCancel: "Cancel",
     actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
     coveredHint: "Credit covers the costs",
@@ -114,8 +113,8 @@ const I18N = {
     nextPrice: "Arbeitspreis", nextInstalment: "Abschlag",
     months: "{n} Monate", yes: "ja", no: "nein",
     actConfirmWarning: "Warnung bestätigen", actConfirmCancel: "Kündigung bestätigen",
-    actSwitchNow: "Jetzt wechseln", actSwitchAsk: "Jetzt auf {name} wechseln? Das ersetzt die aktuellen Vertragsdaten.",
-    actYes: "Ja, wechseln", actYesAck: "Ja, bestätigen", actCancel: "Abbrechen",
+   
+    actYesAck: "Ja, bestätigen", actCancel: "Abbrechen",
     actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
     coveredHint: "Guthaben deckt die Kosten",
@@ -806,9 +805,6 @@ class TariffyPanel extends HTMLElement {
     if (c.erinnerung_aktiv) {
       list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange", ask: "actAskCancel", yes: "actYesAck" });
     }
-    if (c.next && c.next.beginn) {
-      list.push({ key: "switch_now", label: this._t("actSwitchNow"), tone: "blue", ask: "actSwitchAsk", yes: "actYes" });
-    }
     if (!list.length) return null;
 
     const id = c.entry_id;
@@ -817,9 +813,8 @@ class TariffyPanel extends HTMLElement {
     const pending = this._confirming && this._confirming.id === id
       ? list.find((a) => a.key === this._confirming.key) : null;
     if (pending) {
-      const name = c.next ? [c.next.anbieter, c.next.tarif].filter(Boolean).join(" · ") || c.title : c.title;
       children.push(h("div", { class: "ask" },
-        h("span", { text: this._t(pending.ask, { name }) }),
+        h("span", { text: this._t(pending.ask) }),
         h("button", { class: "btn go", type: "button", disabled: busy ? "" : null, text: this._t(pending.yes),
           onclick: () => this._run(c, pending.key) }),
         h("button", { class: "btn", type: "button", text: this._t("actCancel"),

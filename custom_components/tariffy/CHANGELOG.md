@@ -9,7 +9,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ### Changed
 
-- Beta: Alle Aktions-Buttons im Panel (Warnung bestätigen, Kündigung bestätigen, Jetzt wechseln) fragen jetzt eine zweite Stufe ab, damit nichts versehentlich ausgelöst wird.
+- Beta: Die beiden Aktions-Buttons im Panel (Warnung bestätigen, Kündigung bestätigen) fragen jetzt eine zweite Stufe ab, damit nichts versehentlich ausgelöst wird.
+- Beta: Das Panel bietet "Jetzt wechseln" nicht mehr an. Der Klick hätte den aktuellen Vertrag sofort ersetzt, während der neue erst am geplanten Datum beginnt. Zum geplanten Datum wechselt der Vertrag von selbst; der Button in Home Assistant bleibt unverändert.
 
 ## [1.27.0-beta.3] - 2026-11-06
 

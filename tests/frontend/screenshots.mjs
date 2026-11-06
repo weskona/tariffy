@@ -82,10 +82,10 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.goto(`${base}?lang=de`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
 
-  check((await page.locator(".actions").count()) === 3, "three contracts offer actions (warning, cancellation, switch)");
+  check((await page.locator(".actions").count()) === 2, "two contracts offer actions (warning, cancellation)");
   check((await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
   check((await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
-  check((await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).count()) === 1, "switch button on Mobilfunk");
+  check((await card(page, "Mobilfunk").locator(".btn").count()) === 0, "no switch button on Mobilfunk");
   check((await card(page, "Gas Heizung").locator(".btn").count()) === 0, "no buttons where nothing is possible");
 
   // a negative recommended instalment is shown as 0 with a hint, never as a negative amount
@@ -107,18 +107,8 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
     "contract details: adjustment shown as 0 with the hint");
   await page.getByRole("tab", { name: "Übersicht" }).click();
 
-  // switching asks first and does nothing until confirmed
-  await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).click();
-  check((await calls(page)).length === 0, "no call before the switch is confirmed");
-  check((await card(page, "Mobilfunk").locator(".ask").count()) === 1, "confirmation question is shown");
-  await card(page, "Mobilfunk").screenshot({ path: join(outDir, "actions-confirm.png") });
-  await card(page, "Mobilfunk").getByRole("button", { name: "Abbrechen" }).click();
-  check((await calls(page)).length === 0, "cancel does nothing");
-  check((await card(page, "Mobilfunk").locator(".ask").count()) === 0, "question is gone after cancel");
-  await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).click();
-  await card(page, "Mobilfunk").getByRole("button", { name: "Ja, wechseln" }).click();
-  check(JSON.stringify(await calls(page)) === JSON.stringify([{ type: "tariffy/action", entry_id: "contract-6", action: "switch_now" }]),
-    "confirmed switch sends exactly one switch_now for contract-6");
+  // switching is not offered in the panel (the contract switches itself on its start date)
+  check((await page.getByRole("button", { name: "Jetzt wechseln" }).count()) === 0, "no switch button in the panel");
 
   // acknowledgements ask first as well, and cancel does nothing
   const before = (await calls(page)).length;
@@ -132,7 +122,7 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
   check((await calls(page)).length === before + 1, "warning acknowledgement also waits for confirmation");
   await card(page, "Strom Haus").getByRole("button", { name: "Ja, bestätigen" }).click();
-  const sent = (await calls(page)).slice(1).map((c) => `${c.entry_id}:${c.action}`);
+  const sent = (await calls(page)).map((c) => `${c.entry_id}:${c.action}`);
   check(sent.join(",") === "contract-5:confirm_cancellation,contract-1:confirm_abschlag_warning", `acknowledgements sent: ${sent}`);
   await context.close();
 }
@@ -169,7 +159,7 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.clock.setFixedTime("2026-07-12T12:00:00Z");
   await page.goto(`${base}?lang=de&narrow=1`);
   await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
-  check((await page.locator(".btn").count()) === 3, "phone: all three buttons are in the page");
+  check((await page.locator(".btn").count()) === 2, "phone: both buttons are in the page");
   check(!(await page.locator(".btn").first().isVisible()), "phone: buttons stay hidden until the row is expanded");
   await page.locator("details.card", { hasText: "Internet" }).locator("summary").click();
   check(await page.locator("details.card", { hasText: "Internet" }).getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");
