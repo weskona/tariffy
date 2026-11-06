@@ -317,6 +317,90 @@ const configFlow = "config/config_entries/flow";
   await context.close();
 }
 
+// ---- create and delete contracts ----
+const entryApi = "config/config_entries/entry";
+
+{ // a new contract: the integration's setup flow, name and sparte first
+  const { context, page } = await openPage(browser, "lang=de");
+  await page.getByRole("button", { name: "Neuer Vertrag" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=name]"));
+  check((await dialog(page).innerText()).includes("Neuer Vertrag"), "the dialog is titled as a new contract");
+  check(JSON.stringify((await api(page))[0]) === JSON.stringify({ method: "POST", path: configFlow, body: { handler: "tariffy" } }),
+    "creating starts the setup flow without a contract");
+  check((await page.locator(".dialog [name=sparte] option:checked").innerText()) === "Strom", "the sparte drop-down shows translated names");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  check((await dialog(page).innerText()).includes("Pflichtfeld") && (await api(page)).length === 1, "name and provider are required");
+
+  await page.locator(".dialog [name=name]").fill("Gas Ferienhaus");
+  await page.locator(".dialog [name=sparte]").selectOption("gas");
+  await page.locator(".dialog [name=anbieter]").fill("Nordgas");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=brennwert]"));
+  const first = (await api(page))[1];
+  check(first.path === `${configFlow}/cflow-1` && first.body.name === "Gas Ferienhaus" && first.body.sparte === "gas" && first.body.anbieter === "Nordgas",
+    "step 1 sends name, sparte and provider");
+  check(Object.values(first.body).every((v) => v !== "" && v !== null), "empty optional fields are left out");
+  check((await page.locator(".dialog [name=gas_einheit]").inputValue()) === "m³", "the step of the sparte offers its defaults");
+
+  await page.locator(".dialog [name=arbeitspreis]").fill("0,105");
+  await page.locator(".dialog [name=abschlag]").fill("80");
+  await page.locator(".dialog [name=brennwert]").fill("11,2");
+  await dialog(page).screenshot({ path: join(outDir, "new-contract-dialog.png") });
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog")?.innerText.includes("angelegt"));
+  const second = (await api(page))[2];
+  check(second.body.arbeitspreis === 0.105 && second.body.abschlag === 80 && second.body.brennwert === "11,2", "the values of the sparte are sent");
+  check(typeof second.body.oekostrom === "boolean", "yes/no settings are always sent");
+  check((await calls(page)).length === 0, "creating never touches a reminder");
+  await context.close();
+}
+
+{ // cancelling a new contract aborts the setup flow
+  const { context, page } = await openPage(browser, "lang=de");
+  await page.getByRole("button", { name: "Neuer Vertrag" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=name]"));
+  await dialog(page).getByRole("button", { name: "Abbrechen" }).click();
+  const sent = await api(page);
+  check(sent.at(-1).method === "DELETE" && sent.at(-1).path === `${configFlow}/cflow-1`, "cancel aborts the setup flow");
+  await context.close();
+}
+
+{ // deleting: a long way round on purpose, the name has to be typed
+  const { context, page } = await openPage(browser, "lang=de");
+  await openDialog(page, "Strom Haus", "Vertrag bearbeiten");
+  await dialog(page).getByRole("button", { name: "Vertrag löschen" }).click();
+  check((await dialog(page).innerText()).includes("endgültig löschen"), "deleting asks first");
+  const confirm = dialog(page).getByRole("button", { name: "Endgültig löschen" });
+  check(await confirm.isDisabled(), "the delete button is disabled until the name is typed");
+  await page.locator(".dialog .confirm-name").fill("Strom");
+  check(await confirm.isDisabled(), "a part of the name is not enough");
+  await dialog(page).screenshot({ path: join(outDir, "delete-contract-dialog.png") });
+  await dialog(page).getByRole("button", { name: "Abbrechen" }).first().click();
+  check((await api(page)).every((c) => !c.path.startsWith(entryApi)), "cancelling deletes nothing");
+  await dialog(page).getByRole("button", { name: "Vertrag löschen" }).click();
+  await page.locator(".dialog .confirm-name").fill("Strom Haus");
+  check(await confirm.isEnabled(), "the full name enables the button");
+  await confirm.click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog")?.innerText.includes("gelöscht"));
+  const sent = await api(page);
+  const removal = sent.filter((c) => c.method === "DELETE");
+  check(removal.length === 2 && removal[0].path === `${configFlow}/rflow-1` && removal[1].path === `${entryApi}/contract-1`,
+    "the open form is aborted, then exactly this contract is removed");
+  check((await dialog(page).innerText()).includes("Langzeit-Statistiken"), "the dialog says that the statistics stay");
+  await context.close();
+}
+
+{ // a failing removal is reported
+  const { context, page } = await openPage(browser, "lang=de&deletefail=1");
+  await openDialog(page, "Internet", "Vertrag bearbeiten");
+  await dialog(page).getByRole("button", { name: "Vertrag löschen" }).click();
+  await page.locator(".dialog .confirm-name").fill("Internet");
+  await dialog(page).getByRole("button", { name: "Endgültig löschen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog .err"));
+  check((await dialog(page).innerText()).includes("Löschen fehlgeschlagen"), "the failure is shown");
+  await context.close();
+}
+
 { // English and the phone layout
   const { context, page } = await openPage(browser, "lang=en");
   await openDialog(page, "Gas Heizung", "Plan next contract");
@@ -349,6 +433,7 @@ const configFlow = "config/config_entries/flow";
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
   check((await page.locator(".actions").count()) === 0 && (await page.locator(".btn").count()) === 0, "non-administrators see no action buttons");
   check((await page.locator(".card").count()) === 6, "non-administrators still see all contracts");
+  check((await page.getByRole("button", { name: "Neuer Vertrag" }).count()) === 0, "and get no button for a new contract");
   await context.close();
 }
 
@@ -358,8 +443,9 @@ const configFlow = "config/config_entries/flow";
   await page.clock.setFixedTime("2026-07-12T12:00:00Z");
   await page.goto(`${base}?lang=de&narrow=1`);
   await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
-  check((await page.locator(".btn").count()) === 14, "phone: all buttons are in the page");
-  check(!(await page.locator(".btn").first().isVisible()), "phone: buttons stay hidden until the row is expanded");
+  check((await page.locator(".btn").count()) === 15, "phone: all buttons are in the page");
+  check((await page.getByRole("button", { name: "Neuer Vertrag" }).isVisible()), "phone: the button for a new contract is in the top bar");
+  check(!(await page.locator(".card .btn").first().isVisible()), "phone: buttons stay hidden until the row is expanded");
   await page.locator("details.card", { hasText: "Internet" }).locator("summary").click();
   check(await page.locator("details.card", { hasText: "Internet" }).getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");
   await context.close();

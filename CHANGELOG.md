@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.6] - 2026-11-06
+
+Sixth beta for testing the sidebar panel. New: create and delete contracts directly in the panel (administrators only). Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- Beta: the panel can now create contracts ("New contract" in the top bar, administrators only). It runs the integration's own setup dialog (name and sparte first, then the data of the sparte), so validation and storage are unchanged, and the new contract appears in the panel by itself.
+- Beta: the panel can now delete a contract ("Delete contract" in the edit dialog, administrators only). Because it cannot be undone, the name of the contract has to be typed before the button works. The sensors and buttons of the contract are removed; the long-term statistics Home Assistant already recorded stay in its database (the dialog says so).
+
+### Fixed
+
+- Deleting a contract (in the panel or in Home Assistant) now also dismisses its open cancellation and low-instalment notifications. Until now they stayed in the notification list for good.
+
 ## [1.27.0-beta.5] - 2026-11-06
 
 Fifth beta for testing the sidebar panel. New: edit a contract directly in the panel (administrators only). Please report problems with the bug report form and mention this exact version.

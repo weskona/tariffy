@@ -59,7 +59,12 @@ const I18N = {
     actYesAck: "Yes, acknowledge", actCancel: "Cancel",
     actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
-    actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract",
+    actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract", actNew: "New contract",
+    dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
+    dlgDelete: "Delete contract", dlgDeleteYes: "Delete for good", dlgDeleted: "The contract was deleted.",
+    dlgDeleteAsk: "Delete the contract \"{name}\" for good? This cannot be undone. Type its name to confirm.",
+    dlgDeleteNote: "Its sensors and buttons are removed. The long-term statistics Home Assistant already recorded stay in its database.",
+    dlgDeleteFailed: "Deleting failed: {m}",
     dlgTitleEdit: "Edit contract · {name}", dlgContinue: "Next",
     dlgSaveAsk: "Save the changes? The contract data is replaced with what the form shows.", dlgSaveYes: "Yes, save",
     dlgTitle: "Next contract · {name}", dlgLoading: "Loading the form …", dlgSave: "Save", dlgClose: "Close",
@@ -130,7 +135,12 @@ const I18N = {
     actYesAck: "Ja, bestätigen", actCancel: "Abbrechen",
     actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
-    actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten",
+    actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten", actNew: "Neuer Vertrag",
+    dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
+    dlgDelete: "Vertrag löschen", dlgDeleteYes: "Endgültig löschen", dlgDeleted: "Der Vertrag wurde gelöscht.",
+    dlgDeleteAsk: "Den Vertrag \"{name}\" endgültig löschen? Das lässt sich nicht rückgängig machen. Zur Bestätigung den Namen eintippen.",
+    dlgDeleteNote: "Seine Sensoren und Buttons werden entfernt. Die Langzeit-Statistiken, die Home Assistant schon aufgezeichnet hat, bleiben in der Datenbank.",
+    dlgDeleteFailed: "Löschen fehlgeschlagen: {m}",
     dlgTitleEdit: "Vertrag bearbeiten · {name}", dlgContinue: "Weiter",
     dlgSaveAsk: "Änderungen speichern? Die Vertragsdaten werden durch das ersetzt, was das Formular zeigt.", dlgSaveYes: "Ja, speichern",
     dlgTitle: "Folgevertrag · {name}", dlgLoading: "Formular wird geladen …", dlgSave: "Speichern", dlgClose: "Schließen",
@@ -260,6 +270,8 @@ const STYLE = `
 .fld .lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .fld input, .fld select { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
 .fld input:focus-visible, .fld select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.confirm-name { width: 100%; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
+.confirm-name:focus-visible { outline: 2px solid var(--red); outline-offset: 1px; }
 .fld.bool { display: flex; gap: 8px; align-items: center; }
 .fld.bool .lbl { margin: 0; font-size: 13px; color: var(--text); }
 .fld.bool input { width: auto; }
@@ -394,6 +406,8 @@ const FLOWS = {
   // the integration's "Configure" dialog (next contract) and its "Reconfigure" dialog (the contract itself)
   next: { api: "config/config_entries/options/flow", body: (c) => ({ handler: c.entry_id }), category: "options" },
   edit: { api: "config/config_entries/flow", body: (c) => ({ handler: "tariffy", entry_id: c.entry_id }), category: "config" },
+  // the integration's "Add entry" dialog
+  create: { api: "config/config_entries/flow", body: () => ({ handler: "tariffy" }), category: "config" },
 };
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
@@ -645,7 +659,9 @@ class TariffyPanel extends HTMLElement {
       menu,
       h("div", { class: "brand" }, "Tariffy", h("span", { class: "pill", text: this._t("beta") })),
       tabs,
-      h("div", { class: "spacer" })
+      this._isAdmin
+        ? h("button", { class: "btn blue", type: "button", text: this._t("actNew"), onclick: () => this._openFlow(null, "create") })
+        : h("div", { class: "spacer" })
     );
   }
 
@@ -968,7 +984,7 @@ class TariffyPanel extends HTMLElement {
       dlg.values = {};
       dlg.refocus = true;
     }
-    dlg.final = dlg.mode === "next" || form.step_id !== "reconfigure";
+    dlg.final = dlg.mode === "next" || form.step_id !== (dlg.mode === "create" ? "user" : "reconfigure");
     dlg.fields = (form.data_schema || []).map((f) => this._fieldSpec(f, dlg, form.step_id));
     dlg.unsupported = dlg.fields.some((f) => !f.kind);
     dlg.hint = dlg.localize(`component.tariffy.${dlg.category}.step.${form.step_id}.description`) || "";
@@ -986,11 +1002,11 @@ class TariffyPanel extends HTMLElement {
     this._closeFlow();
     const flow = FLOWS[mode];
     const dlg = {
-      mode, api: flow.api, category: flow.category, id: c.entry_id, name: c.title, stage: "loading", flowId: null,
+      mode, api: flow.api, category: flow.category, id: c ? c.entry_id : null, name: c ? c.title : "", stage: "loading", flowId: null,
       step: null, final: true, fields: [], values: {}, fieldErrors: {}, message: null, hint: "", unsupported: false,
       asking: null, localize: () => "", refocus: false,
       hasNext: mode === "next" && Boolean(c.next && c.next.beginn),
-      reminder: mode === "next" && Boolean(c.erinnerung_aktiv), markDone: true, note: null,
+      reminder: mode === "next" && Boolean(c.erinnerung_aktiv), markDone: true, note: null, info: null, doneKey: "dlgSaved",
     };
     this._dlg = dlg;
     this._renderDialog();
@@ -1074,7 +1090,7 @@ class TariffyPanel extends HTMLElement {
       this._renderDialog();
       return;
     }
-    dlg.removed = removed;
+    dlg.doneKey = removed ? "dlgRemoved" : dlg.mode === "create" ? "dlgCreated" : "dlgSaved";
     dlg.note = null;
     this._renderDialog();
     if (!removed && dlg.reminder && dlg.markDone) {
@@ -1098,6 +1114,29 @@ class TariffyPanel extends HTMLElement {
       }
     }
     return false;
+  }
+
+  /* Deleting is Home Assistant's own "remove entry"; the open form is closed first. */
+  async _deleteContract(dlg) {
+    dlg.stage = "saving";
+    dlg.message = null;
+    this._renderDialog();
+    if (dlg.flowId) this._abortFlow(dlg.api, dlg.flowId);
+    dlg.flowId = null;
+    try {
+      await this._hass.callApi("DELETE", `config/config_entries/entry/${dlg.id}`);
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "error";
+      dlg.message = this._t("dlgDeleteFailed", { m: this._errorText(err) });
+      this._renderDialog();
+      return;
+    }
+    if (this._dlg !== dlg) return;
+    dlg.stage = "saved";
+    dlg.doneKey = "dlgDeleted";
+    dlg.info = this._t("dlgDeleteNote");
+    this._renderDialog();
   }
 
   /* Validates the form; the last step of editing a contract asks once more before it is sent. */
@@ -1162,7 +1201,7 @@ class TariffyPanel extends HTMLElement {
     const dlg = this._dlg;
     if (!dlg) return;
     const busy = dlg.stage === "saving";
-    const body = [h("h2", { id: "dlg-title", text: this._t(dlg.mode === "edit" ? "dlgTitleEdit" : "dlgTitle", { name: dlg.name }) })];
+    const body = [h("h2", { id: "dlg-title", text: this._t({ edit: "dlgTitleEdit", create: "dlgTitleCreate", next: "dlgTitle" }[dlg.mode], { name: dlg.name }) })];
     const buttons = [];
     const ask = (text, yes, tone, onYes) => h("div", { class: "ask" },
       h("span", { text }),
@@ -1176,7 +1215,8 @@ class TariffyPanel extends HTMLElement {
       body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
       buttons.push(h("button", { class: "btn", type: "button", text: this._t("dlgClose"), onclick: () => this._closeFlow() }));
     } else if (dlg.stage === "saved") {
-      body.push(h("p", { class: "hint", text: this._t(dlg.removed ? "dlgRemoved" : "dlgSaved") }));
+      body.push(h("p", { class: "hint", text: this._t(dlg.doneKey) }));
+      if (dlg.info) body.push(h("p", { class: "hint", text: dlg.info }));
       if (dlg.note) body.push(h("div", { class: "err", role: "alert", text: dlg.note }));
       buttons.push(h("button", { class: "btn go", type: "button", text: this._t("dlgClose"), onclick: () => this._closeFlow() }));
     } else {
@@ -1201,6 +1241,17 @@ class TariffyPanel extends HTMLElement {
       }
       if (dlg.asking === "remove") {
         buttons.push(ask(this._t("dlgRemoveAsk"), this._t("dlgRemoveYes"), "red", () => this._sendFlow(dlg, {}, true)));
+      } else if (dlg.asking === "delete") {
+        const go = h("button", { class: "btn red", type: "button", disabled: "", text: this._t("dlgDeleteYes"),
+          onclick: () => this._deleteContract(dlg) });
+        buttons.push(h("div", { class: "ask" },
+          h("span", { text: this._t("dlgDeleteAsk", { name: dlg.name }) }),
+          h("input", { class: "confirm-name", type: "text", autocomplete: "off", spellcheck: "false", placeholder: dlg.name,
+            "aria-label": this._t("dlgDeleteAsk", { name: dlg.name }),
+            oninput: (ev) => { go.disabled = ev.target.value.trim() !== dlg.name; } }),
+          go,
+          h("button", { class: "btn", type: "button", text: this._t("actCancel"),
+            onclick: () => { dlg.asking = null; this._renderDialog(); } })));
       } else if (dlg.asking === "save") {
         buttons.push(ask(this._t("dlgSaveAsk"), this._t("dlgSaveYes"), "go", () => this._submitFlow(true)));
       } else {
@@ -1210,6 +1261,10 @@ class TariffyPanel extends HTMLElement {
         }
         buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"),
           onclick: () => this._closeFlow() }));
+        if (dlg.mode === "edit") {
+          buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("dlgDelete"),
+            onclick: () => { dlg.asking = "delete"; this._renderDialog(); } }));
+        }
         if (dlg.hasNext && !dlg.unsupported) {
           buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("dlgRemove"),
             onclick: () => { dlg.asking = "remove"; this._renderDialog(); } }));
@@ -1230,6 +1285,8 @@ class TariffyPanel extends HTMLElement {
       if (f.kind === "boolean") input.checked = Boolean(dlg.values[f.name]);
       else input.value = dlg.values[f.name] ?? "";
     }
+    const confirmName = el.querySelector(".confirm-name");
+    if (confirmName) confirmName.focus();
     if (dlg.refocus && dlg.stage === "form") {
       dlg.refocus = false;
       const first = el.querySelector("input, select");

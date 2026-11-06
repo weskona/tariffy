@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- Preview harness for the Tariffy panel: a mock `hass` fed with fixtures.json,
      which tests/test_panel_fixtures.py keeps in sync with the real backend.
-     Query: ?lang=de|en  &state=loading|empty|error  &narrow=1  &admin=0  &fail=1  &flowfail=1 (backend rejects the form)  &flowerr=1 (REST error)  &reload=N (action answers not_found N times) -->
+     Query: ?lang=de|en  &state=loading|empty|error  &narrow=1  &admin=0  &fail=1  &flowfail=1 (backend rejects the form)  &flowerr=1 (REST error)  &reload=N (action answers not_found N times)  &deletefail=1 (removing fails) -->
 <html>
 <head>
   <meta charset="utf-8">
@@ -30,6 +30,7 @@
   window.__api = [];
   let notFound = Number(params.get("reload") || 0);
   const reconfigureSteps = {};
+  let createSteps = 0;
   panel.hass = {
     user: { is_admin: params.get("admin") !== "0" },
     callWS: async (message) => {
@@ -48,6 +49,22 @@
       window.__api.push({ method, path, body });
       if (params.get("flowerr") === "1" && method === "POST") {
         throw { status_code: 400, body: { message: "Invalid flow specified" } };
+      }
+      // "Add entry": name and sparte first, then the step of the chosen sparte, then the entry is created
+      if (method === "POST" && path === "config/config_entries/flow" && !body.entry_id) {
+        createSteps = 0;
+        return JSON.parse(JSON.stringify(fixtures.create.first));
+      }
+      if (method === "POST" && path === "config/config_entries/flow/cflow-1") {
+        createSteps += 1;
+        if (createSteps === 1) {
+          return JSON.parse(JSON.stringify(fixtures.create.steps[body.sparte] || fixtures.create.steps.internet));
+        }
+        return { type: "create_entry", flow_id: "cflow-1", handler: "tariffy", title: "Neuer Vertrag", result: "entry" };
+      }
+      if (method === "DELETE" && path.startsWith("config/config_entries/entry/")) {
+        if (params.get("deletefail") === "1") throw { status_code: 400, body: { message: "Config entry not found" } };
+        return { require_restart: false };
       }
       // "Reconfigure": two steps, then Home Assistant aborts the flow with "reconfigure_successful"
       if (method === "POST" && path === "config/config_entries/flow") {
