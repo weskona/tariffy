@@ -7,6 +7,21 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.8] - 2026-11-06
+
+Achte Beta zum Testen des Seitenleisten-Panels. Neu: eine überarbeitete Übersicht. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Beta: Die Übersicht wurde überarbeitet und orientiert sich stärker am Vorbild-Dashboard. Die Karten fließen jetzt ohne Lücken in Spalten statt in einem Raster mit Löchern, der Kopf einer Karte ist nach dem Zustand getönt (grün Guthaben, rot Nachzahlung, orange Kündigung fällig), Titel stehen in Kapitälchen, und die Kennzahl steht neben einem kleineren Fortschrittsring. Eine Karte zeigt höchstens drei Zahlen (Kosten bisher, Saldo bisher, Verbrauch) und eine Fußzeile mit der Restlaufzeit; weitere Zahlen stehen in den Ansichten "Kosten" und "Verträge".
+- Beta: "Folgevertrag planen" und "Vertrag bearbeiten" sind in ein "…"-Menü im Kartenkopf gewandert (nur Administratoren). "Warnung bestätigen" und "Kündigung bestätigen" bleiben auf der Karte, bei dem Hinweis, zu dem sie gehören. Auf dem Handy bleiben die Buttons in der aufgeklappten Karte.
+- Beta: Verträge ohne Beginn oder Ende zeigen keinen leeren Fortschrittsring mehr, und leere Kacheln entfallen.
+
+### Fixed
+
+- Beta: Am ersten Tag eines Vertrags mit Verbrauchssensor wird der Block "Verbrauch" in den Vertragsdetails gezeigt (Kosten und Verbrauch bisher gibt es schon, nur die Prognose fehlt noch). Bisher blieb er bis zum nächsten Tag ausgeblendet.
+- Beta: Ein Menü auf einer Karte blieb nach der Auswahl eines Eintrags hinter dem Dialog offen.
+
 ## [1.27.0-beta.7] - 2026-11-06
 
 Siebte Beta zum Testen des Seitenleisten-Panels. Sie behebt die Darstellung der Vertragsliste. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

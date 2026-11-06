@@ -194,7 +194,7 @@ The **Tariffy panel** is a page of its own in the Home Assistant sidebar. It sho
 
 | View | Content |
 |---|---|
-| **Overview** | Monthly instalments in total, forecast at contract end (contracts with consumption metering only) and the next date (cancellation deadline, contract end or switch); below one card per contract with progress, cost so far, credit/balance due, consumption, instalments paid vs. cost, notes and actions |
+| **Overview** | Monthly instalments in total, forecast at contract end (contracts with consumption metering only) and the next date (cancellation deadline, contract end or switch); below one card per contract: the head with name and status (the card is tinted by its state: green credit, red balance due, orange cancellation due), the forecast at contract end as the big figure next to the progress ring, at most three figures (cost so far, balance so far, consumption), instalments paid vs. cost, the remaining term and notes. The cards flow into columns without gaps |
 | **Costs** | A table of all contracts: cost so far, balance so far, balance at contract end, instalment and recommended instalment, plus a total row |
 | **Contracts** | Expandable details per contract: contract data, prices, consumption, recommendations |
 
@@ -205,7 +205,7 @@ Plus is credit, minus is balance due. When the credit already covers the costs u
 - **All users** see the contracts, but only selected values. Customer number, meter numbers, MaLo ID, notification target and internal markers are **not** sent to the panel.
 - **Administrators only** get the buttons and dialogs below. The backend checks this again, so a non-administrator cannot trigger the actions through the API either.
 
-**Acknowledge:** "Acknowledge warning" and "Acknowledge cancellation" do the same as the buttons of the contract and ask a second time before anything happens.
+**Menu and acknowledging:** planning, editing, creating and deleting are behind the **"..." menu** in the head of a card ("More actions"); on phones the buttons are in the opened card. "Acknowledge warning" and "Acknowledge cancellation" sit on the card next to the note they belong to, do the same as the buttons of the contract and ask a second time before anything happens.
 
 **Plan the next contract:** "Plan next contract" (or "Edit next contract") shows the same form as "Configure" in Home Assistant; empty fields keep the current value. If a cancellation reminder is due, the box "Mark the cancellation as done" (on by default) acknowledges it in the same step. "Remove planned contract" removes only the plan, after a question. There is deliberately no "switch now" in the panel (it would replace the current contract before the new one starts); the switch happens by itself on the planned date.
 

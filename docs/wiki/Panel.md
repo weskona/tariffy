@@ -24,7 +24,7 @@ Das Panel folgt der Sprache von Home Assistant (Deutsch, sonst Englisch) und pas
 
 | Ansicht | Inhalt |
 |---|---|
-| **Übersicht** | Oben die Summe der Abschläge pro Monat, die Prognose zum Vertragsende (nur Verträge mit Verbrauchsmessung) und der nächste Termin (Kündigungsfrist, Vertragsende oder Wechsel). Darunter eine Karte pro Vertrag mit Laufzeit, Kosten bisher, Guthaben/Nachzahlung, Verbrauch, gezahlten Abschlägen gegen Kosten, Hinweisen und Aktionen. |
+| **Übersicht** | Oben die Summe der Abschläge pro Monat, die Prognose zum Vertragsende (nur Verträge mit Verbrauchsmessung) und der nächste Termin (Kündigungsfrist, Vertragsende oder Wechsel). Darunter eine Karte pro Vertrag: oben der Kopf mit Name und Status (die Karte ist nach dem Zustand getönt: grün Guthaben, rot Nachzahlung, orange Kündigung fällig), dann die Prognose zum Vertragsende als große Zahl neben dem Laufzeit-Ring, höchstens drei Zahlen (Kosten bisher, Saldo bisher, Verbrauch), die gezahlten Abschläge gegen die Kosten, die Restlaufzeit und Hinweise. Die Karten fließen ohne Lücken in Spalten. |
 | **Kosten** | Eine Tabelle mit allen Verträgen: Kosten bisher, Saldo bisher, Saldo zum Vertragsende, Abschlag und empfohlener Abschlag, dazu eine Summenzeile. |
 | **Verträge** | Pro Vertrag aufklappbare Details: Vertragsdaten, Preise, Verbrauch, Empfehlungen. |
 
@@ -37,7 +37,7 @@ Vorzeichen: **Plus** ist Guthaben, **Minus** ist Nachzahlung. „Zum Vertragsend
 
 ## Bestätigen
 
-Auf der Karte erscheinen je nach Lage:
+Planen, Bearbeiten, Anlegen und Löschen stehen hinter dem **⋯-Menü** oben rechts auf der Karte („Weitere Aktionen"); auf dem Handy stehen die Buttons in der aufgeklappten Karte. Auf der Karte selbst erscheinen je nach Lage, direkt bei dem Hinweis, zu dem sie gehören:
 
 - **Warnung bestätigen**: quittiert die Abschlag-Warnung (wie der Button „Abschlag-Warnung bestätigen"). Der Button erscheint nur, wenn die Warnung in den Vertragsdaten eingeschaltet ist und die Prognose die Schwelle unterschreitet.
 - **Kündigung bestätigen**: quittiert die Kündigungs-Erinnerung (wie der Button „Kündigung bestätigen").

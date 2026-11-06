@@ -60,6 +60,7 @@ const I18N = {
     actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
     actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract", actNew: "New contract",
+    moreActions: "More actions", saldoShort: "Balance so far",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
     dlgDelete: "Delete contract", dlgDeleteYes: "Delete for good", dlgDeleted: "The contract was deleted.",
     dlgDeleteAsk: "Delete the contract \"{name}\" for good? This cannot be undone. Type its name to confirm.",
@@ -136,6 +137,7 @@ const I18N = {
     actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
     actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten", actNew: "Neuer Vertrag",
+    moreActions: "Weitere Aktionen", saldoShort: "Saldo bisher",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
     dlgDelete: "Vertrag löschen", dlgDeleteYes: "Endgültig löschen", dlgDeleted: "Der Vertrag wurde gelöscht.",
     dlgDeleteAsk: "Den Vertrag \"{name}\" endgültig löschen? Das lässt sich nicht rückgängig machen. Zur Bestätigung den Namen eintippen.",
@@ -221,10 +223,30 @@ const STYLE = `
 .sum .value { font-size: 26px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
 .sum .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; align-items: start; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
-.card.alert { border-color: rgba(248,113,113,.35); background: linear-gradient(180deg, rgba(248,113,113,.06), var(--panel) 40%); }
+/* cards flow into columns of different height without gaps, like the reference dashboard */
+.grid { column-width: 360px; column-gap: 16px; }
+.grid > .card { break-inside: avoid; -webkit-column-break-inside: avoid; margin-bottom: 16px; }
+.card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
+.card.tone-green { background: linear-gradient(180deg, rgba(52,211,153,.085), var(--panel) 150px); }
+.card.tone-red { background: linear-gradient(180deg, rgba(248,113,113,.085), var(--panel) 150px); }
+.card.tone-orange { background: linear-gradient(180deg, rgba(251,146,60,.085), var(--panel) 150px); }
+.card.alert { border-color: rgba(248,113,113,.35); }
 .head { display: flex; align-items: flex-start; gap: 12px; }
+.chips:empty { display: none; }
+.card > .chips { justify-content: flex-start; margin-top: 12px; }
+.card .title { font-size: 15px; letter-spacing: .07em; text-transform: uppercase; }
+.menu-wrap { position: relative; flex: none; }
+.menu-btn { appearance: none; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--tile-line); background: var(--tile);
+  color: var(--muted); font: inherit; font-size: 18px; line-height: 1; cursor: pointer; }
+.menu-btn:hover, .menu-btn[aria-expanded="true"] { color: var(--text); background: rgba(255,255,255,.08); }
+.menu-btn:focus-visible, .mi:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.menu { position: absolute; right: 0; top: 38px; z-index: 6; min-width: 210px; padding: 6px; border-radius: 12px;
+  background: #1a1e27; border: 1px solid var(--tile-line); box-shadow: 0 10px 30px rgba(0,0,0,.45); display: grid; gap: 2px; }
+.mi { appearance: none; text-align: left; font: inherit; font-size: 14px; font-weight: 600; color: var(--text); background: transparent;
+  border: 0; border-radius: 8px; padding: 9px 12px; cursor: pointer; }
+.mi:hover { background: rgba(255,255,255,.08); }
+.foot { margin-top: 12px; font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.foot b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 .badge { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
   background: var(--tile); border: 1px solid var(--tile-line); color: var(--blue); }
 .badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -241,12 +263,13 @@ const STYLE = `
 .chip.orange { background: rgba(251,146,60,.15); color: var(--orange); }
 .chip.blue { background: rgba(96,165,250,.15); color: var(--blue); }
 
-.hero { display: flex; align-items: center; gap: 18px; margin: 18px 0 14px; }
-.ring { position: relative; flex: none; width: 96px; height: 96px; }
-.ring svg { width: 96px; height: 96px; transform: rotate(-90deg); }
+.hero { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 16px 0 14px; }
+.hero > div:first-child { min-width: 0; }
+.ring { position: relative; flex: none; width: 84px; height: 84px; }
+.ring svg { width: 84px; height: 84px; transform: rotate(-90deg); }
 .ring .track { stroke: rgba(255,255,255,.08); } .ring .arc { stroke: var(--blue); stroke-linecap: round; }
 .ring .center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
-.ring .pct { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ring .pct { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .ring .pcap { font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .big { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; margin-top: 4px; }
 .green-t { color: var(--green); } .red-t { color: var(--red); } .muted-t { color: var(--muted); }
@@ -284,10 +307,10 @@ const STYLE = `
 .ask span { flex-basis: 100%; }
 .err { width: 100%; font-size: 13px; color: var(--red); }
 
-.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
 .tile { background: var(--tile); border: 1px solid var(--tile-line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
 .tile .label { overflow-wrap: anywhere; }
-.tile .v { font-size: 18px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.tile .v { font-size: 16px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .tile .s { font-size: 12px; color: var(--muted); margin-top: 1px; }
 .tile .v small, .big small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 3px; }
 
@@ -350,10 +373,13 @@ details[open] summary .caret { transform: rotate(90deg); }
   .sum { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 12px 14px; }
   .sum .value { font-size: 20px; margin: 0; grid-column: 2; grid-row: 1 / span 2; }
   .sum .sub { grid-column: 1; }
-  .grid { grid-template-columns: 1fr; gap: 12px; }
+  .tiles { grid-template-columns: 1fr 1fr; }
+  .tiles .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .grid { column-width: auto; column-count: 1; }
+  .grid > .card { margin-bottom: 12px; }
   .card { padding: 14px; }
   .big { font-size: 28px; }
-  .ring, .ring svg { width: 84px; height: 84px; }
+  .ring, .ring svg { width: 76px; height: 76px; }
   table, thead, tbody, tr, td { display: block; }
   thead { display: none; }
   table { background: transparent; border: 0; border-radius: 0; }
@@ -433,7 +459,19 @@ class TariffyPanel extends HTMLElement {
     this._confirming = null;
     this._busy = null;
     this._actionError = null;
+    this._menuFor = null;
     this.attachShadow({ mode: "open" });
+    const closeMenu = (ev) => {
+      if (!this._menuFor) return;
+      const inside = ev.composedPath().some((el) => el.classList && (el.classList.contains("menu-wrap")));
+      if (!inside) { this._menuFor = null; this._render(); }
+    };
+    this._closeMenu = closeMenu;
+    this.shadowRoot.addEventListener("click", closeMenu);
+    // the menu is re-drawn when it opens, so the focus may be on the page when Escape is pressed
+    this._closeMenuKey = (ev) => {
+      if (ev.key === "Escape" && this._menuFor) { this._menuFor = null; this._render(); }
+    };
   }
 
   set hass(hass) {
@@ -470,11 +508,15 @@ class TariffyPanel extends HTMLElement {
       });
     }
     if (this._observer) this._observer.observe(this);
+    document.addEventListener("click", this._closeMenu);
+    document.addEventListener("keydown", this._closeMenuKey);
   }
 
   disconnectedCallback() {
     if (this._observer) this._observer.disconnect();
     this._closeFlow();
+    document.removeEventListener("click", this._closeMenu);
+    document.removeEventListener("keydown", this._closeMenuKey);
     if (this._unsub) {
       this._unsub();
       this._unsub = null;
@@ -610,6 +652,8 @@ class TariffyPanel extends HTMLElement {
     }
     const paid = isNum(c.kosten_bisher) && isNum(c.guthaben_bisher) ? c.kosten_bisher + c.guthaben_bisher : null;
     const hasMetering = isNum(c.prognose_real);
+    // consumption already measured (also on the first day, before there is a forecast)
+    const measured = isNum(c.kosten_bisher) || isNum(c.verbrauch_bisher);
     const chips = [];
     if (c.erinnerung_aktiv) chips.push({ text: this._t("cancelDue"), tone: "orange" });
     if (c.abschlag_warnung_aktiv) chips.push({ text: this._t("warning"), tone: "red" });
@@ -619,7 +663,7 @@ class TariffyPanel extends HTMLElement {
         : { text: this._t("balanceDue"), tone: "red" });
     }
     if (c.wechsel) chips.push({ text: this._t("switchOn", { d: this._date(c.wechsel) }), tone: "blue" });
-    return { elapsed, paid, hasMetering, chips };
+    return { elapsed, paid, hasMetering, measured, chips };
   }
 
   /* ----- rendering ----- */
@@ -746,6 +790,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   _ring(elapsed) {
+    if (elapsed === null) return null; // no start and end date: nothing to draw
     const radius = 38;
     const circumference = 2 * Math.PI * radius;
     const pct = elapsed === null ? null : Math.round(elapsed * 100);
@@ -782,9 +827,12 @@ class TariffyPanel extends HTMLElement {
     const d = this._derive(c);
     const unit = this._unit(c);
     const alert = c.abschlag_warnung_aktiv;
+    // the colour that tints the top of the card
+    const tone = alert || (d.hasMetering && c.prognose_real < 0) ? "red"
+      : c.erinnerung_aktiv ? "orange" : d.hasMetering ? "green" : "none";
 
     const heroValue = d.hasMetering ? c.prognose_real : c.jahreskosten;
-    const heroLabel = d.hasMetering ? this._t("endForecast") : this._t("endTotal");
+    const heroLabel = d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
     const heroTone = d.hasMetering ? (heroValue < 0 ? "red-t" : "green-t") : "";
     const heroSub = isNum(c.abschlag)
       ? `${this._t("instalment")}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
@@ -794,23 +842,29 @@ class TariffyPanel extends HTMLElement {
           : "")
       : null;
 
-    const tiles = d.hasMetering
+    // three figures at most; the remaining term goes into the footer line
+    const tiles = d.measured
       ? [
         this._tile(this._t("costSoFar"), this._money(c.kosten_bisher, c.currency, { digits: 2 })),
-        this._tile(this._t("balanceSoFar"), this._money(c.guthaben_bisher, c.currency, { sign: true, digits: 2 }), null,
-          isNum(c.guthaben_bisher) ? (c.guthaben_bisher < 0 ? "red-t" : "green-t") : ""),
+        isNum(c.guthaben_bisher)
+          ? this._tile(this._t("saldoShort"), this._money(c.guthaben_bisher, c.currency, { sign: true, digits: 2 }), null,
+            c.guthaben_bisher < 0 ? "red-t" : "green-t")
+          : null,
         this._tile(this._t("consumption"), `${this._num(c.verbrauch_bisher, 0)} ${unit}`,
           isNum(c.verbrauch_hochgerechnet) ? this._t("projected", { v: `${this._num(c.verbrauch_hochgerechnet, 0)} ${unit}` }) : null),
-        this._tile(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : "–",
-          c.ende ? this._t("until", { d: this._date(c.ende) }) : null),
       ]
       : [
         this._tile(this._t("instalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
-        this._tile(this._t("contractEnd"), this._date(c.ende)),
-        this._tile(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : "–"),
-        this._tile(this._t("reminder"), c.erinnerung_datum ? this._date(c.erinnerung_datum) : this._t("reminderOff"),
-          c.erinnerung_monate ? this._t("months", { n: c.erinnerung_monate }) : null),
+        c.ende ? this._tile(this._t("contractEnd"), this._date(c.ende)) : null,
       ];
+    const foot = [];
+    if (isNum(c.restlaufzeit)) {
+      foot.push(h("span", {}, `${this._t("remaining")} `, h("b", { text: this._t("daysLeft", { n: c.restlaufzeit }) }),
+        c.ende ? ` · ${this._t("until", { d: this._date(c.ende) })}` : ""));
+    }
+    if (!d.measured) {
+      foot.push(h("span", {}, `${this._t("reminder")} `, h("b", { text: c.erinnerung_datum ? this._date(c.erinnerung_datum) : this._t("reminderOff") })));
+    }
 
     const notes = [];
     if (c.abschlag_warnung_zu_bestaetigen) {
@@ -828,17 +882,18 @@ class TariffyPanel extends HTMLElement {
     }
 
     const hero = h("div", { class: "hero" },
-      this._ring(d.elapsed),
       h("div", {},
         h("div", { class: "label", text: heroLabel }),
         h("div", { class: `big ${heroTone}`, text: this._money(heroValue, c.currency, { sign: d.hasMetering }) }),
-        heroSub ? h("div", { class: "note", text: heroSub }) : null));
-    const body = [hero, h("div", { class: "tiles" }, tiles), this._bars(c, d),
+        heroSub ? h("div", { class: "note", text: heroSub }) : null),
+      this._ring(d.elapsed));
+    const body = [hero, h("div", { class: "tiles" }, tiles.filter(Boolean)), this._bars(c, d),
+      foot.length ? h("div", { class: "foot" }, foot) : null,
       notes.length ? h("div", { class: "notes" }, notes) : null, this._actions(c)];
 
     if (this._compact) {
       const card = h(
-        "details", { class: `card compact${alert ? " alert" : ""}`, "data-id": c.entry_id },
+        "details", { class: `card compact${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", ""), "data-id": c.entry_id },
         h("summary", {},
           h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
           this._who(c),
@@ -854,17 +909,38 @@ class TariffyPanel extends HTMLElement {
       return card;
     }
     return h(
-      "section", { class: `card${alert ? " alert" : ""}` },
+      "section", { class: `card${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", "") },
       h("div", { class: "head" },
         h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
         this._who(c),
-        this._chips(d.chips)),
+        this._menu(c)),
+      this._chips(d.chips),
       body
     );
   }
 
   get _isAdmin() {
     return Boolean(this._hass && this._hass.user && this._hass.user.is_admin);
+  }
+
+  /* The less frequent actions sit behind a "..." menu on wide screens (administrators only). */
+  _menu(c) {
+    if (!this._isAdmin) return null;
+    const open = this._menuFor === c.entry_id;
+    const items = [
+      { label: this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"), flow: "next" },
+      { label: this._t("actEdit"), flow: "edit" },
+    ];
+    return h("div", { class: "menu-wrap" },
+      h("button", {
+        class: "menu-btn", type: "button", "aria-haspopup": "menu", "aria-expanded": String(open),
+        "aria-label": this._t("moreActions"), text: "⋯",
+        onclick: () => { this._menuFor = open ? null : c.entry_id; this._render(); },
+      }),
+      open ? h("div", { class: "menu", role: "menu" }, items.map((item) => h("button", {
+        class: "mi", type: "button", role: "menuitem", text: item.label,
+        onclick: () => { this._menuFor = null; this._render(); this._openFlow(c, item.flow); },
+      }))) : null);
   }
 
   /* Actions are only offered to administrators; the backend checks it again. */
@@ -877,11 +953,14 @@ class TariffyPanel extends HTMLElement {
     if (c.erinnerung_aktiv) {
       list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange", ask: "actAskCancel", yes: "actYesAck" });
     }
-    list.push({
-      key: "plan_next", open: "next", tone: "blue",
-      label: this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"),
-    });
-    list.push({ key: "edit_contract", open: "edit", tone: "blue", label: this._t("actEdit") });
+    if (this._compact) { // on phones the card body has room, there is no "..." menu
+      list.push({
+        key: "plan_next", open: "next", tone: "blue",
+        label: this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"),
+      });
+      list.push({ key: "edit_contract", open: "edit", tone: "blue", label: this._t("actEdit") });
+    }
+    if (!list.length) return null;
 
     const id = c.entry_id;
     const busy = this._busy === id;
@@ -1388,7 +1467,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("basePrice"), isNum(c.grundpreis) ? `${money(c.grundpreis)} ${this._t("perMonth")}` : null),
         row(this._t("instalment"), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
       ]),
-      d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
+      d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),
         row(this._t("soFarLow"), amount(c.verbrauch_bisher_nt)),
