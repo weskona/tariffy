@@ -260,5 +260,742 @@
       "wechsel": "2027-01-01"
     }
   ],
+  "flows": {
+    "contract-1": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_sensor",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "entity": {
+              "domain": [
+                "sensor"
+              ],
+              "multiple": false,
+              "reorder": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_aufschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_jahresverbrauch",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any",
+              "unit_of_measurement": "kWh"
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-1",
+      "handler": "contract-1",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-2": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_jahresverbrauch",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any",
+              "unit_of_measurement": "kWh"
+            }
+          }
+        },
+        {
+          "default": "m³",
+          "name": "next_gas_einheit",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "select": {
+              "custom_value": false,
+              "mode": "dropdown",
+              "multiple": false,
+              "options": [
+                "m³",
+                "CCF",
+                "therm",
+                "ft³",
+                "MBtu",
+                "kWh"
+              ],
+              "sort": false
+            }
+          }
+        },
+        {
+          "default": "",
+          "name": "next_brennwert",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "default": "",
+          "name": "next_zustandszahl",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-2",
+      "handler": "contract-2",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-3": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-3",
+      "handler": "contract-3",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-4": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_nt",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_verbrauch_sensor_nt",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "entity": {
+              "domain": [
+                "sensor"
+              ],
+              "multiple": false,
+              "reorder": false
+            }
+          }
+        },
+        {
+          "name": "next_zaehlernummer_nt",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_sensor",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "entity": {
+              "domain": [
+                "sensor"
+              ],
+              "multiple": false,
+              "reorder": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_aufschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_jahresverbrauch",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any",
+              "unit_of_measurement": "kWh"
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-4",
+      "handler": "contract-4",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-5": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-5",
+      "handler": "contract-5",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-6": {
+      "data_schema": [
+        {
+          "description": {
+            "suggested_value": "2027-01-01"
+          },
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "description": {
+            "suggested_value": "Mobil Plus"
+          },
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "description": {
+            "suggested_value": "Flat 20 GB"
+          },
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "description": {
+            "suggested_value": 14.99
+          },
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "description": {
+            "suggested_value": "2028-12-31"
+          },
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-6",
+      "handler": "contract-6",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    }
+  },
   "today": "2026-07-12"
 }

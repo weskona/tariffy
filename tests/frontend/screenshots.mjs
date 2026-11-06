@@ -82,11 +82,11 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.goto(`${base}?lang=de`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
 
-  check((await page.locator(".actions").count()) === 3, "three contracts offer actions (warning, cancellation, switch)");
+  check((await page.locator(".actions").count()) === 6, "every contract offers actions (plan next contract, plus warning or cancellation where due)");
   check((await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
   check((await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
-  check((await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).count()) === 1, "switch button on Mobilfunk");
-  check((await card(page, "Gas Heizung").locator(".btn").count()) === 0, "no buttons where nothing is possible");
+  check((await card(page, "Mobilfunk").getByRole("button", { name: "Folgevertrag bearbeiten" }).count()) === 1, "Mobilfunk can edit its planned contract");
+  check((await card(page, "Gas Heizung").locator(".btn").allInnerTexts()).join() === "Folgevertrag planen", "Gas only offers to plan the next contract");
 
   // a negative recommended instalment is shown as 0 with a hint, never as a negative amount
   const gasText = await card(page, "Gas Heizung").innerText();
@@ -107,24 +107,137 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
     "contract details: adjustment shown as 0 with the hint");
   await page.getByRole("tab", { name: "Übersicht" }).click();
 
-  // switching asks first and does nothing until confirmed
-  await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).click();
-  check((await calls(page)).length === 0, "no call before the switch is confirmed");
-  check((await card(page, "Mobilfunk").locator(".ask").count()) === 1, "confirmation question is shown");
-  await card(page, "Mobilfunk").screenshot({ path: join(outDir, "actions-confirm.png") });
-  await card(page, "Mobilfunk").getByRole("button", { name: "Abbrechen" }).click();
-  check((await calls(page)).length === 0, "cancel does nothing");
-  check((await card(page, "Mobilfunk").locator(".ask").count()) === 0, "question is gone after cancel");
-  await card(page, "Mobilfunk").getByRole("button", { name: "Jetzt wechseln" }).click();
-  await card(page, "Mobilfunk").getByRole("button", { name: "Ja, wechseln" }).click();
-  check(JSON.stringify(await calls(page)) === JSON.stringify([{ type: "tariffy/action", entry_id: "contract-6", action: "switch_now" }]),
-    "confirmed switch sends exactly one switch_now for contract-6");
+  // switching is not offered in the panel (the contract switches itself on its start date)
+  check((await page.getByRole("button", { name: "Jetzt wechseln" }).count()) === 0, "no switch button in the panel");
 
-  // acknowledgements need no question
+  // acknowledgements ask first as well, and cancel does nothing
+  const before = (await calls(page)).length;
   await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
+  check((await card(page, "Internet").locator(".ask").count()) === 1, "cancellation acknowledgement asks first");
+  check((await calls(page)).length === before, "no call before the acknowledgement is confirmed");
+  await card(page, "Internet").getByRole("button", { name: "Abbrechen" }).click();
+  check((await calls(page)).length === before, "cancelling the acknowledgement does nothing");
+  await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
+  await card(page, "Internet").getByRole("button", { name: "Ja, bestätigen" }).click();
   await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
-  const sent = (await calls(page)).slice(1).map((c) => `${c.entry_id}:${c.action}`);
+  check((await calls(page)).length === before + 1, "warning acknowledgement also waits for confirmation");
+  await card(page, "Strom Haus").getByRole("button", { name: "Ja, bestätigen" }).click();
+  const sent = (await calls(page)).map((c) => `${c.entry_id}:${c.action}`);
   check(sent.join(",") === "contract-5:confirm_cancellation,contract-1:confirm_abschlag_warning", `acknowledgements sent: ${sent}`);
+  await context.close();
+}
+
+// ---- plan the next contract: the options flow of Home Assistant rendered in a dialog ----
+const flowPath = "config/config_entries/options/flow";
+const api = (page) => page.evaluate(() => window.__api);
+const dialog = (page) => page.locator(".dialog");
+async function openDialog(page, name, button) {
+  await card(page, name).getByRole("button", { name: button }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog input, .dialog .err"));
+}
+async function openPage(browser, query) {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`${query}: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?${query}`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  return { context, page };
+}
+
+{ // plan, validate, save, and mark the cancellation as done in the same step
+  const { context, page } = await openPage(browser, "lang=de&reload=2");
+  await openDialog(page, "Internet", "Folgevertrag planen");
+  check((await dialog(page).innerText()).includes("Folgevertrag · Internet"), "dialog title names the contract");
+  check(JSON.stringify((await api(page))[0]) === JSON.stringify({ method: "POST", path: flowPath, body: { handler: "contract-5" } }),
+    "opening starts the options flow of the contract");
+  check((await dialog(page).innerText()).includes("Wechseldatum (Beginn neuer Vertrag)"), "labels come from the integration's translations");
+  check(await page.locator(".dialog .check input").isChecked(), "cancellation is marked as done by default");
+
+  await page.locator(".dialog [name=next_beginn]").fill("2027-10-01");
+  await page.locator(".dialog [name=next_anbieter]").fill("Neuer Anbieter");
+  await page.locator(".dialog [name=next_abschlag]").fill("abc");
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  check((await dialog(page).innerText()).includes("Keine gültige Zahl"), "an invalid number is refused in the panel");
+  check((await api(page)).length === 1, "nothing is sent while a field is invalid");
+
+  await page.locator(".dialog [name=next_abschlag]").fill("44,98");
+  check((await page.locator(".dialog .ferr").count()) === 0, "the error disappears once the field is edited");
+  await dialog(page).screenshot({ path: join(outDir, "next-contract-dialog.png") });
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog")?.innerText.includes("Gespeichert"));
+  check(JSON.stringify((await api(page))[1].body) === JSON.stringify({ next_beginn: "2027-10-01", next_anbieter: "Neuer Anbieter", next_abschlag: 44.98 }),
+    "only the filled fields are sent, the decimal comma becomes a number");
+  await page.waitForFunction(() => window.__calls.filter((c) => c.action === "confirm_cancellation").length === 3, null, { timeout: 8000 });
+  check((await calls(page)).every((c) => c.entry_id === "contract-5" && c.action === "confirm_cancellation"),
+    "the cancellation is acknowledged for this contract once it is loaded again (retried while it reloads)");
+  check(!(await dialog(page).innerText()).includes("konnte nicht"), "no warning when the cancellation could be marked");
+  await dialog(page).getByRole("button", { name: "Schließen" }).click();
+  check((await page.locator(".dialog").count()) === 0, "the dialog closes");
+  await context.close();
+}
+
+{ // cancelling aborts the flow, unticking the box leaves the cancellation alone
+  const { context, page } = await openPage(browser, "lang=de");
+  await openDialog(page, "Internet", "Folgevertrag planen");
+  await dialog(page).getByRole("button", { name: "Abbrechen" }).click();
+  const sent = await api(page);
+  check(sent.length === 2 && sent[1].method === "DELETE" && sent[1].path === `${flowPath}/flow-5`, "cancel aborts the flow");
+  await openDialog(page, "Internet", "Folgevertrag planen");
+  await page.locator(".dialog [name=next_beginn]").fill("2027-10-01");
+  await page.locator(".dialog .check input").uncheck();
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog")?.innerText.includes("Gespeichert"));
+  await page.waitForTimeout(1500);
+  check((await calls(page)).length === 0, "an unticked box leaves the cancellation reminder alone");
+  await context.close();
+}
+
+{ // an existing plan is shown, can be removed after a second question
+  const { context, page } = await openPage(browser, "lang=de");
+  await openDialog(page, "Mobilfunk", "Folgevertrag bearbeiten");
+  check((await page.locator(".dialog [name=next_beginn]").inputValue()) === "2027-01-01", "the planned start date is filled in");
+  check((await page.locator(".dialog [name=next_anbieter]").inputValue()) === "Mobil Plus", "the planned provider is filled in");
+  check((await page.locator(".dialog .check").count()) === 0, "no cancellation box where no reminder is due");
+  await dialog(page).getByRole("button", { name: "Geplanten Vertrag entfernen" }).click();
+  check((await api(page)).length === 1, "removing asks first");
+  await dialog(page).getByRole("button", { name: "Abbrechen" }).first().click();
+  check((await dialog(page).getByRole("button", { name: "Speichern" }).count()) === 1, "the question can be dismissed");
+  await dialog(page).getByRole("button", { name: "Geplanten Vertrag entfernen" }).click();
+  await dialog(page).getByRole("button", { name: "Ja, entfernen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog")?.innerText.includes("entfernt"));
+  const post = (await api(page)).at(-1);
+  check(post.method === "POST" && JSON.stringify(post.body) === "{}", "removing sends an empty form, which the integration reads as 'no next contract'");
+  await context.close();
+}
+
+{ // the integration's own validation errors are shown at the field and the input is kept
+  const { context, page } = await openPage(browser, "lang=de&flowfail=1");
+  await openDialog(page, "Strom Haus", "Folgevertrag planen");
+  await page.locator(".dialog [name=next_beginn]").fill("2027-01-01");
+  await page.locator(".dialog [name=next_abschlag]").fill("40");
+  await dialog(page).getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog .ferr"));
+  check((await page.locator(".dialog .fld.bad .ferr").innerText()).includes("Keine gültige Zahl"), "backend error is shown at the field");
+  check((await page.locator(".dialog [name=next_abschlag]").inputValue()) === "40", "typed values survive a rejected save");
+  await context.close();
+}
+
+{ // REST failures are reported, not swallowed
+  const { context, page } = await openPage(browser, "lang=de&flowerr=1");
+  await openDialog(page, "Strom Haus", "Folgevertrag planen");
+  check((await dialog(page).innerText()).includes("konnte nicht geladen werden"), "load failure is shown");
+  await dialog(page).getByRole("button", { name: "Schließen" }).click();
+  check((await page.locator(".dialog").count()) === 0, "and can be closed");
+  await context.close();
+}
+
+{ // English and the phone layout
+  const { context, page } = await openPage(browser, "lang=en");
+  await openDialog(page, "Gas Heizung", "Plan next contract");
+  check((await dialog(page).innerText()).includes("Next contract · Gas Heizung"), "English dialog title");
+  check((await page.locator(".dialog select").count()) === 1, "the gas unit is a drop-down");
+  check((await page.locator(".dialog select").inputValue()) === "m³", "its default is selected");
   await context.close();
 }
 
@@ -135,6 +248,7 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.goto(`${base}?lang=de&fail=1`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
   await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
+  await card(page, "Strom Haus").getByRole("button", { name: "Ja, bestätigen" }).click();
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
   check((await card(page, "Strom Haus").locator(".err").innerText()).includes("fehlgeschlagen"), "error text is shown");
   check(await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).isEnabled(), "button is usable again after an error");
@@ -159,7 +273,7 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.clock.setFixedTime("2026-07-12T12:00:00Z");
   await page.goto(`${base}?lang=de&narrow=1`);
   await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
-  check((await page.locator(".btn").count()) === 3, "phone: all three buttons are in the page");
+  check((await page.locator(".btn").count()) === 8, "phone: all buttons are in the page");
   check(!(await page.locator(".btn").first().isVisible()), "phone: buttons stay hidden until the row is expanded");
   await page.locator("details.card", { hasText: "Internet" }).locator("summary").click();
   check(await page.locator("details.card", { hasText: "Internet" }).getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");

@@ -7,6 +7,15 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Added
+
+- Beta: Das Panel kann den Folgevertrag jetzt planen, bearbeiten und entfernen ("Folgevertrag planen" auf der Vertragskarte, nur Administratoren). Es zeigt dasselbe Formular wie der "Konfigurieren"-Dialog der Integration und speichert über diesen Dialog, Prüfung und Speicherung bleiben also unverändert. Ist die Kündigungserinnerung fällig, markiert ein Häkchen (standardmäßig an) die Kündigung im selben Schritt als erledigt.
+
+### Changed
+
+- Beta: Die beiden Aktions-Buttons im Panel (Warnung bestätigen, Kündigung bestätigen) fragen jetzt eine zweite Stufe ab, damit nichts versehentlich ausgelöst wird.
+- Beta: Das Panel bietet "Jetzt wechseln" nicht mehr an. Der Klick hätte den aktuellen Vertrag sofort ersetzt, während der neue erst am geplanten Datum beginnt. Zum geplanten Datum wechselt der Vertrag von selbst; der Button in Home Assistant bleibt unverändert. Die ungenutzte Websocket-Aktion `switch_now` wurde mit entfernt.
+
 ## [1.27.0-beta.3] - 2026-11-06
 
 Dritte Beta zum Testen des Seitenleisten-Panels. Neu: Warnung und Kündigungserinnerung bestätigen und auf einen geplanten Folgevertrag wechseln, direkt im Panel (nur Administratoren), sowie eine klarere Anzeige, wenn ein negativer Abschlag empfohlen wird. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

@@ -43,12 +43,12 @@ PANEL_FILE = "tariffy-panel.js"
 SIGNAL_CONTRACTS = f"{DOMAIN}_contracts_updated"
 
 # Actions of the panel. Same coordinator methods and same preconditions as the
-# three button entities (see button.py), so the panel can never do more than the
-# buttons can.
-ACTION_SWITCH_NOW = "switch_now"
+# button entities (see button.py), so the panel can never do more than the
+# buttons can. "Switch now" is deliberately not offered: the next contract
+# switches in by itself on its start date.
 ACTION_CONFIRM_CANCELLATION = "confirm_cancellation"
 ACTION_CONFIRM_WARNING = "confirm_abschlag_warning"
-ACTIONS = (ACTION_SWITCH_NOW, ACTION_CONFIRM_CANCELLATION, ACTION_CONFIRM_WARNING)
+ACTIONS = (ACTION_CONFIRM_CANCELLATION, ACTION_CONFIRM_WARNING)
 DATA_KEY = f"{DOMAIN}_panel"
 
 # Values shown by the panel. Deliberately a whitelist: the panel is visible to
@@ -183,8 +183,6 @@ def ws_subscribe(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
 
 def _action_available(action: str, data: dict[str, Any]) -> bool:
     """Whether an action is currently possible, like the button's `available`."""
-    if action == ACTION_SWITCH_NOW:
-        return bool(data.get("next"))
     if action == ACTION_CONFIRM_CANCELLATION:
         return bool(data.get("erinnerung_aktiv"))
     if action == ACTION_CONFIRM_WARNING:
@@ -221,9 +219,7 @@ async def ws_action(hass: HomeAssistant, connection, msg: dict[str, Any]) -> Non
         )
         return
 
-    if action == ACTION_SWITCH_NOW:
-        await coordinator.async_force_switch()
-    elif action == ACTION_CONFIRM_CANCELLATION:
+    if action == ACTION_CONFIRM_CANCELLATION:
         await coordinator.async_confirm_kuendigung()
     else:
         await coordinator.async_confirm_abschlag_warnung()
