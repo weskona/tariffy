@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.2] - 2026-11-06
+
+Zweite Beta zum Testen des Seitenleisten-Panels. Sie enthält den Prognose-Fix aus 1.26.6, das Panel zeigt also nach einer Abschlagsänderung das korrigierte „Guthaben/Nachzahlung (Vertragsende)“. Das Panel selbst ist unverändert und nur lesend. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Behoben
+
+- „Guthaben/Nachzahlung (Vertragsende)“ (und damit die Abschlag-Warnung) war nach einer Abschlagsänderung mitten im Vertrag zu optimistisch. Die Prognose rechnet jetzt mit den bisher tatsächlich gezahlten Abschlägen plus dem aktuellen Abschlag für die Restlaufzeit, siehe 1.26.6. Verträge, deren Abschlag nie geändert wurde, behalten exakt denselben Wert.
+
 ## [1.27.0-beta.1] - 2026-11-05
 
 Beta zum Testen des neuen Seitenleisten-Panels. Das Panel liest nur, alles andere arbeitet wie in 1.26.5. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version. HACS bietet diese Version nur an, wenn „Beta-Versionen anzeigen“ aktiviert ist.
@@ -242,7 +250,8 @@ Beta zum Testen des neuen Seitenleisten-Panels. Das Panel liest nur, alles ander
 
 Keine strukturierte Changelog-Historie vor dieser Version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.2...HEAD
+[1.27.0-beta.2]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...v1.27.0-beta.2
 [1.27.0-beta.1]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.27.0-beta.1
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5

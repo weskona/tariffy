@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.2] - 2026-11-06
+
+Second beta for testing the sidebar panel. It contains the forecast fix from 1.26.6, so the panel shows the corrected "Credit / balance due (contract end)" after an instalment change. The panel itself is unchanged and read only. Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- "Refund/balance due (contract end)" (and with it the low-instalment warning) was too optimistic after an instalment change during the contract. The forecast now uses the instalments actually paid so far plus the current instalment for the remaining term, see 1.26.6. Contracts whose instalment was never changed keep exactly the same value.
+
 ## [1.27.0-beta.1] - 2026-11-05
 
 Beta release for testing the new sidebar panel. The panel only reads, everything else works as in 1.26.5. Please report problems with the bug report form and mention this exact version. HACS offers this version only if "Show beta versions" is enabled.
@@ -236,7 +244,8 @@ Beta release for testing the new sidebar panel. The panel only reads, everything
 
 No structured changelog prior to this version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.2...HEAD
+[1.27.0-beta.2]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...v1.27.0-beta.2
 [1.27.0-beta.1]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.27.0-beta.1
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
