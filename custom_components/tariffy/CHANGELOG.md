@@ -14,7 +14,7 @@ Zweiter Release Candidate zum Testen des Seitenleisten-Panels. Das Panel nutzt d
 ### Changed
 
 - Die Kopfzeile der Übersicht hat vier Kacheln mit Details: die Abschläge pro Monat (mit Jahreswert und einem Balken, der Verbrauchs- und Pauschalverträge aufteilt), die Kosten bisher (mit den bis heute fälligen Abschlägen und dem Saldo), die Prognose zum Vertragsende (je Vertrag, die schlechteste zuerst) und die nächsten drei Termine.
-- Die beiden Tabellen der Ansicht "Kosten" haben dasselbe Spaltenraster: "Kosten bisher" und "Abschlag" stehen untereinander (Pauschal-Tabelle: Kosten bisher, Restlaufzeit, Vertragsende, Abschlag).
+- Die beiden Tabellen der Ansicht "Kosten" und die Gesamtzeile haben dasselbe Spaltenraster: "Kosten bisher" und "Abschlag" stehen untereinander, auch in der Gesamtzeile (Pauschal-Tabelle: Kosten bisher, Restlaufzeit, Vertragsende, Abschlag).
 - Das Panel nutzt die ganze Breite des Fensters, statt bei 1280 px abgeschnitten und zentriert zu sein (die Grenze liegt jetzt bei 2400 px, nur für Ultrabreit-Monitore). Die Übersicht behält drei Verträge pro Zeile und bekommt bei einem sehr breiten Fenster (ab 1750 px) eine vierte Spalte.
 
 ## [1.27.0-rc.1] - 2026-11-06

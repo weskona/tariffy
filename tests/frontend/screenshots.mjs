@@ -569,8 +569,19 @@ for (const width of [1280, 900, 600, 390]) {
   const totals = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll("tr.total")].map((r) => r.querySelector("td:nth-child(2)").textContent));
   check(Math.abs(number(totals[0]) - expectedCosts.metered) <= 1 && Math.abs(number(totals[1]) - expectedCosts.flat) <= 1,
     `each group has its own total (${totals} for ${JSON.stringify(expectedCosts)})`);
-  const grand = (await page.locator(".grand").innerText()).replace(/ /g, " ");
-  check(Math.abs(number(grand.match(/Kosten bisher\s*([\d.,]+)/)[1]) - (expectedCosts.metered + expectedCosts.flat)) <= 1, `the grand total adds both groups (${grand.replace(/\n/g, " ")})`);
+  // the overall total is a row of the same column grid: right below the costs and the instalments above
+  const grand = await page.evaluate(() => {
+    const root = window.__panel.shadowRoot;
+    const right = (el) => Math.round(el.getBoundingClientRect().right);
+    const cells = [...root.querySelectorAll(".grand-table td")];
+    const heads = [...root.querySelector(".group table").querySelectorAll("th")];
+    const sums = [...root.querySelectorAll("tr.total")].map((r) => [...r.querySelectorAll("td")].map(right));
+    return { cost: cells[1].textContent, instalment: cells[4].textContent, costX: right(cells[1]), instalmentX: right(cells[4]),
+      headCostX: right(heads[1]), headInstalmentX: right(heads[4]), sumCostX: sums[0][1], sumInstalmentX: sums[0][4] };
+  });
+  check(Math.abs(number(grand.cost) - (expectedCosts.metered + expectedCosts.flat)) <= 1, `the grand total adds both groups (${grand.cost})`);
+  check(grand.costX === grand.headCostX && grand.costX === grand.sumCostX, `overall cost sits below the costs above (${grand.costX} / ${grand.sumCostX} / ${grand.headCostX})`);
+  check(grand.instalmentX === grand.headInstalmentX && grand.instalmentX === grand.sumInstalmentX, `overall instalment sits below the instalments above (${grand.instalmentX} / ${grand.sumInstalmentX} / ${grand.headInstalmentX})`);
   await context.close();
 }
 

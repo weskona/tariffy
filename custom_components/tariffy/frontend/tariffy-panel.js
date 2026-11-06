@@ -168,6 +168,8 @@ const I18N = {
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TABS = ["overview", "costs", "contracts"];
 // contracts that are billed by consumption; everything else (internet, mobile, ...) is a flat rate
+// column widths shared by the cost tables, so that their columns line up
+const GRID = ["24%", "15.2%", "15.2%", "15.2%", "15.2%", "15.2%"];
 const METERED = new Set(["electricity", "electricity_ht_nt", "gas", "water"]);
 const TAB_KEY = "tariffy-panel-tab";
 
@@ -252,9 +254,9 @@ const STYLE = `
 .group:first-of-type { margin-top: 0; }
 .group-title { display: flex; align-items: center; gap: 8px; margin: 0 0 12px 2px; font-size: 11px; font-weight: 600;
   letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.grand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; margin-top: 18px; padding: 12px 16px; border-radius: 14px;
-  background: var(--panel); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
-.grand b { color: var(--text); font-variant-numeric: tabular-nums; }
+/* the overall total is a row of its own in the same column grid as the tables above */
+.grand-table { margin-top: 18px; table-layout: fixed; }
+.grand-table td { font-weight: 700; border-bottom: 0; background: var(--panel2); }
 .group-title .count { font-size: 11px; letter-spacing: 0; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.07); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; align-items: stretch; }
 .grid.flat { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
@@ -425,7 +427,7 @@ details[open] summary .caret svg { transform: rotate(90deg); }
   .big { font-size: 28px; }
   .ring, .ring svg { width: 76px; height: 76px; }
   table, thead, tbody, tr, td { display: block; }
-  colgroup { display: none; }
+  colgroup, td:empty { display: none; }
   thead { display: none; }
   table { background: transparent; border: 0; border-radius: 0; }
   tr { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; padding: 8px 14px; }
@@ -1504,7 +1506,7 @@ class TariffyPanel extends HTMLElement {
       h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
       h("table", {},
         // both tables share one column grid (the 6th column is empty in the flat-rate table)
-        h("colgroup", {}, ["24%", "15.2%", "15.2%", "15.2%", "15.2%", "15.2%"].map((width) => h("col", { style: `width:${width}` }))),
+        h("colgroup", {}, GRID.map((width) => h("col", { style: `width:${width}` }))),
         h("thead", {}, h("tr", {}, heads.map((label) => h("th", { text: label })))),
         h("tbody", {}, rows))) : null);
 
@@ -1517,10 +1519,14 @@ class TariffyPanel extends HTMLElement {
       group("groupFlat", flat, [
         this._t("colContract"), this._t("colCost"), this._t("remaining"), this._t("contractEnd"), this._t("colInstalment"), "",
       ], flatRows),
-      h("div", { class: "grand" },
-        h("span", { class: "label", text: this._t("grandTotal") }),
-        h("span", {}, `${this._t("colCost")} `, h("b", { text: money(sumCost(contracts)) })),
-        h("span", {}, `${this._t("colInstalment")} `, h("b", { text: money(sum(contracts, "abschlag")) }))),
+      h("table", { class: "grand-table" },
+        h("colgroup", {}, GRID.map((width) => h("col", { style: `width:${width}` }))),
+        h("tbody", {}, h("tr", { class: "grandrow" },
+          h("td", { text: this._t("grandTotal") }),
+          cell(this._t("colCost"), money(sumCost(contracts))),
+          h("td", { text: "" }), h("td", { text: "" }),
+          cell(this._t("colInstalment"), money(sum(contracts, "abschlag"))),
+          h("td", { text: "" })))),
       h("div", { class: "hint", text: this._t("costsHint") })
     );
   }
