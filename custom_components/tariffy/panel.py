@@ -70,6 +70,7 @@ CONTRACT_FIELDS = (
     "arbeitspreis_gesamt_wasser",
     "grundpreis",
     "abschlag",
+    "abschlag_bisher_gezahlt",
     "jahreskosten",
     "verbrauch_bisher",
     "verbrauch_bisher_ht",

@@ -194,9 +194,9 @@ The **Tariffy panel** is a page of its own in the Home Assistant sidebar. It sho
 
 | View | Content |
 |---|---|
-| **Overview** | Monthly instalments in total, forecast at contract end (contracts with consumption metering only) and the next date (cancellation deadline, contract end or switch); below one card per contract: the head with name and status (the card is tinted by its state: green credit, red balance due, orange cancellation due), the forecast at contract end as the big figure next to the progress ring, at most three figures (cost so far, balance so far, consumption), instalments paid vs. cost, the remaining term and notes. The cards flow into columns without gaps |
-| **Costs** | A table of all contracts: cost so far, balance so far, balance at contract end, instalment and recommended instalment, plus a total row |
-| **Contracts** | Expandable details per contract: contract data, prices, consumption, recommendations |
+| **Overview** | Monthly instalments in total, forecast at contract end (contracts with consumption metering only) and the next date (cancellation deadline, contract end or switch); below two groups with one card per contract: **metered contracts** (electricity, gas, water) and **flat-rate contracts** (internet, mobile, insurance, other). The cards are tinted by their state (green credit, red balance due, orange cancellation due). A metered card shows the forecast at contract end as the big figure next to the progress ring, at most three figures (cost so far, balance so far, consumption), instalments paid vs. cost, the remaining term and notes. A flat-rate card shows the monthly instalment, the cost so far and the contract end with a term bar, without ring and consumption. The overview has no editing actions. |
+| **Costs** | A table of all contracts: cost so far, balance so far, balance at contract end, instalment and recommended instalment, plus a total row. For flat-rate contracts the cost so far is the instalments due until today; balance and forecast stay empty |
+| **Contracts** | Expandable details per contract: contract data, prices, consumption, recommendations. This is also where **everything that changes a contract** lives, as icons in each row (calendar: plan or edit the next contract, pencil: edit the contract) and the button **New contract** at the top (administrators only) |
 
 Plus is credit, minus is balance due. When the credit already covers the costs until contract end, the recommended instalment shows "0.00 €" with the note "Credit covers the costs", never a negative amount. The values are the sensors' values and update by themselves.
 
@@ -205,13 +205,13 @@ Plus is credit, minus is balance due. When the credit already covers the costs u
 - **All users** see the contracts, but only selected values. Customer number, meter numbers, MaLo ID, notification target and internal markers are **not** sent to the panel.
 - **Administrators only** get the buttons and dialogs below. The backend checks this again, so a non-administrator cannot trigger the actions through the API either.
 
-**Menu and acknowledging:** planning, editing, creating and deleting are behind the **"..." menu** in the head of a card ("More actions"); on phones the buttons are in the opened card. "Acknowledge warning" and "Acknowledge cancellation" sit on the card next to the note they belong to, do the same as the buttons of the contract and ask a second time before anything happens.
+**Acknowledging:** planning, editing, creating and deleting are in the **Contracts** tab (icons in the row, button at the top). On the card in the overview only "Acknowledge warning" and "Acknowledge cancellation" appear, next to the note they belong to; do the same as the buttons of the contract and ask a second time before anything happens.
 
 **Plan the next contract:** "Plan next contract" (or "Edit next contract") shows the same form as "Configure" in Home Assistant; empty fields keep the current value. If a cancellation reminder is due, the box "Mark the cancellation as done" (on by default) acknowledges it in the same step. "Remove planned contract" removes only the plan, after a question. There is deliberately no "switch now" in the panel (it would replace the current contract before the new one starts); the switch happens by itself on the planned date.
 
 **Edit a contract:** "Edit contract" shows the two forms of "Reconfigure" (general data, then the data of the sparte) and asks once more before saving. Acknowledged reminders, "notification sent" markers and the frozen consumption of the last contract term are kept; the cancellation reminder starts over only when the contract end or the reminder lead time changes. An empty optional field removes its value.
 
-**New contract:** "New contract" (top bar) runs the setup dialog of Home Assistant (name, sparte and provider first, then the data of the sparte). The contract appears in the panel by itself.
+**New contract:** "New contract" (top of the Contracts tab) runs the setup dialog of Home Assistant (name, sparte and provider first, then the data of the sparte). The contract appears in the panel by itself.
 
 **Delete a contract:** "Delete contract" is in the edit dialog and works only after you type the name of the contract; only then the button "Delete for good" becomes active. Sensors, buttons, the device and open notifications of the contract are removed; the long-term statistics Home Assistant already recorded stay in its database. Deleting the **last** contract removes the panel from the sidebar until you add a contract under Settings → Integrations → Tariffy.
 
