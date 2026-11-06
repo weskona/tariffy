@@ -7,9 +7,17 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.3] - 2026-11-06
+
+Dritte Beta zum Testen des Seitenleisten-Panels. Neu: Warnung und Kündigungserinnerung bestätigen und auf einen geplanten Folgevertrag wechseln, direkt im Panel (nur Administratoren), sowie eine klarere Anzeige, wenn ein negativer Abschlag empfohlen wird. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
 ### Added
 
 - Beta: Das Panel kann jetzt die Abschlag-Warnung bestätigen, die Kündigungserinnerung bestätigen und auf einen geplanten Folgevertrag wechseln, direkt in der Vertragskarte, mit Rückfrage vor dem Wechsel. Es sind dieselben Aktionen wie bei den drei Buttons, nur für Administratoren (neuer Websocket-Befehl `tariffy/action`, der dieselben Bedingungen wie die Buttons prüft). Alle anderen behalten die reine Leseansicht.
+
+### Geändert
+
+- Beta: Deckt das Guthaben die Kosten bis zum Vertragsende bereits ab, zeigt das Panel keinen negativen empfohlenen Abschlag mehr. Es zeigt 0,00 € mit dem Hinweis „Guthaben deckt die Kosten“. Der Sensor „Abschlag (Anpassung empfohlen)“ selbst bleibt unverändert.
 
 ## [1.27.0-beta.2] - 2026-11-06
 
@@ -254,7 +262,8 @@ Beta zum Testen des neuen Seitenleisten-Panels. Das Panel liest nur, alles ander
 
 Keine strukturierte Changelog-Historie vor dieser Version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.2...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.3...HEAD
+[1.27.0-beta.3]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.2...v1.27.0-beta.3
 [1.27.0-beta.2]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...v1.27.0-beta.2
 [1.27.0-beta.1]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.27.0-beta.1
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
