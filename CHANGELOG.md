@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.2] - 2026-11-06
+
+Second release candidate for testing the sidebar panel. The panel uses the whole width of the window, the header of the overview has more details and the cost tables line up. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The header of the overview has four tiles with details: the instalments per month (with the yearly figure and a bar that splits metered and flat-rate contracts), the cost so far (with the instalments due until today and the balance), the forecast at contract end (per contract, worst first) and the next three dates.
+- The two tables of the "Costs" view and the overall total share one column grid: "cost so far" and "instalment" sit exactly below each other, also in the overall total row (flat-rate table: cost so far, remaining term, contract end, instalment).
+- The panel uses the whole width of the window instead of being capped at 1280 px and centred (the cap is now 2400 px, only for ultra-wide monitors). The overview keeps three contracts per row and gets a fourth column on a very wide window (1750 px and more).
+
 ## [1.27.0-rc.1] - 2026-11-06
 
 Same content as 1.27.0-beta.10, released again under a new name: GitHub lists `beta.10` between `beta.2` and `beta.1`, so HACS did not offer it. Please install this version (see "Beta releases" in the documentation; the numbering now continues with `rc.2`, `rc.3`, ...). Please report problems with the bug report form and mention this exact version.

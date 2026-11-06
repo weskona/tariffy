@@ -19,7 +19,7 @@ const I18N = {
     monthlyTotal: "Instalments per month",
     forecastTotal: "Forecast at contract end",
     forecastSub: "{n} of {m} contracts with metering",
-    nextDeadline: "Next date",
+    nextDates: "Next dates", perYear: "≈ {v} / year", shortMetered: "Metered", shortFlat: "Flat rate", dueSoFar: "Instalments due so far: {v}",
     nothingPlanned: "Nothing planned",
     inDays: "in {n} days", today: "today", tomorrow: "tomorrow",
     credit: "Credit", balanceDue: "Balance due",
@@ -96,7 +96,7 @@ const I18N = {
     monthlyTotal: "Abschläge pro Monat",
     forecastTotal: "Prognose zum Vertragsende",
     forecastSub: "{n} von {m} Verträgen mit Verbrauchsmessung",
-    nextDeadline: "Nächster Termin",
+    nextDates: "Nächste Termine", perYear: "≈ {v} / Jahr", shortMetered: "Verbrauch", shortFlat: "Pauschal", dueSoFar: "Fällige Abschläge bisher: {v}",
     nothingPlanned: "Nichts geplant",
     inDays: "in {n} Tagen", today: "heute", tomorrow: "morgen",
     credit: "Guthaben", balanceDue: "Nachzahlung",
@@ -168,6 +168,8 @@ const I18N = {
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TABS = ["overview", "costs", "contracts"];
 // contracts that are billed by consumption; everything else (internet, mobile, ...) is a flat rate
+// column widths shared by the cost tables, so that their columns line up
+const GRID = ["24%", "15.2%", "15.2%", "15.2%", "15.2%", "15.2%"];
 const METERED = new Set(["electricity", "electricity_ht_nt", "gas", "water"]);
 const TAB_KEY = "tariffy-panel-tab";
 
@@ -215,7 +217,8 @@ const STYLE = `
   container-type: inline-size;
 }
 * { box-sizing: border-box; }
-.wrap { max-width: 1280px; margin: 0 auto; padding: 16px 20px 40px; }
+/* use the whole width of the window; the cap only keeps ultra-wide monitors readable */
+.wrap { max-width: 2400px; margin: 0 auto; padding: 16px 24px 40px; }
 .top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; letter-spacing: .02em; }
 .pill { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold);
@@ -229,25 +232,37 @@ const STYLE = `
 .tab:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 .spacer { width: 90px; }
 
-.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
-.sum { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; }
+.summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px; }
+@container (min-width: 1100px) { .summary { grid-template-columns: repeat(4, 1fr); } }
+.sum { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; min-width: 0; }
 .label { font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
 .sum .value { font-size: 26px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
 .sum .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.split { display: flex; height: 7px; margin-top: 12px; border-radius: 4px; overflow: hidden; gap: 2px; background: rgba(255,255,255,.07); }
+.split span { display: block; height: 100%; }
+.legend { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.legend b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.mini { margin-top: 10px; display: grid; gap: 0; }
+.mrow { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.mrow .n { min-width: 0; }
+.mrow .n b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mrow .v { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); }
 
 /* two groups: metered contracts (big cards) and flat-rate contracts (slim cards), each in rows of equal height */
 .group { margin-top: 22px; }
 .group:first-of-type { margin-top: 0; }
 .group-title { display: flex; align-items: center; gap: 8px; margin: 0 0 12px 2px; font-size: 11px; font-weight: 600;
   letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.grand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; margin-top: 18px; padding: 12px 16px; border-radius: 14px;
-  background: var(--panel); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
-.grand b { color: var(--text); font-variant-numeric: tabular-nums; }
+/* the overall total is a row of its own in the same column grid as the tables above */
+.grand-table { margin-top: 18px; table-layout: fixed; }
+.grand-table td { font-weight: 700; border-bottom: 0; background: var(--panel2); }
 .group-title .count { font-size: 11px; letter-spacing: 0; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.07); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; align-items: stretch; }
 .grid.flat { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-/* wide screens: three contracts per row in both groups */
+/* wide screens: three contracts per row in both groups, four on a very wide window */
 @container (min-width: 1000px) { .grid.metered, .grid.flat { grid-template-columns: repeat(3, 1fr); } }
+@container (min-width: 1750px) { .grid.metered, .grid.flat { grid-template-columns: repeat(4, 1fr); } }
 section.card { display: flex; flex-direction: column; }
 section.card .foot { margin-top: auto; padding-top: 12px; }
 .card.flat .big { font-size: 28px; }
@@ -349,6 +364,7 @@ section.card .foot { margin-top: auto; padding-top: 12px; }
 .callout.orange { border-color: rgba(251,146,60,.35); background: rgba(251,146,60,.07); color: #fed7aa; }
 .callout.blue { border-color: rgba(96,165,250,.3); background: rgba(96,165,250,.06); color: #bfdbfe; }
 
+.group table { table-layout: fixed; }
 table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
 th, td { padding: 12px 14px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--line); }
 th:first-child, td:first-child { text-align: left; }
@@ -401,6 +417,7 @@ details[open] summary .caret svg { transform: rotate(90deg); }
   .sum { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 12px 14px; }
   .sum .value { font-size: 20px; margin: 0; grid-column: 2; grid-row: 1 / span 2; }
   .sum .sub { grid-column: 1; }
+  .sum .split, .sum .legend, .sum .mini { grid-column: 1 / -1; }
   .tiles { grid-template-columns: 1fr 1fr; }
   .tiles .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .grid, .grid.flat { grid-template-columns: 1fr; gap: 12px; }
@@ -410,6 +427,7 @@ details[open] summary .caret svg { transform: rotate(90deg); }
   .big { font-size: 28px; }
   .ring, .ring svg { width: 76px; height: 76px; }
   table, thead, tbody, tr, td { display: block; }
+  colgroup, td:empty { display: none; }
   thead { display: none; }
   table { background: transparent; border: 0; border-radius: 0; }
   tr { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; padding: 8px 14px; }
@@ -741,47 +759,83 @@ class TariffyPanel extends HTMLElement {
   _summary() {
     const contracts = this._contracts;
     const currency = contracts[0].currency || "EUR";
-    const monthly = contracts.reduce((sum, c) => sum + (isNum(c.abschlag) ? c.abschlag : 0), 0);
-    const withMetering = contracts.filter((c) => isNum(c.prognose_real));
-    const forecast = withMetering.reduce((sum, c) => sum + c.prognose_real, 0);
+    const metered = contracts.filter((c) => METERED.has(c.sparte));
+    const flat = contracts.filter((c) => !METERED.has(c.sparte));
+    const sum = (list, fn) => list.reduce((s, c) => s + (fn(c) || 0), 0);
+    const money = (v, o = {}) => this._money(v, currency, o);
+    const tone = (value) => (value < 0 ? "red-t" : value > 0 ? "green-t" : "");
 
+    // instalments: per month, split by kind of contract, and what that makes per year
+    const monthlyMetered = sum(metered, (c) => c.abschlag);
+    const monthlyFlat = sum(flat, (c) => c.abschlag);
+    const monthly = monthlyMetered + monthlyFlat;
+
+    // costs so far: measured for metered contracts, instalments due for flat-rate ones
+    const costs = sum(contracts, (c) => this._costSoFar(c));
+    const due = sum(metered, (c) => (isNum(c.kosten_bisher) && isNum(c.guthaben_bisher) ? c.kosten_bisher + c.guthaben_bisher : 0))
+      + sum(flat, (c) => c.abschlag_bisher_gezahlt);
+    const withBalance = metered.filter((c) => isNum(c.guthaben_bisher));
+    const balance = sum(withBalance, (c) => c.guthaben_bisher);
+
+    // forecast at contract end, worst first
+    const withMetering = contracts.filter((c) => isNum(c.prognose_real));
+    const forecast = sum(withMetering, (c) => c.prognose_real);
+    const worstFirst = [...withMetering].sort((a, b) => a.prognose_real - b.prognose_real).slice(0, 4);
+
+    // the next dates: cancellation deadline, switch, contract end; one entry per contract and date
     const candidates = [];
     for (const c of contracts) {
       const endDays = this._days(c.ende);
       if (c.erinnerung_aktiv && endDays !== null && endDays >= 0) {
-        candidates.push({ days: endDays, rank: 0, text: `${this._t("cancelDue")} · ${c.title}`, date: c.ende });
+        candidates.push({ days: endDays, rank: 0, key: `${c.entry_id}${c.ende}`, text: `${this._t("cancelDue")} · ${c.title}`, date: c.ende });
       }
       const switchDays = this._days(c.wechsel);
       if (switchDays !== null && switchDays >= 0) {
-        candidates.push({ days: switchDays, rank: 1, text: this._t("switchOn", { d: this._date(c.wechsel) }) + ` · ${c.title}`, date: c.wechsel });
+        candidates.push({ days: switchDays, rank: 1, key: `${c.entry_id}${c.wechsel}`, text: this._t("switchOn", { d: this._date(c.wechsel) }) + ` · ${c.title}`, date: c.wechsel });
       }
       if (endDays !== null && endDays >= 0) {
-        candidates.push({ days: endDays, rank: 2, text: `${this._t("contractEnd")} · ${c.title}`, date: c.ende });
+        candidates.push({ days: endDays, rank: 2, key: `${c.entry_id}${c.ende}`, text: `${this._t("contractEnd")} · ${c.title}`, date: c.ende });
       }
     }
-    candidates.sort((a, b) => a.rank - b.rank || a.days - b.days);
-    const urgent = candidates.find((x) => x.rank === 0);
-    const next = urgent || candidates.sort((a, b) => a.days - b.days)[0];
-
+    candidates.sort((a, b) => a.days - b.days || a.rank - b.rank);
+    const seen = new Set();
+    const dates = candidates.filter((x) => (seen.has(x.key) ? false : seen.add(x.key))).slice(0, 3);
     const rel = (days) => (days === 0 ? this._t("today") : days === 1 ? this._t("tomorrow") : this._t("inDays", { n: days }));
-    const tone = (value) => (value < 0 ? "red-t" : value > 0 ? "green-t" : "");
+
+    const row = (name, value, cls) => h("div", { class: "mrow" },
+      h("span", { class: "n" }, name), h("span", { class: `v ${cls || ""}`, text: value }));
+    const segment = (value, color) => (value > 0 ? h("span", { style: `width:${(value / monthly * 100).toFixed(1)}%;background:${color}` }) : null);
+    const legend = (color, label, value) => (value > 0 ? h("span", {}, h("i", { style: `background:${color}` }), `${label} `, h("b", { text: money(value, { digits: 2 }) })) : null);
 
     return h(
       "div", { class: "summary" },
       h("div", { class: "sum" },
         h("div", { class: "label", text: this._t("monthlyTotal") }),
-        h("div", { class: "value", text: this._money(monthly, currency, { digits: 2 }) })),
+        h("div", { class: "value", text: money(monthly, { digits: 2 }) }),
+        h("div", { class: "sub", text: this._t("perYear", { v: money(monthly * 12) }) }),
+        monthly > 0 ? h("div", { class: "split" }, segment(monthlyMetered, "var(--blue)"), segment(monthlyFlat, "#a78bfa")) : null,
+        monthly > 0 ? h("div", { class: "legend" },
+          legend("var(--blue)", this._t("shortMetered"), monthlyMetered), legend("#a78bfa", this._t("shortFlat"), monthlyFlat)) : null),
+      h("div", { class: "sum" },
+        h("div", { class: "label", text: this._t("colCost") }),
+        h("div", { class: "value", text: money(costs, { digits: 2 }) }),
+        h("div", { class: "sub", text: this._t("dueSoFar", { v: money(due) }) }),
+        withBalance.length ? h("div", { class: "mini" }, row(this._t("saldoShort"), money(balance, { sign: true, digits: 2 }), tone(balance))) : null),
       h("div", { class: "sum" },
         h("div", { class: "label", text: this._t("forecastTotal") }),
         h("div", { class: `value ${withMetering.length ? tone(forecast) : "muted-t"}`,
-          text: withMetering.length ? this._money(forecast, currency, { sign: true }) : "–" }),
-        h("div", { class: "sub", text: this._t("forecastSub", { n: withMetering.length, m: contracts.length }) })),
+          text: withMetering.length ? money(forecast, { sign: true }) : "–" }),
+        h("div", { class: "sub", text: this._t("forecastSub", { n: withMetering.length, m: contracts.length }) }),
+        worstFirst.length ? h("div", { class: "mini" }, worstFirst.map((c) => row(c.title, money(c.prognose_real, { sign: true }), tone(c.prognose_real)))) : null),
       h("div", { class: "sum" },
-        h("div", { class: "label", text: this._t("nextDeadline") }),
-        h("div", { class: "value", text: next ? this._date(next.date) : "–" }),
-        h("div", { class: "sub", text: next ? `${next.text} · ${rel(next.days)}` : this._t("nothingPlanned") }))
+        h("div", { class: "label", text: this._t("nextDates") }),
+        h("div", { class: "value", text: dates.length ? this._date(dates[0].date) : "–" }),
+        h("div", { class: "sub", text: dates.length ? `${dates[0].text} · ${rel(dates[0].days)}` : this._t("nothingPlanned") }),
+        dates.length > 1 ? h("div", { class: "mini" }, dates.slice(1).map((x) => row(
+          h("span", {}, h("b", { text: this._date(x.date) }), ` ${x.text}`), rel(x.days)))) : null)
     );
   }
+
 
   _chips(chips) {
     return h("div", { class: "chips" }, chips.map((chip) => h("span", { class: `chip ${chip.tone}`, text: chip.text })));
@@ -1432,22 +1486,27 @@ class TariffyPanel extends HTMLElement {
       cell(this._t("colInstalment"), money(sum(metered, "abschlag"))),
       h("td", { text: "" })));
 
-    // flat-rate contracts: no consumption, so the cost so far is what was due, and the term
+    // flat-rate contracts: no consumption, so the cost so far is what was due, and the term.
+    // Cost so far (2nd column) and instalment (5th column) sit exactly below those of the table above.
     const flatRows = flat.map((c) => h("tr", {},
       name(c),
       cell(this._t("colCost"), this._money(this._costSoFar(c), c.currency, { digits: 2 })),
-      cell(this._t("colInstalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
+      cell(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : "–"),
       cell(this._t("contractEnd"), c.ende ? this._date(c.ende) : this._t("noEnd")),
-      cell(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : "–")));
+      cell(this._t("colInstalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
+      h("td", { class: "empty" })));
     flatRows.push(h("tr", { class: "total" },
       h("td", { text: this._t("total") }),
       cell(this._t("colCost"), money(sumCost(flat))),
+      h("td", { text: "" }), h("td", { text: "" }),
       cell(this._t("colInstalment"), money(sum(flat, "abschlag"))),
-      h("td", { text: "" }), h("td", { text: "" })));
+      h("td", { text: "" })));
 
     const group = (key, list, heads, rows) => (list.length ? h("section", { class: "group" },
       h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
       h("table", {},
+        // both tables share one column grid (the 6th column is empty in the flat-rate table)
+        h("colgroup", {}, GRID.map((width) => h("col", { style: `width:${width}` }))),
         h("thead", {}, h("tr", {}, heads.map((label) => h("th", { text: label })))),
         h("tbody", {}, rows))) : null);
 
@@ -1458,12 +1517,16 @@ class TariffyPanel extends HTMLElement {
         this._t("colForecast"), this._t("colInstalment"), this._t("colRecommended"),
       ], meteredRows),
       group("groupFlat", flat, [
-        this._t("colContract"), this._t("colCost"), this._t("colInstalment"), this._t("contractEnd"), this._t("remaining"),
+        this._t("colContract"), this._t("colCost"), this._t("remaining"), this._t("contractEnd"), this._t("colInstalment"), "",
       ], flatRows),
-      h("div", { class: "grand" },
-        h("span", { class: "label", text: this._t("grandTotal") }),
-        h("span", {}, `${this._t("colCost")} `, h("b", { text: money(sumCost(contracts)) })),
-        h("span", {}, `${this._t("colInstalment")} `, h("b", { text: money(sum(contracts, "abschlag")) }))),
+      h("table", { class: "grand-table" },
+        h("colgroup", {}, GRID.map((width) => h("col", { style: `width:${width}` }))),
+        h("tbody", {}, h("tr", { class: "grandrow" },
+          h("td", { text: this._t("grandTotal") }),
+          cell(this._t("colCost"), money(sumCost(contracts))),
+          h("td", { text: "" }), h("td", { text: "" }),
+          cell(this._t("colInstalment"), money(sum(contracts, "abschlag"))),
+          h("td", { text: "" })))),
       h("div", { class: "hint", text: this._t("costsHint") })
     );
   }
