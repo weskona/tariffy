@@ -24,9 +24,9 @@ Das Panel folgt der Sprache von Home Assistant (Deutsch, sonst Englisch) und pas
 
 | Ansicht | Inhalt |
 |---|---|
-| **Übersicht** | Oben die Summe der Abschläge pro Monat, die Prognose zum Vertragsende (nur Verträge mit Verbrauchsmessung) und der nächste Termin (Kündigungsfrist, Vertragsende oder Wechsel). Darunter eine Karte pro Vertrag: oben der Kopf mit Name und Status (die Karte ist nach dem Zustand getönt: grün Guthaben, rot Nachzahlung, orange Kündigung fällig), dann die Prognose zum Vertragsende als große Zahl neben dem Laufzeit-Ring, höchstens drei Zahlen (Kosten bisher, Saldo bisher, Verbrauch), die gezahlten Abschläge gegen die Kosten, die Restlaufzeit und Hinweise. Die Karten fließen ohne Lücken in Spalten. |
-| **Kosten** | Eine Tabelle mit allen Verträgen: Kosten bisher, Saldo bisher, Saldo zum Vertragsende, Abschlag und empfohlener Abschlag, dazu eine Summenzeile. |
-| **Verträge** | Pro Vertrag aufklappbare Details: Vertragsdaten, Preise, Verbrauch, Empfehlungen. |
+| **Übersicht** | Oben die Summe der Abschläge pro Monat, die Prognose zum Vertragsende (nur Verträge mit Verbrauchsmessung) und der nächste Termin (Kündigungsfrist, Vertragsende oder Wechsel). Darunter zwei Gruppen mit je einer Karte pro Vertrag: **Verbrauchsverträge** (Strom, Gas, Wasser) und **Pauschalverträge** (Internet, Mobilfunk, Versicherung, Sonstiges). Die Karten sind nach dem Zustand getönt (grün Guthaben, rot Nachzahlung, orange Kündigung fällig). Eine Verbrauchskarte zeigt die Prognose zum Vertragsende als große Zahl neben dem Laufzeit-Ring, höchstens drei Zahlen (Kosten bisher, Saldo bisher, Verbrauch), die gezahlten Abschläge gegen die Kosten, die Restlaufzeit und Hinweise. Eine Pauschalkarte zeigt den Abschlag pro Monat, die Kosten bisher und das Vertragsende samt Laufzeit-Balken, ohne Ring und ohne Verbrauch. In der Übersicht gibt es keine Bearbeitungs-Aktionen. |
+| **Kosten** | Eine Tabelle mit allen Verträgen: Kosten bisher, Saldo bisher, Saldo zum Vertragsende, Abschlag und empfohlener Abschlag, dazu eine Summenzeile. Bei Pauschalverträgen sind die Kosten bisher die bis heute fälligen Abschläge, Saldo und Prognose bleiben leer. |
+| **Verträge** | Pro Vertrag aufklappbare Details: Vertragsdaten, Preise, Verbrauch, Empfehlungen. Hier stehen auch **alle Aktionen, die einen Vertrag ändern**, als Symbole in jeder Zeile (Kalender: Folgevertrag planen oder bearbeiten, Stift: Vertrag bearbeiten) und oben der Button **Neuer Vertrag** (nur Administratoren). |
 
 Vorzeichen: **Plus** ist Guthaben, **Minus** ist Nachzahlung. „Zum Vertragsende" ist aus dem bisherigen Verbrauch hochgerechnet. Deckt ein Guthaben die Kosten bis zum Vertragsende schon ab, steht beim empfohlenen Abschlag „0,00 €" mit dem Hinweis „Guthaben deckt die Kosten", nie ein negativer Betrag. Alle Werte sind dieselben wie bei den Sensoren und aktualisieren sich von selbst.
 
@@ -37,7 +37,7 @@ Vorzeichen: **Plus** ist Guthaben, **Minus** ist Nachzahlung. „Zum Vertragsend
 
 ## Bestätigen
 
-Planen, Bearbeiten, Anlegen und Löschen stehen hinter dem **⋯-Menü** oben rechts auf der Karte („Weitere Aktionen"); auf dem Handy stehen die Buttons in der aufgeklappten Karte. Auf der Karte selbst erscheinen je nach Lage, direkt bei dem Hinweis, zu dem sie gehören:
+Planen, Bearbeiten, Anlegen und Löschen findest du im Tab **Verträge** (Symbole in der Zeile, Button oben). Auf der Karte in der Übersicht erscheinen nur je nach Lage, direkt bei dem Hinweis, zu dem sie gehören:
 
 - **Warnung bestätigen**: quittiert die Abschlag-Warnung (wie der Button „Abschlag-Warnung bestätigen"). Der Button erscheint nur, wenn die Warnung in den Vertragsdaten eingeschaltet ist und die Prognose die Schwelle unterschreitet.
 - **Kündigung bestätigen**: quittiert die Kündigungs-Erinnerung (wie der Button „Kündigung bestätigen").
@@ -62,7 +62,7 @@ Beide fragen **ein zweites Mal** nach („Ja, bestätigen" / „Abbrechen"), dam
 
 ## Neuer Vertrag
 
-**Neuer Vertrag** (oben im Panel) startet den Einrichtungs-Dialog von Home Assistant: erst Bezeichnung, Sparte und Anbieter, dann die Daten der Sparte. Der Vertrag erscheint danach von selbst im Panel. Die Felder sind dieselben wie bei der Einrichtung unter Einstellungen → Integrationen, siehe [Konfiguration](Konfiguration).
+**Neuer Vertrag** (oben im Tab Verträge) startet den Einrichtungs-Dialog von Home Assistant: erst Bezeichnung, Sparte und Anbieter, dann die Daten der Sparte. Der Vertrag erscheint danach von selbst im Panel. Die Felder sind dieselben wie bei der Einrichtung unter Einstellungen → Integrationen, siehe [Konfiguration](Konfiguration).
 
 ## Vertrag löschen
 

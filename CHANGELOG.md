@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.9] - 2026-11-06
+
+Ninth beta for testing the sidebar panel. The overview is sorted by kind of contract, flat-rate contracts get their own cards, and everything that changes a contract moved to the "Contracts" tab. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- Beta: the overview has two groups: **metered contracts** (electricity, gas, water) in big cards and **flat-rate contracts** (internet, mobile, insurance, other) in slim cards. Cards sit in rows of equal height; four metered contracts make 2 x 2 instead of leaving one card alone in a row.
+- Beta: a flat-rate card leads with the monthly instalment and shows the cost so far, the contract end and a term bar. It has no ring, no consumption and no empty figures; a contract without an end date shows "No contract end" instead of a dash or an assumed 12-month total.
+- Beta: the cost table treats flat-rate contracts: the cost so far is the instalments due until today (also in the total and in the contract details). Balance and forecast stay empty because there is no consumption.
+- Beta: the overview has no editing actions any more. Everything that changes a contract is in the "Contracts" tab: icons in each row (plan or edit the next contract, edit the contract) and the button "New contract" at the top. Deleting stays in the edit dialog. "Acknowledge warning" and "Acknowledge cancellation" remain on the card next to their note.
+
+### Added
+
+- The contract data now contains the instalments due until today (`abschlag_bisher_gezahlt`, stops at the contract end and respects an instalment change). It is only a value for the panel: no new sensor, so existing installations get no new entities.
+
 ## [1.27.0-beta.8] - 2026-11-06
 
 Eighth beta for testing the sidebar panel. New: a redesigned overview. Please report problems with the bug report form and mention this exact version.

@@ -7,6 +7,21 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.9] - 2026-11-06
+
+Neunte Beta zum Testen des Seitenleisten-Panels. Die Übersicht ist nach Vertragsart sortiert, Pauschalverträge bekommen eigene Karten, und alles, was einen Vertrag ändert, ist in den Tab "Verträge" gewandert. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Beta: Die Übersicht hat zwei Gruppen: **Verbrauchsverträge** (Strom, Gas, Wasser) in großen Karten und **Pauschalverträge** (Internet, Mobilfunk, Versicherung, Sonstiges) in schlanken Karten. Die Karten stehen in Reihen gleicher Höhe; bei vier Verbrauchsverträgen entsteht 2 x 2, statt dass eine Karte allein in einer Reihe steht.
+- Beta: Eine Pauschalkarte beginnt mit dem Abschlag pro Monat und zeigt die Kosten bisher, das Vertragsende und einen Laufzeit-Balken. Sie hat keinen Ring, keinen Verbrauch und keine leeren Zahlen; ein Vertrag ohne Vertragsende zeigt "Kein Vertragsende" statt eines Strichs oder einer angenommenen 12-Monats-Summe.
+- Beta: Die Kostentabelle behandelt Pauschalverträge: Die Kosten bisher sind die bis heute fälligen Abschläge (auch in der Summe und in den Vertragsdetails). Saldo und Prognose bleiben leer, weil es keinen Verbrauch gibt.
+- Beta: Die Übersicht hat keine Bearbeitungs-Aktionen mehr. Alles, was einen Vertrag ändert, steht im Tab "Verträge": Symbole in jeder Zeile (Folgevertrag planen oder bearbeiten, Vertrag bearbeiten) und oben der Button "Neuer Vertrag". Das Löschen bleibt im Bearbeiten-Dialog. "Warnung bestätigen" und "Kündigung bestätigen" bleiben auf der Karte bei ihrem Hinweis.
+
+### Added
+
+- Die Vertragsdaten enthalten jetzt die bis heute fälligen Abschläge (`abschlag_bisher_gezahlt`, endet am Vertragsende und berücksichtigt eine Abschlagsänderung). Das ist nur ein Wert für das Panel: kein neuer Sensor, bestehende Installationen bekommen also keine neuen Entitäten.
+
 ## [1.27.0-beta.8] - 2026-11-06
 
 Achte Beta zum Testen des Seitenleisten-Panels. Neu: eine überarbeitete Übersicht. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

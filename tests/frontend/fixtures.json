@@ -3,6 +3,7 @@
     {
       "abschlag": 40.0,
       "abschlag_anpassung_empfohlen": 127.66,
+      "abschlag_bisher_gezahlt": 252.3,
       "abschlag_warnung_aktiv": true,
       "abschlag_warnung_zu_bestaetigen": true,
       "anbieter": "Stadtwerke Nord",
@@ -45,6 +46,7 @@
     {
       "abschlag": 140.0,
       "abschlag_anpassung_empfohlen": -179.27,
+      "abschlag_bisher_gezahlt": 1444.15,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Energie Süd",
@@ -87,6 +89,7 @@
     {
       "abschlag": 28.0,
       "abschlag_anpassung_empfohlen": 32.39,
+      "abschlag_bisher_gezahlt": 176.61,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Stadtwerke Nord",
@@ -129,6 +132,7 @@
     {
       "abschlag": 55.0,
       "abschlag_anpassung_empfohlen": 118.25,
+      "abschlag_bisher_gezahlt": 290.9,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Naturstrom",
@@ -171,6 +175,7 @@
     {
       "abschlag": 39.99,
       "abschlag_anpassung_empfohlen": null,
+      "abschlag_bisher_gezahlt": 373.1,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Glasfaser GmbH",
@@ -213,6 +218,7 @@
     {
       "abschlag": 19.99,
       "abschlag_anpassung_empfohlen": null,
+      "abschlag_bisher_gezahlt": 226.56,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Mobil Eins",

@@ -83,22 +83,25 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
 
   check((await page.locator(".actions").count()) === 2, "only the two contracts with something to acknowledge show buttons on the card");
-  check((await page.getByRole("button", { name: "Weitere Aktionen" }).count()) === 6, "every card has a menu for the less frequent actions");
+  const editing = /Vertrag bearbeiten|Folgevertrag|Neuer Vertrag|Vertrag löschen/;
+  check((await page.getByRole("button", { name: editing }).count()) === 0, "the overview has no editing actions at all");
   check((await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
   check((await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
-  const menuItems = async (name) => {
-    await card(page, name).getByRole("button", { name: "Weitere Aktionen" }).click();
-    const items = await card(page, name).getByRole("menuitem").allInnerTexts();
-    await page.keyboard.press("Escape");
-    return items.join();
-  };
-  check((await menuItems("Mobilfunk")) === "Folgevertrag bearbeiten,Vertrag bearbeiten", "Mobilfunk can edit its planned contract");
-  check((await menuItems("Gas Heizung")) === "Folgevertrag planen,Vertrag bearbeiten", "Gas offers to plan the next contract and to edit itself");
-  check((await page.getByRole("menuitem").count()) === 0, "Escape closes the menu");
-  await card(page, "Internet").getByRole("button", { name: "Weitere Aktionen" }).click();
-  check((await page.getByRole("menuitem").count()) === 2, "the menu opens");
-  await page.locator(".top .brand").click();
-  check((await page.getByRole("menuitem").count()) === 0, "a click outside closes the menu");
+  // the list of contracts: icons per row, a button for a new contract
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  const named = (name) => page.getByRole("button", { name, exact: true });
+  check((await named("Vertrag bearbeiten").count()) === 6, "every row has an icon to edit the contract");
+  check((await page.getByRole("button", { name: /^Folgevertrag (planen|bearbeiten)$/ }).count()) === 6, "and one to plan or edit the next contract");
+  check((await named("Neuer Vertrag").count()) === 1, "the list has the button for a new contract");
+  const row = (name) => page.locator("details", { hasText: name }).first();
+  check((await row("Mobilfunk").getByRole("button", { name: "Folgevertrag bearbeiten", exact: true }).count()) === 1, "Mobilfunk can edit its planned contract");
+  check((await row("Gas Heizung").getByRole("button", { name: "Folgevertrag planen", exact: true }).count()) === 1, "Gas can plan a next contract");
+  check((await row("Gas Heizung").locator(".icon-btn").first().getAttribute("title")) === "Folgevertrag planen", "the icons have a tooltip");
+  await row("Wasser").getByRole("button", { name: "Vertrag bearbeiten", exact: true }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog input"));
+  check(!(await row("Wasser").evaluate((el) => el.open)), "an icon does not open or close the row");
+  await page.locator(".dialog").getByRole("button", { name: "Abbrechen" }).click();
+  await page.getByRole("tab", { name: "Übersicht" }).click();
 
   // a negative recommended instalment is shown as 0 with a hint, never as a negative amount
   const gasText = await card(page, "Gas Heizung").innerText();
@@ -143,14 +146,17 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
 const flowPath = "config/config_entries/options/flow";
 const api = (page) => page.evaluate(() => window.__api);
 const dialog = (page) => page.locator(".dialog");
-// plan/edit live behind the "..." menu of a card on wide screens
-const MENU_ITEMS = new Set(["Folgevertrag planen", "Folgevertrag bearbeiten", "Vertrag bearbeiten", "Plan next contract", "Edit next contract", "Edit contract"]);
+// everything that changes a contract is an icon in its row of the "Contracts" tab
 async function openDialog(page, name, button) {
-  if (MENU_ITEMS.has(button)) {
-    await card(page, name).getByRole("button", { name: /Weitere Aktionen|More actions/ }).click();
-    await card(page, name).getByRole("menuitem", { name: button }).click();
-  } else {
+  if (await page.locator(".tab[aria-selected=true]").innerText() !== "Verträge" && await page.locator(".tab[aria-selected=true]").innerText() !== "Contracts") {
+    await page.getByRole("tab", { name: /Verträge|Contracts/ }).click();
+  }
+  const row = page.locator("details", { hasText: name }).first();
+  if (/^Warnung|^Kündigung|^Acknowledge/.test(button)) {
+    await page.getByRole("tab", { name: /Übersicht|Overview/ }).click();
     await card(page, name).getByRole("button", { name: button }).click();
+  } else {
+    await row.getByRole("button", { name: button, exact: true }).click();
   }
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog input, .dialog .err"));
 }
@@ -341,6 +347,7 @@ const entryApi = "config/config_entries/entry";
 
 { // a new contract: the integration's setup flow, name and sparte first
   const { context, page } = await openPage(browser, "lang=de");
+  await page.getByRole("tab", { name: "Verträge" }).click();
   await page.getByRole("button", { name: "Neuer Vertrag" }).click();
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=name]"));
   check((await dialog(page).innerText()).includes("Neuer Vertrag"), "the dialog is titled as a new contract");
@@ -376,6 +383,7 @@ const entryApi = "config/config_entries/entry";
 
 { // cancelling a new contract aborts the setup flow
   const { context, page } = await openPage(browser, "lang=de");
+  await page.getByRole("tab", { name: "Verträge" }).click();
   await page.getByRole("button", { name: "Neuer Vertrag" }).click();
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=name]"));
   await dialog(page).getByRole("button", { name: "Abbrechen" }).click();
@@ -475,6 +483,65 @@ for (const width of [1280, 900, 600, 390]) {
   await context.close();
 }
 
+{ // metered and flat-rate contracts are told apart
+  const { context, page } = await openPage(browser, "lang=de");
+  const groups = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group")].map((g) => ({
+    title: g.querySelector(".group-title span").textContent, count: g.querySelector(".count").textContent,
+    cards: [...g.querySelectorAll("section.card")].map((c) => c.querySelector(".title").textContent),
+  })));
+  check(JSON.stringify(groups.map((g) => [g.title, g.count])) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"]]), `two groups with their counts: ${JSON.stringify(groups.map((g) => [g.title, g.count]))}`);
+  check(groups[1].cards.join() === "Internet,Mobilfunk", "internet and mobile are flat-rate contracts");
+  for (const name of ["Internet", "Mobilfunk"]) {
+    const text = await card(page, name).innerText();
+    check(await card(page, name).locator(".ring").count() === 0, `${name}: no ring`);
+    check((await card(page, name).locator(".tile .label").allInnerTexts()).join().toLowerCase().startsWith("kosten bisher"), `${name}: the cost so far (instalments due until today) is shown`);
+    check(/ABSCHLAG \/ MONAT/i.test(text), `${name}: leads with the monthly amount`);
+  }
+  check((await card(page, "Internet").locator(".bar").count()) === 1, "a flat-rate contract with both dates shows how far its term has come");
+  check((await card(page, "Strom Haus").locator(".tile").count()) === 3, "a metered contract keeps its three figures");
+
+  // a flat-rate contract without an end date (a typical internet contract)
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet"
+      ? { ...c, ende: null, restlaufzeit: null, jahreskosten: null, erinnerung_datum: null, erinnerung_aktiv: false } : c));
+    panel._render();
+  });
+  const open = (await card(page, "Internet").innerText()).replace(/ /g, " ");
+  check(open.includes("39,99 €") && open.includes("Kein Vertragsende"), "without an end date: the monthly amount and \"no contract end\"");
+  check(!open.includes("über die Laufzeit"), "and no total \"over the contract term\" that would assume a term");
+  check(!open.includes("–") && (await card(page, "Internet").locator(".bar").count()) === 0, "and no dash or empty bar");
+
+  // columns follow the number of cards: four cards make 2 x 2, rows of equal height
+  const cols = await page.evaluate(() => getComputedStyle(window.__panel.shadowRoot.querySelector(".grid.metered")).gridTemplateColumns.split(" ").length);
+  check(cols === 2, `four metered contracts sit in two columns (${cols})`);
+  const rows = await page.evaluate(() => {
+    const byTop = {};
+    for (const el of window.__panel.shadowRoot.querySelectorAll(".grid.metered > section.card")) {
+      const r = el.getBoundingClientRect();
+      (byTop[Math.round(r.top)] ||= []).push(Math.round(r.height));
+    }
+    return Object.values(byTop);
+  });
+  check(rows.length === 2 && rows.every((row) => row.length === 2 && row[0] === row[1]), `cards of a row are equally high: ${JSON.stringify(rows)}`);
+  await context.close();
+}
+
+{ // the cost table treats flat-rate contracts: cost so far = instalments due until today
+  const { context, page } = await openPage(browser, "lang=de");
+  await page.getByRole("tab", { name: "Kosten" }).click();
+  const cells = async (name) => (await page.locator("tr", { hasText: name }).first().locator("td").allInnerTexts()).map((t) => t.replace(/ /g, " ").trim());
+  const internet = await cells("Internet");
+  const expected = await page.evaluate(() => window.__panel._contracts.find((c) => c.title === "Internet").abschlag_bisher_gezahlt);
+  check(expected > 300, `the backend delivers the instalments due so far (${expected})`);
+  check(internet[1].replace(/\D/g, "") === String(Math.round(expected * 100)).replace(/\D/g, "").slice(0, internet[1].replace(/\D/g, "").length) || internet[1].includes("373"), `Internet: cost so far is filled in (${internet[1]})`);
+  check(internet[2] === "–" && internet[3] === "–", "no balance and no forecast without consumption");
+  const total = (await cells("Summe"))[1];
+  const sumExpected = await page.evaluate(() => window.__panel._contracts.reduce((s, c) => s + (c.kosten_bisher ?? (["electricity", "electricity_ht_nt", "gas", "water"].includes(c.sparte) ? 0 : c.abschlag_bisher_gezahlt ?? 0)), 0));
+  check(Math.abs(Number(total.replace(/[^\d,]/g, "").replace(".", "").replace(",", ".")) - Math.round(sumExpected)) <= 1, `the total contains the flat-rate costs (${total} for ${sumExpected})`);
+  await context.close();
+}
+
 { // the figures of a card stay readable on a phone
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
@@ -522,7 +589,9 @@ for (const width of [1280, 900, 600, 390]) {
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
   check((await page.locator(".actions").count()) === 0 && (await page.locator(".btn").count()) === 0, "non-administrators see no action buttons");
   check((await page.locator(".card").count()) === 6, "non-administrators still see all contracts");
-  check((await page.getByRole("button", { name: "Neuer Vertrag" }).count()) === 0, "and get no button for a new contract");
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  check((await page.getByRole("button", { name: /Neuer Vertrag|bearbeiten|Folgevertrag/ }).count()) === 0 && (await page.locator(".icon-btn").count()) === 0,
+    "and no icons and no button for a new contract in the list");
   await context.close();
 }
 
@@ -532,8 +601,7 @@ for (const width of [1280, 900, 600, 390]) {
   await page.clock.setFixedTime("2026-07-12T12:00:00Z");
   await page.goto(`${base}?lang=de&narrow=1`);
   await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
-  check((await page.locator(".btn").count()) === 15, "phone: all buttons are in the page");
-  check((await page.getByRole("button", { name: "Neuer Vertrag" }).isVisible()), "phone: the button for a new contract is in the top bar");
+  check((await page.locator(".btn").count()) === 2, "phone: only the two acknowledgements are buttons on the cards");
   check(!(await page.locator(".card .btn").first().isVisible()), "phone: buttons stay hidden until the row is expanded");
   await page.locator("details.card", { hasText: "Internet" }).locator("summary").click();
   check(await page.locator("details.card", { hasText: "Internet" }).getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");

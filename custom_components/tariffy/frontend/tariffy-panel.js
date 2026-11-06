@@ -41,7 +41,7 @@ const I18N = {
     colContract: "Contract", colCost: "Cost so far", colBalance: "Balance so far",
     colForecast: "At contract end", colInstalment: "Instalment", colRecommended: "Recommended",
     total: "Total", highTariff: "High tariff", lowTariff: "Low tariff",
-    costsHint: "Positive = credit, negative = balance due. “At contract end” is projected from the consumption so far.",
+    costsHint: "Positive = credit, negative = balance due. “At contract end” is projected from the consumption so far. For flat-rate contracts the cost so far is the instalments due until today.",
     secContract: "Contract", secPrices: "Prices", secConsumption: "Consumption",
     secAdvice: "Recommendations", secNext: "Next contract",
     provider: "Provider", tariff: "Tariff", start: "Start", end: "End",
@@ -60,7 +60,8 @@ const I18N = {
     actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
     actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract", actNew: "New contract",
-    moreActions: "More actions", saldoShort: "Balance so far",
+    saldoShort: "Balance so far",
+    groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
     dlgDelete: "Delete contract", dlgDeleteYes: "Delete for good", dlgDeleted: "The contract was deleted.",
     dlgDeleteAsk: "Delete the contract \"{name}\" for good? This cannot be undone. Type its name to confirm.",
@@ -117,7 +118,7 @@ const I18N = {
     colContract: "Vertrag", colCost: "Kosten bisher", colBalance: "Saldo bisher",
     colForecast: "Zum Vertragsende", colInstalment: "Abschlag", colRecommended: "Empfohlen",
     total: "Summe", highTariff: "Hochtarif", lowTariff: "Niedertarif",
-    costsHint: "Positiv = Guthaben, negativ = Nachzahlung. „Zum Vertragsende“ ist aus dem bisherigen Verbrauch hochgerechnet.",
+    costsHint: "Positiv = Guthaben, negativ = Nachzahlung. „Zum Vertragsende“ ist aus dem bisherigen Verbrauch hochgerechnet. Bei Pauschalverträgen sind die Kosten bisher die bis heute fälligen Abschläge.",
     secContract: "Vertrag", secPrices: "Preise", secConsumption: "Verbrauch",
     secAdvice: "Empfehlungen", secNext: "Folgevertrag",
     provider: "Anbieter", tariff: "Tarif", start: "Beginn", end: "Ende",
@@ -137,7 +138,8 @@ const I18N = {
     actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
     actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten", actNew: "Neuer Vertrag",
-    moreActions: "Weitere Aktionen", saldoShort: "Saldo bisher",
+    saldoShort: "Saldo bisher",
+    groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
     dlgDelete: "Vertrag löschen", dlgDeleteYes: "Endgültig löschen", dlgDeleted: "Der Vertrag wurde gelöscht.",
     dlgDeleteAsk: "Den Vertrag \"{name}\" endgültig löschen? Das lässt sich nicht rückgängig machen. Zur Bestätigung den Namen eintippen.",
@@ -165,6 +167,8 @@ const I18N = {
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TABS = ["overview", "costs", "contracts"];
+// contracts that are billed by consumption; everything else (internet, mobile, ...) is a flat rate
+const METERED = new Set(["electricity", "electricity_ht_nt", "gas", "water"]);
 const TAB_KEY = "tariffy-panel-tab";
 
 /* Simple outline icons per contract type (24x24, stroke). */
@@ -184,6 +188,13 @@ const ICONS = {
     ["path", { d: "M11 18.500h2" }],
   ],
   insurance: [["path", { d: "M12 2.500 20 5.500v6c0 5-3.500 8.500-8 10.500-4.500-2-8-5.500-8-10.500v-6z" }]],
+  // actions of the contract list
+  edit: [["path", { d: "M12 20h9" }], ["path", { d: "M16.500 3.500a2.100 2.100 0 0 1 3 3L7 19l-4 1 1-4z" }]],
+  plan: [
+    ["rect", { x: "3", y: "4", width: "18", height: "18", rx: "2" }],
+    ["path", { d: "M16 2v4M8 2v4M3 10h18M12 13.500v5M9.500 16h5" }],
+  ],
+  plus: [["path", { d: "M12 5v14M5 12h14" }]],
   other: [
     ["circle", { cx: "6", cy: "12", r: "1.600", fill: "currentColor" }],
     ["circle", { cx: "12", cy: "12", r: "1.600", fill: "currentColor" }],
@@ -223,9 +234,19 @@ const STYLE = `
 .sum .value { font-size: 26px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
 .sum .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-/* cards flow into columns of different height without gaps, like the reference dashboard */
-.grid { column-width: 360px; column-gap: 16px; }
-.grid > .card { break-inside: avoid; -webkit-column-break-inside: avoid; margin-bottom: 16px; }
+/* two groups: metered contracts (big cards) and flat-rate contracts (slim cards), each in rows of equal height */
+.group { margin-top: 22px; }
+.group:first-of-type { margin-top: 0; }
+.group-title { display: flex; align-items: center; gap: 8px; margin: 0 0 12px 2px; font-size: 11px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.group-title .count { font-size: 11px; letter-spacing: 0; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.07); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; align-items: stretch; }
+.grid.flat { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+/* wide screens: the number of columns follows the number of cards, so no card is left alone in a row (4 -> 2 x 2) */
+@container (min-width: 1000px) { .grid.metered { grid-template-columns: repeat(var(--cols, 3), 1fr); } }
+section.card { display: flex; flex-direction: column; }
+section.card .foot { margin-top: auto; padding-top: 12px; }
+.card.flat .big { font-size: 28px; }
 .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
 .card.tone-green { background: linear-gradient(180deg, rgba(52,211,153,.085), var(--panel) 150px); }
 .card.tone-red { background: linear-gradient(180deg, rgba(248,113,113,.085), var(--panel) 150px); }
@@ -235,16 +256,14 @@ const STYLE = `
 .chips:empty { display: none; }
 .card > .chips { justify-content: flex-start; margin-top: 12px; }
 .card .title { font-size: 15px; letter-spacing: .07em; text-transform: uppercase; }
-.menu-wrap { position: relative; flex: none; }
-.menu-btn { appearance: none; width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--tile-line); background: var(--tile);
-  color: var(--muted); font: inherit; font-size: 18px; line-height: 1; cursor: pointer; }
-.menu-btn:hover, .menu-btn[aria-expanded="true"] { color: var(--text); background: rgba(255,255,255,.08); }
-.menu-btn:focus-visible, .mi:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-.menu { position: absolute; right: 0; top: 38px; z-index: 6; min-width: 210px; padding: 6px; border-radius: 12px;
-  background: #1a1e27; border: 1px solid var(--tile-line); box-shadow: 0 10px 30px rgba(0,0,0,.45); display: grid; gap: 2px; }
-.mi { appearance: none; text-align: left; font: inherit; font-size: 14px; font-weight: 600; color: var(--text); background: transparent;
-  border: 0; border-radius: 8px; padding: 9px 12px; cursor: pointer; }
-.mi:hover { background: rgba(255,255,255,.08); }
+.icon-btn { appearance: none; flex: none; width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border-radius: 10px;
+  border: 1px solid var(--tile-line); background: var(--tile); color: var(--muted); cursor: pointer; }
+.icon-btn:hover { color: var(--text); background: rgba(255,255,255,.09); }
+.icon-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.icon-btn svg, .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.row-actions { display: flex; gap: 6px; flex: none; }
+.list-head { display: flex; justify-content: flex-end; margin: 0 0 12px; }
+.list-head .btn { display: inline-flex; align-items: center; gap: 8px; }
 .foot { margin-top: 12px; font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
 .foot b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 .badge { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
@@ -375,8 +394,8 @@ details[open] summary .caret { transform: rotate(90deg); }
   .sum .sub { grid-column: 1; }
   .tiles { grid-template-columns: 1fr 1fr; }
   .tiles .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .grid { column-width: auto; column-count: 1; }
-  .grid > .card { margin-bottom: 12px; }
+  .grid, .grid.flat { grid-template-columns: 1fr; gap: 12px; }
+  .group { margin-top: 18px; }
   .card { padding: 14px; }
   .big { font-size: 28px; }
   .ring, .ring svg { width: 76px; height: 76px; }
@@ -459,19 +478,7 @@ class TariffyPanel extends HTMLElement {
     this._confirming = null;
     this._busy = null;
     this._actionError = null;
-    this._menuFor = null;
     this.attachShadow({ mode: "open" });
-    const closeMenu = (ev) => {
-      if (!this._menuFor) return;
-      const inside = ev.composedPath().some((el) => el.classList && (el.classList.contains("menu-wrap")));
-      if (!inside) { this._menuFor = null; this._render(); }
-    };
-    this._closeMenu = closeMenu;
-    this.shadowRoot.addEventListener("click", closeMenu);
-    // the menu is re-drawn when it opens, so the focus may be on the page when Escape is pressed
-    this._closeMenuKey = (ev) => {
-      if (ev.key === "Escape" && this._menuFor) { this._menuFor = null; this._render(); }
-    };
   }
 
   set hass(hass) {
@@ -508,15 +515,11 @@ class TariffyPanel extends HTMLElement {
       });
     }
     if (this._observer) this._observer.observe(this);
-    document.addEventListener("click", this._closeMenu);
-    document.addEventListener("keydown", this._closeMenuKey);
   }
 
   disconnectedCallback() {
     if (this._observer) this._observer.disconnect();
     this._closeFlow();
-    document.removeEventListener("click", this._closeMenu);
-    document.removeEventListener("keydown", this._closeMenuKey);
     if (this._unsub) {
       this._unsub();
       this._unsub = null;
@@ -686,7 +689,11 @@ class TariffyPanel extends HTMLElement {
       wrap.appendChild(this._contractList());
     } else {
       wrap.appendChild(this._summary());
-      wrap.appendChild(h("div", { class: "grid" }, this._contracts.map((c) => this._card(c))));
+      const group = (key, list, extra) => (list.length ? h("section", { class: "group" },
+        h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
+        h("div", { class: `grid ${extra}`, style: `--cols:${list.length <= 2 || list.length === 4 ? 2 : 3}` }, list.map((c) => this._card(c)))) : null);
+      wrap.appendChild(group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte)), "metered"));
+      wrap.appendChild(group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte)), "flat"));
     }
     root.appendChild(wrap);
     if (this._dlgEl) root.appendChild(this._dlgEl);
@@ -708,9 +715,7 @@ class TariffyPanel extends HTMLElement {
       menu,
       h("div", { class: "brand" }, "Tariffy", h("span", { class: "pill", text: this._t("beta") })),
       tabs,
-      this._isAdmin
-        ? h("button", { class: "btn blue", type: "button", text: this._t("actNew"), onclick: () => this._openFlow(null, "create") })
-        : h("div", { class: "spacer" })
+      h("div", { class: "spacer" })
     );
   }
 
@@ -780,6 +785,12 @@ class TariffyPanel extends HTMLElement {
     );
   }
 
+  /* Cost so far: measured for metered contracts, the instalments due until today for flat-rate ones. */
+  _costSoFar(c) {
+    if (isNum(c.kosten_bisher)) return c.kosten_bisher;
+    return !METERED.has(c.sparte) && isNum(c.abschlag_bisher_gezahlt) ? c.abschlag_bisher_gezahlt : null;
+  }
+
   _tile(label, value, sub, tone) {
     return h(
       "div", { class: "tile" },
@@ -827,14 +838,18 @@ class TariffyPanel extends HTMLElement {
     const d = this._derive(c);
     const unit = this._unit(c);
     const alert = c.abschlag_warnung_aktiv;
+    const flat = !METERED.has(c.sparte); // no consumption, often no end date
     // the colour that tints the top of the card
     const tone = alert || (d.hasMetering && c.prognose_real < 0) ? "red"
       : c.erinnerung_aktiv ? "orange" : d.hasMetering ? "green" : "none";
 
-    const heroValue = d.hasMetering ? c.prognose_real : c.jahreskosten;
-    const heroLabel = d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
-    const heroTone = d.hasMetering ? (heroValue < 0 ? "red-t" : "green-t") : "";
-    const heroSub = isNum(c.abschlag)
+    // flat-rate contracts lead with the monthly amount: it exists always, a total over the term only with an end date
+    const heroValue = flat ? c.abschlag : d.hasMetering ? c.prognose_real : c.jahreskosten;
+    const heroLabel = flat ? this._t("instalment") : d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
+    const heroTone = !flat && d.hasMetering ? (heroValue < 0 ? "red-t" : "green-t") : "";
+    const heroSub = flat
+      ? (c.ende && isNum(c.jahreskosten) ? this._t("overTerm", { v: this._money(c.jahreskosten, c.currency) }) : null)
+      : isNum(c.abschlag)
       ? `${this._t("instalment")}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
         (isNum(c.abschlag_anpassung_empfohlen)
           ? ` · ${this._t("recommended")}: ${this._instalment(c.abschlag_anpassung_empfohlen, c.currency)}` +
@@ -843,7 +858,10 @@ class TariffyPanel extends HTMLElement {
       : null;
 
     // three figures at most; the remaining term goes into the footer line
-    const tiles = d.measured
+    const tiles = flat ? [
+      isNum(this._costSoFar(c)) ? this._tile(this._t("costSoFar"), this._money(this._costSoFar(c), c.currency, { digits: 2 })) : null,
+      c.ende ? this._tile(this._t("contractEnd"), this._date(c.ende)) : null,
+    ] : d.measured
       ? [
         this._tile(this._t("costSoFar"), this._money(c.kosten_bisher, c.currency, { digits: 2 })),
         isNum(c.guthaben_bisher)
@@ -861,8 +879,10 @@ class TariffyPanel extends HTMLElement {
     if (isNum(c.restlaufzeit)) {
       foot.push(h("span", {}, `${this._t("remaining")} `, h("b", { text: this._t("daysLeft", { n: c.restlaufzeit }) }),
         c.ende ? ` · ${this._t("until", { d: this._date(c.ende) })}` : ""));
+    } else if (flat) {
+      foot.push(h("span", { text: this._t("noEnd") }));
     }
-    if (!d.measured) {
+    if (flat || !d.measured) {
       foot.push(h("span", {}, `${this._t("reminder")} `, h("b", { text: c.erinnerung_datum ? this._date(c.erinnerung_datum) : this._t("reminderOff") })));
     }
 
@@ -884,10 +904,14 @@ class TariffyPanel extends HTMLElement {
     const hero = h("div", { class: "hero" },
       h("div", {},
         h("div", { class: "label", text: heroLabel }),
-        h("div", { class: `big ${heroTone}`, text: this._money(heroValue, c.currency, { sign: d.hasMetering }) }),
+        h("div", { class: `big ${heroTone}`, text: this._money(heroValue, c.currency, { sign: !flat && d.hasMetering, digits: flat ? 2 : undefined }) }),
         heroSub ? h("div", { class: "note", text: heroSub }) : null),
-      this._ring(d.elapsed));
-    const body = [hero, h("div", { class: "tiles" }, tiles.filter(Boolean)), this._bars(c, d),
+      flat ? null : this._ring(d.elapsed));
+    // how far the term has come, for contracts that have both dates
+    const termBar = flat && d.elapsed !== null ? h("div", { class: "bars" }, h("div", { class: "bar" },
+      h("span", { text: this._t("term") }), h("b", { text: `${Math.round(d.elapsed * 100)} %` }),
+      h("span", { class: "tr" }, h("span", { class: "fl", style: `width:${Math.max(2, d.elapsed * 100).toFixed(1)}%;background:var(--blue)` })))) : null;
+    const body = [hero, tiles.filter(Boolean).length ? h("div", { class: "tiles" }, tiles.filter(Boolean)) : null, this._bars(c, d) || termBar,
       foot.length ? h("div", { class: "foot" }, foot) : null,
       notes.length ? h("div", { class: "notes" }, notes) : null, this._actions(c)];
 
@@ -897,7 +921,9 @@ class TariffyPanel extends HTMLElement {
         h("summary", {},
           h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
           this._who(c),
-          h("div", { class: `end ${heroTone}`, text: this._money(heroValue, c.currency, { sign: d.hasMetering }) }),
+          h("div", { class: `end ${heroTone}`, text: flat
+            ? `${this._money(heroValue, c.currency, { digits: 2 })} ${this._t("perMonth")}`
+            : this._money(heroValue, c.currency, { sign: d.hasMetering }) }),
           h("span", { class: "caret", "aria-hidden": "true", text: "›" }),
           this._chips(d.chips)),
         h("div", { class: "body" }, body));
@@ -909,11 +935,10 @@ class TariffyPanel extends HTMLElement {
       return card;
     }
     return h(
-      "section", { class: `card${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", "") },
+      "section", { class: `card${flat ? " flat" : ""}${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", "") },
       h("div", { class: "head" },
         h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
-        this._who(c),
-        this._menu(c)),
+        this._who(c)),
       this._chips(d.chips),
       body
     );
@@ -921,26 +946,6 @@ class TariffyPanel extends HTMLElement {
 
   get _isAdmin() {
     return Boolean(this._hass && this._hass.user && this._hass.user.is_admin);
-  }
-
-  /* The less frequent actions sit behind a "..." menu on wide screens (administrators only). */
-  _menu(c) {
-    if (!this._isAdmin) return null;
-    const open = this._menuFor === c.entry_id;
-    const items = [
-      { label: this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"), flow: "next" },
-      { label: this._t("actEdit"), flow: "edit" },
-    ];
-    return h("div", { class: "menu-wrap" },
-      h("button", {
-        class: "menu-btn", type: "button", "aria-haspopup": "menu", "aria-expanded": String(open),
-        "aria-label": this._t("moreActions"), text: "⋯",
-        onclick: () => { this._menuFor = open ? null : c.entry_id; this._render(); },
-      }),
-      open ? h("div", { class: "menu", role: "menu" }, items.map((item) => h("button", {
-        class: "mi", type: "button", role: "menuitem", text: item.label,
-        onclick: () => { this._menuFor = null; this._render(); this._openFlow(c, item.flow); },
-      }))) : null);
   }
 
   /* Actions are only offered to administrators; the backend checks it again. */
@@ -952,13 +957,6 @@ class TariffyPanel extends HTMLElement {
     }
     if (c.erinnerung_aktiv) {
       list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange", ask: "actAskCancel", yes: "actYesAck" });
-    }
-    if (this._compact) { // on phones the card body has room, there is no "..." menu
-      list.push({
-        key: "plan_next", open: "next", tone: "blue",
-        label: this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"),
-      });
-      list.push({ key: "edit_contract", open: "edit", tone: "blue", label: this._t("actEdit") });
     }
     if (!list.length) return null;
 
@@ -1392,12 +1390,13 @@ class TariffyPanel extends HTMLElement {
     const tone = (v) => (isNum(v) ? (v < 0 ? "red-t" : v > 0 ? "green-t" : "") : "muted-t");
     const cell = (label, value, cls) => h("td", { "data-label": label, class: [cls, value === "–" ? "empty" : ""].filter(Boolean).join(" ") || null, text: value });
     const sum = (key) => contracts.reduce((s, c) => s + (isNum(c[key]) ? c[key] : 0), 0);
+    const sumCost = contracts.reduce((s, c) => s + (this._costSoFar(c) || 0), 0);
 
     const rows = [];
     for (const c of contracts) {
       rows.push(h("tr", {},
         h("td", {}, c.title, h("span", { class: "t2", text: c.anbieter || this._t("sparte")[c.sparte] || c.sparte })),
-        cell(this._t("colCost"), this._money(c.kosten_bisher, c.currency, { digits: 2 })),
+        cell(this._t("colCost"), this._money(this._costSoFar(c), c.currency, { digits: 2 })),
         cell(this._t("colBalance"), this._money(c.guthaben_bisher, c.currency, { sign: true, digits: 2 }), tone(c.guthaben_bisher)),
         cell(this._t("colForecast"), this._money(c.prognose_real, c.currency, { sign: true }), tone(c.prognose_real)),
         cell(this._t("colInstalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
@@ -1412,7 +1411,7 @@ class TariffyPanel extends HTMLElement {
     }
     rows.push(h("tr", { class: "total" },
       h("td", { text: this._t("total") }),
-      cell(this._t("colCost"), this._money(sum("kosten_bisher"), currency, { digits: 2 })),
+      cell(this._t("colCost"), this._money(sumCost, currency, { digits: 2 })),
       cell(this._t("colBalance"), this._money(sum("guthaben_bisher"), currency, { sign: true, digits: 2 }), tone(sum("guthaben_bisher"))),
       cell(this._t("colForecast"), this._money(sum("prognose_real"), currency, { sign: true }), tone(sum("prognose_real"))),
       cell(this._t("colInstalment"), this._money(sum("abschlag"), currency, { digits: 2 })),
@@ -1431,7 +1430,24 @@ class TariffyPanel extends HTMLElement {
   }
 
   _contractList() {
-    return h("div", {}, this._contracts.map((c) => this._detail(c)));
+    const head = this._isAdmin
+      ? h("div", { class: "list-head" },
+        h("button", { class: "btn blue", type: "button", onclick: () => this._openFlow(null, "create") }, icon("plus"), this._t("actNew")))
+      : null;
+    return h("div", {}, head, this._contracts.map((c) => this._detail(c)));
+  }
+
+  /* Everything that changes a contract lives here, in the list of contracts (administrators only). */
+  _rowActions(c) {
+    if (!this._isAdmin) return null;
+    const button = (flow, label, name) => h("button", {
+      class: "icon-btn", type: "button", title: label, "aria-label": label,
+      // the row is a <summary>: a click on the icon must not open or close it
+      onclick: (ev) => { ev.preventDefault(); ev.stopPropagation(); this._openFlow(c, flow); },
+    }, icon(name));
+    return h("div", { class: "row-actions" },
+      button("next", this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"), "plan"),
+      button("edit", this._t("actEdit"), "edit"));
   }
 
   _detail(c) {
@@ -1466,6 +1482,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("unitPriceWater"), isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
         row(this._t("basePrice"), isNum(c.grundpreis) ? `${money(c.grundpreis)} ${this._t("perMonth")}` : null),
         row(this._t("instalment"), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
+        row(this._t("costSoFar"), !METERED.has(c.sparte) && isNum(this._costSoFar(c)) ? money(this._costSoFar(c)) : null),
       ]),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),
@@ -1493,14 +1510,17 @@ class TariffyPanel extends HTMLElement {
       ]) : null,
     ];
 
-    const endValue = d.hasMetering ? this._money(c.prognose_real, c.currency, { sign: true }) : this._money(c.jahreskosten, c.currency);
+    const flat = !METERED.has(c.sparte);
+    const endValue = flat ? `${this._money(c.abschlag, c.currency, { digits: 2 })} ${this._t("perMonth")}`
+      : d.hasMetering ? this._money(c.prognose_real, c.currency, { sign: true }) : this._money(c.jahreskosten, c.currency);
     const details = h(
       "details", { "data-id": c.entry_id },
       h("summary", {},
         h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
         this._who(c),
         this._chips(d.chips),
-        h("div", { class: `end ${d.hasMetering ? (c.prognose_real < 0 ? "red-t" : "green-t") : ""}`, text: endValue }),
+        h("div", { class: `end ${!flat && d.hasMetering ? (c.prognose_real < 0 ? "red-t" : "green-t") : ""}`, text: endValue }),
+        this._rowActions(c),
         h("span", { class: "caret", "aria-hidden": "true", text: "›" })),
       h("div", { class: "detail" }, sections)
     );
