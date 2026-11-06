@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.7] - 2026-11-06
+
+Siebte Beta zum Testen des Seitenleisten-Panels. Sie behebt die Darstellung der Vertragsliste. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Fixed
+
+- Beta: In der Ansicht "Verträge" waren die Zeilen zusammengequetscht: Name und Untertitel brachen Wort für Wort um, und der Betrag wurde über den Text gezeichnet. Die Zeilen zeigen jetzt Name, Status und Betrag in einer Zeile und brechen auf schmalen Bildschirmen um. Die Karten der Übersicht sind unverändert.
+
 ## [1.27.0-beta.6] - 2026-11-06
 
 Sechste Beta zum Testen des Seitenleisten-Panels. Neu: Verträge direkt im Panel anlegen und löschen (nur Administratoren). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

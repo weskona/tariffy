@@ -401,6 +401,30 @@ const entryApi = "config/config_entries/entry";
   await context.close();
 }
 
+// ---- the rows of the contract list stay readable at every width (name never squeezed, nothing overlaps) ----
+for (const width of [1280, 900, 600, 390]) {
+  const context = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`list ${width}: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  const rows = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll("details > summary")].map((summary) => {
+    const box = (sel) => { const el = summary.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, r: r.right, b: r.bottom }; };
+    return { who: box(".who"), meta: box(".meta"), end: box(".end"), chips: box(".chips"), row: summary.getBoundingClientRect().width };
+  }));
+  check(rows.length === 6, `list ${width}: six rows`);
+  const overlap = (a, b) => a && b && a.x < b.r - 1 && b.x < a.r - 1 && a.y < b.b - 1 && b.y < a.b - 1;
+  for (const [i, row] of rows.entries()) {
+    check(row.who.w >= 150, `list ${width}, row ${i + 1}: the name keeps a readable width (${Math.round(row.who.w)}px)`);
+    check(row.meta.h <= 40, `list ${width}, row ${i + 1}: the subtitle is not broken word by word (${Math.round(row.meta.h)}px high)`);
+    check(!overlap(row.who, row.end) && !overlap(row.who, row.chips) && !overlap(row.chips, row.end), `list ${width}, row ${i + 1}: nothing overlaps`);
+  }
+  if (width === 1280 || width === 390) await page.screenshot({ path: join(outDir, `list-${width}.png`), fullPage: false });
+  await context.close();
+}
+
 { // English and the phone layout
   const { context, page } = await openPage(browser, "lang=en");
   await openDialog(page, "Gas Heizung", "Plan next contract");
