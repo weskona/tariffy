@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Beta: the panel can now plan, edit and remove the next contract ("Plan next contract" on the contract card, administrators only). It shows the same form as the integration's "Configure" dialog and stores it through that dialog, so validation and storage are unchanged. When the cancellation reminder is due, a box (ticked by default) marks the cancellation as done in the same step.
+
 ### Changed
 
 - Beta: the two remaining action buttons in the panel (acknowledge warning, acknowledge cancellation) now ask for a second confirmation, so nothing can be triggered by an accidental click.

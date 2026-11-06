@@ -59,6 +59,17 @@ const I18N = {
     actYesAck: "Yes, acknowledge", actCancel: "Cancel",
     actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
+    actNextPlan: "Plan next contract", actNextEdit: "Edit next contract",
+    dlgTitle: "Next contract · {name}", dlgLoading: "Loading the form …", dlgSave: "Save", dlgClose: "Close",
+    dlgSaving: "Saving …", dlgSaved: "Saved. Home Assistant reloads the contract.",
+    dlgMarkDone: "Mark the cancellation as done",
+    dlgMarkDoneFailed: "Saved, but the cancellation could not be marked as done. Please use \"Acknowledge cancellation\".",
+    dlgRemove: "Remove planned contract", dlgRemoveAsk: "Remove the planned next contract? The current contract stays as it is.",
+    dlgRemoveYes: "Yes, remove", dlgRemoved: "The planned contract was removed.",
+    dlgInvalidNumber: "Not a valid number (zero or more, decimal comma or point).", dlgRequired: "Required",
+    dlgLoadFailed: "The form could not be loaded: {m}", dlgSaveFailed: "Saving failed: {m}",
+    dlgAborted: "Home Assistant ended the form: {m}",
+    dlgUnsupported: "This form has fields the panel cannot show yet. Please use the setup of Home Assistant.",
     coveredHint: "Credit covers the costs",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
@@ -117,6 +128,17 @@ const I18N = {
     actYesAck: "Ja, bestätigen", actCancel: "Abbrechen",
     actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
+    actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten",
+    dlgTitle: "Folgevertrag · {name}", dlgLoading: "Formular wird geladen …", dlgSave: "Speichern", dlgClose: "Schließen",
+    dlgSaving: "Wird gespeichert …", dlgSaved: "Gespeichert. Home Assistant lädt den Vertrag neu.",
+    dlgMarkDone: "Kündigung als erledigt markieren",
+    dlgMarkDoneFailed: "Gespeichert, aber die Kündigung konnte nicht als erledigt markiert werden. Bitte \"Kündigung bestätigen\" benutzen.",
+    dlgRemove: "Geplanten Vertrag entfernen", dlgRemoveAsk: "Den geplanten Folgevertrag entfernen? Der aktuelle Vertrag bleibt unverändert.",
+    dlgRemoveYes: "Ja, entfernen", dlgRemoved: "Der geplante Vertrag wurde entfernt.",
+    dlgInvalidNumber: "Keine gültige Zahl (null oder größer, Komma oder Punkt).", dlgRequired: "Pflichtfeld",
+    dlgLoadFailed: "Das Formular konnte nicht geladen werden: {m}", dlgSaveFailed: "Speichern fehlgeschlagen: {m}",
+    dlgAborted: "Home Assistant hat das Formular beendet: {m}",
+    dlgUnsupported: "Dieses Formular enthält Felder, die das Panel noch nicht anzeigen kann. Bitte die Einrichtung von Home Assistant benutzen.",
     coveredHint: "Guthaben deckt die Kosten",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
@@ -225,6 +247,20 @@ const STYLE = `
 .btn.orange { color: var(--orange); border-color: rgba(251,146,60,.4); }
 .btn.blue { color: var(--blue); border-color: rgba(96,165,250,.4); }
 .btn.go { background: rgba(96,165,250,.18); color: var(--blue); border-color: rgba(96,165,250,.5); }
+.overlay { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.62); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.dialog { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; width: 100%; max-width: 620px; max-height: calc(100vh - 32px); overflow: auto; padding: 18px 20px; box-sizing: border-box; }
+.dialog h2 { margin: 0 0 6px; font-size: 18px; }
+.dialog .hint { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.fld { display: block; margin: 8px 0; }
+.fld .lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.fld input, .fld select { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
+.fld input:focus-visible, .fld select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.fld.bad input, .fld.bad select { border-color: var(--red); }
+.ferr { color: var(--red); font-size: 12px; margin-top: 4px; }
+.check { display: flex; gap: 8px; align-items: center; margin: 12px 0 0; font-size: 13px; }
+.dialog .actions { margin-top: 16px; }
+@media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
 .ask { width: 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
 .ask span { flex-basis: 100%; }
 .err { width: 100%; font-size: 13px; color: var(--red); }
@@ -347,6 +383,8 @@ function icon(sparte) {
   );
 }
 
+const FLOW_API = "config/config_entries/options/flow";
+
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
 /* ---------- the panel ---------- */
@@ -406,6 +444,7 @@ class TariffyPanel extends HTMLElement {
 
   disconnectedCallback() {
     if (this._observer) this._observer.disconnect();
+    this._closeNext();
     if (this._unsub) {
       this._unsub();
       this._unsub = null;
@@ -576,6 +615,7 @@ class TariffyPanel extends HTMLElement {
       wrap.appendChild(h("div", { class: "grid" }, this._contracts.map((c) => this._card(c))));
     }
     root.appendChild(wrap);
+    if (this._dlgEl) root.appendChild(this._dlgEl);
   }
 
   _top() {
@@ -805,7 +845,10 @@ class TariffyPanel extends HTMLElement {
     if (c.erinnerung_aktiv) {
       list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange", ask: "actAskCancel", yes: "actYesAck" });
     }
-    if (!list.length) return null;
+    list.push({
+      key: "plan_next", open: true, tone: "blue",
+      label: this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"),
+    });
 
     const id = c.entry_id;
     const busy = this._busy === id;
@@ -824,6 +867,7 @@ class TariffyPanel extends HTMLElement {
         children.push(h("button", {
           class: `btn ${action.tone}`, type: "button", disabled: busy ? "" : null, text: action.label,
           onclick: () => {
+            if (action.open) { this._openNext(c); return; }
             this._confirming = { id, key: action.key };
             this._actionError = null;
             this._render();
@@ -849,6 +893,298 @@ class TariffyPanel extends HTMLElement {
     } finally {
       this._busy = null;
       this._render();
+    }
+  }
+
+  /* ---------- plan the next contract ----------
+     Renders the options flow of Home Assistant (the same form as the integration's
+     "Configure" dialog) from its REST API, so validation and storage stay in the
+     integration. Empty fields are left out, exactly as Home Assistant's own form does. */
+
+  _errorText(err) {
+    return String((err && ((err.body && err.body.message) || err.message || err.error)) || err);
+  }
+
+  _fieldSpec(raw, localize) {
+    const kind = ["date", "text", "number", "select", "entity"].find((k) => raw.selector && k in raw.selector) || null;
+    const options = kind === "select" ? raw.selector.select.options || [] : [];
+    const suggested = raw.description && raw.description.suggested_value;
+    const initial = suggested !== undefined && suggested !== null ? suggested : raw.default;
+    const label = localize(`component.tariffy.options.step.init.data.${raw.name}`) ||
+      raw.name.replace(/^next_/, "").replace(/_/g, " ");
+    return {
+      name: raw.name, kind, label, required: Boolean(raw.required),
+      min: kind === "number" && isNum(raw.selector.number.min) ? raw.selector.number.min : null,
+      domains: kind === "entity" ? [].concat(raw.selector.entity.domain || []) : [],
+      options: options.map((o) => (typeof o === "string" ? { value: o, label: o } : { value: o.value, label: o.label || o.value })),
+      initial: initial === undefined || initial === null ? "" : String(initial),
+    };
+  }
+
+  async _flowLocalize() {
+    try {
+      if (typeof this._hass.loadBackendTranslation === "function") {
+        const localize = await this._hass.loadBackendTranslation("options", "tariffy");
+        if (typeof localize === "function") return localize;
+      }
+    } catch (_err) { /* fall back to the field names */ }
+    return typeof this._hass.localize === "function" ? this._hass.localize : () => "";
+  }
+
+  _applyForm(dlg, form) {
+    if (form.type === "create_entry") { dlg.stage = "saved"; return; }
+    if (form.type === "abort") {
+      dlg.stage = "error";
+      dlg.message = this._t("dlgAborted", { m: form.reason || "" });
+      return;
+    }
+    dlg.flowId = form.flow_id;
+    dlg.stage = "form";
+    dlg.fields = (form.data_schema || []).map((f) => this._fieldSpec(f, dlg.localize));
+    dlg.unsupported = dlg.fields.some((f) => !f.kind);
+    dlg.hint = dlg.localize("component.tariffy.options.step.init.description") || "";
+    dlg.fieldErrors = {};
+    dlg.message = null;
+    for (const [name, code] of Object.entries(form.errors || {})) {
+      const text = dlg.localize(`component.tariffy.options.error.${code}`) || String(code);
+      if (name === "base") dlg.message = text;
+      else dlg.fieldErrors[name] = text;
+    }
+    for (const f of dlg.fields) if (!(f.name in dlg.values)) dlg.values[f.name] = f.initial;
+  }
+
+  async _openNext(c) {
+    this._closeNext();
+    const dlg = {
+      id: c.entry_id, name: c.title, stage: "loading", flowId: null, fields: [], values: {}, fieldErrors: {},
+      message: null, hint: "", unsupported: false, removing: false, localize: () => "",
+      hasNext: Boolean(c.next && c.next.beginn), reminder: Boolean(c.erinnerung_aktiv), markDone: true, note: null,
+    };
+    this._dlg = dlg;
+    this._renderDialog();
+    try {
+      const [form, localize] = await Promise.all([
+        this._hass.callApi("POST", FLOW_API, { handler: c.entry_id }),
+        this._flowLocalize(),
+      ]);
+      if (this._dlg !== dlg) {
+        if (form && form.flow_id) this._abortFlow(form.flow_id);
+        return;
+      }
+      dlg.localize = localize;
+      this._applyForm(dlg, form);
+    } catch (err) {
+      dlg.stage = "error";
+      dlg.message = this._t("dlgLoadFailed", { m: this._errorText(err) });
+    }
+    if (this._dlg === dlg) this._renderDialog();
+  }
+
+  _abortFlow(flowId) {
+    try {
+      Promise.resolve(this._hass.callApi("DELETE", `${FLOW_API}/${flowId}`)).catch(() => {});
+    } catch (_err) { /* the flow expires by itself */ }
+  }
+
+  _closeNext() {
+    const dlg = this._dlg;
+    this._dlg = null;
+    if (dlg && dlg.flowId && dlg.stage !== "saved") this._abortFlow(dlg.flowId);
+    if (this._dlgEl) {
+      this._dlgEl.remove();
+      this._dlgEl = null;
+    }
+  }
+
+  _collectNext(dlg) {
+    const values = {};
+    const errors = {};
+    for (const f of dlg.fields) {
+      const raw = String(dlg.values[f.name] ?? "").trim();
+      if (raw === "") {
+        if (f.required) errors[f.name] = this._t("dlgRequired");
+        continue;
+      }
+      if (f.kind === "number") {
+        const n = Number(raw.replace(",", "."));
+        if (!Number.isFinite(n) || (f.min !== null && n < f.min)) errors[f.name] = this._t("dlgInvalidNumber");
+        else values[f.name] = n;
+      } else {
+        values[f.name] = raw;
+      }
+    }
+    return { values, errors };
+  }
+
+  async _sendNext(dlg, values, removed) {
+    dlg.stage = "saving";
+    dlg.message = null;
+    this._renderDialog();
+    let result;
+    try {
+      result = await this._hass.callApi("POST", `${FLOW_API}/${dlg.flowId}`, values);
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.removing = false;
+      dlg.message = this._t("dlgSaveFailed", { m: this._errorText(err) });
+      this._renderDialog();
+      return;
+    }
+    if (this._dlg !== dlg) return;
+    if (result.type !== "create_entry") {
+      dlg.removing = false;
+      this._applyForm(dlg, result);
+      this._renderDialog();
+      return;
+    }
+    dlg.stage = "saved";
+    dlg.removed = removed;
+    dlg.note = null;
+    this._renderDialog();
+    if (!removed && dlg.reminder && dlg.markDone) {
+      const done = await this._markCancellationDone(dlg.id);
+      if (this._dlg !== dlg) return;
+      if (!done) dlg.note = this._t("dlgMarkDoneFailed");
+      this._renderDialog();
+    }
+  }
+
+  /* Saving reloads the contract, so the action may answer "not_found" for a moment. */
+  async _markCancellationDone(entryId) {
+    for (let attempt = 0; attempt < 12; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 700 : 600));
+      try {
+        await this._hass.callWS({ type: "tariffy/action", entry_id: entryId, action: "confirm_cancellation" });
+        return true;
+      } catch (err) {
+        if (err && err.code === "not_available") return true; // nothing left to acknowledge
+        if (!err || err.code !== "not_found") return false;
+      }
+    }
+    return false;
+  }
+
+  _submitNext() {
+    const dlg = this._dlg;
+    if (!dlg || dlg.stage !== "form") return;
+    const { values, errors } = this._collectNext(dlg);
+    dlg.fieldErrors = errors;
+    if (Object.keys(errors).length) {
+      dlg.message = null;
+      this._renderDialog();
+      return;
+    }
+    this._sendNext(dlg, values, false);
+  }
+
+  _fieldInput(dlg, f) {
+    const common = {
+      id: `f-${f.name}`, name: f.name, "aria-invalid": dlg.fieldErrors[f.name] ? "true" : null,
+      oninput: (ev) => {
+        dlg.values[f.name] = ev.target.value;
+        if (dlg.fieldErrors[f.name]) { // the message is outdated as soon as the field is edited
+          delete dlg.fieldErrors[f.name];
+          const label = ev.target.closest("label");
+          if (label) {
+            label.classList.remove("bad");
+            const note = label.querySelector(".ferr");
+            if (note) note.remove();
+          }
+          ev.target.removeAttribute("aria-invalid");
+        }
+      },
+    };
+    let input;
+    if (f.kind === "select") {
+      input = h("select", { ...common, onchange: (ev) => { dlg.values[f.name] = ev.target.value; } },
+        f.options.map((o) => h("option", { value: o.value, text: o.label })));
+    } else if (f.kind === "entity") {
+      const list = `dl-${f.name}`;
+      const ids = Object.keys((this._hass && this._hass.states) || {})
+        .filter((id) => !f.domains.length || f.domains.includes(id.split(".")[0])).sort();
+      return [
+        h("input", { ...common, type: "text", list, autocomplete: "off", spellcheck: "false" }),
+        h("datalist", { id: list }, ids.map((id) => h("option", { value: id }))),
+      ];
+    } else {
+      const type = f.kind === "date" ? "date" : "text";
+      input = h("input", { ...common, type, inputmode: f.kind === "number" ? "decimal" : null, autocomplete: "off" });
+    }
+    return [input];
+  }
+
+  _renderDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [h("h2", { id: "dlg-title", text: this._t("dlgTitle", { name: dlg.name }) })];
+    const buttons = [];
+
+    if (dlg.stage === "loading") {
+      body.push(h("p", { class: "hint", text: this._t("dlgLoading") }));
+    } else if (dlg.stage === "error") {
+      body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+      buttons.push(h("button", { class: "btn", type: "button", text: this._t("dlgClose"), onclick: () => this._closeNext() }));
+    } else if (dlg.stage === "saved") {
+      body.push(h("p", { class: "hint", text: this._t(dlg.removed ? "dlgRemoved" : "dlgSaved") }));
+      if (dlg.note) body.push(h("div", { class: "err", role: "alert", text: dlg.note }));
+      buttons.push(h("button", { class: "btn go", type: "button", text: this._t("dlgClose"), onclick: () => this._closeNext() }));
+    } else {
+      if (dlg.hint) body.push(h("p", { class: "hint", text: dlg.hint }));
+      if (dlg.unsupported) {
+        body.push(h("div", { class: "err", role: "alert", text: this._t("dlgUnsupported") }));
+      } else {
+        body.push(h("div", { class: "fields" }, dlg.fields.map((f) => {
+          const error = dlg.fieldErrors[f.name];
+          return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+            h("span", { class: "lbl", text: f.label }),
+            this._fieldInput(dlg, f),
+            error ? h("div", { class: "ferr", text: error }) : null);
+        })));
+      }
+      if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+      if (dlg.reminder && !dlg.unsupported) {
+        body.push(h("label", { class: "check" },
+          h("input", { type: "checkbox", checked: dlg.markDone ? "" : null, onchange: (ev) => { dlg.markDone = ev.target.checked; } }),
+          h("span", { text: this._t("dlgMarkDone") })));
+      }
+      if (dlg.removing) {
+        buttons.push(h("div", { class: "ask" },
+          h("span", { text: this._t("dlgRemoveAsk") }),
+          h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("dlgRemoveYes"),
+            onclick: () => this._sendNext(dlg, {}, true) }),
+          h("button", { class: "btn", type: "button", text: this._t("actCancel"),
+            onclick: () => { dlg.removing = false; this._renderDialog(); } })));
+      } else {
+        if (!dlg.unsupported) {
+          buttons.push(h("button", { class: "btn go", type: "button", disabled: busy ? "" : null,
+            text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._submitNext() }));
+        }
+        buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"),
+          onclick: () => this._closeNext() }));
+        if (dlg.hasNext && !dlg.unsupported) {
+          buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("dlgRemove"),
+            onclick: () => { dlg.removing = true; this._renderDialog(); } }));
+        }
+      }
+    }
+    body.push(h("div", { class: "actions" }, buttons));
+
+    const el = this._dlgEl || (this._dlgEl = h("div", { class: "overlay" }));
+    el.onkeydown = (ev) => { if (ev.key === "Escape" && !busy) this._closeNext(); };
+    el.replaceChildren(h("div", { class: "dialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "dlg-title" }, body));
+    if (!el.isConnected) this.shadowRoot.appendChild(el);
+
+    // the inputs are filled through properties, attributes would not follow later changes
+    for (const f of dlg.fields) {
+      const input = el.querySelector(`[name="${f.name}"]`);
+      if (input) input.value = dlg.values[f.name] ?? "";
+    }
+    const first = el.querySelector("input, select, button");
+    if (first && !el.dataset.focused) {
+      el.dataset.focused = "1";
+      first.focus();
     }
   }
 

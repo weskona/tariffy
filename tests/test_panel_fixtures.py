@@ -14,6 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.data_entry_flow import FlowManagerResourceView
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.tariffy import panel
@@ -99,7 +100,7 @@ CONTRACTS = [
 ]
 
 
-async def _build(hass: HomeAssistant, freezer) -> list[dict]:
+async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, dict]]:
     freezer.move_to(f"{TODAY} 12:00:00")
     sums = {}
     for _title, _data, sensors, _options in CONTRACTS:
@@ -130,12 +131,28 @@ async def _build(hass: HomeAssistant, freezer) -> list[dict]:
     contracts = panel.async_contracts(hass)
     for index, contract in enumerate(contracts, start=1):
         contract["entry_id"] = f"contract-{index}"
-    return contracts
+
+    # The form of the options flow ("plan the next contract") exactly as Home
+    # Assistant serialises it for its REST API, which is what the panel renders.
+    class _Serialiser(FlowManagerResourceView):
+        url = "/unused"
+        name = "unused"
+
+    serialiser = _Serialiser(hass.config_entries.options)
+    flows: dict[str, dict] = {}
+    for index, entry in enumerate(hass.config_entries.async_entries(DOMAIN), start=1):
+        result = await hass.config_entries.options.async_init(entry.entry_id)
+        form = serialiser._prepare_result_json(result)
+        hass.config_entries.options.async_abort(result["flow_id"])
+        form["flow_id"] = f"flow-{index}"
+        form["handler"] = f"contract-{index}"
+        flows[f"contract-{index}"] = form
+    return contracts, flows
 
 
 async def test_panel_fixtures_match_the_backend(hass: HomeAssistant, freezer):
-    contracts = await _build(hass, freezer)
-    document = {"today": TODAY, "contracts": contracts}
+    contracts, flows = await _build(hass, freezer)
+    document = {"today": TODAY, "contracts": contracts, "flows": flows}
     text = json.dumps(document, indent=2, ensure_ascii=False, sort_keys=True) + "\n"
 
     if os.environ.get("UPDATE_FIXTURES"):

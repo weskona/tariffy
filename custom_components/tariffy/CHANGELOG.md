@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Added
+
+- Beta: Das Panel kann den Folgevertrag jetzt planen, bearbeiten und entfernen ("Folgevertrag planen" auf der Vertragskarte, nur Administratoren). Es zeigt dasselbe Formular wie der "Konfigurieren"-Dialog der Integration und speichert über diesen Dialog, Prüfung und Speicherung bleiben also unverändert. Ist die Kündigungserinnerung fällig, markiert ein Häkchen (standardmäßig an) die Kündigung im selben Schritt als erledigt.
+
 ### Changed
 
 - Beta: Die beiden Aktions-Buttons im Panel (Warnung bestätigen, Kündigung bestätigen) fragen jetzt eine zweite Stufe ab, damit nichts versehentlich ausgelöst wird.
