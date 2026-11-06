@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.26.7] - 2026-11-06
+
+### Fixed
+
+- **Reconfiguring a contract no longer loses the state the integration keeps itself.** The "Reconfigure" dialog of Home Assistant replaces the stored contract data with what its forms contain. The forms do not contain the integration's own values, so after every reconfiguration an acknowledged cancellation reminder or low-instalment warning came back, a push notification that was already sent could be sent again, and the consumption of the last contract term (the basis of the recommended instalment after a tariff switch) was lost. These values are now kept. The cancellation reminder starts over only when the contract end or the reminder lead time changes. Nothing else changes: all fields of the forms are stored exactly as before.
+
 ## [1.26.6] - 2026-11-05
 
 ### Fixed
@@ -223,7 +229,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No structured changelog prior to this version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.6...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.7...HEAD
+[1.26.7]: https://github.com/weskona/tariffy/compare/v1.26.6...v1.26.7
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
