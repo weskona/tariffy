@@ -7,6 +7,15 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.3] - 2026-11-07
+
+Dritter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Die Badges einer Vertragskarte in der Übersicht ("Guthaben", "Wechsel am ...", ...) stehen oben rechts neben dem Namen, statt in einer eigenen Zeile darunter. Auf dem Handy bleibt die Karte unverändert.
+- Die "Restlaufzeit" steht direkt unter den Kosten-Balken statt am unteren Rand der Karte, damit keine Lücke entsteht, wenn die Nachbarkarte höher ist.
+
 ## [1.27.0-rc.2] - 2026-11-06
 
 Zweiter Release Candidate zum Testen des Seitenleisten-Panels. Das Panel nutzt die ganze Breite des Fensters, die Kopfzeile der Übersicht hat mehr Details, und die Kostentabellen stehen untereinander ausgerichtet. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
