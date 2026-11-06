@@ -102,7 +102,7 @@ CONTRACTS = [
 ]
 
 
-async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, dict], dict[str, dict]]:
+async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, dict], dict[str, dict], dict]:
     freezer.move_to(f"{TODAY} 12:00:00")
     sums = {}
     for _title, _data, sensors, _options in CONTRACTS:
@@ -173,12 +173,30 @@ async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, di
             steps.append(form)
         hass.config_entries.flow.async_abort(first["flow_id"])
         reconfigure[f"contract-{index}"] = {"first": steps[0], "second": steps[1]}
-    return contracts, flows, reconfigure
+
+    # "New contract": the first step (name and sparte), then the step the chosen sparte leads to.
+    first = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
+    start = config_serialiser._prepare_result_json(first)
+    start["flow_id"], start["handler"] = "cflow-1", DOMAIN
+    hass.config_entries.flow.async_abort(first["flow_id"])
+    steps: dict[str, dict] = {}
+    for sparte in ("electricity", "electricity_ht_nt", "gas", "water", "internet"):
+        result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
+        values = {**_form_defaults(result), "name": "Neuer Vertrag", "sparte": sparte, "anbieter": "Anbieter"}
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], values)
+        form = config_serialiser._prepare_result_json(result)
+        form["flow_id"], form["handler"] = "cflow-1", DOMAIN
+        hass.config_entries.flow.async_abort(result["flow_id"])
+        steps[sparte] = form
+    create = {"first": start, "steps": steps}
+    return contracts, flows, reconfigure, create
 
 
 async def test_panel_fixtures_match_the_backend(hass: HomeAssistant, freezer):
-    contracts, flows, reconfigure = await _build(hass, freezer)
-    document = {"today": TODAY, "contracts": contracts, "flows": flows, "reconfigure": reconfigure}
+    contracts, flows, reconfigure, create = await _build(hass, freezer)
+    document = {
+        "today": TODAY, "contracts": contracts, "flows": flows, "reconfigure": reconfigure, "create": create,
+    }
     text = json.dumps(document, indent=2, ensure_ascii=False, sort_keys=True) + "\n"
 
     if os.environ.get("UPDATE_FIXTURES"):

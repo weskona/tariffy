@@ -7,6 +7,19 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.6] - 2026-11-06
+
+Sechste Beta zum Testen des Seitenleisten-Panels. Neu: Verträge direkt im Panel anlegen und löschen (nur Administratoren). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- Beta: Das Panel kann jetzt Verträge anlegen ("Neuer Vertrag" in der oberen Leiste, nur Administratoren). Es startet den Einrichtungs-Dialog der Integration (erst Name und Sparte, dann die Daten der Sparte), Prüfung und Speicherung bleiben also unverändert, und der neue Vertrag erscheint von selbst im Panel.
+- Beta: Das Panel kann jetzt einen Vertrag löschen ("Vertrag löschen" im Bearbeiten-Dialog, nur Administratoren). Weil das nicht rückgängig zu machen ist, muss vorher der Name des Vertrags eingetippt werden. Die Sensoren und Buttons des Vertrags werden entfernt; die Langzeit-Statistiken, die Home Assistant schon aufgezeichnet hat, bleiben in der Datenbank (der Dialog weist darauf hin).
+
+### Fixed
+
+- Beim Löschen eines Vertrags (im Panel oder in Home Assistant) werden jetzt auch seine offenen Benachrichtigungen zu Kündigung und zu niedrigem Abschlag entfernt. Bisher blieben sie dauerhaft in der Liste stehen.
+
 ## [1.27.0-beta.5] - 2026-11-06
 
 Fünfte Beta zum Testen des Seitenleisten-Panels. Neu: einen Vertrag direkt im Panel bearbeiten (nur Administratoren). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

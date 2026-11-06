@@ -4,10 +4,17 @@ from __future__ import annotations
 
 import logging
 
+from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import CONF_SPARTE, PLATFORMS, SPARTEN_MIGRATION
+from .const import (
+    CONF_SPARTE,
+    NOTIFY_ID_ABSCHLAG_PREFIX,
+    NOTIFY_ID_PREFIX,
+    PLATFORMS,
+    SPARTEN_MIGRATION,
+)
 from .coordinator import TariffyCoordinator
 from .panel import (
     async_attach_entry,
@@ -68,3 +75,9 @@ async def async_unload_entry(
         await async_unload_panel(hass, entry)
         async_notify(hass)
     return unloaded
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Ein geloeschter Vertrag hinterlaesst keine offenen Meldungen."""
+    for prefix in (NOTIFY_ID_PREFIX, NOTIFY_ID_ABSCHLAG_PREFIX):
+        persistent_notification.async_dismiss(hass, f"{prefix}{entry.entry_id}")
