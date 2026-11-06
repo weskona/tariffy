@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.26.7] - 2026-11-06
+
+### Fixed
+
+- **Beim Neukonfigurieren eines Vertrags gehen die Werte, die die Integration selbst führt, nicht mehr verloren.** Der Dialog "Neu konfigurieren" von Home Assistant ersetzt die gespeicherten Vertragsdaten durch das, was seine Formulare enthalten. Die Formulare enthalten die eigenen Werte der Integration nicht, deshalb kam nach jedem Neukonfigurieren eine bestätigte Kündigungs-Erinnerung oder Abschlag-Warnung wieder, eine schon gesendete Push-Nachricht konnte erneut gesendet werden, und der Verbrauch der letzten Laufzeit (Grundlage des empfohlenen Abschlags nach einem Tarifwechsel) ging verloren. Diese Werte bleiben jetzt erhalten. Die Kündigungs-Erinnerung beginnt nur dann neu, wenn sich Vertragsende oder Vorlaufzeit ändern. Sonst ändert sich nichts: Alle Felder der Formulare werden genau wie bisher gespeichert.
+
 ## [1.26.6] - 2026-11-05
 
 ### Behoben
@@ -229,7 +235,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 Keine strukturierte Changelog-Historie vor dieser Version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.6...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.7...HEAD
+[1.26.7]: https://github.com/weskona/tariffy/compare/v1.26.6...v1.26.7
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4
