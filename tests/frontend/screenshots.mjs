@@ -551,7 +551,11 @@ for (const width of [1280, 900, 600, 390]) {
   const expected = await page.evaluate(() => window.__panel._contracts.find((c) => c.title === "Internet").abschlag_bisher_gezahlt);
   check(expected > 300, `the backend delivers the instalments due so far (${expected})`);
   check(internet[1].includes("373"), `Internet: the cost so far is filled in (${internet[1]})`);
-  check(internet[2] === "39,99 €" && internet[3] === "30.09.2026" && internet[4] === "80 Tage", `Internet: instalment, end and remaining term (${internet})`);
+  check(internet[2] === "80 Tage" && internet[3] === "30.09.2026" && internet[4] === "39,99 €", `Internet: remaining term, end and instalment (${internet})`);
+  // both tables share one column grid: cost so far and instalment sit exactly below each other
+  const edges = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group table")].map((t) => [...t.querySelectorAll("th")].map((th) => Math.round(th.getBoundingClientRect().right))));
+  check(edges.length === 2 && edges[0][1] === edges[1][1] && edges[0][4] === edges[1][4] && edges[0].length === edges[1].length,
+    `the two cost tables line up (cost so far ${edges.map((e) => e[1])}, instalment ${edges.map((e) => e[4])})`);
 
   // group totals and the grand total
   const number = (text) => Number(text.replace(/[^\d,]/g, "").replace(",", "."));
@@ -587,6 +591,41 @@ for (const width of [1280, 900, 600, 390]) {
     if (width === 1920) await page.screenshot({ path: join(outDir, "wide-overview.png"), fullPage: false });
     await context.close();
   }
+}
+
+{ // the header of the overview: four tiles with details
+  const { context, page } = await openPage(browser, "lang=de");
+  const tiles = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".summary .sum")].map((t) => ({
+    text: t.innerText.replace(/ /g, " "),
+    rows: [...t.querySelectorAll(".mrow")].map((r) => r.innerText.replace(/ /g, " ").replace(/\n/g, " ")),
+    segments: [...t.querySelectorAll(".split span")].map((x) => parseFloat(x.style.width)),
+  })));
+  check(tiles.length === 4, `four tiles in the header (${tiles.length})`);
+  check(tiles[0].text.includes("322,98 €") && tiles[0].text.includes("≈ 3.876 € / Jahr"), "instalments per month and per year");
+  check(tiles[0].text.includes("Verbrauch 263,00 €") && tiles[0].text.includes("Pauschal 59,98 €"), "split into metered and flat-rate contracts");
+  check(tiles[0].segments.length === 2 && Math.abs(tiles[0].segments[0] - 81.4) < 0.3 && Math.abs(tiles[0].segments[1] - 18.6) < 0.3, `the bar is proportional (${tiles[0].segments})`);
+  check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.772,18 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
+  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo bisher") && tiles[1].rows[0].includes("−8,56 €"), `balance so far (${tiles[1].rows})`);
+  check(tiles[2].rows.length === 4 && tiles[2].rows[0].startsWith("Strom Haus") && tiles[2].rows[3].startsWith("Gas Heizung"), `forecast per contract, worst first (${tiles[2].rows})`);
+  check(tiles[3].text.toLowerCase().includes("nächste termine") && tiles[3].rows.length === 2, `the next dates (${tiles[3].rows.length} more rows)`);
+  const dateRows = tiles[3].rows.map((r) => r.match(/^(\d\d)\.(\d\d)\.(\d{4})/)).filter(Boolean).map((m) => `${m[3]}${m[2]}${m[1]}`);
+  check(dateRows.length === 2 && dateRows[0] <= dateRows[1], `dates are in order (${dateRows})`);
+  check(new Set(tiles[3].rows.map((r) => r.replace(/ in \d+ Tagen$/, ""))).size === tiles[3].rows.length, "no contract appears twice for the same date");
+  await context.close();
+}
+
+{ // nothing sticks out sideways on a phone, in any view
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&narrow=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
+  for (const tab of ["Übersicht", "Kosten", "Verträge"]) {
+    await page.getByRole("tab", { name: tab }).click();
+    const width = await page.evaluate(() => document.scrollingElement.scrollWidth);
+    check(width <= 391, `${tab} on a phone fits the width (${width}px)`);
+  }
+  await context.close();
 }
 
 { // the figures of a card stay readable on a phone
