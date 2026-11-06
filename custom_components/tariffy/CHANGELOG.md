@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.4] - 2026-11-06
+
+Vierte Beta zum Testen des Seitenleisten-Panels. Neu: Folgevertrag direkt im Panel planen, bearbeiten und entfernen (nur Administratoren). Die beiden Aktions-Buttons fragen jetzt eine zweite Stufe ab, und "Jetzt wechseln" gibt es im Panel nicht mehr, weil es den aktuellen Vertrag ersetzt hätte, bevor der neue beginnt. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
 ### Added
 
 - Beta: Das Panel kann den Folgevertrag jetzt planen, bearbeiten und entfernen ("Folgevertrag planen" auf der Vertragskarte, nur Administratoren). Es zeigt dasselbe Formular wie der "Konfigurieren"-Dialog der Integration und speichert über diesen Dialog, Prüfung und Speicherung bleiben also unverändert. Ist die Kündigungserinnerung fällig, markiert ein Häkchen (standardmäßig an) die Kündigung im selben Schritt als erledigt.
