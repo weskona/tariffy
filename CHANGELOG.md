@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-beta.10] - 2026-11-06
+
+Tenth beta for testing the sidebar panel. The "Costs" and "Contracts" views are now split like the overview. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- Beta: the "Costs" view has two tables like the overview: **metered contracts** (cost so far, balance so far, balance at contract end, instalment, recommended instalment) and **flat-rate contracts** (cost so far, instalment, contract end, remaining term). Each table has its own total row, and the overall total sits below. Flat-rate contracts no longer show rows of dashes for balance and forecast.
+- Beta: the "Contracts" view lists the contracts in the same two groups.
+- Beta: the small arrow that opens a row or card is an icon in the style of the other icons and turns when it opens.
+- Beta: on a wide screen the overview shows three contracts per row, in both groups (before: two columns for four metered contracts).
+
 ## [1.27.0-beta.9] - 2026-11-06
 
 Ninth beta for testing the sidebar panel. The overview is sorted by kind of contract, flat-rate contracts get their own cards, and everything that changes a contract moved to the "Contracts" tab. Please report problems with the bug report form and mention this exact version.

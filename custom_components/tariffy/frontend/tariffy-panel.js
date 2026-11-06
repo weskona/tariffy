@@ -61,7 +61,7 @@ const I18N = {
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
     actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract", actNew: "New contract",
     saldoShort: "Balance so far",
-    groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
+    grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
     dlgDelete: "Delete contract", dlgDeleteYes: "Delete for good", dlgDeleted: "The contract was deleted.",
     dlgDeleteAsk: "Delete the contract \"{name}\" for good? This cannot be undone. Type its name to confirm.",
@@ -139,7 +139,7 @@ const I18N = {
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
     actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten", actNew: "Neuer Vertrag",
     saldoShort: "Saldo bisher",
-    groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
+    grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
     dlgDelete: "Vertrag löschen", dlgDeleteYes: "Endgültig löschen", dlgDeleted: "Der Vertrag wurde gelöscht.",
     dlgDeleteAsk: "Den Vertrag \"{name}\" endgültig löschen? Das lässt sich nicht rückgängig machen. Zur Bestätigung den Namen eintippen.",
@@ -195,6 +195,7 @@ const ICONS = {
     ["path", { d: "M16 2v4M8 2v4M3 10h18M12 13.500v5M9.500 16h5" }],
   ],
   plus: [["path", { d: "M12 5v14M5 12h14" }]],
+  chevron: [["path", { d: "M9 6l6 6-6 6" }]],
   other: [
     ["circle", { cx: "6", cy: "12", r: "1.600", fill: "currentColor" }],
     ["circle", { cx: "12", cy: "12", r: "1.600", fill: "currentColor" }],
@@ -239,11 +240,14 @@ const STYLE = `
 .group:first-of-type { margin-top: 0; }
 .group-title { display: flex; align-items: center; gap: 8px; margin: 0 0 12px 2px; font-size: 11px; font-weight: 600;
   letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.grand { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 22px; margin-top: 18px; padding: 12px 16px; border-radius: 14px;
+  background: var(--panel); border: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.grand b { color: var(--text); font-variant-numeric: tabular-nums; }
 .group-title .count { font-size: 11px; letter-spacing: 0; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.07); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; align-items: stretch; }
 .grid.flat { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-/* wide screens: the number of columns follows the number of cards, so no card is left alone in a row (4 -> 2 x 2) */
-@container (min-width: 1000px) { .grid.metered { grid-template-columns: repeat(var(--cols, 3), 1fr); } }
+/* wide screens: three contracts per row in both groups */
+@container (min-width: 1000px) { .grid.metered, .grid.flat { grid-template-columns: repeat(3, 1fr); } }
 section.card { display: flex; flex-direction: column; }
 section.card .foot { margin-top: auto; padding-top: 12px; }
 .card.flat .big { font-size: 28px; }
@@ -360,7 +364,12 @@ summary { list-style: none; cursor: pointer; display: flex; align-items: center;
 summary::-webkit-details-marker { display: none; }
 summary .who { flex: 1; }
 summary .end { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-summary .caret { color: var(--muted); transition: transform .15s; }
+summary .caret { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px;
+  border: 1px solid var(--tile-line); background: var(--tile); color: var(--muted); transition: color .15s; }
+summary .caret svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
+/* icons and arrow of a list row stay together when the row wraps */
+.row-end { display: flex; align-items: center; gap: 6px; flex: none; margin-left: auto; }
+summary:hover .caret { color: var(--text); }
 summary .chips:empty { display: none; }
 /* cards (overview): the chips get a line of their own below */
 details.card > summary .chips { flex-basis: 100%; justify-content: flex-start; order: 5; }
@@ -372,7 +381,7 @@ details.card { padding: 0; }
 details.card > summary { padding: 14px 16px; flex-wrap: wrap; }
 details.card .body { padding: 0 16px 16px; }
 details.card.alert { border-color: rgba(248,113,113,.35); }
-details[open] summary .caret { transform: rotate(90deg); }
+details[open] summary .caret svg { transform: rotate(90deg); }
 .detail { padding: 4px 18px 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .sec h4 { margin: 8px 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
 .row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
@@ -395,6 +404,7 @@ details[open] summary .caret { transform: rotate(90deg); }
   .tiles { grid-template-columns: 1fr 1fr; }
   .tiles .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .grid, .grid.flat { grid-template-columns: 1fr; gap: 12px; }
+  summary .caret { width: 30px; height: 30px; }
   .group { margin-top: 18px; }
   .card { padding: 14px; }
   .big { font-size: 28px; }
@@ -691,7 +701,7 @@ class TariffyPanel extends HTMLElement {
       wrap.appendChild(this._summary());
       const group = (key, list, extra) => (list.length ? h("section", { class: "group" },
         h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
-        h("div", { class: `grid ${extra}`, style: `--cols:${list.length <= 2 || list.length === 4 ? 2 : 3}` }, list.map((c) => this._card(c)))) : null);
+        h("div", { class: `grid ${extra}` }, list.map((c) => this._card(c)))) : null);
       wrap.appendChild(group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte)), "metered"));
       wrap.appendChild(group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte)), "flat"));
     }
@@ -924,7 +934,7 @@ class TariffyPanel extends HTMLElement {
           h("div", { class: `end ${heroTone}`, text: flat
             ? `${this._money(heroValue, c.currency, { digits: 2 })} ${this._t("perMonth")}`
             : this._money(heroValue, c.currency, { sign: d.hasMetering }) }),
-          h("span", { class: "caret", "aria-hidden": "true", text: "›" }),
+          h("span", { class: "caret", "aria-hidden": "true" }, icon("chevron")),
           this._chips(d.chips)),
         h("div", { class: "body" }, body));
       if (this._open.has(c.entry_id)) card.setAttribute("open", "");
@@ -1389,13 +1399,18 @@ class TariffyPanel extends HTMLElement {
     const currency = contracts[0].currency || "EUR";
     const tone = (v) => (isNum(v) ? (v < 0 ? "red-t" : v > 0 ? "green-t" : "") : "muted-t");
     const cell = (label, value, cls) => h("td", { "data-label": label, class: [cls, value === "–" ? "empty" : ""].filter(Boolean).join(" ") || null, text: value });
-    const sum = (key) => contracts.reduce((s, c) => s + (isNum(c[key]) ? c[key] : 0), 0);
-    const sumCost = contracts.reduce((s, c) => s + (this._costSoFar(c) || 0), 0);
+    const sum = (list, key) => list.reduce((s, c) => s + (isNum(c[key]) ? c[key] : 0), 0);
+    const sumCost = (list) => list.reduce((s, c) => s + (this._costSoFar(c) || 0), 0);
+    const money = (v, digits = 2, o = {}) => this._money(v, currency, { digits, ...o });
+    const metered = contracts.filter((c) => METERED.has(c.sparte));
+    const flat = contracts.filter((c) => !METERED.has(c.sparte));
+    const name = (c) => h("td", {}, c.title, h("span", { class: "t2", text: c.anbieter || this._t("sparte")[c.sparte] || c.sparte }));
 
-    const rows = [];
-    for (const c of contracts) {
-      rows.push(h("tr", {},
-        h("td", {}, c.title, h("span", { class: "t2", text: c.anbieter || this._t("sparte")[c.sparte] || c.sparte })),
+    // metered contracts: what the consumption cost, the balance against the instalments, the forecast
+    const meteredRows = [];
+    for (const c of metered) {
+      meteredRows.push(h("tr", {},
+        name(c),
         cell(this._t("colCost"), this._money(this._costSoFar(c), c.currency, { digits: 2 })),
         cell(this._t("colBalance"), this._money(c.guthaben_bisher, c.currency, { sign: true, digits: 2 }), tone(c.guthaben_bisher)),
         cell(this._t("colForecast"), this._money(c.prognose_real, c.currency, { sign: true }), tone(c.prognose_real)),
@@ -1403,38 +1418,69 @@ class TariffyPanel extends HTMLElement {
         this._recommendedCell(c)));
       if (isNum(c.kosten_ht_bisher) || isNum(c.kosten_nt_bisher)) {
         for (const [label, key, vkey] of [["highTariff", "kosten_ht_bisher", "verbrauch_bisher_ht"], ["lowTariff", "kosten_nt_bisher", "verbrauch_bisher_nt"]]) {
-          rows.push(h("tr", { class: "sub" },
+          meteredRows.push(h("tr", { class: "sub" },
             h("td", { text: `${this._t(label)} · ${this._num(c[vkey], 0)} ${this._unit(c)}` }),
             cell(this._t("colCost"), this._money(c[key], c.currency, { digits: 2 }))));
         }
       }
     }
-    rows.push(h("tr", { class: "total" },
+    meteredRows.push(h("tr", { class: "total" },
       h("td", { text: this._t("total") }),
-      cell(this._t("colCost"), this._money(sumCost, currency, { digits: 2 })),
-      cell(this._t("colBalance"), this._money(sum("guthaben_bisher"), currency, { sign: true, digits: 2 }), tone(sum("guthaben_bisher"))),
-      cell(this._t("colForecast"), this._money(sum("prognose_real"), currency, { sign: true }), tone(sum("prognose_real"))),
-      cell(this._t("colInstalment"), this._money(sum("abschlag"), currency, { digits: 2 })),
+      cell(this._t("colCost"), money(sumCost(metered))),
+      cell(this._t("colBalance"), money(sum(metered, "guthaben_bisher"), 2, { sign: true }), tone(sum(metered, "guthaben_bisher"))),
+      cell(this._t("colForecast"), money(sum(metered, "prognose_real"), 0, { sign: true }), tone(sum(metered, "prognose_real"))),
+      cell(this._t("colInstalment"), money(sum(metered, "abschlag"))),
       h("td", { text: "" })));
+
+    // flat-rate contracts: no consumption, so the cost so far is what was due, and the term
+    const flatRows = flat.map((c) => h("tr", {},
+      name(c),
+      cell(this._t("colCost"), this._money(this._costSoFar(c), c.currency, { digits: 2 })),
+      cell(this._t("colInstalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
+      cell(this._t("contractEnd"), c.ende ? this._date(c.ende) : this._t("noEnd")),
+      cell(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : "–")));
+    flatRows.push(h("tr", { class: "total" },
+      h("td", { text: this._t("total") }),
+      cell(this._t("colCost"), money(sumCost(flat))),
+      cell(this._t("colInstalment"), money(sum(flat, "abschlag"))),
+      h("td", { text: "" }), h("td", { text: "" })));
+
+    const group = (key, list, heads, rows) => (list.length ? h("section", { class: "group" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
+      h("table", {},
+        h("thead", {}, h("tr", {}, heads.map((label) => h("th", { text: label })))),
+        h("tbody", {}, rows))) : null);
 
     return h(
       "div", {},
-      h("table", {},
-        h("thead", {}, h("tr", {}, [
-          this._t("colContract"), this._t("colCost"), this._t("colBalance"),
-          this._t("colForecast"), this._t("colInstalment"), this._t("colRecommended"),
-        ].map((label) => h("th", { text: label })))),
-        h("tbody", {}, rows)),
+      group("groupMetered", metered, [
+        this._t("colContract"), this._t("colCost"), this._t("colBalance"),
+        this._t("colForecast"), this._t("colInstalment"), this._t("colRecommended"),
+      ], meteredRows),
+      group("groupFlat", flat, [
+        this._t("colContract"), this._t("colCost"), this._t("colInstalment"), this._t("contractEnd"), this._t("remaining"),
+      ], flatRows),
+      h("div", { class: "grand" },
+        h("span", { class: "label", text: this._t("grandTotal") }),
+        h("span", {}, `${this._t("colCost")} `, h("b", { text: money(sumCost(contracts)) })),
+        h("span", {}, `${this._t("colInstalment")} `, h("b", { text: money(sum(contracts, "abschlag")) }))),
       h("div", { class: "hint", text: this._t("costsHint") })
     );
   }
+
 
   _contractList() {
     const head = this._isAdmin
       ? h("div", { class: "list-head" },
         h("button", { class: "btn blue", type: "button", onclick: () => this._openFlow(null, "create") }, icon("plus"), this._t("actNew")))
       : null;
-    return h("div", {}, head, this._contracts.map((c) => this._detail(c)));
+    // the same two groups as in the overview
+    const group = (key, list) => (list.length ? h("section", { class: "group" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
+      list.map((c) => this._detail(c))) : null);
+    return h("div", {}, head,
+      group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte))),
+      group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte))));
   }
 
   /* Everything that changes a contract lives here, in the list of contracts (administrators only). */
@@ -1520,8 +1566,9 @@ class TariffyPanel extends HTMLElement {
         this._who(c),
         this._chips(d.chips),
         h("div", { class: `end ${!flat && d.hasMetering ? (c.prognose_real < 0 ? "red-t" : "green-t") : ""}`, text: endValue }),
-        this._rowActions(c),
-        h("span", { class: "caret", "aria-hidden": "true", text: "›" })),
+        h("div", { class: "row-end" },
+          this._rowActions(c),
+          h("span", { class: "caret", "aria-hidden": "true" }, icon("chevron")))),
       h("div", { class: "detail" }, sections)
     );
     if (this._open.has(c.entry_id)) details.setAttribute("open", "");

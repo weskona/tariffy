@@ -48,9 +48,11 @@ for (const shot of shots) {
     if (tab === "contracts") {
       await page.evaluate(() => window.__panel.shadowRoot.querySelectorAll("details").forEach((d, i) => { if (i < 2) d.open = true; }));
     }
+    await page.waitForTimeout(300); // let the arrow finish turning
     await page.screenshot({ path: join(outDir, `${shot.name}-${tab}.png`), fullPage: true });
     if (shot.narrow && tab === "overview") {
       await page.evaluate(() => window.__panel.shadowRoot.querySelectorAll("details.card").forEach((d, i) => { if ([0, 3, 4].includes(i)) d.open = true; }));
+      await page.waitForTimeout(300);
       await page.screenshot({ path: join(outDir, `${shot.name}-${tab}-open.png`), fullPage: true });
     }
     await context.close();
@@ -512,33 +514,59 @@ for (const width of [1280, 900, 600, 390]) {
   check(!open.includes("über die Laufzeit"), "and no total \"over the contract term\" that would assume a term");
   check(!open.includes("–") && (await card(page, "Internet").locator(".bar").count()) === 0, "and no dash or empty bar");
 
-  // columns follow the number of cards: four cards make 2 x 2, rows of equal height
-  const cols = await page.evaluate(() => getComputedStyle(window.__panel.shadowRoot.querySelector(".grid.metered")).gridTemplateColumns.split(" ").length);
-  check(cols === 2, `four metered contracts sit in two columns (${cols})`);
+  // three contracts per row on a wide screen, in both groups; the cards of a row are equally high
+  const cols = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".grid")].map((g) => getComputedStyle(g).gridTemplateColumns.split(" ").length));
+  check(cols.length === 2 && cols.every((n) => n === 3), `three columns in both groups (${cols})`);
   const rows = await page.evaluate(() => {
     const byTop = {};
-    for (const el of window.__panel.shadowRoot.querySelectorAll(".grid.metered > section.card")) {
+    for (const el of window.__panel.shadowRoot.querySelectorAll(".grid > section.card")) {
       const r = el.getBoundingClientRect();
       (byTop[Math.round(r.top)] ||= []).push(Math.round(r.height));
     }
     return Object.values(byTop);
   });
-  check(rows.length === 2 && rows.every((row) => row.length === 2 && row[0] === row[1]), `cards of a row are equally high: ${JSON.stringify(rows)}`);
+  check(rows.length === 3 && rows[0].length === 3 && rows[1].length === 1 && rows[2].length === 2 && rows.every((row) => row.every((h) => h === row[0])),
+    `4 + 2 contracts make rows of 3, 1 and 2 cards, each row equally high: ${JSON.stringify(rows)}`);
   await context.close();
 }
 
-{ // the cost table treats flat-rate contracts: cost so far = instalments due until today
+{ // the cost table and the contract list are split like the overview
   const { context, page } = await openPage(browser, "lang=de");
+  const groupsOf = () => page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group")].map((g) => [
+    g.querySelector(".group-title span").textContent, g.querySelector(".count").textContent]));
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  check(JSON.stringify(await groupsOf()) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"]]), "the contract list has the two groups");
+  const listGroups = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group")].map((g) => [...g.querySelectorAll("details .title")].map((t) => t.textContent).join()));
+  check(listGroups[1] === "Internet,Mobilfunk", `internet and mobile are in the flat-rate group of the list: ${listGroups}`);
+
   await page.getByRole("tab", { name: "Kosten" }).click();
+  check(JSON.stringify(await groupsOf()) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"]]), "the cost table has the two groups");
+  const heads = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group table")].map((t) => [...t.querySelectorAll("th")].map((h) => h.textContent)));
+  check(heads.length === 2 && heads[0].includes("Saldo bisher") && heads[0].includes("Empfohlen"), "the metered table has balance, forecast and recommendation");
+  check(!heads[1].includes("Saldo bisher") && !heads[1].includes("Zum Vertragsende") && heads[1].includes("Vertragsende") && heads[1].includes("Restlaufzeit"),
+    `the flat-rate table has no balance but the term: ${heads[1]}`);
+
   const cells = async (name) => (await page.locator("tr", { hasText: name }).first().locator("td").allInnerTexts()).map((t) => t.replace(/ /g, " ").trim());
   const internet = await cells("Internet");
   const expected = await page.evaluate(() => window.__panel._contracts.find((c) => c.title === "Internet").abschlag_bisher_gezahlt);
   check(expected > 300, `the backend delivers the instalments due so far (${expected})`);
-  check(internet[1].replace(/\D/g, "") === String(Math.round(expected * 100)).replace(/\D/g, "").slice(0, internet[1].replace(/\D/g, "").length) || internet[1].includes("373"), `Internet: cost so far is filled in (${internet[1]})`);
-  check(internet[2] === "–" && internet[3] === "–", "no balance and no forecast without consumption");
-  const total = (await cells("Summe"))[1];
-  const sumExpected = await page.evaluate(() => window.__panel._contracts.reduce((s, c) => s + (c.kosten_bisher ?? (["electricity", "electricity_ht_nt", "gas", "water"].includes(c.sparte) ? 0 : c.abschlag_bisher_gezahlt ?? 0)), 0));
-  check(Math.abs(Number(total.replace(/[^\d,]/g, "").replace(".", "").replace(",", ".")) - Math.round(sumExpected)) <= 1, `the total contains the flat-rate costs (${total} for ${sumExpected})`);
+  check(internet[1].includes("373"), `Internet: the cost so far is filled in (${internet[1]})`);
+  check(internet[2] === "39,99 €" && internet[3] === "30.09.2026" && internet[4] === "80 Tage", `Internet: instalment, end and remaining term (${internet})`);
+
+  // group totals and the grand total
+  const number = (text) => Number(text.replace(/[^\d,]/g, "").replace(",", "."));
+  const expectedCosts = await page.evaluate(() => {
+    const metered = ["electricity", "electricity_ht_nt", "gas", "water"];
+    const cost = (c) => c.kosten_bisher ?? (metered.includes(c.sparte) ? 0 : c.abschlag_bisher_gezahlt ?? 0);
+    const all = window.__panel._contracts;
+    return { metered: all.filter((c) => metered.includes(c.sparte)).reduce((s, c) => s + cost(c), 0),
+      flat: all.filter((c) => !metered.includes(c.sparte)).reduce((s, c) => s + cost(c), 0) };
+  });
+  const totals = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll("tr.total")].map((r) => r.querySelector("td:nth-child(2)").textContent));
+  check(Math.abs(number(totals[0]) - expectedCosts.metered) <= 1 && Math.abs(number(totals[1]) - expectedCosts.flat) <= 1,
+    `each group has its own total (${totals} for ${JSON.stringify(expectedCosts)})`);
+  const grand = (await page.locator(".grand").innerText()).replace(/ /g, " ");
+  check(Math.abs(number(grand.match(/Kosten bisher\s*([\d.,]+)/)[1]) - (expectedCosts.metered + expectedCosts.flat)) <= 1, `the grand total adds both groups (${grand.replace(/\n/g, " ")})`);
   await context.close();
 }
 
