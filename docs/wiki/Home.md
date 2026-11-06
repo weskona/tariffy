@@ -9,6 +9,7 @@ Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- u
 - [Sensoren](Sensoren)
 - [Verbrauchsmessung](Verbrauchsmessung)
 - [Tarifwechsel und Erinnerungen](Tarifwechsel-und-Erinnerungen)
+- [Panel (Beta)](Panel)
 - [Fehlerbehebung](Fehlerbehebung)
 - [English documentation](English)
 

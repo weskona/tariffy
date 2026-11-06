@@ -169,6 +169,10 @@ Pro Vertrag zuschaltbar (nur Energie/Wasser, benötigt einen konfigurierten `ver
 - **Bestätigen**: Button „Abschlag-Warnung bestätigen" entfernt die Dauerbenachrichtigung für die aktuelle Episode. Verbessert sich die Prognose danach wieder über die Schwelle (z. B. durch einen höheren Abschlag oder geringeren Verbrauch) und verschlechtert sie sich später erneut, wird automatisch wieder gewarnt — die Bestätigung ist also keine dauerhafte Stummschaltung, sondern gilt nur für die aktuelle Verschlechterung.
 - Der rohe Zustand (unabhängig vom Bestätigt-Status) steht als Attribut `abschlag_warnung_aktiv` am Sensor „Guthaben/Nachzahlung (Vertragsende)".
 
+## Seitenleisten-Panel (Beta)
+
+Beta-Versionen (`1.27.0-beta.x`) fügen der Seitenleiste eine Seite **Tariffy** hinzu: alle Verträge auf einen Blick, mit Live-Werten. Administratoren können dort Warnung und Kündigungs-Erinnerung bestätigen, den Folgevertrag planen sowie Verträge bearbeiten, anlegen und löschen. Gespeichert wird immer über die vorhandenen Dialoge von Home Assistant, jede Aktion fragt ein zweites Mal nach. Die stabile Version enthält das Panel nicht. Ausführlich: [Panel-Dokumentation](https://github.com/weskona/tariffy/blob/beta/docs/wiki/Panel.md).
+
 ## Bekannte Einschränkungen
 
 - Die Umrechnung „vergangene Tage → Monate“ nutzt überall den Faktor `30.44` (Durchschnittsmonatslänge), keine kalendergenaue Monatsrechnung.

@@ -180,6 +180,45 @@ Opt-in per contract (electricity/gas/water with a configured consumption sensor)
 > **No retroactive recalculation on instalment changes.** If you raise or lower your instalment mid-contract, Tariffy remembers the date and the previous value and applies the old instalment correctly only up to that date, the new one from then on — "Refund/balance due (so far)" and "Instalment adjustment (recommended)" won't suddenly jump as if the new instalment had applied since day one. Multiple corrections on the same day count as a single change.
 
 
+## Sidebar panel (beta)
+
+The **Tariffy panel** is a page of its own in the Home Assistant sidebar. It shows all contracts at a glance and lets administrators maintain them there. It replaces no function of the integration: everything is stored through the existing dialogs of Home Assistant, and the sensors and buttons stay as they are.
+
+> **Beta:** the panel exists since `1.27.0-beta.1` and only in beta versions. The stable version (`1.26.x`) does not contain it.
+
+**Install the beta:** HACS → Tariffy → ⋮ → **Redownload**, enable **Show beta versions**, pick a version like `1.27.0-beta.6`, restart Home Assistant and hard-reload the browser page once. To go back, pick a `1.26.x` version; the contract data does not change.
+
+**Open it:** the **Tariffy** entry (icon `mdi:cash-multiple`) appears in the sidebar as soon as a contract is loaded. Every user sees the panel; it follows the language of Home Assistant (German, otherwise English) and turns cards into expandable rows on phones.
+
+**Three views**
+
+| View | Content |
+|---|---|
+| **Overview** | Monthly instalments in total, forecast at contract end (contracts with consumption metering only) and the next date (cancellation deadline, contract end or switch); below one card per contract with progress, cost so far, credit/balance due, consumption, instalments paid vs. cost, notes and actions |
+| **Costs** | A table of all contracts: cost so far, balance so far, balance at contract end, instalment and recommended instalment, plus a total row |
+| **Contracts** | Expandable details per contract: contract data, prices, consumption, recommendations |
+
+Plus is credit, minus is balance due. When the credit already covers the costs until contract end, the recommended instalment shows "0.00 €" with the note "Credit covers the costs", never a negative amount. The values are the sensors' values and update by themselves.
+
+**Who sees and may do what**
+
+- **All users** see the contracts, but only selected values. Customer number, meter numbers, MaLo ID, notification target and internal markers are **not** sent to the panel.
+- **Administrators only** get the buttons and dialogs below. The backend checks this again, so a non-administrator cannot trigger the actions through the API either.
+
+**Acknowledge:** "Acknowledge warning" and "Acknowledge cancellation" do the same as the buttons of the contract and ask a second time before anything happens.
+
+**Plan the next contract:** "Plan next contract" (or "Edit next contract") shows the same form as "Configure" in Home Assistant; empty fields keep the current value. If a cancellation reminder is due, the box "Mark the cancellation as done" (on by default) acknowledges it in the same step. "Remove planned contract" removes only the plan, after a question. There is deliberately no "switch now" in the panel (it would replace the current contract before the new one starts); the switch happens by itself on the planned date.
+
+**Edit a contract:** "Edit contract" shows the two forms of "Reconfigure" (general data, then the data of the sparte) and asks once more before saving. Acknowledged reminders, "notification sent" markers and the frozen consumption of the last contract term are kept; the cancellation reminder starts over only when the contract end or the reminder lead time changes. An empty optional field removes its value.
+
+**New contract:** "New contract" (top bar) runs the setup dialog of Home Assistant (name, sparte and provider first, then the data of the sparte). The contract appears in the panel by itself.
+
+**Delete a contract:** "Delete contract" is in the edit dialog and works only after you type the name of the contract; only then the button "Delete for good" becomes active. Sensors, buttons, the device and open notifications of the contract are removed; the long-term statistics Home Assistant already recorded stay in its database. Deleting the **last** contract removes the panel from the sidebar until you add a contract under Settings → Integrations → Tariffy.
+
+**Troubleshooting:** no "Tariffy" entry → only beta versions have the panel; check the version in HACS, restart Home Assistant, hard-reload the page and check whether the entry is hidden in your profile (look for "Tariffy: panel" in the log; a panel failure never affects the contracts). Old interface or missing buttons → hard-reload the page. No buttons at all → the actions are for administrators only. Please report problems with the [bug report form](https://github.com/weskona/tariffy/issues/new/choose) and the exact beta version.
+
+Screenshots: [docs/panel-preview](https://github.com/weskona/tariffy/tree/beta/docs/panel-preview)
+
 ## Installation via HACS
 
 1. HACS → Integrations → ⋮ → **Custom repositories**
