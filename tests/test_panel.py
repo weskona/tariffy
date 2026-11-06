@@ -204,25 +204,23 @@ async def _action(client, entry_id, action):
 
 
 class TestActions:
-    """Switch now / confirm cancellation / confirm instalment warning.
+    """Confirm cancellation / confirm instalment warning.
 
-    Same coordinator methods and preconditions as the three button entities,
+    Same coordinator methods and preconditions as the button entities,
     restricted to administrators."""
 
     NEXT = {"next_beginn": "2027-01-01", "next_anbieter": "Neuer Anbieter", "next_abschlag": 55.0}
     CANCEL = {**STROM, "ende": "2026-09-30", "erinnerung_monate": "3"}
     WARN = {**STROM, "abschlag_warnung": True, "abschlag_warnung_schwelle": 50.0}
 
-    async def test_switch_now_promotes_the_next_contract(self, frontend_env, contract, hass, hass_ws_client):
-        client = await hass_ws_client()  # connect before the test clock moves
+    async def test_switch_now_is_not_a_panel_action(self, frontend_env, contract, hass, hass_ws_client):
+        client = await hass_ws_client()
         entry, _ = await contract.setup(STROM, **GOLDEN, options=dict(self.NEXT))
         reply = await _action(client, entry.entry_id, "switch_now")
-        assert reply["success"] is True
-        await hass.async_block_till_done()
-        assert entry.data["anbieter"] == "Neuer Anbieter"
-        assert entry.data["abschlag"] == 55.0
-        assert entry.options == {}
-        assert entry.data["verbrauch_letzte_laufzeit"] == pytest.approx(1481.17)
+        assert reply["success"] is False
+        assert reply["error"]["code"] == "invalid_format"
+        assert entry.data["anbieter"] == "Stadtwerke"  # not switched
+        assert entry.options["next_anbieter"] == "Neuer Anbieter"
 
     async def test_confirm_cancellation(self, frontend_env, contract, hass, hass_ws_client):
         client = await hass_ws_client()
@@ -251,7 +249,6 @@ class TestActions:
     @pytest.mark.parametrize(
         ("data", "options", "action"),
         [
-            (STROM, {}, "switch_now"),  # no next contract planned
             (STROM, {}, "confirm_cancellation"),  # reminder not active
             (STROM, {}, "confirm_abschlag_warning"),  # warning not active
         ],
@@ -267,14 +264,14 @@ class TestActions:
     async def test_unknown_contract(self, frontend_env, contract, hass_ws_client):
         client = await hass_ws_client()
         await contract.setup(STROM, **GOLDEN)
-        reply = await _action(client, "does-not-exist", "switch_now")
+        reply = await _action(client, "does-not-exist", "confirm_cancellation")
         assert reply["error"]["code"] == "not_found"
 
     async def test_unloaded_contract(self, frontend_env, contract, hass, hass_ws_client):
         client = await hass_ws_client()
-        entry, _ = await contract.setup(STROM, **GOLDEN, options=dict(self.NEXT))
+        entry, _ = await contract.setup(STROM, **GOLDEN)
         assert await hass.config_entries.async_unload(entry.entry_id)
-        reply = await _action(client, entry.entry_id, "switch_now")
+        reply = await _action(client, entry.entry_id, "confirm_cancellation")
         assert reply["error"]["code"] == "not_found"
 
     async def test_unknown_action_is_rejected(self, frontend_env, contract, hass_ws_client):
@@ -288,12 +285,11 @@ class TestActions:
         self, frontend_env, contract, hass, hass_ws_client, hass_read_only_access_token
     ):
         client = await hass_ws_client(hass, hass_read_only_access_token)
-        entry, _ = await contract.setup(STROM, **GOLDEN, options=dict(self.NEXT))
-        reply = await _action(client, entry.entry_id, "switch_now")
+        entry, _ = await contract.setup(self.WARN, **GOLDEN)
+        reply = await _action(client, entry.entry_id, "confirm_abschlag_warning")
         assert reply["success"] is False
         assert reply["error"]["code"] == "unauthorized"
-        assert entry.data["anbieter"] == "Stadtwerke"  # not switched
-        assert entry.options["next_anbieter"] == "Neuer Anbieter"
+        assert not entry.data.get("_abschlag_warnung_bestaetigt")  # not acknowledged
 
     async def test_non_admin_can_still_read_the_contracts(
         self, frontend_env, contract, hass, hass_ws_client, hass_read_only_access_token

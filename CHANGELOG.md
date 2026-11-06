@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Beta: the two remaining action buttons in the panel (acknowledge warning, acknowledge cancellation) now ask for a second confirmation, so nothing can be triggered by an accidental click.
-- Beta: the panel no longer offers "Switch now". It would have replaced the current contract at once while the new one still starts on its planned date. The contract switches itself on that date; the button entity in Home Assistant is unchanged.
+- Beta: the panel no longer offers "Switch now". It would have replaced the current contract at once while the new one still starts on its planned date. The contract switches itself on that date; the button entity in Home Assistant is unchanged. The unused websocket action `switch_now` was removed with it.
 
 ## [1.27.0-beta.3] - 2026-11-06
 
