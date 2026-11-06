@@ -215,7 +215,8 @@ const STYLE = `
   container-type: inline-size;
 }
 * { box-sizing: border-box; }
-.wrap { max-width: 1280px; margin: 0 auto; padding: 16px 20px 40px; }
+/* use the whole width of the window; the cap only keeps ultra-wide monitors readable */
+.wrap { max-width: 2400px; margin: 0 auto; padding: 16px 24px 40px; }
 .top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; letter-spacing: .02em; }
 .pill { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold);
@@ -246,8 +247,9 @@ const STYLE = `
 .group-title .count { font-size: 11px; letter-spacing: 0; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.07); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; align-items: stretch; }
 .grid.flat { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-/* wide screens: three contracts per row in both groups */
+/* wide screens: three contracts per row in both groups, four on a very wide window */
 @container (min-width: 1000px) { .grid.metered, .grid.flat { grid-template-columns: repeat(3, 1fr); } }
+@container (min-width: 1750px) { .grid.metered, .grid.flat { grid-template-columns: repeat(4, 1fr); } }
 section.card { display: flex; flex-direction: column; }
 section.card .foot { margin-top: auto; padding-top: 12px; }
 .card.flat .big { font-size: 28px; }

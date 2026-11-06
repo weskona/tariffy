@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.2] - 2026-11-06
+
+Zweiter Release Candidate zum Testen des Seitenleisten-Panels. Das Panel nutzt jetzt die ganze Breite des Fensters. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Das Panel nutzt die ganze Breite des Fensters, statt bei 1280 px abgeschnitten und zentriert zu sein (die Grenze liegt jetzt bei 2400 px, nur für Ultrabreit-Monitore). Die Übersicht behält drei Verträge pro Zeile und bekommt bei einem sehr breiten Fenster (ab 1750 px) eine vierte Spalte.
+
 ## [1.27.0-rc.1] - 2026-11-06
 
 Gleicher Inhalt wie 1.27.0-beta.10, unter neuem Namen noch einmal veröffentlicht: GitHub listet `beta.10` zwischen `beta.2` und `beta.1`, deshalb hat HACS es nicht angeboten. Bitte diese Version installieren (siehe "Beta-Versionen" in der Dokumentation; die Zählung geht jetzt mit `rc.2`, `rc.3`, ... weiter). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

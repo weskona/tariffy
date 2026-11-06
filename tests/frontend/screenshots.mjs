@@ -570,6 +570,25 @@ for (const width of [1280, 900, 600, 390]) {
   await context.close();
 }
 
+{ // the whole width of the window is used; very wide windows get a fourth column
+  for (const [width, columns] of [[1280, 3], [1600, 3], [1920, 4]]) {
+    const context = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: 1 });
+    const page = await context.newPage();
+    await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+    await page.goto(`${base}?lang=de`);
+    await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+    const m = await page.evaluate(() => {
+      const root = window.__panel.shadowRoot;
+      return { wrap: Math.round(root.querySelector(".wrap").getBoundingClientRect().width),
+        cols: getComputedStyle(root.querySelector(".grid.metered")).gridTemplateColumns.split(" ").length };
+    });
+    check(m.wrap >= width - 60, `${width}px: the content uses the width of the window (${m.wrap}px)`);
+    check(m.cols === columns, `${width}px: ${columns} columns (${m.cols})`);
+    if (width === 1920) await page.screenshot({ path: join(outDir, "wide-overview.png"), fullPage: false });
+    await context.close();
+  }
+}
+
 { // the figures of a card stay readable on a phone
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
