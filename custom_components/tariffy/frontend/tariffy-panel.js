@@ -273,7 +273,7 @@ section.card .foot { margin-top: auto; padding-top: 12px; }
 .card.alert { border-color: rgba(248,113,113,.35); }
 .head { display: flex; align-items: flex-start; gap: 12px; }
 .chips:empty { display: none; }
-.card > .chips { justify-content: flex-start; margin-top: 12px; }
+.head > .chips { margin-left: auto; flex: 0 1 auto; justify-content: flex-end; }
 .card .title { font-size: 15px; letter-spacing: .07em; text-transform: uppercase; }
 .icon-btn { appearance: none; flex: none; width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border-radius: 10px;
   border: 1px solid var(--tile-line); background: var(--tile); color: var(--muted); cursor: pointer; }
@@ -1002,8 +1002,8 @@ class TariffyPanel extends HTMLElement {
       "section", { class: `card${flat ? " flat" : ""}${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", "") },
       h("div", { class: "head" },
         h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
-        this._who(c)),
-      this._chips(d.chips),
+        this._who(c),
+        this._chips(d.chips)),
       body
     );
   }

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.3] - 2026-11-07
+
+Third release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The badges of a contract card in the overview ("Credit", "Switch on ...", ...) sit at the top right of the card, next to the name, instead of on a line of their own below it. On a phone the card is unchanged.
+
 ## [1.27.0-rc.2] - 2026-11-06
 
 Second release candidate for testing the sidebar panel. The panel uses the whole width of the window, the header of the overview has more details and the cost tables line up. Please report problems with the bug report form and mention this exact version.
