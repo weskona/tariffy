@@ -7,6 +7,16 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-beta.10] - 2026-11-06
+
+Zehnte Beta zum Testen des Seitenleisten-Panels. Die Ansichten "Kosten" und "Verträge" sind jetzt wie die Übersicht getrennt. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Beta: Die Ansicht "Kosten" hat zwei Tabellen wie die Übersicht: **Verbrauchsverträge** (Kosten bisher, Saldo bisher, Saldo zum Vertragsende, Abschlag, empfohlener Abschlag) und **Pauschalverträge** (Kosten bisher, Abschlag, Vertragsende, Restlaufzeit). Jede Tabelle hat eine eigene Summenzeile, darunter steht die Gesamtsumme. Pauschalverträge zeigen keine Zeilen voller Striche für Saldo und Prognose mehr.
+- Beta: Die Ansicht "Verträge" listet die Verträge in denselben zwei Gruppen.
+- Beta: Auf einem breiten Bildschirm zeigt die Übersicht in beiden Gruppen drei Verträge pro Zeile (vorher zwei Spalten bei vier Verbrauchsverträgen).
+
 ## [1.27.0-beta.9] - 2026-11-06
 
 Neunte Beta zum Testen des Seitenleisten-Panels. Die Übersicht ist nach Vertragsart sortiert, Pauschalverträge bekommen eigene Karten, und alles, was einen Vertrag ändert, ist in den Tab "Verträge" gewandert. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
