@@ -847,7 +847,7 @@ class TariffyPanel extends HTMLElement {
     return h(
       "div", { class: "who" },
       h("div", { class: "title", text: c.title }),
-      h("div", { class: "meta", text: [this._t("sparte")[c.sparte] || c.sparte, c.anbieter, c.tarif].filter(Boolean).join(" · ") })
+      h("div", { class: "meta", text: [c.anbieter, c.tarif].filter(Boolean).join(" · ") })
     );
   }
 

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.5] - 2026-11-07
+
+Fifth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The second line of a contract in the panel shows provider and tariff only. The kind of contract ("Electricity", "Gas", ...) is no longer repeated there, the icon shows it and the name often says it anyway.
+
 ## [1.27.0-rc.4] - 2026-11-07
 
 Fourth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.

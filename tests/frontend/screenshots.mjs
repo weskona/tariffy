@@ -484,6 +484,9 @@ for (const width of [1280, 900, 600, 390]) {
   check((await card(page, "Wasser").innerText()).replace(/\u00a0/g, " ").includes("Heute 40,00 € im Plus"), "balance ahead today but balance due at the end: the card explains it");
   check(!(await card(page, "Gas Heizung").innerText()).includes("Heute"), "no explanation where both point the same way");
 
+  // the second line of a card does not repeat the kind of contract: the icon shows it
+  check((await card(page, "Gas Heizung").locator(".meta").innerText()).trim() === "Energie Süd · Gas Basis", "the second line has provider and tariff, not the kind of contract again");
+
   // the first day of a contract with a sensor: costs and consumption exist, the forecast does not yet
   await page.evaluate(() => {
     const panel = window.__panel;
