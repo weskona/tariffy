@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.4] - 2026-11-07
+
+Vierter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Die Übersichtskarte erklärt, warum der Saldo heute und die Prognose auseinanderliegen (zum Beispiel "Heute 84,36 € im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen."). Aus "Saldo bisher" wird im Panel "Saldo heute".
+
 ## [1.27.0-rc.3] - 2026-11-07
 
 Dritter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

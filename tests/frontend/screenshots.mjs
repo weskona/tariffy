@@ -471,6 +471,19 @@ for (const width of [1280, 900, 600, 390]) {
   check((await card(page, "Mobilfunk").locator(".ring").count()) === 0, "no empty ring when start or end date is missing");
   check((await card(page, "Strom Haus").locator(".ring").count()) === 1, "the ring stays where it has a value");
 
+  // the balance today and the forecast point in different directions: the card says why
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._tab = "overview";
+    panel._contracts = panel._contracts.map((c) => (c.title === "Strom Haus" ? { ...c, guthaben_bisher: -84.36, prognose_real: 54 }
+      : c.title === "Wasser" ? { ...c, guthaben_bisher: 40, prognose_real: -25 } : c));
+    panel._render();
+  });
+  const catchUp = (await card(page, "Strom Haus").innerText()).replace(/\u00a0/g, " ");
+  check(catchUp.includes("Heute 84,36 € im Rückstand") && /saldo heute/i.test(catchUp), "balance behind today but credit at the end: the card explains it");
+  check((await card(page, "Wasser").innerText()).replace(/\u00a0/g, " ").includes("Heute 40,00 € im Plus"), "balance ahead today but balance due at the end: the card explains it");
+  check(!(await card(page, "Gas Heizung").innerText()).includes("Heute"), "no explanation where both point the same way");
+
   // the first day of a contract with a sensor: costs and consumption exist, the forecast does not yet
   await page.evaluate(() => {
     const panel = window.__panel;
@@ -542,8 +555,8 @@ for (const width of [1280, 900, 600, 390]) {
   await page.getByRole("tab", { name: "Kosten" }).click();
   check(JSON.stringify(await groupsOf()) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"]]), "the cost table has the two groups");
   const heads = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group table")].map((t) => [...t.querySelectorAll("th")].map((h) => h.textContent)));
-  check(heads.length === 2 && heads[0].includes("Saldo bisher") && heads[0].includes("Empfohlen"), "the metered table has balance, forecast and recommendation");
-  check(!heads[1].includes("Saldo bisher") && !heads[1].includes("Zum Vertragsende") && heads[1].includes("Vertragsende") && heads[1].includes("Restlaufzeit"),
+  check(heads.length === 2 && heads[0].includes("Saldo heute") && heads[0].includes("Empfohlen"), "the metered table has balance, forecast and recommendation");
+  check(!heads[1].includes("Saldo heute") && !heads[1].includes("Zum Vertragsende") && heads[1].includes("Vertragsende") && heads[1].includes("Restlaufzeit"),
     `the flat-rate table has no balance but the term: ${heads[1]}`);
 
   const cells = async (name) => (await page.locator("tr", { hasText: name }).first().locator("td").allInnerTexts()).map((t) => t.replace(/ /g, " ").trim());
@@ -616,7 +629,7 @@ for (const width of [1280, 900, 600, 390]) {
   check(tiles[0].text.includes("Verbrauch 263,00 €") && tiles[0].text.includes("Pauschal 59,98 €"), "split into metered and flat-rate contracts");
   check(tiles[0].segments.length === 2 && Math.abs(tiles[0].segments[0] - 81.4) < 0.3 && Math.abs(tiles[0].segments[1] - 18.6) < 0.3, `the bar is proportional (${tiles[0].segments})`);
   check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.772,18 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
-  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo bisher") && tiles[1].rows[0].includes("−8,56 €"), `balance so far (${tiles[1].rows})`);
+  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo heute") && tiles[1].rows[0].includes("−8,56 €"), `balance so far (${tiles[1].rows})`);
   check(tiles[2].rows.length === 4 && tiles[2].rows[0].startsWith("Strom Haus") && tiles[2].rows[3].startsWith("Gas Heizung"), `forecast per contract, worst first (${tiles[2].rows})`);
   check(tiles[3].text.toLowerCase().includes("nächste termine") && tiles[3].rows.length === 2, `the next dates (${tiles[3].rows.length} more rows)`);
   const dateRows = tiles[3].rows.map((r) => r.match(/^(\d\d)\.(\d\d)\.(\d{4})/)).filter(Boolean).map((m) => `${m[3]}${m[2]}${m[1]}`);

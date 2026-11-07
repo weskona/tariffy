@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.4] - 2026-11-07
+
+Fourth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The overview card says why the balance today and the forecast differ (for example "Today 84.36 € behind, made up by the instalment before the contract ends."), and "Balance so far" is now called "Balance today" in the panel.
+
 ## [1.27.0-rc.3] - 2026-11-07
 
 Third release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
