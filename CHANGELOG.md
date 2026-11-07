@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.9] - 2026-11-07
+
+Ninth release candidate for testing the sidebar panel. This is the last number of the `rc` series (see "Beta releases" in the documentation). Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- The cards of one row in the overview lined up in `rc.8` only when all had the same amount of text under the big figure. If one card had more text (for example the explanation of a balance behind today), the big figure of the other cards sat lower. The "Forecast at contract end" label, the big figure and the ring now start at the same height in every card of the row.
+
 ## [1.27.0-rc.8] - 2026-11-07
 
 Eighth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.

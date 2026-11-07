@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.9] - 2026-11-07
+
+Neunter Release Candidate zum Testen des Seitenleisten-Panels. Das ist die letzte Nummer der `rc`-Reihe (siehe "Beta-Releases" in der Dokumentation). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Fixed
+
+- Die Karten einer Zeile in der Übersicht standen in `rc.8` nur dann ausgerichtet, wenn alle gleich viel Text unter der großen Kennzahl hatten. Hatte eine Karte mehr Text (zum Beispiel die Erklärung zu einem Rückstand heute), saß die große Kennzahl der anderen Karten tiefer. Die Beschriftung "Prognose zum Vertragsende", die große Kennzahl und der Ring beginnen jetzt in jeder Karte einer Zeile auf derselben Höhe.
+
 ## [1.27.0-rc.8] - 2026-11-07
 
 Achter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
