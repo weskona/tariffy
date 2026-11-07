@@ -1,18 +1,12 @@
-# Panel (Beta)
+# Panel
 
 Das **Tariffy-Panel** ist eine eigene Seite in der Seitenleiste von Home Assistant. Es zeigt alle Verträge auf einen Blick und lässt Administratoren Verträge direkt dort pflegen. Es ersetzt keine Funktion der Integration: Gespeichert wird immer über die vorhandenen Dialoge von Home Assistant, die Sensoren und Buttons bleiben unverändert.
 
-> **Beta:** Das Panel gibt es seit `1.27.0-beta.1` und nur in Beta-Versionen. Die stabile Version (`1.26.x`) enthält es nicht. Wer keine Beta installiert hat, merkt nichts davon.
+Screenshots: [docs/panel-preview](https://github.com/weskona/tariffy/tree/main/docs/panel-preview)
 
-Screenshots: [docs/panel-preview](https://github.com/weskona/tariffy/tree/beta/docs/panel-preview)
+## Nach dem Update
 
-## Beta installieren
-
-1. HACS → Tariffy → ⋮ → **Neu herunterladen**, **Beta-Versionen anzeigen** einschalten.
-2. Eine Version wie `1.27.0-beta.6` wählen und Home Assistant neu starten.
-3. Browserseite einmal **hart neu laden** (Strg+F5, am Handy: Seite neu laden oder App-Cache leeren), damit die neue Panel-Datei geladen wird.
-
-Zurück zur stabilen Version: in HACS wieder eine `1.26.x` wählen. Die Vertragsdaten ändern sich dadurch nicht.
+Das Panel gehört seit `1.27.0` zur Integration, es gibt nichts zu installieren oder einzurichten. Nach dem Update Home Assistant neu starten und die Browserseite einmal **hart neu laden** (Strg+F5, am Handy: Seite neu laden oder App-Cache leeren), damit die neue Panel-Datei geladen wird.
 
 ## Öffnen
 
@@ -76,11 +70,11 @@ Beide fragen **ein zweites Mal** nach („Ja, bestätigen" / „Abbrechen"), dam
 
 | Problem | Lösung |
 |---|---|
-| Kein Eintrag „Tariffy" in der Seitenleiste | Nur Beta-Versionen haben das Panel. Version in HACS prüfen, Home Assistant neu starten, Seite hart neu laden. Im Profil prüfen, ob der Eintrag ausgeblendet ist. Im Log nach Meldungen „Tariffy: panel" suchen: Das Panel kann ausfallen, ohne die Verträge zu stören. |
+| Kein Eintrag „Tariffy" in der Seitenleiste | Version in HACS prüfen (ab 1.27.0 gibt es das Panel), Home Assistant neu starten, Seite hart neu laden. Im Profil prüfen, ob der Eintrag ausgeblendet ist. Im Log nach Meldungen „Tariffy: panel" suchen: Das Panel kann ausfallen, ohne die Verträge zu stören. |
 | Panel zeigt alte Oberfläche oder fehlende Buttons | Seite hart neu laden, der Browser hat die alte Datei zwischengespeichert. |
 | Keine Buttons zu sehen | Die Aktionen gibt es nur für Administratoren. |
 | „Das Formular konnte nicht geladen werden" | Home Assistant war kurz nicht erreichbar oder der Vertrag ist gerade nicht geladen. Dialog schließen und neu öffnen. |
-| Einen Fehler melden | Mit dem [Fehlerformular](https://github.com/weskona/tariffy/issues/new/choose) und der genauen Beta-Version. |
+| Einen Fehler melden | Mit dem [Fehlerformular](https://github.com/weskona/tariffy/issues/new/choose) und der genauen Version. |
 
 ## Was das Panel nicht tut
 

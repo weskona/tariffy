@@ -180,13 +180,11 @@ Opt-in per contract (electricity/gas/water with a configured consumption sensor)
 > **No retroactive recalculation on instalment changes.** If you raise or lower your instalment mid-contract, Tariffy remembers the date and the previous value and applies the old instalment correctly only up to that date, the new one from then on — "Refund/balance due (so far)" and "Instalment adjustment (recommended)" won't suddenly jump as if the new instalment had applied since day one. Multiple corrections on the same day count as a single change.
 
 
-## Sidebar panel (beta)
+## Sidebar panel
 
 The **Tariffy panel** is a page of its own in the Home Assistant sidebar. It shows all contracts at a glance and lets administrators maintain them there. It replaces no function of the integration: everything is stored through the existing dialogs of Home Assistant, and the sensors and buttons stay as they are.
 
-> **Beta:** the panel exists since `1.27.0-beta.1` and only in beta versions. The stable version (`1.26.x`) does not contain it.
-
-**Install the beta:** HACS → Tariffy → ⋮ → **Redownload**, enable **Show beta versions**, pick a version like `1.27.0-beta.6`, restart Home Assistant and hard-reload the browser page once. To go back, pick a `1.26.x` version; the contract data does not change.
+**After the update:** the panel is part of the integration, there is nothing to install or set up. Restart Home Assistant and hard-reload the browser page once (Ctrl+F5) so the new panel file is loaded.
 
 **Open it:** the **Tariffy** entry (icon `mdi:cash-multiple`) appears in the sidebar as soon as a contract is loaded. Every user sees the panel; it follows the language of Home Assistant (German, otherwise English) and turns cards into expandable rows on phones.
 
@@ -215,9 +213,9 @@ Plus is credit, minus is balance due. When the credit already covers the costs u
 
 **Delete a contract:** "Delete contract" is in the edit dialog and works only after you type the name of the contract; only then the button "Delete for good" becomes active. Sensors, buttons, the device and open notifications of the contract are removed; the long-term statistics Home Assistant already recorded stay in its database. Deleting the **last** contract removes the panel from the sidebar until you add a contract under Settings → Integrations → Tariffy.
 
-**Troubleshooting:** no "Tariffy" entry → only beta versions have the panel; check the version in HACS, restart Home Assistant, hard-reload the page and check whether the entry is hidden in your profile (look for "Tariffy: panel" in the log; a panel failure never affects the contracts). Old interface or missing buttons → hard-reload the page. No buttons at all → the actions are for administrators only. Please report problems with the [bug report form](https://github.com/weskona/tariffy/issues/new/choose) and the exact beta version.
+**Troubleshooting:** no "Tariffy" entry → check that the installed version in HACS is 1.27.0 or newer, restart Home Assistant, hard-reload the page and check whether the entry is hidden in your profile (look for "Tariffy: panel" in the log; a panel failure never affects the contracts). Old interface or missing buttons → hard-reload the page. No buttons at all → the actions are for administrators only. Please report problems with the [bug report form](https://github.com/weskona/tariffy/issues/new/choose) and the exact version.
 
-Screenshots: [docs/panel-preview](https://github.com/weskona/tariffy/tree/beta/docs/panel-preview)
+Screenshots: [docs/panel-preview](https://github.com/weskona/tariffy/tree/main/docs/panel-preview)
 
 ## Installation via HACS
 

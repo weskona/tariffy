@@ -1,7 +1,8 @@
-/* Tariffy panel (beta).
+/* Tariffy panel.
  *
- * Read-only overview of all contracts, fed by the integration's websocket API
- * (tariffy/subscribe). Plain web component, no build step, system font.
+ * Overview of all contracts, fed by the integration's websocket API
+ * (tariffy/subscribe); administrators can also maintain the contracts. Plain web
+ * component, no build step, system font.
  *
  * Security: text that comes from the user (contract names, providers, tariffs)
  * is only ever written with textContent / text nodes, never as HTML.
@@ -10,7 +11,6 @@
 const I18N = {
   en: {
     overview: "Overview", costs: "Costs", contracts: "Contracts",
-    beta: "Beta",
     loading: "Loading contracts …",
     error: "The panel could not load the contracts.",
     emptyTitle: "No contracts yet",
@@ -90,7 +90,6 @@ const I18N = {
   },
   de: {
     overview: "Übersicht", costs: "Kosten", contracts: "Verträge",
-    beta: "Beta",
     loading: "Verträge werden geladen …",
     error: "Das Panel konnte die Verträge nicht laden.",
     emptyTitle: "Noch keine Verträge",
@@ -227,8 +226,6 @@ const STYLE = `
 .wrap { max-width: 2400px; margin: 0 auto; padding: 16px 24px 40px; }
 .top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; letter-spacing: .02em; }
-.pill { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold);
-  border: 1px solid rgba(247,183,51,.4); border-radius: 999px; padding: 2px 8px; }
 .tabs { display: flex; gap: 2px; margin: 0 auto; padding: 4px; background: var(--panel2);
   border: 1px solid var(--line); border-radius: 12px; }
 .tab { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit;
@@ -763,7 +760,7 @@ class TariffyPanel extends HTMLElement {
     return h(
       "div", { class: "top" },
       menu,
-      h("div", { class: "brand" }, "Tariffy", h("span", { class: "pill", text: this._t("beta") })),
+      h("div", { class: "brand" }, "Tariffy"),
       tabs,
       h("div", { class: "spacer" })
     );
