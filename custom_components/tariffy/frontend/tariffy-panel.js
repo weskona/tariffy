@@ -1003,7 +1003,7 @@ class TariffyPanel extends HTMLElement {
       h("span", { class: "tr" }, h("span", { class: "fl", style: `width:${Math.max(2, d.elapsed * 100).toFixed(1)}%;background:var(--blue)` })))) : null;
     const body = [hero, tiles.filter(Boolean).length ? h("div", { class: "tiles" }, tiles.filter(Boolean)) : null, this._bars(c, d) || termBar,
       foot.length ? h("div", { class: "foot" }, foot) : null,
-      notes.length ? h("div", { class: "notes" }, notes) : null, this._actions(c)];
+      notes.length ? h("div", { class: "notes" }, notes) : null];
 
     if (this._compact) {
       const card = h(
@@ -1655,7 +1655,7 @@ class TariffyPanel extends HTMLElement {
         h("div", { class: "row-end" },
           this._rowActions(c),
           h("span", { class: "caret", "aria-hidden": "true" }, icon("chevron")))),
-      h("div", { class: "detail" }, sections)
+      h("div", { class: "detail" }, sections, this._actions(c))
     );
     if (this._open.has(c.entry_id)) details.setAttribute("open", "");
     details.addEventListener("toggle", () => {

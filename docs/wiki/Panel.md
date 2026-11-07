@@ -37,7 +37,7 @@ Vorzeichen: **Plus** ist Guthaben, **Minus** ist Nachzahlung. „Zum Vertragsend
 
 ## Bestätigen
 
-Planen, Bearbeiten, Anlegen und Löschen findest du im Tab **Verträge** (Symbole in der Zeile, Button oben). Auf der Karte in der Übersicht erscheinen nur je nach Lage, direkt bei dem Hinweis, zu dem sie gehören:
+Die Übersicht ist nur zum Ansehen und hat keine Buttons. Planen, Bearbeiten, Anlegen und Löschen findest du im Tab **Verträge** (Symbole in der Zeile, Button oben). Die beiden Bestätigungen stehen dort in den aufgeklappten Details des Vertrags, je nach Lage; die Karte in der Übersicht zeigt weiter den Hinweis mit dem Grund:
 
 - **Warnung bestätigen**: quittiert die Abschlag-Warnung (wie der Button „Abschlag-Warnung bestätigen"). Der Button erscheint nur, wenn die Warnung in den Vertragsdaten eingeschaltet ist und die Prognose die Schwelle unterschreitet.
 - **Kündigung bestätigen**: quittiert die Kündigungs-Erinnerung (wie der Button „Kündigung bestätigen").
