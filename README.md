@@ -20,6 +20,19 @@
 
 Tariffy is a Home Assistant custom integration for managing utility and service contracts. Electricity, gas, water, internet, mobile, insurance and more — each contract becomes its own HA device with dedicated sensors. Tariffy automatically reminds you of cancellation deadlines, switches tariffs on the switch date, and calculates costs and billing forecasts based on real consumption data.
 
+![Tariffy panel: overview](docs/panel-preview/english-overview.png)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/panel-preview/english-costs.png" alt="Tariffy panel: costs"></td>
+<td width="50%"><img src="docs/panel-preview/english-contracts.png" alt="Tariffy panel: contracts"></td>
+</tr>
+</table>
+
+On a phone the cards turn into expandable rows:
+
+<img src="docs/panel-preview/mobile-overview.png" alt="Tariffy panel on a phone" width="260">
+
 ---
 
 ### Features
@@ -213,19 +226,6 @@ Opt-in per contract (electricity/gas/water with a configured consumption sensor)
 
 ### Sidebar panel
 
-![Tariffy panel: overview](docs/panel-preview/english-overview.png)
-
-<table>
-<tr>
-<td width="50%"><img src="docs/panel-preview/english-costs.png" alt="Tariffy panel: costs"></td>
-<td width="50%"><img src="docs/panel-preview/english-contracts.png" alt="Tariffy panel: contracts"></td>
-</tr>
-</table>
-
-On a phone the cards turn into expandable rows:
-
-<img src="docs/panel-preview/mobile-overview.png" alt="Tariffy panel on a phone" width="260">
-
 Since version 1.27.0 a **Tariffy** page in the sidebar shows all contracts at a glance (overview, cost table, contract details) with live values. Administrators can also acknowledge the warning and the cancellation reminder, plan the next contract, edit, create and delete contracts there. Everything is stored through the existing dialogs of Home Assistant, every action asks a second time, and deleting a contract needs its name typed. All users see the values, only administrators get the buttons; customer and meter numbers are never sent to the panel. The panel needs no setup; after the update, reload the browser page once (Ctrl+F5).
 
 Details: [Panel documentation](docs/wiki/English.md#sidebar-panel)
@@ -253,6 +253,19 @@ Restart HA.
 ## 🇩🇪 Deutsch
 
 Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- und Dienstleistungsverträgen. Strom, Gas, Wasser, Internet, Mobilfunk, Versicherungen und mehr – jeder Vertrag wird als eigenes HA-Gerät mit Sensoren angelegt. Tariffy erinnert automatisch an Kündigungsfristen, wechselt Tarife zum Stichtag und berechnet Kosten sowie Abrechnungsprognosen auf Basis echter Verbrauchsdaten.
+
+![Tariffy-Panel: Übersicht](docs/panel-preview/desktop-overview.png)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/panel-preview/desktop-costs.png" alt="Tariffy-Panel: Kosten"></td>
+<td width="50%"><img src="docs/panel-preview/desktop-contracts.png" alt="Tariffy-Panel: Verträge"></td>
+</tr>
+</table>
+
+Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
+
+<img src="docs/panel-preview/mobile-overview.png" alt="Tariffy-Panel auf dem Handy" width="260">
 
 ---
 
@@ -508,19 +521,6 @@ Pro Vertrag zuschaltbar (Strom/Gas/Wasser mit konfiguriertem Verbrauchssensor): 
 ---
 
 ### Seitenleisten-Panel
-
-![Tariffy-Panel: Übersicht](docs/panel-preview/desktop-overview.png)
-
-<table>
-<tr>
-<td width="50%"><img src="docs/panel-preview/desktop-costs.png" alt="Tariffy-Panel: Kosten"></td>
-<td width="50%"><img src="docs/panel-preview/desktop-contracts.png" alt="Tariffy-Panel: Verträge"></td>
-</tr>
-</table>
-
-Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
-
-<img src="docs/panel-preview/mobile-overview.png" alt="Tariffy-Panel auf dem Handy" width="260">
 
 Seit Version 1.27.0 zeigt eine Seite **Tariffy** in der Seitenleiste alle Verträge auf einen Blick (Übersicht, Kostentabelle, Vertragsdetails) mit Live-Werten. Administratoren können dort außerdem Warnung und Kündigungs-Erinnerung bestätigen, den Folgevertrag planen sowie Verträge bearbeiten, anlegen und löschen. Gespeichert wird immer über die vorhandenen Dialoge von Home Assistant, jede Aktion fragt ein zweites Mal nach, und zum Löschen muss der Vertragsname getippt werden. Alle Benutzer sehen die Werte, nur Administratoren bekommen die Buttons; Kunden- und Zählernummern werden nie ans Panel geschickt. Das Panel braucht keine Einrichtung; nach dem Update die Browserseite einmal neu laden (Strg+F5).
 
