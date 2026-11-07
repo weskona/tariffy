@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.8] - 2026-11-07
+
+Achter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Die Karten einer Zeile in der Übersicht stehen ausgerichtet: Kopf, große Kennzahl, die drei Kacheln, die Balken und die Fußzeile beginnen in jeder Karte einer Zeile auf derselben Höhe, auch wenn eine Karte einen längeren Text hat (zum Beispiel den längeren Abschlag-Hinweis) oder einen Hinweiskasten. Vorher waren nur die Karten gleich hoch, der Inhalt nicht.
+
 ## [1.27.0-rc.7] - 2026-11-07
 
 Siebter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

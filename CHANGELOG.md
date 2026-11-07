@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.8] - 2026-11-07
+
+Eighth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The cards of one row in the overview line up: the header, the big figure, the three tiles, the bars and the footer line start at the same height in every card of the row, even if one card has a longer text (for example a longer instalment advice) or a note. Before, only the cards had the same height, the content did not.
+
 ## [1.27.0-rc.7] - 2026-11-07
 
 Seventh release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
