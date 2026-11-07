@@ -38,7 +38,7 @@ const I18N = {
     noteWarningShort: "At the current usage a balance due of about {v} is expected.",
     noteCancel: "The cancellation period is running, the contract ends on {d}.",
     noteNext: "Next contract from {d}: {name}",
-    colContract: "Contract", colCost: "Cost so far", colBalance: "Balance so far",
+    colContract: "Contract", colCost: "Cost so far", colBalance: "Balance today",
     colForecast: "At contract end", colInstalment: "Instalment", colRecommended: "Recommended",
     total: "Total", highTariff: "High tariff", lowTariff: "Low tariff",
     costsHint: "Positive = credit, negative = balance due. “At contract end” is projected from the consumption so far. For flat-rate contracts the cost so far is the instalments due until today.",
@@ -60,7 +60,8 @@ const I18N = {
     actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
     actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract", actNew: "New contract",
-    saldoShort: "Balance so far",
+    saldoShort: "Balance today",
+    hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
     dlgDelete: "Delete contract", dlgDeleteYes: "Delete for good", dlgDeleted: "The contract was deleted.",
@@ -115,7 +116,7 @@ const I18N = {
     noteWarningShort: "Beim aktuellen Verbrauch ist eine Nachzahlung von etwa {v} zu erwarten.",
     noteCancel: "Die Kündigungsfrist läuft, der Vertrag endet am {d}.",
     noteNext: "Folgevertrag ab {d}: {name}",
-    colContract: "Vertrag", colCost: "Kosten bisher", colBalance: "Saldo bisher",
+    colContract: "Vertrag", colCost: "Kosten bisher", colBalance: "Saldo heute",
     colForecast: "Zum Vertragsende", colInstalment: "Abschlag", colRecommended: "Empfohlen",
     total: "Summe", highTariff: "Hochtarif", lowTariff: "Niedertarif",
     costsHint: "Positiv = Guthaben, negativ = Nachzahlung. „Zum Vertragsende“ ist aus dem bisherigen Verbrauch hochgerechnet. Bei Pauschalverträgen sind die Kosten bisher die bis heute fälligen Abschläge.",
@@ -138,7 +139,8 @@ const I18N = {
     actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
     actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten", actNew: "Neuer Vertrag",
-    saldoShort: "Saldo bisher",
+    saldoShort: "Saldo heute",
+    hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
     dlgDelete: "Vertrag löschen", dlgDeleteYes: "Endgültig löschen", dlgDeleted: "Der Vertrag wurde gelöscht.",
@@ -921,6 +923,14 @@ class TariffyPanel extends HTMLElement {
           : "")
       : null;
 
+    // the balance today and the forecast can point in different directions: say why
+    let hint = null;
+    if (!flat && d.measured && isNum(c.guthaben_bisher) && isNum(c.prognose_real) && Math.abs(c.guthaben_bisher) >= 0.5) {
+      const v = this._money(Math.abs(c.guthaben_bisher), c.currency, { digits: 2 });
+      if (c.guthaben_bisher < 0 && c.prognose_real >= 0) hint = this._t("hintCatchUp", { v });
+      else if (c.guthaben_bisher > 0 && c.prognose_real < 0) hint = this._t("hintUsedUp", { v });
+    }
+
     // three figures at most; the remaining term goes into the footer line
     const tiles = flat ? [
       isNum(this._costSoFar(c)) ? this._tile(this._t("costSoFar"), this._money(this._costSoFar(c), c.currency, { digits: 2 })) : null,
@@ -969,7 +979,8 @@ class TariffyPanel extends HTMLElement {
       h("div", {},
         h("div", { class: "label", text: heroLabel }),
         h("div", { class: `big ${heroTone}`, text: this._money(heroValue, c.currency, { sign: !flat && d.hasMetering, digits: flat ? 2 : undefined }) }),
-        heroSub ? h("div", { class: "note", text: heroSub }) : null),
+        heroSub ? h("div", { class: "note", text: heroSub }) : null,
+        hint ? h("div", { class: "note", text: hint }) : null),
       flat ? null : this._ring(d.elapsed));
     // how far the term has come, for contracts that have both dates
     const termBar = flat && d.elapsed !== null ? h("div", { class: "bars" }, h("div", { class: "bar" },
