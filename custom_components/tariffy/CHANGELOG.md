@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.6] - 2026-11-07
+
+Sechster Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Die Badges ("Guthaben", "Wechsel am ...", ...) stehen auch in der Vertragsliste rechts: auf dem Handy neben dem Namen statt links in einer eigenen Zeile, und auf den Karten der Übersicht auf dem Handy rechtsbündig.
+
 ## [1.27.0-rc.5] - 2026-11-07
 
 Fünfter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

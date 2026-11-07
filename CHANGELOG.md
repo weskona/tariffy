@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.6] - 2026-11-07
+
+Sixth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The badges ("Credit", "Switch on ...", ...) sit on the right in the contract list as well: next to the name on a phone instead of on a line of their own at the left, and right-aligned on the cards of the overview on a phone.
+
 ## [1.27.0-rc.5] - 2026-11-07
 
 Fifth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.

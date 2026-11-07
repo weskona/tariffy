@@ -390,10 +390,10 @@ summary .caret svg { width: 18px; height: 18px; fill: none; stroke: currentColor
 summary:hover .caret { color: var(--text); }
 summary .chips:empty { display: none; }
 /* cards (overview): the chips get a line of their own below */
-details.card > summary .chips { flex-basis: 100%; justify-content: flex-start; order: 5; }
+details.card > summary .chips { flex-basis: 100%; justify-content: flex-end; order: 5; }
 /* rows of the contract list: name, chips, amount on one line, wrapping on narrow screens */
 details:not(.card) > summary { flex-wrap: wrap; }
-details:not(.card) > summary .who { flex: 1 1 220px; }
+details:not(.card) > summary .who { flex: 1 1 150px; }
 details:not(.card) > summary .chips { flex: 0 1 auto; justify-content: flex-end; }
 details.card { padding: 0; }
 details.card > summary { padding: 14px 16px; flex-wrap: wrap; }
