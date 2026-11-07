@@ -7,205 +7,31 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
-## [1.27.0-rc.9] - 2026-11-07
-
-Neunter Release Candidate zum Testen des Seitenleisten-Panels. Das ist die letzte Nummer der `rc`-Reihe (siehe "Beta-Releases" in der Dokumentation). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Fixed
-
-- Die Karten einer Zeile in der Übersicht standen in `rc.8` nur dann ausgerichtet, wenn alle gleich viel Text unter der großen Kennzahl hatten. Hatte eine Karte mehr Text (zum Beispiel die Erklärung zu einem Rückstand heute), saß die große Kennzahl der anderen Karten tiefer. Die Beschriftung "Prognose zum Vertragsende", die große Kennzahl und der Ring beginnen jetzt in jeder Karte einer Zeile auf derselben Höhe.
-
-## [1.27.0-rc.8] - 2026-11-07
-
-Achter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Die Karten einer Zeile in der Übersicht stehen ausgerichtet: Kopf, große Kennzahl, die drei Kacheln, die Balken und die Fußzeile beginnen in jeder Karte einer Zeile auf derselben Höhe, auch wenn eine Karte einen längeren Text hat (zum Beispiel den längeren Abschlag-Hinweis) oder einen Hinweiskasten. Vorher waren nur die Karten gleich hoch, der Inhalt nicht.
-
-## [1.27.0-rc.7] - 2026-11-07
-
-Siebter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Die Übersicht hat keine Buttons mehr. "Warnung bestätigen" und "Kündigung bestätigen" sind in die aufgeklappten Details des Vertrags im Tab "Verträge" gewandert, neben die Symbole zum Bearbeiten; sie fragen weiterhin ein zweites Mal nach. Die Karten in der Übersicht zeigen weiter den Hinweis mit dem Grund.
-
-## [1.27.0-rc.6] - 2026-11-07
-
-Sechster Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Die Abschlag-Empfehlung sagt, was zu tun ist: "Abschlag auf 127,66 € pro Monat erhöhen", "Abschlag könnte auf 88,76 € pro Monat sinken", "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende" oder "Der Abschlag passt". Vorher stand eine niedrigere Empfehlung (Guthaben zum Vertragsende) ohne Richtung da und wirkte wie ein Widerspruch zum Rückstand heute.
-- Das Status-Badge ("Guthaben", "Nachzahlung", "Nachzahlung droht") steht immer ganz rechts; weitere Badges ("Wechsel am ...", "Jetzt kündigen") stehen links daneben, damit der Status auf jeder Karte an derselben Stelle sitzt.
-- Die Badges stehen auch in der Vertragsliste rechts: auf dem Handy neben dem Namen statt links in einer eigenen Zeile, und auf den Karten der Übersicht auf dem Handy rechtsbündig.
-
-## [1.27.0-rc.5] - 2026-11-07
-
-Fünfter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Die zweite Zeile eines Vertrags im Panel zeigt nur noch Anbieter und Tarif. Die Sparte ("Strom", "Gas", ...) steht dort nicht mehr doppelt, das Symbol zeigt sie und der Name sagt es oft ohnehin.
-
-## [1.27.0-rc.4] - 2026-11-07
-
-Vierter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Die Übersichtskarte erklärt, warum der Saldo heute und die Prognose auseinanderliegen (zum Beispiel "Heute 84,36 € im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen."). Aus "Saldo bisher" wird im Panel "Saldo heute".
-
-## [1.27.0-rc.3] - 2026-11-07
-
-Dritter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Die Badges einer Vertragskarte in der Übersicht ("Guthaben", "Wechsel am ...", ...) stehen oben rechts neben dem Namen, statt in einer eigenen Zeile darunter. Auf dem Handy bleibt die Karte unverändert.
-- Die "Restlaufzeit" steht direkt unter den Kosten-Balken statt am unteren Rand der Karte, damit keine Lücke entsteht, wenn die Nachbarkarte höher ist.
-
-## [1.27.0-rc.2] - 2026-11-06
-
-Zweiter Release Candidate zum Testen des Seitenleisten-Panels. Das Panel nutzt die ganze Breite des Fensters, die Kopfzeile der Übersicht hat mehr Details, und die Kostentabellen stehen untereinander ausgerichtet. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Die Kopfzeile der Übersicht hat vier Kacheln mit Details: die Abschläge pro Monat (mit Jahreswert und einem Balken, der Verbrauchs- und Pauschalverträge aufteilt), die Kosten bisher (mit den bis heute fälligen Abschlägen und dem Saldo), die Prognose zum Vertragsende (je Vertrag, die schlechteste zuerst) und die nächsten drei Termine.
-- Die beiden Tabellen der Ansicht "Kosten" und die Gesamtzeile haben dasselbe Spaltenraster: "Kosten bisher" und "Abschlag" stehen untereinander, auch in der Gesamtzeile (Pauschal-Tabelle: Kosten bisher, Restlaufzeit, Vertragsende, Abschlag).
-- Das Panel nutzt die ganze Breite des Fensters, statt bei 1280 px abgeschnitten und zentriert zu sein (die Grenze liegt jetzt bei 2400 px, nur für Ultrabreit-Monitore). Die Übersicht behält drei Verträge pro Zeile und bekommt bei einem sehr breiten Fenster (ab 1750 px) eine vierte Spalte.
-
-## [1.27.0-rc.1] - 2026-11-06
-
-Gleicher Inhalt wie 1.27.0-beta.10, unter neuem Namen noch einmal veröffentlicht: GitHub listet `beta.10` zwischen `beta.2` und `beta.1`, deshalb hat HACS es nicht angeboten. Bitte diese Version installieren (siehe "Beta-Versionen" in der Dokumentation; die Zählung geht jetzt mit `rc.2`, `rc.3`, ... weiter). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Die Ansicht "Kosten" hat zwei Tabellen wie die Übersicht: **Verbrauchsverträge** (Kosten bisher, Saldo bisher, Saldo zum Vertragsende, Abschlag, empfohlener Abschlag) und **Pauschalverträge** (Kosten bisher, Abschlag, Vertragsende, Restlaufzeit), jede mit eigener Summenzeile und darunter die Gesamtsumme. Die Ansicht "Verträge" listet die Verträge in denselben zwei Gruppen.
-- Auf einem breiten Bildschirm zeigt die Übersicht in beiden Gruppen drei Verträge pro Zeile. Der kleine Pfeil zum Aufklappen einer Zeile oder Karte ist jetzt ein Symbol im Stil der anderen Symbole und dreht sich beim Aufklappen.
-- Release-Ablauf: Die Versionsnummern von Vorabversionen enden pro Serie bei 9 (`beta.1` ... `beta.9`, `rc.1` ... `rc.9`), weil GitHub Release-Tags als Text sortiert und HACS `beta.10` nicht anbieten würde. Ein Test prüft das.
-
-## [1.27.0-beta.10] - 2026-11-06
-
-Zehnte Beta zum Testen des Seitenleisten-Panels. Die Ansichten "Kosten" und "Verträge" sind jetzt wie die Übersicht getrennt. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Beta: Die Ansicht "Kosten" hat zwei Tabellen wie die Übersicht: **Verbrauchsverträge** (Kosten bisher, Saldo bisher, Saldo zum Vertragsende, Abschlag, empfohlener Abschlag) und **Pauschalverträge** (Kosten bisher, Abschlag, Vertragsende, Restlaufzeit). Jede Tabelle hat eine eigene Summenzeile, darunter steht die Gesamtsumme. Pauschalverträge zeigen keine Zeilen voller Striche für Saldo und Prognose mehr.
-- Beta: Die Ansicht "Verträge" listet die Verträge in denselben zwei Gruppen.
-- Beta: Der kleine Pfeil zum Aufklappen einer Zeile oder Karte ist jetzt ein Symbol im Stil der anderen Symbole und dreht sich beim Aufklappen.
-- Beta: Auf einem breiten Bildschirm zeigt die Übersicht in beiden Gruppen drei Verträge pro Zeile (vorher zwei Spalten bei vier Verbrauchsverträgen).
-
-## [1.27.0-beta.9] - 2026-11-06
-
-Neunte Beta zum Testen des Seitenleisten-Panels. Die Übersicht ist nach Vertragsart sortiert, Pauschalverträge bekommen eigene Karten, und alles, was einen Vertrag ändert, ist in den Tab "Verträge" gewandert. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- Beta: Die Übersicht hat zwei Gruppen: **Verbrauchsverträge** (Strom, Gas, Wasser) in großen Karten und **Pauschalverträge** (Internet, Mobilfunk, Versicherung, Sonstiges) in schlanken Karten. Die Karten stehen in Reihen gleicher Höhe; bei vier Verbrauchsverträgen entsteht 2 x 2, statt dass eine Karte allein in einer Reihe steht.
-- Beta: Eine Pauschalkarte beginnt mit dem Abschlag pro Monat und zeigt die Kosten bisher, das Vertragsende und einen Laufzeit-Balken. Sie hat keinen Ring, keinen Verbrauch und keine leeren Zahlen; ein Vertrag ohne Vertragsende zeigt "Kein Vertragsende" statt eines Strichs oder einer angenommenen 12-Monats-Summe.
-- Beta: Die Kostentabelle behandelt Pauschalverträge: Die Kosten bisher sind die bis heute fälligen Abschläge (auch in der Summe und in den Vertragsdetails). Saldo und Prognose bleiben leer, weil es keinen Verbrauch gibt.
-- Beta: Die Übersicht hat keine Bearbeitungs-Aktionen mehr. Alles, was einen Vertrag ändert, steht im Tab "Verträge": Symbole in jeder Zeile (Folgevertrag planen oder bearbeiten, Vertrag bearbeiten) und oben der Button "Neuer Vertrag". Das Löschen bleibt im Bearbeiten-Dialog. "Warnung bestätigen" und "Kündigung bestätigen" bleiben auf der Karte bei ihrem Hinweis.
+## [1.27.0] - 2026-11-07
 
 ### Added
 
-- Die Vertragsdaten enthalten jetzt die bis heute fälligen Abschläge (`abschlag_bisher_gezahlt`, endet am Vertragsende und berücksichtigt eine Abschlagsänderung). Das ist nur ein Wert für das Panel: kein neuer Sensor, bestehende Installationen bekommen also keine neuen Entitäten.
-
-## [1.27.0-beta.8] - 2026-11-06
-
-Achte Beta zum Testen des Seitenleisten-Panels. Neu: eine überarbeitete Übersicht. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+- **Seitenleisten-Panel "Tariffy".** Ein neuer Eintrag in der Seitenleiste zeigt alle Verträge auf einen Blick, mit Live-Werten, auf Deutsch und Englisch (dunkles, kartenbasiertes Design, kompakte aufklappbare Ansicht auf dem Handy). Es hat drei Ansichten: die **Übersicht** (vier Kopfkacheln mit den Abschlägen pro Monat, den Kosten bisher, der Prognose zum Vertragsende und den nächsten Terminen; darunter die Verbrauchsverträge und die Pauschalverträge mit je einer Karte), die **Kosten** (zwei Tabellen mit Summen) und die **Verträge** (Liste mit allen Details). Das Panel wird von der Integration mitgeliefert, nutzt die Systemschrift, braucht keinen Build-Schritt und keine zusätzlichen Entitäten. Alle, die Home Assistant benutzen dürfen, sehen die Werte; Kundennummern, Zählernummern, MaLo-ID und Benachrichtigungsziel werden nie an das Panel gesendet. Lässt sich das Panel nicht einrichten, steht eine Warnung im Log und die Integration arbeitet wie bisher. Siehe `docs/wiki/Panel.md` (deutsch) und `docs/wiki/English.md`.
+- **Administratoren können Verträge im Panel bearbeiten**, im Tab "Verträge": die Abschlag-Warnung und die Kündigungs-Erinnerung bestätigen, den Folgevertrag planen, bearbeiten oder entfernen, einen Vertrag bearbeiten, einen neuen Vertrag anlegen und einen löschen. Alles läuft über die vorhandenen Dialoge von Home Assistant (Optionen, Neu konfigurieren, Einrichtung), Prüfung und Speicherung bleiben also unverändert, und jede Aktion fragt ein zweites Mal nach (zum Löschen muss der Vertragsname getippt werden). Ein "Jetzt wechseln" bietet das Panel nicht an: Der Vertrag wechselt am geplanten Datum von selbst. Benutzer ohne Administratorrechte sehen nur die Werte; das Backend prüft die Rechte zusätzlich.
+- Die Vertragsdaten enthalten die bis heute fälligen Abschläge (`abschlag_bisher_gezahlt`; endet am Vertragsende und berücksichtigt eine Abschlagsänderung). Das ist nur ein Wert für das Panel: kein neuer Sensor, bestehende Installationen bekommen keine neuen Entitäten.
 
 ### Changed
 
-- Beta: Die Übersicht wurde überarbeitet und orientiert sich stärker am Vorbild-Dashboard. Die Karten fließen jetzt ohne Lücken in Spalten statt in einem Raster mit Löchern, der Kopf einer Karte ist nach dem Zustand getönt (grün Guthaben, rot Nachzahlung, orange Kündigung fällig), Titel stehen in Kapitälchen, und die Kennzahl steht neben einem kleineren Fortschrittsring. Eine Karte zeigt höchstens drei Zahlen (Kosten bisher, Saldo bisher, Verbrauch) und eine Fußzeile mit der Restlaufzeit; weitere Zahlen stehen in den Ansichten "Kosten" und "Verträge".
-- Beta: "Folgevertrag planen" und "Vertrag bearbeiten" sind in ein "…"-Menü im Kartenkopf gewandert (nur Administratoren). "Warnung bestätigen" und "Kündigung bestätigen" bleiben auf der Karte, bei dem Hinweis, zu dem sie gehören. Auf dem Handy bleiben die Buttons in der aufgeklappten Karte.
-- Beta: Verträge ohne Beginn oder Ende zeigen keinen leeren Fortschrittsring mehr, und leere Kacheln entfallen.
+- Deckt das Guthaben die Kosten bis zum Vertragsende schon ab, zeigt das Panel "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende" statt einer negativen Empfehlung; sonst steht dort "Abschlag auf ... pro Monat erhöhen" oder "Abschlag könnte auf ... pro Monat sinken". Der Sensor "Abschlag-Anpassung (empfohlen)" selbst ist unverändert.
+- Das Panel nennt "Saldo bisher" jetzt "Saldo heute" und erklärt, wenn der Saldo heute und die Prognose in verschiedene Richtungen gehen (zum Beispiel Rückstand heute, Guthaben am Ende).
+- Pauschalverträge (Internet, Mobilfunk, Versicherung, Sonstiges) haben eigene Karten und eine eigene Tabelle. Ihre Kosten bisher sind die bis heute fälligen Abschläge.
+- CI: Der Release-Workflow läuft auch auf dem Branch `beta` und veröffentlicht Vorabversionen wie `1.27.0-rc.1` (nie als "latest" markiert, damit HACS sie nur Nutzern anbietet, die Beta-Versionen eingeschaltet haben). Stabile Releases von `main` funktionieren wie bisher. Siehe `docs/beta-releases.md`.
 
 ### Fixed
 
-- Beta: Am ersten Tag eines Vertrags mit Verbrauchssensor wird der Block "Verbrauch" in den Vertragsdetails gezeigt (Kosten und Verbrauch bisher gibt es schon, nur die Prognose fehlt noch). Bisher blieb er bis zum nächsten Tag ausgeblendet.
-- Beta: Ein Menü auf einer Karte blieb nach der Auswahl eines Eintrags hinter dem Dialog offen.
+- Beim Löschen eines Vertrags (im Panel oder in Home Assistant) werden jetzt auch seine offenen Kündigungs- und Abschlag-Benachrichtigungen entfernt. Bisher blieben sie dauerhaft in der Benachrichtigungsliste.
+- Das Dropdown "Kündigungs-Erinnerung" zeigt "3 Monate vorher" statt einer nackten "3" (die Texte gab es schon, sie waren nur nicht verbunden). Die gespeicherten Werte bleiben unverändert.
 
-## [1.27.0-beta.7] - 2026-11-06
-
-Siebte Beta zum Testen des Seitenleisten-Panels. Sie behebt die Darstellung der Vertragsliste. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+## [1.26.7] - 2026-11-06
 
 ### Fixed
 
-- Beta: In der Ansicht "Verträge" waren die Zeilen zusammengequetscht: Name und Untertitel brachen Wort für Wort um, und der Betrag wurde über den Text gezeichnet. Die Zeilen zeigen jetzt Name, Status und Betrag in einer Zeile und brechen auf schmalen Bildschirmen um. Die Karten der Übersicht sind unverändert.
-
-## [1.27.0-beta.6] - 2026-11-06
-
-Sechste Beta zum Testen des Seitenleisten-Panels. Neu: Verträge direkt im Panel anlegen und löschen (nur Administratoren). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- Beta: Das Panel kann jetzt Verträge anlegen ("Neuer Vertrag" in der oberen Leiste, nur Administratoren). Es startet den Einrichtungs-Dialog der Integration (erst Name und Sparte, dann die Daten der Sparte), Prüfung und Speicherung bleiben also unverändert, und der neue Vertrag erscheint von selbst im Panel.
-- Beta: Das Panel kann jetzt einen Vertrag löschen ("Vertrag löschen" im Bearbeiten-Dialog, nur Administratoren). Weil das nicht rückgängig zu machen ist, muss vorher der Name des Vertrags eingetippt werden. Die Sensoren und Buttons des Vertrags werden entfernt; die Langzeit-Statistiken, die Home Assistant schon aufgezeichnet hat, bleiben in der Datenbank (der Dialog weist darauf hin).
-
-### Fixed
-
-- Beim Löschen eines Vertrags (im Panel oder in Home Assistant) werden jetzt auch seine offenen Benachrichtigungen zu Kündigung und zu niedrigem Abschlag entfernt. Bisher blieben sie dauerhaft in der Liste stehen.
-
-## [1.27.0-beta.5] - 2026-11-06
-
-Fünfte Beta zum Testen des Seitenleisten-Panels. Neu: einen Vertrag direkt im Panel bearbeiten (nur Administratoren). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- Beta: Das Panel kann einen Vertrag jetzt bearbeiten ("Vertrag bearbeiten" auf der Vertragskarte, nur Administratoren). Es zeigt dieselben zwei Formulare wie der "Neu konfigurieren"-Dialog der Integration (allgemeine Daten, dann die Daten der Sparte) und speichert über diesen Dialog, Prüfung und Speicherung bleiben also unverändert. Der letzte Schritt fragt noch einmal nach, bevor die Vertragsdaten ersetzt werden. Ja/Nein-Einstellungen, Auswahllisten mit übersetzten Namen und Freitext mit Vorschlägen (Benachrichtigungs-Ziel) werden unterstützt.
-
-### Fixed
-
-- Beim Neukonfigurieren eines Vertrags gehen die Werte, die die Integration selbst führt, nicht mehr verloren. Bisher ersetzte der Dialog "Neu konfigurieren" die gespeicherten Daten durch das, was die Formulare enthalten: Eine bestätigte Kündigungs-Erinnerung oder Abschlag-Warnung kam wieder, eine schon gesendete Push-Nachricht konnte erneut gesendet werden, und der Verbrauch der letzten Laufzeit (Grundlage des empfohlenen Abschlags) ging verloren. Er bleibt jetzt erhalten. Die Kündigungs-Erinnerung beginnt nur dann neu, wenn sich Vertragsende oder Vorlaufzeit ändern.
-- Die Auswahl "Kündigung erinnern" zeigt "3 Monate vorher" statt einer nackten "3" (die Texte gab es schon, sie waren nur nicht angebunden). Die gespeicherten Werte bleiben unverändert.
-
-## [1.27.0-beta.4] - 2026-11-06
-
-Vierte Beta zum Testen des Seitenleisten-Panels. Neu: Folgevertrag direkt im Panel planen, bearbeiten und entfernen (nur Administratoren). Die beiden Aktions-Buttons fragen jetzt eine zweite Stufe ab, und "Jetzt wechseln" gibt es im Panel nicht mehr, weil es den aktuellen Vertrag ersetzt hätte, bevor der neue beginnt. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- Beta: Das Panel kann den Folgevertrag jetzt planen, bearbeiten und entfernen ("Folgevertrag planen" auf der Vertragskarte, nur Administratoren). Es zeigt dasselbe Formular wie der "Konfigurieren"-Dialog der Integration und speichert über diesen Dialog, Prüfung und Speicherung bleiben also unverändert. Ist die Kündigungserinnerung fällig, markiert ein Häkchen (standardmäßig an) die Kündigung im selben Schritt als erledigt.
-
-### Changed
-
-- Beta: Die beiden Aktions-Buttons im Panel (Warnung bestätigen, Kündigung bestätigen) fragen jetzt eine zweite Stufe ab, damit nichts versehentlich ausgelöst wird.
-- Beta: Das Panel bietet "Jetzt wechseln" nicht mehr an. Der Klick hätte den aktuellen Vertrag sofort ersetzt, während der neue erst am geplanten Datum beginnt. Zum geplanten Datum wechselt der Vertrag von selbst; der Button in Home Assistant bleibt unverändert. Die ungenutzte Websocket-Aktion `switch_now` wurde mit entfernt.
-
-## [1.27.0-beta.3] - 2026-11-06
-
-Dritte Beta zum Testen des Seitenleisten-Panels. Neu: Warnung und Kündigungserinnerung bestätigen und auf einen geplanten Folgevertrag wechseln, direkt im Panel (nur Administratoren), sowie eine klarere Anzeige, wenn ein negativer Abschlag empfohlen wird. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- Beta: Das Panel kann jetzt die Abschlag-Warnung bestätigen, die Kündigungserinnerung bestätigen und auf einen geplanten Folgevertrag wechseln, direkt in der Vertragskarte, mit Rückfrage vor dem Wechsel. Es sind dieselben Aktionen wie bei den drei Buttons, nur für Administratoren (neuer Websocket-Befehl `tariffy/action`, der dieselben Bedingungen wie die Buttons prüft). Alle anderen behalten die reine Leseansicht.
-
-### Geändert
-
-- Beta: Deckt das Guthaben die Kosten bis zum Vertragsende bereits ab, zeigt das Panel keinen negativen empfohlenen Abschlag mehr. Es zeigt 0,00 € mit dem Hinweis „Guthaben deckt die Kosten“. Der Sensor „Abschlag (Anpassung empfohlen)“ selbst bleibt unverändert.
-
-## [1.27.0-beta.2] - 2026-11-06
-
-Zweite Beta zum Testen des Seitenleisten-Panels. Sie enthält den Prognose-Fix aus 1.26.6, das Panel zeigt also nach einer Abschlagsänderung das korrigierte „Guthaben/Nachzahlung (Vertragsende)“. Das Panel selbst ist unverändert und nur lesend. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Behoben
-
-- „Guthaben/Nachzahlung (Vertragsende)“ (und damit die Abschlag-Warnung) war nach einer Abschlagsänderung mitten im Vertrag zu optimistisch. Die Prognose rechnet jetzt mit den bisher tatsächlich gezahlten Abschlägen plus dem aktuellen Abschlag für die Restlaufzeit, siehe 1.26.6. Verträge, deren Abschlag nie geändert wurde, behalten exakt denselben Wert.
-
-## [1.27.0-beta.1] - 2026-11-05
-
-Beta zum Testen des neuen Seitenleisten-Panels. Das Panel liest nur, alles andere arbeitet wie in 1.26.5. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version. HACS bietet diese Version nur an, wenn „Beta-Versionen anzeigen“ aktiviert ist.
-
-### Hinzugefügt
-
-- Beta: Das Panel zeigt die Verträge jetzt in einem dunklen, kartenbasierten Design (Übersicht mit Zusammenfassung, Kostentabelle, Vertragsdetails) auf Deutsch und Englisch, auf dem Handy in einer kompakten, aufklappbaren Ansicht. Nur lesend. Die Seite wird von der Integration ausgeliefert, nutzt die System-Schrift und braucht keinen Build-Schritt.
-- Beta: Backend für ein Tariffy-Seitenleisten-Panel. Es meldet das Panel „Tariffy“ an (für alle Benutzer sichtbar) und stellt zwei rein lesende Websocket-Befehle bereit, `tariffy/contracts` und `tariffy/subscribe`. Sie liefern die berechneten Werte aller Verträge, ohne Kundennummer, Zählernummern, MaLo-ID und Benachrichtigungsziel. Lässt sich das Panel nicht einrichten, wird nur eine Warnung geloggt, und die Integration arbeitet wie bisher. `manifest.json` führt `frontend`, `http`, `panel_custom` und `websocket_api` unter `after_dependencies`.
-
-### Geändert
-
-- CI: Der Release-Workflow läuft jetzt auch auf dem Branch `beta` und veröffentlicht Versionen wie `1.27.0-beta.1` als GitHub-Pre-Release (nie als „latest“). HACS bietet sie nur Nutzern an, die Beta-Versionen aktiviert haben. Stabile Releases aus `main` funktionieren wie bisher. Siehe `docs/beta-releases.md`.
+- **Beim Neukonfigurieren eines Vertrags gehen die Werte, die die Integration selbst führt, nicht mehr verloren.** Der Dialog "Neu konfigurieren" von Home Assistant ersetzt die gespeicherten Vertragsdaten durch das, was seine Formulare enthalten. Die Formulare enthalten die eigenen Werte der Integration nicht, deshalb kam nach jedem Neukonfigurieren eine bestätigte Kündigungs-Erinnerung oder Abschlag-Warnung wieder, eine schon gesendete Push-Nachricht konnte erneut gesendet werden, und der Verbrauch der letzten Laufzeit (Grundlage des empfohlenen Abschlags nach einem Tarifwechsel) ging verloren. Diese Werte bleiben jetzt erhalten. Die Kündigungs-Erinnerung beginnt nur dann neu, wenn sich Vertragsende oder Vorlaufzeit ändern. Sonst ändert sich nichts: Alle Felder der Formulare werden genau wie bisher gespeichert.
 
 ## [1.26.6] - 2026-11-05
 
@@ -429,10 +255,9 @@ Beta zum Testen des neuen Seitenleisten-Panels. Das Panel liest nur, alles ander
 
 Keine strukturierte Changelog-Historie vor dieser Version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.3...HEAD
-[1.27.0-beta.3]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.2...v1.27.0-beta.3
-[1.27.0-beta.2]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...v1.27.0-beta.2
-[1.27.0-beta.1]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.27.0-beta.1
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0...HEAD
+[1.27.0]: https://github.com/weskona/tariffy/compare/v1.26.7...v1.27.0
+[1.26.7]: https://github.com/weskona/tariffy/compare/v1.26.6...v1.26.7
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4

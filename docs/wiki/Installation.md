@@ -7,9 +7,9 @@
 3. Tariffy installieren → HA neu starten
 4. Einstellungen → Integrationen → **Tariffy** → Hinzufügen
 
-## Beta-Versionen (Panel)
+## Panel
 
-Das Seitenleisten-Panel gibt es nur in Beta-Versionen. In HACS → Tariffy → ⋮ → **Neu herunterladen** die Option **Beta-Versionen anzeigen** einschalten und eine Version wie `1.27.0-beta.6` wählen. Mehr dazu unter [Panel (Beta)](Panel).
+Ab Version 1.27.0 bringt die Integration ein Seitenleisten-Panel mit. Es braucht keine Einrichtung, nach dem Update die Browserseite einmal hart neu laden (Strg+F5). Mehr dazu unter [Panel](Panel).
 
 ## Manuelle Installation
 

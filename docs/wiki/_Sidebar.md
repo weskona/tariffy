@@ -6,6 +6,6 @@
 - [Sensoren](Sensoren)
 - [Verbrauchsmessung](Verbrauchsmessung)
 - [Tarifwechsel und Erinnerungen](Tarifwechsel-und-Erinnerungen)
-- [Panel (Beta)](Panel)
+- [Panel](Panel)
 - [Fehlerbehebung](Fehlerbehebung)
 - [English](English)

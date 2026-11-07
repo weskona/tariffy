@@ -7,205 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.27.0-rc.9] - 2026-11-07
-
-Ninth release candidate for testing the sidebar panel. This is the last number of the `rc` series (see "Beta releases" in the documentation). Please report problems with the bug report form and mention this exact version.
-
-### Fixed
-
-- The cards of one row in the overview lined up in `rc.8` only when all had the same amount of text under the big figure. If one card had more text (for example the explanation of a balance behind today), the big figure of the other cards sat lower. The "Forecast at contract end" label, the big figure and the ring now start at the same height in every card of the row.
-
-## [1.27.0-rc.8] - 2026-11-07
-
-Eighth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- The cards of one row in the overview line up: the header, the big figure, the three tiles, the bars and the footer line start at the same height in every card of the row, even if one card has a longer text (for example a longer instalment advice) or a note. Before, only the cards had the same height, the content did not.
-
-## [1.27.0-rc.7] - 2026-11-07
-
-Seventh release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- The overview has no buttons any more. "Acknowledge warning" and "Acknowledge cancellation" moved to the expanded details of the contract in the "Contracts" tab, next to the icons for editing; they still ask a second time. The cards in the overview keep the note with the reason.
-
-## [1.27.0-rc.6] - 2026-11-07
-
-Sixth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- The instalment recommendation says what to do: "Raise the instalment to 127.66 € per month", "Instalment could drop to 88.76 € per month", "No instalment needed: the credit covers the costs until the contract ends" or "The instalment fits". Before, a lower recommendation (credit at the end) stood there without a direction and looked like a contradiction to a negative balance today.
-- The state badge ("Credit", "Balance due", "Balance due likely") is always the right-most badge; further badges ("Switch on ...", "Cancel now") stand to its left, so the state sits in the same place on every card.
-- The badges sit on the right in the contract list as well: next to the name on a phone instead of on a line of their own at the left, and right-aligned on the cards of the overview on a phone.
-
-## [1.27.0-rc.5] - 2026-11-07
-
-Fifth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- The second line of a contract in the panel shows provider and tariff only. The kind of contract ("Electricity", "Gas", ...) is no longer repeated there, the icon shows it and the name often says it anyway.
-
-## [1.27.0-rc.4] - 2026-11-07
-
-Fourth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- The overview card says why the balance today and the forecast differ (for example "Today 84.36 € behind, made up by the instalment before the contract ends."), and "Balance so far" is now called "Balance today" in the panel.
-
-## [1.27.0-rc.3] - 2026-11-07
-
-Third release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- The badges of a contract card in the overview ("Credit", "Switch on ...", ...) sit at the top right of the card, next to the name, instead of on a line of their own below it. On a phone the card is unchanged.
-- "Remaining term" sits directly below the cost bars instead of at the bottom edge of the card, so there is no gap when a neighbouring card is taller.
-
-## [1.27.0-rc.2] - 2026-11-06
-
-Second release candidate for testing the sidebar panel. The panel uses the whole width of the window, the header of the overview has more details and the cost tables line up. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- The header of the overview has four tiles with details: the instalments per month (with the yearly figure and a bar that splits metered and flat-rate contracts), the cost so far (with the instalments due until today and the balance), the forecast at contract end (per contract, worst first) and the next three dates.
-- The two tables of the "Costs" view and the overall total share one column grid: "cost so far" and "instalment" sit exactly below each other, also in the overall total row (flat-rate table: cost so far, remaining term, contract end, instalment).
-- The panel uses the whole width of the window instead of being capped at 1280 px and centred (the cap is now 2400 px, only for ultra-wide monitors). The overview keeps three contracts per row and gets a fourth column on a very wide window (1750 px and more).
-
-## [1.27.0-rc.1] - 2026-11-06
-
-Same content as 1.27.0-beta.10, released again under a new name: GitHub lists `beta.10` between `beta.2` and `beta.1`, so HACS did not offer it. Please install this version (see "Beta releases" in the documentation; the numbering now continues with `rc.2`, `rc.3`, ...). Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- The "Costs" view has two tables like the overview: **metered contracts** (cost so far, balance so far, balance at contract end, instalment, recommended instalment) and **flat-rate contracts** (cost so far, instalment, contract end, remaining term), each with its own total row and the overall total below. The "Contracts" view lists the contracts in the same two groups.
-- On a wide screen the overview shows three contracts per row, in both groups. The small arrow that opens a row or card is an icon in the style of the other icons and turns when it opens.
-- Release process: version numbers of pre-releases stop at 9 per series (`beta.1` ... `beta.9`, `rc.1` ... `rc.9`), because GitHub sorts release tags as text and HACS would not offer `beta.10`. A test guards this.
-
-## [1.27.0-beta.10] - 2026-11-06
-
-Tenth beta for testing the sidebar panel. The "Costs" and "Contracts" views are now split like the overview. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- Beta: the "Costs" view has two tables like the overview: **metered contracts** (cost so far, balance so far, balance at contract end, instalment, recommended instalment) and **flat-rate contracts** (cost so far, instalment, contract end, remaining term). Each table has its own total row, and the overall total sits below. Flat-rate contracts no longer show rows of dashes for balance and forecast.
-- Beta: the "Contracts" view lists the contracts in the same two groups.
-- Beta: the small arrow that opens a row or card is an icon in the style of the other icons and turns when it opens.
-- Beta: on a wide screen the overview shows three contracts per row, in both groups (before: two columns for four metered contracts).
-
-## [1.27.0-beta.9] - 2026-11-06
-
-Ninth beta for testing the sidebar panel. The overview is sorted by kind of contract, flat-rate contracts get their own cards, and everything that changes a contract moved to the "Contracts" tab. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- Beta: the overview has two groups: **metered contracts** (electricity, gas, water) in big cards and **flat-rate contracts** (internet, mobile, insurance, other) in slim cards. Cards sit in rows of equal height; four metered contracts make 2 x 2 instead of leaving one card alone in a row.
-- Beta: a flat-rate card leads with the monthly instalment and shows the cost so far, the contract end and a term bar. It has no ring, no consumption and no empty figures; a contract without an end date shows "No contract end" instead of a dash or an assumed 12-month total.
-- Beta: the cost table treats flat-rate contracts: the cost so far is the instalments due until today (also in the total and in the contract details). Balance and forecast stay empty because there is no consumption.
-- Beta: the overview has no editing actions any more. Everything that changes a contract is in the "Contracts" tab: icons in each row (plan or edit the next contract, edit the contract) and the button "New contract" at the top. Deleting stays in the edit dialog. "Acknowledge warning" and "Acknowledge cancellation" remain on the card next to their note.
+## [1.27.0] - 2026-11-07
 
 ### Added
 
-- The contract data now contains the instalments due until today (`abschlag_bisher_gezahlt`, stops at the contract end and respects an instalment change). It is only a value for the panel: no new sensor, so existing installations get no new entities.
-
-## [1.27.0-beta.8] - 2026-11-06
-
-Eighth beta for testing the sidebar panel. New: a redesigned overview. Please report problems with the bug report form and mention this exact version.
+- **Sidebar panel "Tariffy".** A new entry in the sidebar shows all contracts at a glance, with live values, in German and English (dark, card based design, compact expandable layout on phones). It has three views: the **overview** (four header tiles with the instalments per month, the cost so far, the forecast at contract end and the next dates; below, the metered contracts and the flat-rate contracts with one card each), the **costs** (two tables with totals) and the **contracts** (list with all details). The panel is delivered by the integration, uses the system font, needs no build step and no extra entities. Everyone who can use Home Assistant sees the values; customer numbers, meter numbers, MaLo-ID and notification target are never sent to the panel. If the panel cannot be set up, a warning is logged and the integration works as before. See `docs/wiki/Panel.md` (German) and `docs/wiki/English.md`.
+- **Administrators can work on contracts in the panel**, in the "Contracts" tab: acknowledge the low-instalment warning and the cancellation reminder, plan, edit or remove the next contract, edit a contract, create a new contract and delete one. Everything runs through the existing dialogs of Home Assistant (options flow, reconfigure flow, setup flow), so validation and storage are unchanged, and every action asks a second time (deleting needs the contract name typed). The panel offers no "Switch now": the contract switches itself on its planned date. Non-administrators only see the values; the backend checks the rights again.
+- The contract data contains the instalments due until today (`abschlag_bisher_gezahlt`; stops at the contract end and respects an instalment change). It is only a value for the panel: no new sensor, existing installations get no new entities.
 
 ### Changed
 
-- Beta: redesigned overview, closer to the style of the reference dashboard. The cards now flow into columns without gaps instead of a grid with holes, the top of a card is tinted by its state (green credit, red balance due, orange cancellation due), titles are set in small capitals and the key figure sits next to a smaller progress ring. A card shows at most three figures (costs so far, balance so far, consumption) plus a footer line with the remaining term; the balance so far, the consumption and the instalments remain in the "Costs" and "Contracts" views.
-- Beta: "Plan next contract" and "Edit contract" moved into a "..." menu in the card header (administrators only). Acknowledge warning and acknowledge cancellation stay on the card, next to the note they belong to. On phones the buttons stay in the opened card.
-- Beta: contracts without start or end date no longer show an empty progress ring, and empty figure tiles are left out.
-
-### Fixed
-
-- Beta: on the first day of a contract with a consumption sensor the "Consumption" block of the contract details is shown (costs and consumption so far exist, only the forecast is still missing). It used to stay hidden until the next day.
-- Beta: a menu on a card stayed open behind the dialog after choosing an entry.
-
-## [1.27.0-beta.7] - 2026-11-06
-
-Seventh beta for testing the sidebar panel. It fixes the layout of the contract list. Please report problems with the bug report form and mention this exact version.
-
-### Fixed
-
-- Beta: in the "Contracts" view the rows were squeezed: the name and the subtitle broke word by word and the amount was drawn over the text. The rows now show name, status and amount on one line and wrap on narrow screens. The overview cards are unchanged.
-
-## [1.27.0-beta.6] - 2026-11-06
-
-Sixth beta for testing the sidebar panel. New: create and delete contracts directly in the panel (administrators only). Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- Beta: the panel can now create contracts ("New contract" in the top bar, administrators only). It runs the integration's own setup dialog (name and sparte first, then the data of the sparte), so validation and storage are unchanged, and the new contract appears in the panel by itself.
-- Beta: the panel can now delete a contract ("Delete contract" in the edit dialog, administrators only). Because it cannot be undone, the name of the contract has to be typed before the button works. The sensors and buttons of the contract are removed; the long-term statistics Home Assistant already recorded stay in its database (the dialog says so).
+- When the credit already covers the costs until the end of the contract, the panel shows "No instalment needed: the credit covers the costs until the contract ends" instead of a negative recommendation; otherwise it says "Raise the instalment to ... per month" or "Instalment could drop to ... per month". The sensor "Instalment adjustment (recommended)" itself is unchanged.
+- The panel calls "Balance so far" "Balance today" and explains when the balance today and the forecast point in different directions (for example behind today, credit at the end).
+- Flat-rate contracts (internet, mobile, insurance, other) have their own cards and their own table. Their cost so far is the instalments due until today.
+- CI: the release workflow also runs on the `beta` branch and publishes pre-releases like `1.27.0-rc.1` (never marked as latest, so HACS only offers them to users who enabled beta versions). Stable releases from `main` work as before. See `docs/beta-releases.md`.
 
 ### Fixed
 
 - Deleting a contract (in the panel or in Home Assistant) now also dismisses its open cancellation and low-instalment notifications. Until now they stayed in the notification list for good.
-
-## [1.27.0-beta.5] - 2026-11-06
-
-Fifth beta for testing the sidebar panel. New: edit a contract directly in the panel (administrators only). Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- Beta: the panel can now edit a contract ("Edit contract" on the contract card, administrators only). It shows the same two forms as the integration's "Reconfigure" dialog (general data, then the data of the sparte) and stores them through that dialog, so validation and storage are unchanged. The last step asks once more before the contract data is replaced. Yes/no settings, drop-downs with translated names and free-text suggestions (notification target) are supported.
-
-### Fixed
-
-- Reconfiguring a contract no longer loses the state the integration keeps itself. Until now the "Reconfigure" dialog replaced the stored data with what the forms contain, so an acknowledged cancellation reminder or low-instalment warning came back, a push notification that was already sent could be sent again, and the consumption of the last contract term (used for the recommended instalment) was lost. It is now kept. The cancellation reminder starts over only when the contract end or the reminder lead time changes.
 - The "Cancellation reminder" drop-down shows "3 months before" instead of a bare "3" (the texts already existed but were not connected). The stored values are unchanged.
 
-## [1.27.0-beta.4] - 2026-11-06
-
-Fourth beta for testing the sidebar panel. New: plan, edit and remove the next contract directly in the panel (administrators only). The two action buttons now ask a second question, and "Switch now" is gone from the panel because it would have replaced the current contract before the new one starts. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- Beta: the panel can now plan, edit and remove the next contract ("Plan next contract" on the contract card, administrators only). It shows the same form as the integration's "Configure" dialog and stores it through that dialog, so validation and storage are unchanged. When the cancellation reminder is due, a box (ticked by default) marks the cancellation as done in the same step.
-
-### Changed
-
-- Beta: the two remaining action buttons in the panel (acknowledge warning, acknowledge cancellation) now ask for a second confirmation, so nothing can be triggered by an accidental click.
-- Beta: the panel no longer offers "Switch now". It would have replaced the current contract at once while the new one still starts on its planned date. The contract switches itself on that date; the button entity in Home Assistant is unchanged. The unused websocket action `switch_now` was removed with it.
-
-## [1.27.0-beta.3] - 2026-11-06
-
-Third beta for testing the sidebar panel. New: acknowledging the warning and the cancellation reminder and switching to a planned next contract directly in the panel (administrators only), and a clearer display when a negative instalment is recommended. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- Beta: the panel can now acknowledge the low-instalment warning, acknowledge the cancellation reminder and switch to a planned next contract directly from the contract card, with a confirmation question before the switch. The same actions as the three buttons, available to administrators only (new websocket command `tariffy/action`, which checks the same conditions as the buttons). Everyone else keeps the read-only view.
-
-### Changed
-
-- Beta: when the credit already covers the costs until the end of the contract, the panel no longer shows a negative recommended instalment. It shows 0.00 € with the note "Credit covers the costs". The sensor "Instalment adjustment (recommended)" itself is unchanged.
-
-## [1.27.0-beta.2] - 2026-11-06
-
-Second beta for testing the sidebar panel. It contains the forecast fix from 1.26.6, so the panel shows the corrected "Credit / balance due (contract end)" after an instalment change. The panel itself is unchanged and read only. Please report problems with the bug report form and mention this exact version.
+## [1.26.7] - 2026-11-06
 
 ### Fixed
 
-- "Refund/balance due (contract end)" (and with it the low-instalment warning) was too optimistic after an instalment change during the contract. The forecast now uses the instalments actually paid so far plus the current instalment for the remaining term, see 1.26.6. Contracts whose instalment was never changed keep exactly the same value.
-
-## [1.27.0-beta.1] - 2026-11-05
-
-Beta release for testing the new sidebar panel. The panel only reads, everything else works as in 1.26.5. Please report problems with the bug report form and mention this exact version. HACS offers this version only if "Show beta versions" is enabled.
-
-### Added
-
-- Beta: the panel now shows the contracts in a dark, card based design (overview with summary, cost table, contract details), in German and English, with a compact expandable layout on phones. Read only. The page is delivered by the integration, uses the system font and needs no build step.
-- Beta: backend for a Tariffy sidebar panel. It registers the "Tariffy" panel (visible to all users) and two read-only websocket commands, `tariffy/contracts` and `tariffy/subscribe`, that deliver the calculated values of all contracts, without customer number, meter numbers, MaLo-ID and notification target. If the panel cannot be set up, a warning is logged and the integration works as before. `manifest.json` lists `frontend`, `http`, `panel_custom` and `websocket_api` in `after_dependencies`.
-
-### Changed
-
-- CI: the release workflow now also runs on the `beta` branch and publishes versions like `1.27.0-beta.1` as GitHub pre-releases (never marked as latest), so HACS only offers them to users who enabled beta versions. Stable releases from `main` work as before. See `docs/beta-releases.md`.
+- **Reconfiguring a contract no longer loses the state the integration keeps itself.** The "Reconfigure" dialog of Home Assistant replaces the stored contract data with what its forms contain. The forms do not contain the integration's own values, so after every reconfiguration an acknowledged cancellation reminder or low-instalment warning came back, a push notification that was already sent could be sent again, and the consumption of the last contract term (the basis of the recommended instalment after a tariff switch) was lost. These values are now kept. The cancellation reminder starts over only when the contract end or the reminder lead time changes. Nothing else changes: all fields of the forms are stored exactly as before.
 
 ## [1.26.6] - 2026-11-05
 
@@ -423,10 +249,9 @@ Beta release for testing the new sidebar panel. The panel only reads, everything
 
 No structured changelog prior to this version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.3...HEAD
-[1.27.0-beta.3]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.2...v1.27.0-beta.3
-[1.27.0-beta.2]: https://github.com/weskona/tariffy/compare/v1.27.0-beta.1...v1.27.0-beta.2
-[1.27.0-beta.1]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.27.0-beta.1
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0...HEAD
+[1.27.0]: https://github.com/weskona/tariffy/compare/v1.26.7...v1.27.0
+[1.26.7]: https://github.com/weskona/tariffy/compare/v1.26.6...v1.26.7
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5
 [1.26.4]: https://github.com/weskona/tariffy/compare/v1.26.3...v1.26.4

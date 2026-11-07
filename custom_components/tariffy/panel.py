@@ -1,4 +1,4 @@
-"""Sidebar panel (beta): serves the panel and the contract data it displays.
+"""Sidebar panel: serves the panel and the contract data it displays.
 
 The panel only reads. Everything here is best effort: if the panel cannot be
 set up (no frontend, http not loaded, ...) a warning is logged and the

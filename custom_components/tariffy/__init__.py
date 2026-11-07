@@ -59,7 +59,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: TariffyConfigEntry) -> b
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Sidebar panel (beta). Best effort, never fails the setup of the contract.
+    # Sidebar panel. Best effort, never fails the setup of the contract.
     await async_setup_panel(hass)
     async_attach_entry(hass, entry, coordinator)
     async_notify(hass)
