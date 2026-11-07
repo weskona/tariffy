@@ -13,7 +13,8 @@ Sixth release candidate for testing the sidebar panel. Please report problems wi
 
 ### Changed
 
-- The badges ("Credit", "Switch on ...", ...) sit on the right in the contract list as well: next to the name on a phone instead of on a line of their own at the left, and right-aligned on the cards of the overview on a phone.
+- The state badge ("Credit", "Balance due", "Balance due likely") is always the right-most badge; further badges ("Switch on ...", "Cancel now") stand to its left, so the state sits in the same place on every card.
+- The badges sit on the right in the contract list as well: next to the name on a phone instead of on a line of their own at the left, and right-aligned on the cards of the overview on a phone.
 
 ## [1.27.0-rc.5] - 2026-11-07
 

@@ -13,7 +13,8 @@ Sechster Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Prob
 
 ### Changed
 
-- Die Badges ("Guthaben", "Wechsel am ...", ...) stehen auch in der Vertragsliste rechts: auf dem Handy neben dem Namen statt links in einer eigenen Zeile, und auf den Karten der Übersicht auf dem Handy rechtsbündig.
+- Das Status-Badge ("Guthaben", "Nachzahlung", "Nachzahlung droht") steht immer ganz rechts; weitere Badges ("Wechsel am ...", "Jetzt kündigen") stehen links daneben, damit der Status auf jeder Karte an derselben Stelle sitzt.
+- Die Badges stehen auch in der Vertragsliste rechts: auf dem Handy neben dem Namen statt links in einer eigenen Zeile, und auf den Karten der Übersicht auf dem Handy rechtsbündig.
 
 ## [1.27.0-rc.5] - 2026-11-07
 

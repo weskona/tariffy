@@ -484,6 +484,15 @@ for (const width of [1280, 900, 600, 390]) {
   check((await card(page, "Wasser").innerText()).replace(/\u00a0/g, " ").includes("Heute 40,00 € im Plus"), "balance ahead today but balance due at the end: the card explains it");
   check(!(await card(page, "Gas Heizung").innerText()).includes("Heute"), "no explanation where both point the same way");
 
+  // the state badge is the last one, so it sits at the far right; other badges stand to its left
+  await page.evaluate(() => {
+    window.__panel._contracts = window.__panel._contracts.map((c) => (c.title === "Gas Heizung" ? { ...c, wechsel: "2027-01-01" } : c));
+    window.__panel._render();
+  });
+  const chipTexts = await card(page, "Gas Heizung").locator(".chip").allInnerTexts();
+  check(chipTexts.length === 2 && /guthaben|nachzahlung/i.test(chipTexts[chipTexts.length - 1]), `the state badge comes last (${chipTexts})`);
+  check(!/wechsel|kündigen/i.test(chipTexts[chipTexts.length - 1]), "switch and cancel badges stand left of the state badge");
+
   // the second line of a card does not repeat the kind of contract: the icon shows it
   check((await card(page, "Gas Heizung").locator(".meta").innerText()).trim() === "Energie Süd · Gas Basis", "the second line has provider and tariff, not the kind of contract again");
 

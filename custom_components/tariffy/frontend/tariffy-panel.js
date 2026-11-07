@@ -687,15 +687,17 @@ class TariffyPanel extends HTMLElement {
     const hasMetering = isNum(c.prognose_real);
     // consumption already measured (also on the first day, before there is a forecast)
     const measured = isNum(c.kosten_bisher) || isNum(c.verbrauch_bisher);
+    // the state (credit / balance due / warning) always comes last, so it sits at the far right
+    // of every card; further badges (cancel now, switch on ...) stand to its left
     const chips = [];
     if (c.erinnerung_aktiv) chips.push({ text: this._t("cancelDue"), tone: "orange" });
+    if (c.wechsel) chips.push({ text: this._t("switchOn", { d: this._date(c.wechsel) }), tone: "blue" });
     if (c.abschlag_warnung_aktiv) chips.push({ text: this._t("warning"), tone: "red" });
     else if (hasMetering) {
       chips.push(c.prognose_real >= 0
         ? { text: this._t("credit"), tone: "green" }
         : { text: this._t("balanceDue"), tone: "red" });
     }
-    if (c.wechsel) chips.push({ text: this._t("switchOn", { d: this._date(c.wechsel) }), tone: "blue" });
     return { elapsed, paid, hasMetering, measured, chips };
   }
 
