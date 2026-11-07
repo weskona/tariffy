@@ -107,11 +107,18 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
 
   // a negative recommended instalment is shown as 0 with a hint, never as a negative amount
   const gasText = await card(page, "Gas Heizung").innerText();
-  check(gasText.includes("Empfohlener Abschlag: 0,00") && gasText.includes("Guthaben deckt die Kosten"),
-    "gas card shows 0,00 and the hint instead of a negative recommendation");
-  check(!/Empfohlener Abschlag: [−-]/.test(gasText), "no negative recommended instalment on the gas card");
-  check((await card(page, "Strom Haus").innerText()).includes("Empfohlener Abschlag: 127,66"),
-    "a positive recommendation is shown unchanged");
+  check(gasText.includes("Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende"),
+    "gas card says no instalment is needed instead of showing a negative recommendation");
+  check(!/Abschlag auf [−-]|[−-]\d+,\d\d €[^\n]*pro Monat/.test(gasText), "no negative recommended instalment on the gas card");
+  check((await card(page, "Strom Haus").innerText()).replace(/\u00a0/g, " ").includes("Abschlag auf 127,66 € pro Monat erhöhen"),
+    "a needed increase is worded as an increase");
+  // credit at the end: the recommendation is lower than the current instalment and says so
+  await page.evaluate(() => {
+    window.__panel._contracts = window.__panel._contracts.map((c) => (c.title === "Wasser" ? { ...c, abschlag_anpassung_empfohlen: 20, abschlag: 28 } : c));
+    window.__panel._render();
+  });
+  check((await card(page, "Wasser").innerText()).replace(/\u00a0/g, " ").includes("Abschlag könnte auf 20,00 € pro Monat sinken"),
+    "a lower recommendation is worded as a possible reduction");
   await page.getByRole("tab", { name: "Kosten" }).click();
   const gasRow = page.locator("tr", { hasText: "Gas Heizung" }).first();
   check((await gasRow.innerText()).includes("Guthaben deckt die Kosten") && !(await gasRow.innerText()).includes("−179"),
@@ -120,8 +127,8 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.getByRole("tab", { name: "Verträge" }).click();
   await page.locator("details", { hasText: "Gas Heizung" }).locator("summary").click();
   const gasDetails = (await page.locator("details", { hasText: "Gas Heizung" }).innerText()).replace(/\u00a0/g, " ");
-  check(gasDetails.includes("0,00 € / Monat · Guthaben deckt die Kosten"),
-    "contract details: adjustment shown as 0 with the hint");
+  check(gasDetails.includes("Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende"),
+    "contract details: the adjustment says no instalment is needed");
   await page.getByRole("tab", { name: "Übersicht" }).click();
 
   // switching is not offered in the panel (the contract switches itself on its start date)
@@ -483,6 +490,15 @@ for (const width of [1280, 900, 600, 390]) {
   check(catchUp.includes("Heute 84,36 € im Rückstand") && /saldo heute/i.test(catchUp), "balance behind today but credit at the end: the card explains it");
   check((await card(page, "Wasser").innerText()).replace(/\u00a0/g, " ").includes("Heute 40,00 € im Plus"), "balance ahead today but balance due at the end: the card explains it");
   check(!(await card(page, "Gas Heizung").innerText()).includes("Heute"), "no explanation where both point the same way");
+
+  // the state badge is the last one, so it sits at the far right; other badges stand to its left
+  await page.evaluate(() => {
+    window.__panel._contracts = window.__panel._contracts.map((c) => (c.title === "Gas Heizung" ? { ...c, wechsel: "2027-01-01" } : c));
+    window.__panel._render();
+  });
+  const chipTexts = await card(page, "Gas Heizung").locator(".chip").allInnerTexts();
+  check(chipTexts.length === 2 && /guthaben|nachzahlung/i.test(chipTexts[chipTexts.length - 1]), `the state badge comes last (${chipTexts})`);
+  check(!/wechsel|kündigen/i.test(chipTexts[chipTexts.length - 1]), "switch and cancel badges stand left of the state badge");
 
   // the second line of a card does not repeat the kind of contract: the icon shows it
   check((await card(page, "Gas Heizung").locator(".meta").innerText()).trim() === "Energie Süd · Gas Basis", "the second line has provider and tariff, not the kind of contract again");

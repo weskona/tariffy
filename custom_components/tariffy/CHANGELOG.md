@@ -7,6 +7,16 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.6] - 2026-11-07
+
+Sechster Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Die Abschlag-Empfehlung sagt, was zu tun ist: "Abschlag auf 127,66 € pro Monat erhöhen", "Abschlag könnte auf 88,76 € pro Monat sinken", "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende" oder "Der Abschlag passt". Vorher stand eine niedrigere Empfehlung (Guthaben zum Vertragsende) ohne Richtung da und wirkte wie ein Widerspruch zum Rückstand heute.
+- Das Status-Badge ("Guthaben", "Nachzahlung", "Nachzahlung droht") steht immer ganz rechts; weitere Badges ("Wechsel am ...", "Jetzt kündigen") stehen links daneben, damit der Status auf jeder Karte an derselben Stelle sitzt.
+- Die Badges stehen auch in der Vertragsliste rechts: auf dem Handy neben dem Namen statt links in einer eigenen Zeile, und auf den Karten der Übersicht auf dem Handy rechtsbündig.
+
 ## [1.27.0-rc.5] - 2026-11-07
 
 Fünfter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

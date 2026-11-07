@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.6] - 2026-11-07
+
+Sixth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The instalment recommendation says what to do: "Raise the instalment to 127.66 € per month", "Instalment could drop to 88.76 € per month", "No instalment needed: the credit covers the costs until the contract ends" or "The instalment fits". Before, a lower recommendation (credit at the end) stood there without a direction and looked like a contradiction to a negative balance today.
+- The state badge ("Credit", "Balance due", "Balance due likely") is always the right-most badge; further badges ("Switch on ...", "Cancel now") stand to its left, so the state sits in the same place on every card.
+- The badges sit on the right in the contract list as well: next to the name on a phone instead of on a line of their own at the left, and right-aligned on the cards of the overview on a phone.
+
 ## [1.27.0-rc.5] - 2026-11-07
 
 Fifth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
