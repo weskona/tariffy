@@ -271,6 +271,10 @@ const STYLE = `
 @container (min-width: 1750px) { .grid.metered, .grid.flat { grid-template-columns: repeat(4, 1fr); } }
 section.card { display: flex; flex-direction: column; }
 section.card .foot { padding-top: 12px; }
+/* cards of one row share their rows: the header, the big figure, the tiles, the bars and the footer line up across the cards */
+@supports (grid-template-rows: subgrid) {
+  .grid > section.card { display: grid; grid-row: span 6; grid-template-rows: subgrid; row-gap: 0; align-content: start; }
+}
 .card.flat .big { font-size: 28px; }
 .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
 .card.tone-green { background: linear-gradient(180deg, rgba(52,211,153,.085), var(--panel) 150px); }
@@ -1030,7 +1034,8 @@ class TariffyPanel extends HTMLElement {
         h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
         this._who(c),
         this._chips(d.chips)),
-      body
+      // always six blocks: cards in one row share their rows (subgrid), so the figures line up across the cards
+      body.map((part) => part || h("div", { class: "slot" }))
     );
   }
 

@@ -509,6 +509,20 @@ for (const width of [1280, 900, 600, 390]) {
   check(chipTexts.length === 2 && /guthaben|nachzahlung/i.test(chipTexts[chipTexts.length - 1]), `the state badge comes last (${chipTexts})`);
   check(!/wechsel|kündigen/i.test(chipTexts[chipTexts.length - 1]), "switch and cancel badges stand left of the state badge");
 
+  // cards of one row line up: the tiles, the bars and the footer start at the same height in every card of the row
+  const rowTops = await page.evaluate(() => {
+    const root = window.__panel.shadowRoot;
+    const tops = (sel) => ["Strom Haus", "Gas Heizung", "Wasser"].map((name) => {
+      const card = [...root.querySelectorAll("section.card")].find((el) => el.querySelector(".title")?.textContent === name);
+      const el = card && card.querySelector(sel);
+      return el ? Math.round(el.getBoundingClientRect().top - card.getBoundingClientRect().top) : null;
+    });
+    return { hero: tops(".hero"), tiles: tops(".tiles"), bars: tops(".bars"), foot: tops(".foot") };
+  });
+  for (const [part, tops] of Object.entries(rowTops)) {
+    check(tops.every((v) => v !== null) && new Set(tops).size === 1, `${part} starts at the same height in all cards of the row (${tops})`);
+  }
+
   // the second line of a card does not repeat the kind of contract: the icon shows it
   check((await card(page, "Gas Heizung").locator(".meta").innerText()).trim() === "Energie Süd · Gas Basis", "the second line has provider and tariff, not the kind of contract again");
 
