@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.7] - 2026-11-07
+
+Siebter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Die Übersicht hat keine Buttons mehr. "Warnung bestätigen" und "Kündigung bestätigen" sind in die aufgeklappten Details des Vertrags im Tab "Verträge" gewandert, neben die Symbole zum Bearbeiten; sie fragen weiterhin ein zweites Mal nach. Die Karten in der Übersicht zeigen weiter den Hinweis mit dem Grund.
+
 ## [1.27.0-rc.6] - 2026-11-07
 
 Sechster Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

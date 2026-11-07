@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0-rc.7] - 2026-11-07
+
+Seventh release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- The overview has no buttons any more. "Acknowledge warning" and "Acknowledge cancellation" moved to the expanded details of the contract in the "Contracts" tab, next to the icons for editing; they still ask a second time. The cards in the overview keep the note with the reason.
+
 ## [1.27.0-rc.6] - 2026-11-07
 
 Sixth release candidate for testing the sidebar panel. Please report problems with the bug report form and mention this exact version.

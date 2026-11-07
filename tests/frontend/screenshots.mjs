@@ -84,13 +84,19 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   await page.goto(`${base}?lang=de`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
 
-  check((await page.locator(".actions").count()) === 2, "only the two contracts with something to acknowledge show buttons on the card");
+  const listRow = (name) => page.locator("details:not(.card)", { hasText: name }).first();
+  const openRow = async (name) => { if (!(await listRow(name).evaluate((el) => el.open))) await listRow(name).locator("summary").click(); };
+  check((await page.locator(".actions").count()) === 0 && (await page.locator(".btn").count()) === 0, "the overview has no buttons at all, also no acknowledgements");
   const editing = /Vertrag bearbeiten|Folgevertrag|Neuer Vertrag|Vertrag löschen/;
   check((await page.getByRole("button", { name: editing }).count()) === 0, "the overview has no editing actions at all");
-  check((await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
-  check((await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
-  // the list of contracts: icons per row, a button for a new contract
+  check((await page.locator(".callout").count()) >= 2, "the notes with the reason stay on the cards");
+  // the list of contracts: icons per row, a button for a new contract, the acknowledgements in the details
   await page.getByRole("tab", { name: "Verträge" }).click();
+  await openRow("Strom Haus");
+  await openRow("Internet");
+  check((await page.locator(".actions").count()) === 2, "only the two contracts with something to acknowledge show buttons in the list");
+  check((await listRow("Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
+  check((await listRow("Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
   const named = (name) => page.getByRole("button", { name, exact: true });
   check((await named("Vertrag bearbeiten").count()) === 6, "every row has an icon to edit the contract");
   check((await page.getByRole("button", { name: /^Folgevertrag (planen|bearbeiten)$/ }).count()) === 6, "and one to plan or edit the next contract");
@@ -135,17 +141,20 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   check((await page.getByRole("button", { name: "Jetzt wechseln" }).count()) === 0, "no switch button in the panel");
 
   // acknowledgements ask first as well, and cancel does nothing
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  await openRow("Strom Haus");
+  await openRow("Internet");
   const before = (await calls(page)).length;
-  await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
-  check((await card(page, "Internet").locator(".ask").count()) === 1, "cancellation acknowledgement asks first");
+  await listRow("Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
+  check((await listRow("Internet").locator(".ask").count()) === 1, "cancellation acknowledgement asks first");
   check((await calls(page)).length === before, "no call before the acknowledgement is confirmed");
-  await card(page, "Internet").getByRole("button", { name: "Abbrechen" }).click();
+  await listRow("Internet").getByRole("button", { name: "Abbrechen" }).click();
   check((await calls(page)).length === before, "cancelling the acknowledgement does nothing");
-  await card(page, "Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
-  await card(page, "Internet").getByRole("button", { name: "Ja, bestätigen" }).click();
-  await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
+  await listRow("Internet").getByRole("button", { name: "Kündigung bestätigen" }).click();
+  await listRow("Internet").getByRole("button", { name: "Ja, bestätigen" }).click();
+  await listRow("Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
   check((await calls(page)).length === before + 1, "warning acknowledgement also waits for confirmation");
-  await card(page, "Strom Haus").getByRole("button", { name: "Ja, bestätigen" }).click();
+  await listRow("Strom Haus").getByRole("button", { name: "Ja, bestätigen" }).click();
   const sent = (await calls(page)).map((c) => `${c.entry_id}:${c.action}`);
   check(sent.join(",") === "contract-5:confirm_cancellation,contract-1:confirm_abschlag_warning", `acknowledgements sent: ${sent}`);
   await context.close();
@@ -701,12 +710,15 @@ for (const width of [1280, 900, 600, 390]) {
   await page.clock.setFixedTime("2026-07-12T12:00:00Z");
   await page.goto(`${base}?lang=de&fail=1`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
-  await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).click();
-  await card(page, "Strom Haus").getByRole("button", { name: "Ja, bestätigen" }).click();
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  const strom = page.locator("details:not(.card)", { hasText: "Strom Haus" }).first();
+  await strom.locator("summary").click();
+  await strom.getByRole("button", { name: "Warnung bestätigen" }).click();
+  await strom.getByRole("button", { name: "Ja, bestätigen" }).click();
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
-  check((await card(page, "Strom Haus").locator(".err").innerText()).includes("fehlgeschlagen"), "error text is shown");
-  check(await card(page, "Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).isEnabled(), "button is usable again after an error");
-  await card(page, "Strom Haus").screenshot({ path: join(outDir, "actions-error.png") });
+  check((await strom.locator(".err").innerText()).includes("fehlgeschlagen"), "error text is shown");
+  check(await strom.getByRole("button", { name: "Warnung bestätigen" }).isEnabled(), "button is usable again after an error");
+  await strom.screenshot({ path: join(outDir, "actions-error.png") });
   await context.close();
 }
 
@@ -730,10 +742,13 @@ for (const width of [1280, 900, 600, 390]) {
   await page.clock.setFixedTime("2026-07-12T12:00:00Z");
   await page.goto(`${base}?lang=de&narrow=1`);
   await page.waitForFunction(() => window.__panel && window.__panel._compact === true);
-  check((await page.locator(".btn").count()) === 2, "phone: only the two acknowledgements are buttons on the cards");
-  check(!(await page.locator(".card .btn").first().isVisible()), "phone: buttons stay hidden until the row is expanded");
-  await page.locator("details.card", { hasText: "Internet" }).locator("summary").click();
-  check(await page.locator("details.card", { hasText: "Internet" }).getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");
+  check((await page.locator(".btn").count()) === 0, "phone: the cards of the overview have no buttons");
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  const acks = page.locator(".actions .btn");
+  check((await acks.count()) === 2, "phone: the two acknowledgements are buttons in the list");
+  check(!(await acks.first().isVisible()), "phone: buttons stay hidden until the row is expanded");
+  await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
+  check(await page.locator("details", { hasText: "Internet" }).first().getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");
   await context.close();
 }
 
