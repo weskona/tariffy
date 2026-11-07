@@ -2,7 +2,11 @@
   "domain": "tariffy",
   "name": "Tariffy",
   "after_dependencies": [
-    "recorder"
+    "frontend",
+    "http",
+    "panel_custom",
+    "recorder",
+    "websocket_api"
   ],
   "codeowners": [
     "@weskona"
@@ -13,5 +17,5 @@
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/weskona/tariffy/issues",
   "requirements": [],
-  "version": "1.26.7"
+  "version": "1.27.0"
 }

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.0] - 2026-11-07
+
+### Added
+
+- **Sidebar panel "Tariffy".** A new entry in the sidebar shows all contracts at a glance, with live values, in German and English (dark, card based design, compact expandable layout on phones). It has three views: the **overview** (four header tiles with the instalments per month, the cost so far, the forecast at contract end and the next dates; below, the metered contracts and the flat-rate contracts with one card each), the **costs** (two tables with totals) and the **contracts** (list with all details). The panel is delivered by the integration, uses the system font, needs no build step and no extra entities. Everyone who can use Home Assistant sees the values; customer numbers, meter numbers, MaLo-ID and notification target are never sent to the panel. If the panel cannot be set up, a warning is logged and the integration works as before. See `docs/wiki/Panel.md` (German) and `docs/wiki/English.md`.
+- **Administrators can work on contracts in the panel**, in the "Contracts" tab: acknowledge the low-instalment warning and the cancellation reminder, plan, edit or remove the next contract, edit a contract, create a new contract and delete one. Everything runs through the existing dialogs of Home Assistant (options flow, reconfigure flow, setup flow), so validation and storage are unchanged, and every action asks a second time (deleting needs the contract name typed). The panel offers no "Switch now": the contract switches itself on its planned date. Non-administrators only see the values; the backend checks the rights again.
+- The contract data contains the instalments due until today (`abschlag_bisher_gezahlt`; stops at the contract end and respects an instalment change). It is only a value for the panel: no new sensor, existing installations get no new entities.
+
+### Changed
+
+- When the credit already covers the costs until the end of the contract, the panel shows "No instalment needed: the credit covers the costs until the contract ends" instead of a negative recommendation; otherwise it says "Raise the instalment to ... per month" or "Instalment could drop to ... per month". The sensor "Instalment adjustment (recommended)" itself is unchanged.
+- The panel calls "Balance so far" "Balance today" and explains when the balance today and the forecast point in different directions (for example behind today, credit at the end).
+- Flat-rate contracts (internet, mobile, insurance, other) have their own cards and their own table. Their cost so far is the instalments due until today.
+- CI: the release workflow also runs on the `beta` branch and publishes pre-releases like `1.27.0-rc.1` (never marked as latest, so HACS only offers them to users who enabled beta versions). Stable releases from `main` work as before. See `docs/beta-releases.md`.
+
+### Fixed
+
+- Deleting a contract (in the panel or in Home Assistant) now also dismisses its open cancellation and low-instalment notifications. Until now they stayed in the notification list for good.
+- The "Cancellation reminder" drop-down shows "3 months before" instead of a bare "3" (the texts already existed but were not connected). The stored values are unchanged.
+
 ## [1.26.7] - 2026-11-06
 
 ### Fixed
@@ -229,7 +249,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No structured changelog prior to this version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.7...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0...HEAD
+[1.27.0]: https://github.com/weskona/tariffy/compare/v1.26.7...v1.27.0
 [1.26.7]: https://github.com/weskona/tariffy/compare/v1.26.6...v1.26.7
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5

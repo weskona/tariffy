@@ -424,7 +424,7 @@ def _common_schema(
         vol.Required(
             CONF_ERINNERUNG_MONATE, default=d.get(CONF_ERINNERUNG_MONATE, "3")
         )
-    ] = _select(ERINNERUNG_OPTIONS)
+    ] = _select(ERINNERUNG_OPTIONS, translation_key="erinnerung")
     notify_options = _notify_options(hass)
     if notify_options:
         fields[_opt(CONF_NOTIFY_TARGET, d.get(CONF_NOTIFY_TARGET))] = _select(notify_options, custom=True)

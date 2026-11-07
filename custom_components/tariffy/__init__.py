@@ -4,11 +4,24 @@ from __future__ import annotations
 
 import logging
 
+from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import CONF_SPARTE, PLATFORMS, SPARTEN_MIGRATION
+from .const import (
+    CONF_SPARTE,
+    NOTIFY_ID_ABSCHLAG_PREFIX,
+    NOTIFY_ID_PREFIX,
+    PLATFORMS,
+    SPARTEN_MIGRATION,
+)
 from .coordinator import TariffyCoordinator
+from .panel import (
+    async_attach_entry,
+    async_notify,
+    async_setup_panel,
+    async_unload_panel,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -45,6 +58,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: TariffyConfigEntry) -> b
     entry.runtime_data = coordinator
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # Sidebar panel. Best effort, never fails the setup of the contract.
+    await async_setup_panel(hass)
+    async_attach_entry(hass, entry, coordinator)
+    async_notify(hass)
     return True
 
 
@@ -52,4 +70,14 @@ async def async_unload_entry(
     hass: HomeAssistant, entry: TariffyConfigEntry
 ) -> bool:
     """Einen Vertrag entladen."""
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unloaded:
+        await async_unload_panel(hass, entry)
+        async_notify(hass)
+    return unloaded
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Ein geloeschter Vertrag hinterlaesst keine offenen Meldungen."""
+    for prefix in (NOTIFY_ID_PREFIX, NOTIFY_ID_ABSCHLAG_PREFIX):
+        persistent_notification.async_dismiss(hass, f"{prefix}{entry.entry_id}")

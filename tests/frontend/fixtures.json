@@ -1,0 +1,3717 @@
+{
+  "contracts": [
+    {
+      "abschlag": 40.0,
+      "abschlag_anpassung_empfohlen": 127.66,
+      "abschlag_bisher_gezahlt": 252.3,
+      "abschlag_warnung_aktiv": true,
+      "abschlag_warnung_zu_bestaetigen": true,
+      "anbieter": "Stadtwerke Nord",
+      "arbeitspreis": 0.2977,
+      "arbeitspreis_gesamt_wasser": null,
+      "arbeitspreis_ht": 0.2977,
+      "arbeitspreis_nacht": null,
+      "arbeitspreis_nt": null,
+      "beginn": "2026-01-01",
+      "currency": "EUR",
+      "effektiver_arbeitspreis": null,
+      "empfohlener_abschlag": null,
+      "ende": "2026-12-31",
+      "entry_id": "contract-1",
+      "erinnerung_aktiv": false,
+      "erinnerung_bestaetigt": false,
+      "erinnerung_datum": "2026-09-30",
+      "erinnerung_monate": 3,
+      "grundpreis": 11.51,
+      "guthaben_bisher": -261.24,
+      "jahreskosten": 478.32,
+      "kosten_bisher": 513.54,
+      "kosten_ht_bisher": null,
+      "kosten_nt_bisher": null,
+      "next": null,
+      "prognose_real": -495.29,
+      "restlaufzeit": 172,
+      "sparte": "electricity",
+      "tarif": "Öko Fix 12",
+      "title": "Strom Haus",
+      "verbrauch_bisher": 1481.17,
+      "verbrauch_bisher_ht": null,
+      "verbrauch_bisher_nt": null,
+      "verbrauch_einheit": "kWh",
+      "verbrauch_hochgerechnet": 2808.1,
+      "verbrauch_letzte_laufzeit": null,
+      "verbrauch_letzte_laufzeit_monate": null,
+      "wechsel": null
+    },
+    {
+      "abschlag": 140.0,
+      "abschlag_anpassung_empfohlen": -179.27,
+      "abschlag_bisher_gezahlt": 1444.15,
+      "abschlag_warnung_aktiv": false,
+      "abschlag_warnung_zu_bestaetigen": false,
+      "anbieter": "Energie Süd",
+      "arbeitspreis": 0.105,
+      "arbeitspreis_gesamt_wasser": null,
+      "arbeitspreis_ht": 0.105,
+      "arbeitspreis_nacht": null,
+      "arbeitspreis_nt": null,
+      "beginn": "2025-09-01",
+      "currency": "EUR",
+      "effektiver_arbeitspreis": null,
+      "empfohlener_abschlag": null,
+      "ende": "2026-08-31",
+      "entry_id": "contract-2",
+      "erinnerung_aktiv": false,
+      "erinnerung_bestaetigt": false,
+      "erinnerung_datum": null,
+      "erinnerung_monate": 0,
+      "grundpreis": 9.5,
+      "guthaben_bisher": 452.39,
+      "jahreskosten": 1674.11,
+      "kosten_bisher": 991.76,
+      "kosten_ht_bisher": null,
+      "kosten_nt_bisher": null,
+      "next": null,
+      "prognose_real": 524.42,
+      "restlaufzeit": 50,
+      "sparte": "gas",
+      "tarif": "Gas Basis",
+      "title": "Gas Heizung",
+      "verbrauch_bisher": 800.0,
+      "verbrauch_bisher_ht": null,
+      "verbrauch_bisher_nt": null,
+      "verbrauch_einheit": "m³",
+      "verbrauch_hochgerechnet": 927.4,
+      "verbrauch_letzte_laufzeit": null,
+      "verbrauch_letzte_laufzeit_monate": null,
+      "wechsel": null
+    },
+    {
+      "abschlag": 28.0,
+      "abschlag_anpassung_empfohlen": 32.39,
+      "abschlag_bisher_gezahlt": 176.61,
+      "abschlag_warnung_aktiv": false,
+      "abschlag_warnung_zu_bestaetigen": false,
+      "anbieter": "Stadtwerke Nord",
+      "arbeitspreis": 1.95,
+      "arbeitspreis_gesamt_wasser": 3.705,
+      "arbeitspreis_ht": 1.95,
+      "arbeitspreis_nacht": null,
+      "arbeitspreis_nt": null,
+      "beginn": "2026-01-01",
+      "currency": "EUR",
+      "effektiver_arbeitspreis": null,
+      "empfohlener_abschlag": null,
+      "ende": "2026-12-31",
+      "entry_id": "contract-3",
+      "erinnerung_aktiv": false,
+      "erinnerung_bestaetigt": false,
+      "erinnerung_datum": null,
+      "erinnerung_monate": 0,
+      "grundpreis": 6.0,
+      "guthaben_bisher": -13.14,
+      "jahreskosten": 334.82,
+      "kosten_bisher": 189.75,
+      "kosten_ht_bisher": null,
+      "kosten_nt_bisher": null,
+      "next": null,
+      "prognose_real": -24.81,
+      "restlaufzeit": 172,
+      "sparte": "water",
+      "tarif": "Trinkwasser",
+      "title": "Wasser",
+      "verbrauch_bisher": 41.0,
+      "verbrauch_bisher_ht": null,
+      "verbrauch_bisher_nt": null,
+      "verbrauch_einheit": "m³",
+      "verbrauch_hochgerechnet": 77.7,
+      "verbrauch_letzte_laufzeit": null,
+      "verbrauch_letzte_laufzeit_monate": null,
+      "wechsel": null
+    },
+    {
+      "abschlag": 55.0,
+      "abschlag_anpassung_empfohlen": 118.25,
+      "abschlag_bisher_gezahlt": 290.9,
+      "abschlag_warnung_aktiv": false,
+      "abschlag_warnung_zu_bestaetigen": false,
+      "anbieter": "Naturstrom",
+      "arbeitspreis": 0.276,
+      "arbeitspreis_gesamt_wasser": null,
+      "arbeitspreis_ht": 0.32,
+      "arbeitspreis_nacht": null,
+      "arbeitspreis_nt": 0.21,
+      "beginn": "2026-02-01",
+      "currency": "EUR",
+      "effektiver_arbeitspreis": null,
+      "empfohlener_abschlag": null,
+      "ende": "2027-01-31",
+      "entry_id": "contract-4",
+      "erinnerung_aktiv": false,
+      "erinnerung_bestaetigt": false,
+      "erinnerung_datum": null,
+      "erinnerung_monate": 0,
+      "grundpreis": 12.0,
+      "guthaben_bisher": -186.57,
+      "jahreskosten": 657.69,
+      "kosten_bisher": 477.47,
+      "kosten_ht_bisher": 288.0,
+      "kosten_nt_bisher": 126.0,
+      "next": null,
+      "prognose_real": -421.8,
+      "restlaufzeit": 203,
+      "sparte": "electricity_ht_nt",
+      "tarif": "Zweitarif",
+      "title": "Strom Wohnung (HT/NT)",
+      "verbrauch_bisher": 1500.0,
+      "verbrauch_bisher_ht": 900.0,
+      "verbrauch_bisher_nt": 600.0,
+      "verbrauch_einheit": "kWh",
+      "verbrauch_hochgerechnet": 3391.3,
+      "verbrauch_letzte_laufzeit": null,
+      "verbrauch_letzte_laufzeit_monate": null,
+      "wechsel": null
+    },
+    {
+      "abschlag": 39.99,
+      "abschlag_anpassung_empfohlen": null,
+      "abschlag_bisher_gezahlt": 373.1,
+      "abschlag_warnung_aktiv": false,
+      "abschlag_warnung_zu_bestaetigen": false,
+      "anbieter": "Glasfaser GmbH",
+      "arbeitspreis": null,
+      "arbeitspreis_gesamt_wasser": null,
+      "arbeitspreis_ht": null,
+      "arbeitspreis_nacht": null,
+      "arbeitspreis_nt": null,
+      "beginn": "2025-10-01",
+      "currency": "EUR",
+      "effektiver_arbeitspreis": null,
+      "empfohlener_abschlag": null,
+      "ende": "2026-09-30",
+      "entry_id": "contract-5",
+      "erinnerung_aktiv": true,
+      "erinnerung_bestaetigt": false,
+      "erinnerung_datum": "2026-06-30",
+      "erinnerung_monate": 3,
+      "grundpreis": null,
+      "guthaben_bisher": null,
+      "jahreskosten": 478.2,
+      "kosten_bisher": null,
+      "kosten_ht_bisher": null,
+      "kosten_nt_bisher": null,
+      "next": null,
+      "prognose_real": null,
+      "restlaufzeit": 80,
+      "sparte": "internet",
+      "tarif": "FTTH 300",
+      "title": "Internet",
+      "verbrauch_bisher": null,
+      "verbrauch_bisher_ht": null,
+      "verbrauch_bisher_nt": null,
+      "verbrauch_einheit": null,
+      "verbrauch_hochgerechnet": null,
+      "verbrauch_letzte_laufzeit": null,
+      "verbrauch_letzte_laufzeit_monate": null,
+      "wechsel": null
+    },
+    {
+      "abschlag": 19.99,
+      "abschlag_anpassung_empfohlen": null,
+      "abschlag_bisher_gezahlt": 226.56,
+      "abschlag_warnung_aktiv": false,
+      "abschlag_warnung_zu_bestaetigen": false,
+      "anbieter": "Mobil Eins",
+      "arbeitspreis": null,
+      "arbeitspreis_gesamt_wasser": null,
+      "arbeitspreis_ht": null,
+      "arbeitspreis_nacht": null,
+      "arbeitspreis_nt": null,
+      "beginn": "2025-08-01",
+      "currency": "EUR",
+      "effektiver_arbeitspreis": null,
+      "empfohlener_abschlag": null,
+      "ende": "2026-12-31",
+      "entry_id": "contract-6",
+      "erinnerung_aktiv": false,
+      "erinnerung_bestaetigt": false,
+      "erinnerung_datum": null,
+      "erinnerung_monate": 0,
+      "grundpreis": null,
+      "guthaben_bisher": null,
+      "jahreskosten": 339.51,
+      "kosten_bisher": null,
+      "kosten_ht_bisher": null,
+      "kosten_nt_bisher": null,
+      "next": {
+        "abschlag": 14.99,
+        "anbieter": "Mobil Plus",
+        "arbeitspreis": null,
+        "beginn": "2027-01-01",
+        "ende": "2028-12-31",
+        "tarif": "Flat 20 GB"
+      },
+      "prognose_real": null,
+      "restlaufzeit": 172,
+      "sparte": "mobile",
+      "tarif": "Flat 10 GB",
+      "title": "Mobilfunk",
+      "verbrauch_bisher": null,
+      "verbrauch_bisher_ht": null,
+      "verbrauch_bisher_nt": null,
+      "verbrauch_einheit": null,
+      "verbrauch_hochgerechnet": null,
+      "verbrauch_letzte_laufzeit": null,
+      "verbrauch_letzte_laufzeit_monate": null,
+      "wechsel": "2027-01-01"
+    }
+  ],
+  "create": {
+    "first": {
+      "data_schema": [
+        {
+          "name": "name",
+          "required": true,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "default": "electricity",
+          "name": "sparte",
+          "required": true,
+          "selector": {
+            "select": {
+              "custom_value": false,
+              "mode": "dropdown",
+              "multiple": false,
+              "options": [
+                "electricity",
+                "electricity_ht_nt",
+                "gas",
+                "water",
+                "internet",
+                "mobile",
+                "insurance",
+                "other"
+              ],
+              "sort": false,
+              "translation_key": "sparte"
+            }
+          }
+        },
+        {
+          "name": "anbieter",
+          "required": true,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "default": "3",
+          "name": "erinnerung_monate",
+          "required": true,
+          "selector": {
+            "select": {
+              "custom_value": false,
+              "mode": "dropdown",
+              "multiple": false,
+              "options": [
+                "0",
+                "1",
+                "2",
+                "3",
+                "4"
+              ],
+              "sort": false,
+              "translation_key": "erinnerung"
+            }
+          }
+        },
+        {
+          "name": "notify_target",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "select": {
+              "custom_value": true,
+              "mode": "dropdown",
+              "multiple": false,
+              "options": [
+                {
+                  "label": "notify.mobile_app_pixel",
+                  "value": "mobile_app_pixel"
+                }
+              ],
+              "sort": false
+            }
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": null,
+      "flow_id": "cflow-1",
+      "handler": "tariffy",
+      "last_step": null,
+      "preview": null,
+      "step_id": "user",
+      "type": "form"
+    },
+    "steps": {
+      "electricity": {
+        "data_schema": [
+          {
+            "default": 0.0,
+            "name": "arbeitspreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_aufschlag",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "grundpreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "jahresverbrauch",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any",
+                "unit_of_measurement": "kWh"
+              }
+            }
+          },
+          {
+            "name": "verbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "abschlag_warnung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "default": 50.0,
+            "name": "abschlag_warnung_schwelle",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "einspeiseverguetung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "bonus",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "oekostrom",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "zaehlernummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "marktlokation",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "preisgarantie",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "cflow-1",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "energie",
+        "type": "form"
+      },
+      "electricity_ht_nt": {
+        "data_schema": [
+          {
+            "default": 0.0,
+            "name": "arbeitspreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "arbeitspreis_nt",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_aufschlag",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "grundpreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "jahresverbrauch",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any",
+                "unit_of_measurement": "kWh"
+              }
+            }
+          },
+          {
+            "name": "verbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "verbrauch_sensor_nt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert_nt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "abschlag_warnung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "default": 50.0,
+            "name": "abschlag_warnung_schwelle",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "einspeiseverguetung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "bonus",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "oekostrom",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "zaehlernummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "zaehlernummer_nt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "marktlokation",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "preisgarantie",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "cflow-1",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "energie_ht_nt",
+        "type": "form"
+      },
+      "gas": {
+        "data_schema": [
+          {
+            "default": "m³",
+            "name": "gas_einheit",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "m³",
+                  "CCF",
+                  "therm",
+                  "ft³",
+                  "MBtu",
+                  "kWh"
+                ],
+                "sort": false
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "arbeitspreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "grundpreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "jahresverbrauch",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any",
+                "unit_of_measurement": "m³"
+              }
+            }
+          },
+          {
+            "name": "verbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": "11.0",
+            "name": "brennwert",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "default": "0.95",
+            "name": "zustandszahl",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "abschlag_warnung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "default": 50.0,
+            "name": "abschlag_warnung_schwelle",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "bonus",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "oekostrom",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "zaehlernummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "marktlokation",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "preisgarantie",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": {},
+        "flow_id": "cflow-1",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "gas",
+        "type": "form"
+      },
+      "internet": {
+        "data_schema": [
+          {
+            "default": 0.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "grundpreis",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "cflow-1",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "pauschal",
+        "type": "form"
+      },
+      "water": {
+        "data_schema": [
+          {
+            "default": "m³",
+            "name": "wasser_einheit",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "m³",
+                  "L",
+                  "gal",
+                  "ft³",
+                  "CCF"
+                ],
+                "sort": false
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "arbeitspreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "grundpreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 0.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": "price_per_unit",
+            "name": "abwasser_typ",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "price_per_unit",
+                  "percentage",
+                  "flat_rate"
+                ],
+                "sort": false
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_abwasser",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "jahresverbrauch",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "verbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "abschlag_warnung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "default": 50.0,
+            "name": "abschlag_warnung_schwelle",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "zaehlernummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "cflow-1",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "wasser",
+        "type": "form"
+      }
+    }
+  },
+  "flows": {
+    "contract-1": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_sensor",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "entity": {
+              "domain": [
+                "sensor"
+              ],
+              "multiple": false,
+              "reorder": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_aufschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_jahresverbrauch",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any",
+              "unit_of_measurement": "kWh"
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-1",
+      "handler": "contract-1",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-2": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_jahresverbrauch",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any",
+              "unit_of_measurement": "kWh"
+            }
+          }
+        },
+        {
+          "default": "m³",
+          "name": "next_gas_einheit",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "select": {
+              "custom_value": false,
+              "mode": "dropdown",
+              "multiple": false,
+              "options": [
+                "m³",
+                "CCF",
+                "therm",
+                "ft³",
+                "MBtu",
+                "kWh"
+              ],
+              "sort": false
+            }
+          }
+        },
+        {
+          "default": "",
+          "name": "next_brennwert",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "default": "",
+          "name": "next_zustandszahl",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-2",
+      "handler": "contract-2",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-3": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-3",
+      "handler": "contract-3",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-4": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_nt",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_verbrauch_sensor_nt",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "entity": {
+              "domain": [
+                "sensor"
+              ],
+              "multiple": false,
+              "reorder": false
+            }
+          }
+        },
+        {
+          "name": "next_zaehlernummer_nt",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_sensor",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "entity": {
+              "domain": [
+                "sensor"
+              ],
+              "multiple": false,
+              "reorder": false
+            }
+          }
+        },
+        {
+          "name": "next_arbeitspreis_aufschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any"
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_jahresverbrauch",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": "any",
+              "unit_of_measurement": "kWh"
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-4",
+      "handler": "contract-4",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-5": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-5",
+      "handler": "contract-5",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-6": {
+      "data_schema": [
+        {
+          "description": {
+            "suggested_value": "2027-01-01"
+          },
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "description": {
+            "suggested_value": "Mobil Plus"
+          },
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "description": {
+            "suggested_value": "Flat 20 GB"
+          },
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "description": {
+            "suggested_value": 14.99
+          },
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "description": {
+            "suggested_value": "2028-12-31"
+          },
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-6",
+      "handler": "contract-6",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    }
+  },
+  "reconfigure": {
+    "contract-1": {
+      "first": {
+        "data_schema": [
+          {
+            "default": "electricity",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Stadtwerke Nord",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "Öko Fix 12"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-01-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-12-31"
+            },
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "default": "3",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-1",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "default": 0.2977,
+            "name": "arbeitspreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_aufschlag",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 11.51,
+            "name": "grundpreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": 40.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "jahresverbrauch",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any",
+                "unit_of_measurement": "kWh"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "sensor.strom_haus"
+            },
+            "name": "verbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": true,
+            "name": "abschlag_warnung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "default": 50.0,
+            "name": "abschlag_warnung_schwelle",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "einspeiseverguetung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "bonus",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "oekostrom",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "zaehlernummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "marktlokation",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "preisgarantie",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-1",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure_energie",
+        "type": "form"
+      }
+    },
+    "contract-2": {
+      "first": {
+        "data_schema": [
+          {
+            "default": "gas",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Energie Süd",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "Gas Basis"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2025-09-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-08-31"
+            },
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "default": "0",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-2",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "default": "m³",
+            "name": "gas_einheit",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "m³",
+                  "CCF",
+                  "therm",
+                  "ft³",
+                  "MBtu",
+                  "kWh"
+                ],
+                "sort": false
+              }
+            }
+          },
+          {
+            "default": 0.105,
+            "name": "arbeitspreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 9.5,
+            "name": "grundpreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": 140.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "jahresverbrauch",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any",
+                "unit_of_measurement": "m³"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "sensor.gas_heizung"
+            },
+            "name": "verbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": "11.2",
+            "name": "brennwert",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "default": "0.95",
+            "name": "zustandszahl",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "abschlag_warnung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "default": 50.0,
+            "name": "abschlag_warnung_schwelle",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "bonus",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "oekostrom",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "zaehlernummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "marktlokation",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "preisgarantie",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": {},
+        "flow_id": "rflow-2",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure_gas",
+        "type": "form"
+      }
+    },
+    "contract-3": {
+      "first": {
+        "data_schema": [
+          {
+            "default": "water",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Stadtwerke Nord",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "Trinkwasser"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-01-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-12-31"
+            },
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "default": "0",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-3",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "default": "m³",
+            "name": "wasser_einheit",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "m³",
+                  "L",
+                  "gal",
+                  "ft³",
+                  "CCF"
+                ],
+                "sort": false
+              }
+            }
+          },
+          {
+            "default": 1.95,
+            "name": "arbeitspreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 6.0,
+            "name": "grundpreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 28.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": "percentage",
+            "name": "abwasser_typ",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "price_per_unit",
+                  "percentage",
+                  "flat_rate"
+                ],
+                "sort": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 90.0
+            },
+            "name": "arbeitspreis_abwasser",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "jahresverbrauch",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "sensor.wasser"
+            },
+            "name": "verbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "abschlag_warnung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "default": 50.0,
+            "name": "abschlag_warnung_schwelle",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "zaehlernummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-3",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure_wasser",
+        "type": "form"
+      }
+    },
+    "contract-4": {
+      "first": {
+        "data_schema": [
+          {
+            "default": "electricity_ht_nt",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Naturstrom",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "Zweitarif"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-02-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2027-01-31"
+            },
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "default": "0",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-4",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "default": 0.32,
+            "name": "arbeitspreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 0.21,
+            "name": "arbeitspreis_nt",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "arbeitspreis_aufschlag",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 12.0,
+            "name": "grundpreis",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": 55.0,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "jahresverbrauch",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any",
+                "unit_of_measurement": "kWh"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "sensor.wohnung_ht"
+            },
+            "name": "verbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "sensor.wohnung_nt"
+            },
+            "name": "verbrauch_sensor_nt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "verbrauch_start_wert_nt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "abschlag_warnung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "default": 50.0,
+            "name": "abschlag_warnung_schwelle",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "einspeiseverguetung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "name": "bonus",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "oekostrom",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "zaehlernummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "zaehlernummer_nt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "marktlokation",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "preisgarantie",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-4",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure_energie_ht_nt",
+        "type": "form"
+      }
+    },
+    "contract-5": {
+      "first": {
+        "data_schema": [
+          {
+            "default": "internet",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Glasfaser GmbH",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "FTTH 300"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2025-10-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-09-30"
+            },
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "default": "3",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-5",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "default": 39.99,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "grundpreis",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-5",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure_pauschal",
+        "type": "form"
+      }
+    },
+    "contract-6": {
+      "first": {
+        "data_schema": [
+          {
+            "default": "mobile",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Mobil Eins",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "Flat 10 GB"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2025-08-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-12-31"
+            },
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "default": "0",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-6",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "default": 19.99,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "grundpreis",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-6",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure_pauschal",
+        "type": "form"
+      }
+    }
+  },
+  "today": "2026-07-12"
+}

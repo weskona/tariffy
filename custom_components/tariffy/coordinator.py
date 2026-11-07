@@ -885,6 +885,18 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         abschlagssumme = round(abschlag * laufzeit_monate, 2) if abschlag is not None else None
 
+        # Bis heute faellige Abschlaege. Bei Pauschalvertraegen (Internet, Mobilfunk, ...)
+        # sind das die Kosten bisher. Bewusst nur ein Datenwert, kein Sensor: bestehende
+        # Installationen bekommen dadurch keine neuen Entitaeten.
+        abschlag_bisher_gezahlt_wert: float | None = None
+        if abschlag is not None and beginn is not None:
+            monate_bisher = max(0, (heute - beginn).days) / 30.44
+            if ende is not None:
+                monate_bisher = min(monate_bisher, laufzeit_monate)
+            abschlag_bisher_gezahlt_wert = round(
+                _abschlag_bisher_gezahlt(abschlag, monate_bisher, beginn, data), 2
+            )
+
         # ---- Echte Verbrauchsmessung via Sensor ----
         verbrauch_sensor = data.get(CONF_VERBRAUCH_SENSOR)
         verbrauch_bisher: float | None = None
@@ -1222,6 +1234,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ENDE: ende,
             "restlaufzeit": restlaufzeit,
             "jahreskosten": abschlagssumme,
+            "abschlag_bisher_gezahlt": abschlag_bisher_gezahlt_wert,
             "verbrauch_bisher": verbrauch_bisher,
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,
             "prognose_real": prognose_real,

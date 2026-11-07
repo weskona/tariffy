@@ -203,6 +203,14 @@ Opt-in per contract (electricity/gas/water with a configured consumption sensor)
 
 ---
 
+### Sidebar panel
+
+![Tariffy panel](docs/panel-preview/desktop-overview.png)
+
+Since version 1.27.0 a **Tariffy** page in the sidebar shows all contracts at a glance (overview, cost table, contract details) with live values. Administrators can also acknowledge the warning and the cancellation reminder, plan the next contract, edit, create and delete contracts there. Everything is stored through the existing dialogs of Home Assistant, every action asks a second time, and deleting a contract needs its name typed. All users see the values, only administrators get the buttons; customer and meter numbers are never sent to the panel. The panel needs no setup; after the update, reload the browser page once (Ctrl+F5).
+
+Details: [Panel documentation](docs/wiki/English.md#sidebar-panel)
+
 ### Installation via HACS
 
 1. HACS → Integrations → ⋮ → **Custom repositories**
@@ -479,6 +487,14 @@ Pro Vertrag zuschaltbar (Strom/Gas/Wasser mit konfiguriertem Verbrauchssensor): 
 > **Keine rückwirkende Neuberechnung bei Abschlags-Änderung.** Erhöhst oder senkst du deinen Abschlag mitten im Vertrag, merkt sich Tariffy Datum und vorherigen Wert und wendet den alten Abschlag korrekt nur bis zu diesem Zeitpunkt an, den neuen erst danach — „Guthaben/Nachzahlung (Bisher)", „Guthaben/Nachzahlung (Vertragsende)" und „Abschlag (Anpassung empfohlen)" springen nicht plötzlich so, als hätte der neue Abschlag schon seit Vertragsbeginn gegolten. Mehrere Korrekturen am selben Tag zählen als eine Änderung.
 
 ---
+
+### Seitenleisten-Panel
+
+![Tariffy-Panel](docs/panel-preview/desktop-overview.png)
+
+Seit Version 1.27.0 zeigt eine Seite **Tariffy** in der Seitenleiste alle Verträge auf einen Blick (Übersicht, Kostentabelle, Vertragsdetails) mit Live-Werten. Administratoren können dort außerdem Warnung und Kündigungs-Erinnerung bestätigen, den Folgevertrag planen sowie Verträge bearbeiten, anlegen und löschen. Gespeichert wird immer über die vorhandenen Dialoge von Home Assistant, jede Aktion fragt ein zweites Mal nach, und zum Löschen muss der Vertragsname getippt werden. Alle Benutzer sehen die Werte, nur Administratoren bekommen die Buttons; Kunden- und Zählernummern werden nie ans Panel geschickt. Das Panel braucht keine Einrichtung; nach dem Update die Browserseite einmal neu laden (Strg+F5).
+
+Details: [Panel-Dokumentation](docs/wiki/Panel.md)
 
 ### Installation via HACS
 

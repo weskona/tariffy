@@ -7,6 +7,26 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0] - 2026-11-07
+
+### Added
+
+- **Seitenleisten-Panel "Tariffy".** Ein neuer Eintrag in der Seitenleiste zeigt alle Verträge auf einen Blick, mit Live-Werten, auf Deutsch und Englisch (dunkles, kartenbasiertes Design, kompakte aufklappbare Ansicht auf dem Handy). Es hat drei Ansichten: die **Übersicht** (vier Kopfkacheln mit den Abschlägen pro Monat, den Kosten bisher, der Prognose zum Vertragsende und den nächsten Terminen; darunter die Verbrauchsverträge und die Pauschalverträge mit je einer Karte), die **Kosten** (zwei Tabellen mit Summen) und die **Verträge** (Liste mit allen Details). Das Panel wird von der Integration mitgeliefert, nutzt die Systemschrift, braucht keinen Build-Schritt und keine zusätzlichen Entitäten. Alle, die Home Assistant benutzen dürfen, sehen die Werte; Kundennummern, Zählernummern, MaLo-ID und Benachrichtigungsziel werden nie an das Panel gesendet. Lässt sich das Panel nicht einrichten, steht eine Warnung im Log und die Integration arbeitet wie bisher. Siehe `docs/wiki/Panel.md` (deutsch) und `docs/wiki/English.md`.
+- **Administratoren können Verträge im Panel bearbeiten**, im Tab "Verträge": die Abschlag-Warnung und die Kündigungs-Erinnerung bestätigen, den Folgevertrag planen, bearbeiten oder entfernen, einen Vertrag bearbeiten, einen neuen Vertrag anlegen und einen löschen. Alles läuft über die vorhandenen Dialoge von Home Assistant (Optionen, Neu konfigurieren, Einrichtung), Prüfung und Speicherung bleiben also unverändert, und jede Aktion fragt ein zweites Mal nach (zum Löschen muss der Vertragsname getippt werden). Ein "Jetzt wechseln" bietet das Panel nicht an: Der Vertrag wechselt am geplanten Datum von selbst. Benutzer ohne Administratorrechte sehen nur die Werte; das Backend prüft die Rechte zusätzlich.
+- Die Vertragsdaten enthalten die bis heute fälligen Abschläge (`abschlag_bisher_gezahlt`; endet am Vertragsende und berücksichtigt eine Abschlagsänderung). Das ist nur ein Wert für das Panel: kein neuer Sensor, bestehende Installationen bekommen keine neuen Entitäten.
+
+### Changed
+
+- Deckt das Guthaben die Kosten bis zum Vertragsende schon ab, zeigt das Panel "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende" statt einer negativen Empfehlung; sonst steht dort "Abschlag auf ... pro Monat erhöhen" oder "Abschlag könnte auf ... pro Monat sinken". Der Sensor "Abschlag-Anpassung (empfohlen)" selbst ist unverändert.
+- Das Panel nennt "Saldo bisher" jetzt "Saldo heute" und erklärt, wenn der Saldo heute und die Prognose in verschiedene Richtungen gehen (zum Beispiel Rückstand heute, Guthaben am Ende).
+- Pauschalverträge (Internet, Mobilfunk, Versicherung, Sonstiges) haben eigene Karten und eine eigene Tabelle. Ihre Kosten bisher sind die bis heute fälligen Abschläge.
+- CI: Der Release-Workflow läuft auch auf dem Branch `beta` und veröffentlicht Vorabversionen wie `1.27.0-rc.1` (nie als "latest" markiert, damit HACS sie nur Nutzern anbietet, die Beta-Versionen eingeschaltet haben). Stabile Releases von `main` funktionieren wie bisher. Siehe `docs/beta-releases.md`.
+
+### Fixed
+
+- Beim Löschen eines Vertrags (im Panel oder in Home Assistant) werden jetzt auch seine offenen Kündigungs- und Abschlag-Benachrichtigungen entfernt. Bisher blieben sie dauerhaft in der Benachrichtigungsliste.
+- Das Dropdown "Kündigungs-Erinnerung" zeigt "3 Monate vorher" statt einer nackten "3" (die Texte gab es schon, sie waren nur nicht verbunden). Die gespeicherten Werte bleiben unverändert.
+
 ## [1.26.7] - 2026-11-06
 
 ### Fixed
@@ -235,7 +255,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 Keine strukturierte Changelog-Historie vor dieser Version.
 
-[Unreleased]: https://github.com/weskona/tariffy/compare/v1.26.7...HEAD
+[Unreleased]: https://github.com/weskona/tariffy/compare/v1.27.0...HEAD
+[1.27.0]: https://github.com/weskona/tariffy/compare/v1.26.7...v1.27.0
 [1.26.7]: https://github.com/weskona/tariffy/compare/v1.26.6...v1.26.7
 [1.26.6]: https://github.com/weskona/tariffy/compare/v1.26.5...v1.26.6
 [1.26.5]: https://github.com/weskona/tariffy/compare/v1.26.4...v1.26.5

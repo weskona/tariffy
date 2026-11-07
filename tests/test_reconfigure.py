@@ -11,14 +11,8 @@ from __future__ import annotations
 import pytest
 from homeassistant.data_entry_flow import FlowResultType
 
-from .test_coordinator import SENSOR, STROM
-
-GOLDEN = {
-    "today": "2026-07-12",
-    "latest": (2481.17, 2481.17),
-    "offset": (1000.0, 1000.0),
-    "sensor_states": {SENSOR: "2481.17"},
-}
+from .test_coordinator import STROM
+from .test_panel import GOLDEN, frontend_env  # noqa: F401  (fixture)
 
 INTERNAL = {
     "_kuendigung_bestaetigt": True,
@@ -69,7 +63,7 @@ async def _contract(contract, **extra):
     return await contract.setup(data, **GOLDEN)
 
 
-async def test_nothing_is_lost_when_the_form_is_saved_unchanged(contract, hass):
+async def test_nothing_is_lost_when_the_form_is_saved_unchanged(frontend_env, contract, hass):  # noqa: F811
     entry, _ = await _contract(contract)
     data = await _reconfigure(hass, entry)
     for key, value in INTERNAL.items():
@@ -78,7 +72,7 @@ async def test_nothing_is_lost_when_the_form_is_saved_unchanged(contract, hass):
     assert data["ende"] == "2026-12-31"
 
 
-async def test_edited_fields_are_stored_and_internal_state_stays(contract, hass):
+async def test_edited_fields_are_stored_and_internal_state_stays(frontend_env, contract, hass):  # noqa: F811
     entry, _ = await _contract(contract)
     data = await _reconfigure(hass, entry, first={"tarif": "Neu"}, second={"arbeitspreis": 0.31})
     assert data["tarif"] == "Neu"
@@ -91,7 +85,7 @@ async def test_edited_fields_are_stored_and_internal_state_stays(contract, hass)
     ("first", "what"),
     [({"ende": "2027-03-31"}, "end date"), ({"erinnerung_monate": "1"}, "lead time")],
 )
-async def test_the_reminder_starts_over_when_its_basis_changes(contract, hass, first, what):
+async def test_the_reminder_starts_over_when_its_basis_changes(frontend_env, contract, hass, first, what):  # noqa: F811
     entry, _ = await _contract(contract)
     data = await _reconfigure(hass, entry, first=first)
     assert not (REMINDER & set(data)), f"reminder state must be reset when the {what} changes"
@@ -99,7 +93,7 @@ async def test_the_reminder_starts_over_when_its_basis_changes(contract, hass, f
     assert data["verbrauch_letzte_laufzeit"] == 1481.17
 
 
-async def test_an_instalment_change_is_still_stamped(contract, hass):
+async def test_an_instalment_change_is_still_stamped(frontend_env, contract, hass):  # noqa: F811
     entry, _ = await _contract(contract)
     data = await _reconfigure(hass, entry, second={"abschlag": 100.0})
     assert data["abschlag"] == 100.0
@@ -108,7 +102,7 @@ async def test_an_instalment_change_is_still_stamped(contract, hass):
     assert data["_kuendigung_bestaetigt"] is True
 
 
-async def test_a_cleared_optional_field_is_removed(contract, hass):
+async def test_a_cleared_optional_field_is_removed(frontend_env, contract, hass):  # noqa: F811
     entry, _ = await _contract(contract, kundennummer="K-1")
     result = await hass.config_entries.flow.async_init(
         "tariffy", context={"source": "reconfigure", "entry_id": entry.entry_id}

@@ -7,6 +7,10 @@
 3. Tariffy installieren → HA neu starten
 4. Einstellungen → Integrationen → **Tariffy** → Hinzufügen
 
+## Panel
+
+Ab Version 1.27.0 bringt die Integration ein Seitenleisten-Panel mit. Es braucht keine Einrichtung, nach dem Update die Browserseite einmal hart neu laden (Strg+F5). Mehr dazu unter [Panel](Panel).
+
 ## Manuelle Installation
 
 ```bash

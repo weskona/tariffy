@@ -1,0 +1,112 @@
+<!doctype html>
+<!-- Preview harness for the Tariffy panel: a mock `hass` fed with fixtures.json,
+     which tests/test_panel_fixtures.py keeps in sync with the real backend.
+     Query: ?lang=de|en  &state=loading|empty|error  &narrow=1  &admin=0  &fail=1  &flowfail=1 (backend rejects the form)  &flowerr=1 (REST error)  &reload=N (action answers not_found N times)  &deletefail=1 (removing fails) -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tariffy panel preview</title>
+  <style>html,body{margin:0;background:#0b0d12;height:100%}</style>
+</head>
+<body>
+<script type="module">
+  const params = new URLSearchParams(location.search);
+  const state = params.get("state");
+  const fixtures = await (await fetch("./fixtures.json")).json();
+  const lang = params.get("lang") || "de";
+  const translations = await (await fetch(`/custom_components/tariffy/translations/${lang === "en" ? "en" : "de"}.json`)).json();
+  // what hass.loadBackendTranslation() hands back: a lookup by the full key
+  const localize = (key) => key.replace(/^component\.tariffy\./, "").split(".")
+    .reduce((node, part) => (node && typeof node === "object" ? node[part] : undefined), translations) || "";
+
+  await import("/custom_components/tariffy/frontend/tariffy-panel.js");
+
+  const panel = document.createElement("tariffy-panel");
+  panel.style.minHeight = "100vh";
+  document.body.appendChild(panel);
+  panel.narrow = params.get("narrow") === "1";
+  window.__calls = [];
+  window.__api = [];
+  let notFound = Number(params.get("reload") || 0);
+  const reconfigureSteps = {};
+  let createSteps = 0;
+  panel.hass = {
+    user: { is_admin: params.get("admin") !== "0" },
+    callWS: async (message) => {
+      window.__calls.push(message);
+      if (message.action === "confirm_cancellation" && notFound > 0) {
+        notFound -= 1;
+        throw Object.assign(new Error("Contract not found or not loaded"), { code: "not_found" });
+      }
+      if (params.get("fail") === "1") throw new Error("Action switch_now is not available right now");
+      return { ok: true };
+    },
+    states: { "sensor.strom_haus": {}, "sensor.preis_dynamisch": {}, "light.kueche": {} },
+    localize,
+    loadBackendTranslation: async () => localize,
+    callApi: async (method, path, body) => {
+      window.__api.push({ method, path, body });
+      if (params.get("flowerr") === "1" && method === "POST") {
+        throw { status_code: 400, body: { message: "Invalid flow specified" } };
+      }
+      // "Add entry": name and sparte first, then the step of the chosen sparte, then the entry is created
+      if (method === "POST" && path === "config/config_entries/flow" && !body.entry_id) {
+        createSteps = 0;
+        return JSON.parse(JSON.stringify(fixtures.create.first));
+      }
+      if (method === "POST" && path === "config/config_entries/flow/cflow-1") {
+        createSteps += 1;
+        if (createSteps === 1) {
+          return JSON.parse(JSON.stringify(fixtures.create.steps[body.sparte] || fixtures.create.steps.internet));
+        }
+        return { type: "create_entry", flow_id: "cflow-1", handler: "tariffy", title: "Neuer Vertrag", result: "entry" };
+      }
+      if (method === "DELETE" && path.startsWith("config/config_entries/entry/")) {
+        if (params.get("deletefail") === "1") throw { status_code: 400, body: { message: "Config entry not found" } };
+        return { require_restart: false };
+      }
+      // "Reconfigure": two steps, then Home Assistant aborts the flow with "reconfigure_successful"
+      if (method === "POST" && path === "config/config_entries/flow") {
+        reconfigureSteps[body.entry_id] = 0;
+        return JSON.parse(JSON.stringify(fixtures.reconfigure[body.entry_id].first));
+      }
+      const step = path.match(/^config\/config_entries\/flow\/rflow-(\d+)$/);
+      if (method === "POST" && step) {
+        const key = `contract-${step[1]}`;
+        reconfigureSteps[key] = (reconfigureSteps[key] || 0) + 1;
+        if (reconfigureSteps[key] === 1 || params.get("flowfail") === "1") {
+          const form = JSON.parse(JSON.stringify(fixtures.reconfigure[key].second));
+          if (params.get("flowfail") === "1") form.errors = { [form.data_schema[0].name]: "invalid_number" };
+          return form;
+        }
+        return { type: "abort", flow_id: `rflow-${step[1]}`, handler: "tariffy", reason: "reconfigure_successful" };
+      }
+      if (method === "POST" && path === "config/config_entries/options/flow") {
+        return JSON.parse(JSON.stringify(fixtures.flows[body.handler]));
+      }
+      if (method === "POST") {
+        if (params.get("flowfail") === "1") {
+          const form = JSON.parse(JSON.stringify(fixtures.flows[Object.keys(fixtures.flows)[0]]));
+          form.errors = { next_abschlag: "invalid_number" };
+          return form;
+        }
+        return { type: "create_entry", flow_id: path.split("/").pop(), result: null };
+      }
+      return { message: "Flow aborted" };
+    },
+    language: lang,
+    locale: { language: params.get("lang") === "en" ? "en-GB" : "de-DE" },
+    connection: {
+      subscribeMessage: async (callback) => {
+        if (state === "error") throw new Error("Unknown command.");
+        if (state === "loading") return () => {};
+        callback({ contracts: state === "empty" ? [] : fixtures.contracts });
+        return () => {};
+      },
+    },
+  };
+  window.__panel = panel;
+</script>
+</body>
+</html>

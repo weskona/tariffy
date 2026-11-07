@@ -693,3 +693,46 @@ class TestSensorSetAfterSwitch:
 
         assert entry.data["tiered"] is True
         assert self._tiered_sensor(hass, entry) is not None
+
+
+class TestInstalmentsDueForFlatRateContracts:
+    """Pauschalvertraege (Internet, Mobilfunk, ...) haben keinen Verbrauch; ihre Kosten
+    bisher sind die bis heute faelligen Abschlaege (`abschlag_bisher_gezahlt`)."""
+
+    INTERNET = {
+        "sparte": "internet", "anbieter": "Glasfaser", "abschlag": 39.99,
+        "beginn": "2025-10-01", "ende": "2026-09-30", "erinnerung_monate": "0",
+    }
+
+    async def test_until_today(self, setup_contract):
+        _, d = await setup_contract(self.INTERNET, today="2026-07-12")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 284 / 30.44, abs=0.01)
+
+    async def test_stops_at_the_contract_end(self, setup_contract):
+        _, d = await setup_contract(self.INTERNET, today="2026-12-01")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 364 / 30.44, abs=0.01)
+
+    async def test_without_an_end_date_it_keeps_counting(self, setup_contract):
+        data = {k: v for k, v in self.INTERNET.items() if k != "ende"}
+        _, d = await setup_contract(data, today="2027-10-01")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 730 / 30.44, abs=0.01)
+
+    async def test_not_started_yet_is_zero(self, setup_contract):
+        data = {**self.INTERNET, "beginn": "2026-08-01", "ende": "2027-07-31"}
+        _, d = await setup_contract(data, today="2026-07-12")
+        assert d["abschlag_bisher_gezahlt"] == 0.0
+
+    async def test_an_instalment_change_is_respected(self, setup_contract):
+        data = {**self.INTERNET, "_abschlag_ab_datum": "2026-01-01", "_abschlag_vorheriger_wert": 30.0}
+        _, d = await setup_contract(data, today="2026-07-12")
+        expected = 30.0 * 92 / 30.44 + 39.99 * (284 - 92) / 30.44
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(expected, abs=0.01)
+
+    async def test_without_a_start_date_there_is_no_value(self, setup_contract):
+        data = {k: v for k, v in self.INTERNET.items() if k != "beginn"}
+        _, d = await setup_contract(data, today="2026-07-12")
+        assert d["abschlag_bisher_gezahlt"] is None
+
+    async def test_it_adds_no_entity(self, setup_contract, hass):
+        await setup_contract(self.INTERNET, today="2026-07-12")
+        assert not [e for e in hass.states.async_entity_ids() if "abschlag_bisher_gezahlt" in e]
