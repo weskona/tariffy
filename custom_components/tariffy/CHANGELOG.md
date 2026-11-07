@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.0-rc.5] - 2026-11-07
+
+Fünfter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- Die zweite Zeile eines Vertrags im Panel zeigt nur noch Anbieter und Tarif. Die Sparte ("Strom", "Gas", ...) steht dort nicht mehr doppelt, das Symbol zeigt sie und der Name sagt es oft ohnehin.
+
 ## [1.27.0-rc.4] - 2026-11-07
 
 Vierter Release Candidate zum Testen des Seitenleisten-Panels. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
