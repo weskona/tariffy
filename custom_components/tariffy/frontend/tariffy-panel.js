@@ -311,7 +311,7 @@ section.card .foot { padding-top: 12px; }
 .chip.orange { background: rgba(251,146,60,.15); color: var(--orange); }
 .chip.blue { background: rgba(96,165,250,.15); color: var(--blue); }
 
-.hero { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 16px 0 14px; }
+.hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin: 16px 0 14px; }
 .hero > div:first-child { min-width: 0; }
 .ring { position: relative; flex: none; width: 84px; height: 84px; }
 .ring svg { width: 84px; height: 84px; transform: rotate(-90deg); }

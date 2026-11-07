@@ -517,7 +517,7 @@ for (const width of [1280, 900, 600, 390]) {
       const el = card && card.querySelector(sel);
       return el ? Math.round(el.getBoundingClientRect().top - card.getBoundingClientRect().top) : null;
     });
-    return { hero: tops(".hero"), tiles: tops(".tiles"), bars: tops(".bars"), foot: tops(".foot") };
+    return { hero: tops(".hero .label"), ring: tops(".ring"), big: tops(".big"), tiles: tops(".tiles"), bars: tops(".bars"), foot: tops(".foot") };
   });
   for (const [part, tops] of Object.entries(rowTops)) {
     check(tops.every((v) => v !== null) && new Set(tops).size === 1, `${part} starts at the same height in all cards of the row (${tops})`);
