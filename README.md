@@ -3,6 +3,14 @@
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/Home%20Assistant-2026.6%2B-blue.svg)](https://www.home-assistant.io)
 [![Version](https://img.shields.io/github/v/release/weskona/tariffy)](https://github.com/weskona/tariffy/releases)
+[![Validate](https://github.com/weskona/tariffy/actions/workflows/validate.yml/badge.svg)](https://github.com/weskona/tariffy/actions/workflows/validate.yml)
+[![Downloads](https://img.shields.io/github/downloads/weskona/tariffy/total)](https://github.com/weskona/tariffy/releases)
+[![Stars](https://img.shields.io/github/stars/weskona/tariffy?style=flat)](https://github.com/weskona/tariffy/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/weskona/tariffy)](https://github.com/weskona/tariffy/commits/main)
+[![Open issues](https://img.shields.io/github/issues/weskona/tariffy)](https://github.com/weskona/tariffy/issues)
+[![License: MIT](https://img.shields.io/github/license/weskona/tariffy)](LICENSE)
+![Languages](https://img.shields.io/badge/languages-DE%20%7C%20EN-informational.svg)
+![Sidebar panel](https://img.shields.io/badge/sidebar%20panel-since%201.27-8b5cf6.svg)
 
 **[🇩🇪 Deutsche Version weiter unten](#-deutsch)**
 
@@ -205,7 +213,18 @@ Opt-in per contract (electricity/gas/water with a configured consumption sensor)
 
 ### Sidebar panel
 
-![Tariffy panel](docs/panel-preview/desktop-overview.png)
+![Tariffy panel: overview](docs/panel-preview/english-overview.png)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/panel-preview/english-costs.png" alt="Tariffy panel: costs"></td>
+<td width="50%"><img src="docs/panel-preview/english-contracts.png" alt="Tariffy panel: contracts"></td>
+</tr>
+</table>
+
+On a phone the cards turn into expandable rows:
+
+<img src="docs/panel-preview/mobile-overview.png" alt="Tariffy panel on a phone" width="260">
 
 Since version 1.27.0 a **Tariffy** page in the sidebar shows all contracts at a glance (overview, cost table, contract details) with live values. Administrators can also acknowledge the warning and the cancellation reminder, plan the next contract, edit, create and delete contracts there. Everything is stored through the existing dialogs of Home Assistant, every action asks a second time, and deleting a contract needs its name typed. All users see the values, only administrators get the buttons; customer and meter numbers are never sent to the panel. The panel needs no setup; after the update, reload the browser page once (Ctrl+F5).
 
@@ -490,7 +509,18 @@ Pro Vertrag zuschaltbar (Strom/Gas/Wasser mit konfiguriertem Verbrauchssensor): 
 
 ### Seitenleisten-Panel
 
-![Tariffy-Panel](docs/panel-preview/desktop-overview.png)
+![Tariffy-Panel: Übersicht](docs/panel-preview/desktop-overview.png)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/panel-preview/desktop-costs.png" alt="Tariffy-Panel: Kosten"></td>
+<td width="50%"><img src="docs/panel-preview/desktop-contracts.png" alt="Tariffy-Panel: Verträge"></td>
+</tr>
+</table>
+
+Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
+
+<img src="docs/panel-preview/mobile-overview.png" alt="Tariffy-Panel auf dem Handy" width="260">
 
 Seit Version 1.27.0 zeigt eine Seite **Tariffy** in der Seitenleiste alle Verträge auf einen Blick (Übersicht, Kostentabelle, Vertragsdetails) mit Live-Werten. Administratoren können dort außerdem Warnung und Kündigungs-Erinnerung bestätigen, den Folgevertrag planen sowie Verträge bearbeiten, anlegen und löschen. Gespeichert wird immer über die vorhandenen Dialoge von Home Assistant, jede Aktion fragt ein zweites Mal nach, und zum Löschen muss der Vertragsname getippt werden. Alle Benutzer sehen die Werte, nur Administratoren bekommen die Buttons; Kunden- und Zählernummern werden nie ans Panel geschickt. Das Panel braucht keine Einrichtung; nach dem Update die Browserseite einmal neu laden (Strg+F5).
 

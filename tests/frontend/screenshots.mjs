@@ -60,7 +60,7 @@ for (const shot of shots) {
 }
 
 // states and English
-for (const [name, query] of [["state-empty", "state=empty"], ["state-error", "state=error"], ["english-overview", "lang=en"]]) {
+for (const [name, query] of [["state-empty", "state=empty"], ["state-error", "state=error"]]) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 700 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
   page.on("pageerror", (e) => errors.push(`${name}: ${e.message}`));
@@ -68,6 +68,23 @@ for (const [name, query] of [["state-empty", "state=empty"], ["state-error", "st
   await page.goto(`${base}?${query}`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".brand"));
   await page.screenshot({ path: join(outDir, `${name}.png`), fullPage: false });
+  await context.close();
+}
+
+// English, full page, for the README (960 px wide: two cards per row, so no label breaks inside a word)
+for (const [tab, index] of tabs) {
+  const context = await browser.newContext({ viewport: { width: 960, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`english/${tab}: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=en`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".tabs"));
+  await page.evaluate((i) => window.__panel.shadowRoot.querySelectorAll(".tab")[i].click(), index);
+  if (tab === "contracts") {
+    await page.evaluate(() => window.__panel.shadowRoot.querySelectorAll("details").forEach((d, i) => { if (i < 2) d.open = true; }));
+  }
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: join(outDir, `english-${tab}.png`), fullPage: true });
   await context.close();
 }
 
