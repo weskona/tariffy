@@ -81,6 +81,8 @@ const I18N = {
     dlgAborted: "Home Assistant ended the form: {m}",
     dlgUnsupported: "This form has fields the panel cannot show yet. Please use the setup of Home Assistant.",
     coveredHint: "Credit covers the costs",
+    adviceRaise: "Raise the instalment to {v} per month", adviceLower: "Instalment could drop to {v} per month",
+    adviceNone: "No instalment needed: the credit covers the costs until the contract ends", adviceOk: "The instalment fits",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
       water: "Water", internet: "Internet", mobile: "Mobile", insurance: "Insurance", other: "Other",
@@ -160,6 +162,8 @@ const I18N = {
     dlgAborted: "Home Assistant hat das Formular beendet: {m}",
     dlgUnsupported: "Dieses Formular enthält Felder, die das Panel noch nicht anzeigen kann. Bitte die Einrichtung von Home Assistant benutzen.",
     coveredHint: "Guthaben deckt die Kosten",
+    adviceRaise: "Abschlag auf {v} pro Monat erhöhen", adviceLower: "Abschlag könnte auf {v} pro Monat sinken",
+    adviceNone: "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende", adviceOk: "Der Abschlag passt",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
       water: "Wasser", internet: "Internet", mobile: "Mobilfunk", insurance: "Versicherung", other: "Sonstiges",
@@ -638,6 +642,16 @@ class TariffyPanel extends HTMLElement {
     return isNum(value) ? this._money(Math.max(0, value), currency, { digits: 2 }) : "–";
   }
 
+  /* What the recommended instalment means for the current one: raise it, lower it, none needed, or fine as it is. */
+  _advice(c) {
+    const rec = c.abschlag_anpassung_empfohlen;
+    if (!isNum(rec)) return null;
+    if (rec < 0) return this._t("adviceNone");
+    const v = this._money(rec, c.currency, { digits: 2 });
+    if (!isNum(c.abschlag) || Math.abs(rec - c.abschlag) < 0.5) return this._t("adviceOk");
+    return this._t(rec > c.abschlag ? "adviceRaise" : "adviceLower", { v });
+  }
+
   _covered(value) {
     return isNum(value) && value < 0;
   }
@@ -920,8 +934,7 @@ class TariffyPanel extends HTMLElement {
       : isNum(c.abschlag)
       ? `${this._t("instalment")}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
         (isNum(c.abschlag_anpassung_empfohlen)
-          ? ` · ${this._t("recommended")}: ${this._instalment(c.abschlag_anpassung_empfohlen, c.currency)}` +
-            (this._covered(c.abschlag_anpassung_empfohlen) ? ` (${this._t("coveredHint")})` : "")
+          ? ` · ${this._advice(c)}`
           : "")
       : null;
 
@@ -1618,10 +1631,7 @@ class TariffyPanel extends HTMLElement {
       ]) : null,
       section(this._t("secAdvice"), [
         row(this._t("recommended"), isNum(c.empfohlener_abschlag) ? `${money(c.empfohlener_abschlag)} ${this._t("perMonth")}` : null),
-        row(this._t("adjustment"), isNum(c.abschlag_anpassung_empfohlen)
-          ? `${this._instalment(c.abschlag_anpassung_empfohlen, c.currency)} ${this._t("perMonth")}` +
-            (this._covered(c.abschlag_anpassung_empfohlen) ? ` · ${this._t("coveredHint")}` : "")
-          : null),
+        row(this._t("adjustment"), this._advice(c)),
       ]),
       c.next ? section(this._t("secNext"), [
         row(this._t("nextStart"), nxt.beginn ? this._date(nxt.beginn) : null),
