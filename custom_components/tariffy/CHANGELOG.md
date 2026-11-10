@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.1] - 2026-11-10
+
+### Behoben
+
+- **Verbrauchs- und Guthaben-Sensoren fielen zeitweise auf "Unbekannt", wenn ein "Zählerstand bei Vertragsbeginn" eingetragen war und der Zähler kurz nicht verfügbar war** (Wasser, Gas, Strom, auch das Niedertarif-Register beim Zweizählertarif). Mit manuellem Startwert wurde nur der Live-Zustand des Zählers gelesen. Ist er `unavailable` oder `unknown`, wird jetzt der zuletzt aufgezeichnete Statistikwert verwendet. Ohne jeden Messwert bleiben die Sensoren wie bisher unbekannt. Gemeldet in #46.
+
 ## [1.27.0] - 2026-11-07
 
 ### Added
