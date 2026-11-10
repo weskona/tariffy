@@ -193,6 +193,24 @@ class TestConsumptionTracking:
         )
         assert d["verbrauch_bisher"] == pytest.approx(300.5)
 
+    async def test_manual_start_value_survives_unavailable_meter(self, setup_contract):
+        data = {**STROM, "verbrauch_start_wert": 5000.0}
+        _, d = await setup_contract(
+            data,
+            latest=(5300.5, 5300.5),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        # live state missing -> last recorded statistics state is used
+        assert d["verbrauch_bisher"] == pytest.approx(300.5)
+
+    async def test_manual_start_value_unknown_without_any_reading(self, setup_contract):
+        data = {**STROM, "verbrauch_start_wert": 5000.0}
+        _, d = await setup_contract(
+            data, sensor_states={SENSOR: "unavailable"}
+        )
+        assert d["verbrauch_bisher"] is None
+
     async def test_meter_reset_is_handled_via_sum(self, setup_contract):
         _, d = await setup_contract(
             STROM,
