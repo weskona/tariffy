@@ -7,6 +7,13 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.2] - 2026-11-10
+
+### Hinzugefügt
+
+- **Diagnose-Download.** In Home Assistant unter Einstellungen > Geräte & Dienste > Tariffy > Menü des Vertrags > „Diagnose herunterladen" gibt es eine Datei mit den Einstellungen, den zuletzt berechneten Werten, ob das letzte Update geklappt hat, wie der Verbrauch ermittelt wurde (manueller Startwert oder Statistik, mit den Rohwerten) und dem Zustand des Zählersensors. Kundennummer, Zählernummer, Marktlokation (MaLo-ID) und Benachrichtigungsziel sind geschwärzt. Diese Datei bitte an eine Fehlermeldung anhängen.
+- **Eine Zeile im Log, wenn der Verbrauch unbekannt wird.** Kann „Verbrauch (Bisher)" nicht berechnet werden, schreibt Tariffy eine Warnung mit dem Grund in das Home-Assistant-Protokoll (ohne Debug-Protokollierung), und eine Info-Zeile, sobald er wieder bekannt ist. Solange der Zustand gleich bleibt, wird nichts geloggt, das Protokoll läuft also nicht voll.
+
 ## [1.27.1] - 2026-11-10
 
 ### Behoben

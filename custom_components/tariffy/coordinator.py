@@ -402,6 +402,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset_nt: float | None = None
         self._verbrauch_offset_state_nt: float | None = None
         self._verbrauch_offset_date_nt: date | None = None
+        # Fuer den Diagnose-Download und die Warnung im Log: wie der
+        # Verbrauch beim letzten Update ermittelt wurde (siehe diagnostics.py).
+        self.verbrauch_diag: dict[str, Any] = {}
+        self._verbrauch_war_unbekannt = False
 
         async def _startup_refresh(_event: Any = None) -> None:
             """Refresh nach HA-Start, damit LTS-Daten verfügbar sind."""
@@ -714,6 +718,31 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         offset_sum, offset_state = await offset_getter(sensor_id, beginn)
         return _pick_verbrauch_delta(aktuell_sum, offset_sum, aktuell_state, offset_state)
 
+    def _log_verbrauch_status(
+        self, sensor_id: str, verbrauch_bisher: float | None, diag: dict[str, Any]
+    ) -> None:
+        """Merkt sich, wie der Verbrauch ermittelt wurde, und schreibt genau
+        eine Zeile ins Log, wenn er unbekannt wird (und eine, wenn er wieder
+        da ist) -- ohne dass der Nutzer die Debug-Protokollierung einschalten
+        muss. Kein Log bei jedem Update, damit das Protokoll nicht volllaeuft."""
+        self.verbrauch_diag = {
+            **diag,
+            "sensor": sensor_id,
+            "zeitpunkt": dt_util.now().isoformat(),
+        }
+        unbekannt = verbrauch_bisher is None
+        if unbekannt and not self._verbrauch_war_unbekannt:
+            _LOGGER.warning(
+                "Tariffy '%s': Verbrauch bisher ist unbekannt (Sensor %s). Details: %s",
+                self.entry.title, sensor_id, diag,
+            )
+        elif not unbekannt and self._verbrauch_war_unbekannt:
+            _LOGGER.info(
+                "Tariffy '%s': Verbrauch bisher ist wieder bekannt (%s).",
+                self.entry.title, verbrauch_bisher,
+            )
+        self._verbrauch_war_unbekannt = unbekannt
+
     # --------------------------------------------------------------- Update
     async def _verbrauch_letzte_laufzeit_jetzt(self) -> float | None:
         """Verbrauch der (noch) laufenden Laufzeit bis jetzt, zum Einfrieren
@@ -916,6 +945,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         prognose_real: float | None = None
         abschlag_anpassung_empfohlen: float | None = None
 
+        diag: dict[str, Any] = {}
         if verbrauch_sensor and beginn:
             manueller_start_wert = _f(data.get(CONF_VERBRAUCH_START_WERT))
             if manueller_start_wert is not None:
@@ -930,7 +960,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 # beliebiger, unbekannter Punkt in der Vergangenheit ist
                 # (sum und roher Zustand unterscheiden sich sonst um genau
                 # diese Baseline, was das Ergebnis unbrauchbar macht).
+                _live = self.hass.states.get(verbrauch_sensor)
                 aktuell = await self._aktueller_zaehlerstand(verbrauch_sensor)
+                diag = {
+                    "pfad": "manueller_startwert",
+                    "startwert": manueller_start_wert,
+                    "live_zustand": _live.state if _live else "fehlt",
+                    "aktueller_zaehlerstand": aktuell,
+                }
                 if aktuell is not None:
                     verbrauch_bisher = round(aktuell - manueller_start_wert, 2)
             else:
@@ -950,8 +987,16 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if live_val is not None:
                     aktuell_state = live_val
 
+                diag = {
+                    "pfad": "statistik",
+                    "live_zustand": live_state.state if live_state else "fehlt",
+                    "aktuell_sum": aktuell_sum,
+                    "aktuell_state": aktuell_state,
+                }
                 if aktuell_sum is not None:
                     offset_sum, offset_state = await self._get_verbrauch_offset(verbrauch_sensor, beginn)
+                    diag["offset_sum"] = offset_sum
+                    diag["offset_state"] = offset_state
                     verbrauch_bisher = _pick_verbrauch_delta(
                         aktuell_sum, offset_sum, aktuell_state, offset_state
                     )
@@ -964,6 +1009,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         "verbrauch_bisher unbekannt.",
                         self.entry.title, verbrauch_sensor, beginn,
                     )
+
+        if verbrauch_sensor and beginn:
+            diag["ergebnis"] = verbrauch_bisher
+            self._log_verbrauch_status(verbrauch_sensor, verbrauch_bisher, diag)
 
         # ---- Zweizaehlertarif: Niedertarif-Register dazu addieren ----
         # verbrauch_bisher (oben) ist an dieser Stelle das Hochtarif-Register
