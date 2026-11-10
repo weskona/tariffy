@@ -368,6 +368,54 @@ class TestDualTariff:
         assert d["arbeitspreis"] == pytest.approx(0.30)
 
 
+class TestManualStartValueWithUnavailableMeter:
+    """Issue #46: a meter that is briefly unavailable must not turn the
+    consumption sensors unknown, in every contract type."""
+
+    async def test_gas(self, setup_contract):
+        data = {**TestGas.GAS, "verbrauch_start_wert": 1000.0}
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(1100.0, 1100.0),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        assert d["verbrauch_bisher"] == pytest.approx(100.0)
+        assert d["guthaben_bisher"] is not None
+
+    async def test_water(self, setup_contract):
+        data = {**TestWater.WATER, "verbrauch_sensor": SENSOR, "verbrauch_start_wert": 148.0}
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(211.5663, 211.5663),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        assert d["verbrauch_bisher"] == pytest.approx(63.57)
+        assert d["guthaben_bisher"] is not None
+
+    async def test_dual_tariff_both_registers(self, setup_contract):
+        data = {
+            **TestDualTariff.HT_NT,
+            "verbrauch_start_wert": 1000.0,
+            "verbrauch_start_wert_nt": 500.0,
+        }
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(1300.0, 1300.0),
+            offset=(1.0, 1.0),
+            latest_nt=(800.0, 800.0),
+            offset_nt=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable", SENSOR_NT: "unknown"},
+        )
+        assert d["verbrauch_bisher_ht"] == pytest.approx(300.0)
+        assert d["verbrauch_bisher_nt"] == pytest.approx(300.0)
+        assert d["verbrauch_bisher"] == pytest.approx(600.0)
+
+
 class TestPricing:
     async def test_dynamic_tariff_uses_average_plus_markup(self, setup_contract):
         data = {**STROM, "arbeitspreis_sensor": "sensor.spot", "arbeitspreis_aufschlag": 0.05}
