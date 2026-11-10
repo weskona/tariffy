@@ -666,6 +666,19 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             )
         return sum_val, state_val
 
+    async def _aktueller_zaehlerstand(self, sensor_id: str) -> float | None:
+        """Aktueller roher Zaehlerstand fuer die Berechnung mit manuellem
+        Startwert. Bevorzugt den Live-Zustand; ist der Sensor gerade
+        unavailable/unknown (z.B. Funk-Zaehler kurz offline), wird der
+        zuletzt aufgezeichnete Statistik-'state' verwendet, statt alle
+        abgeleiteten Sensoren auf 'unbekannt' fallen zu lassen."""
+        state = self.hass.states.get(sensor_id)
+        live = _f(state.state) if state else None
+        if live is not None:
+            return live
+        _sum, last_state = await _get_latest_sum(self.hass, sensor_id)
+        return last_state
+
     async def _verbrauch_bisher_fuer_sensor(
         self,
         sensor_id: str | None,
@@ -684,8 +697,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if not sensor_id or beginn is None:
             return None
         if manueller_start_wert is not None:
-            state = self.hass.states.get(sensor_id)
-            aktuell = _f(state.state) if state else None
+            aktuell = await self._aktueller_zaehlerstand(sensor_id)
             if aktuell is None:
                 return None
             return round(aktuell - manueller_start_wert, 2)
@@ -918,8 +930,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 # beliebiger, unbekannter Punkt in der Vergangenheit ist
                 # (sum und roher Zustand unterscheiden sich sonst um genau
                 # diese Baseline, was das Ergebnis unbrauchbar macht).
-                state = self.hass.states.get(verbrauch_sensor)
-                aktuell = _f(state.state) if state else None
+                aktuell = await self._aktueller_zaehlerstand(verbrauch_sensor)
                 if aktuell is not None:
                     verbrauch_bisher = round(aktuell - manueller_start_wert, 2)
             else:
