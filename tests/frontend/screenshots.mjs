@@ -31,7 +31,7 @@ const shots = [
   { name: "desktop", viewport: { width: 1280, height: 900 }, scale: 1, narrow: false },
   { name: "mobile", viewport: { width: 390, height: 844 }, scale: 2, narrow: true },
 ];
-const tabs = [["overview", 0], ["costs", 1], ["contracts", 2]];
+const tabs = [["overview", 0], ["costs", 1], ["contracts", 2], ["history", 3]];
 const errors = [];
 
 for (const shot of shots) {
@@ -60,7 +60,7 @@ for (const shot of shots) {
 }
 
 // states and English
-for (const [name, query] of [["state-empty", "state=empty"], ["state-error", "state=error"], ["english-overview", "lang=en"]]) {
+for (const [name, query] of [["state-empty", "state=empty"], ["state-error", "state=error"]]) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 700 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
   page.on("pageerror", (e) => errors.push(`${name}: ${e.message}`));
@@ -68,6 +68,23 @@ for (const [name, query] of [["state-empty", "state=empty"], ["state-error", "st
   await page.goto(`${base}?${query}`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".brand"));
   await page.screenshot({ path: join(outDir, `${name}.png`), fullPage: false });
+  await context.close();
+}
+
+// English, full page, for the README (960 px wide: two cards per row, so no label breaks inside a word)
+for (const [tab, index] of tabs) {
+  const context = await browser.newContext({ viewport: { width: 960, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`english/${tab}: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=en`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".tabs"));
+  await page.evaluate((i) => window.__panel.shadowRoot.querySelectorAll(".tab")[i].click(), index);
+  if (tab === "contracts") {
+    await page.evaluate(() => window.__panel.shadowRoot.querySelectorAll("details").forEach((d, i) => { if (i < 2) d.open = true; }));
+  }
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: join(outDir, `english-${tab}.png`), fullPage: true });
   await context.close();
 }
 
@@ -763,6 +780,105 @@ for (const width of [1280, 900, 600, 390]) {
   check(!(await acks.first().isVisible()), "phone: buttons stay hidden until the row is expanded");
   await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
   check(await page.locator("details", { hasText: "Internet" }).first().getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");
+  await context.close();
+}
+
+{ // history and archive: archived contracts only show in the History tab, expired ones can be archived
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`history: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const wrapText = () => page.evaluate(() => window.__panel.shadowRoot.querySelector(".wrap").innerText.replace(/\u00a0/g, " "));
+  const tab = (name) => page.getByRole("tab", { name, exact: true }).click();
+
+  check((await page.locator("section.card").count()) === 6 && !(await wrapText()).includes("Altvertrag"), "an archived contract is not on the overview");
+  await tab("Kosten");
+  check(!(await wrapText()).includes("Altvertrag"), "an archived contract is not in the costs");
+  await tab("Verträge");
+  check((await page.locator("details").count()) === 6 && !(await wrapText()).includes("Altvertrag"), "an archived contract is not in the contract list");
+
+  await tab("Historie");
+  const history = await wrapText();
+  check(/archivierte verträge/i.test(history) && history.includes("Strom Altvertrag"), "the History tab lists the archived contract");
+  check(/frühere laufzeiten/i.test(history), "and the earlier terms of the other contracts");
+  check((await page.locator(".hist[data-id=contract-1] tbody tr").count()) === 2, "Strom Haus shows its two earlier terms");
+  check((await page.locator(".hist[data-id=contract-1] tbody tr").first().innerText()).replace(/\u00a0/g, " ").includes("01.01.2025 – 31.12.2025"), "the newest term comes first");
+  check((await page.locator(".hist[data-id=contract-7] tbody tr").count()) === 2, "the archived contract shows its terms");
+  check(history.includes("Archiviert"), "the archived contract is marked");
+  check(!history.includes("Warnung bestätigen") && !history.includes("Kündigung bestätigen"), "the History tab offers no acknowledgements, only archive and restore");
+  await page.screenshot({ path: join(outDir, "desktop-history-actions.png"), fullPage: true });
+
+  // restore asks first
+  const before = (await calls(page)).length;
+  await page.getByRole("button", { name: "Zurückholen" }).click();
+  check((await page.locator(".hist .ask").count()) === 1 && (await calls(page)).length === before, "restoring asks first");
+  await page.getByRole("button", { name: "Abbrechen" }).click();
+  check((await calls(page)).length === before, "cancelling does nothing");
+  await page.getByRole("button", { name: "Zurückholen" }).click();
+  await page.getByRole("button", { name: "Ja, zurückholen" }).click();
+  check((await calls(page)).some((c) => c.entry_id === "contract-7" && c.action === "restore_contract"), "restore is sent for the archived contract");
+
+  // an expired contract can be archived (in the Contracts tab, after asking)
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet" ? { ...c, archivierbar: true } : c));
+    panel._tab = "overview";
+    panel._render();
+  });
+  const internet = (await card(page, "Internet").innerText()).replace(/\u00a0/g, " ");
+  check(/abgelaufen/i.test(internet) && internet.includes("Im Tab Verträge kannst du ihn archivieren"), "an expired contract is marked and says where to archive it");
+  check((await page.getByRole("button", { name: "Archivieren" }).count()) === 0, "the overview has no archive button");
+  await tab("Verträge");
+  await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
+  await page.getByRole("button", { name: "Archivieren" }).click();
+  check((await page.locator("details .ask").count()) === 1, "archiving asks first");
+  await page.getByRole("button", { name: "Ja, archivieren" }).click();
+  check((await calls(page)).some((c) => c.entry_id === "contract-5" && c.action === "archive_contract"), "archive is sent for the expired contract");
+
+  // everything archived: the other tabs say so instead of breaking
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => ({ ...c, archiviert: true }));
+    panel._tab = "overview";
+    panel._render();
+  });
+  check((await wrapText()).includes("Alle Verträge sind archiviert"), "all archived: the overview says so");
+  await tab("Kosten");
+  check((await wrapText()).includes("Alle Verträge sind archiviert"), "all archived: the costs say so");
+  await tab("Historie");
+  check((await page.locator(".hist").count()) >= 1, "all archived: the History tab still works");
+  await context.close();
+}
+
+{ // history for everyone who can see the panel, but only administrators get buttons
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`history/non-admin: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&admin=0`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Historie", exact: true }).click();
+  check((await page.locator(".hist").count()) >= 2 && (await page.locator(".hist .btn").count()) === 0, "non-administrators see the history without buttons");
+  await context.close();
+}
+
+{ // an empty history says what it is for
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`history/empty: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.filter((c) => !c.archiviert).map((c) => ({ ...c, historie: [] }));
+    panel._tab = "history";
+    panel._render();
+  });
+  const text = await page.evaluate(() => window.__panel.shadowRoot.querySelector(".wrap").innerText);
+  check(text.includes("Noch keine Historie") && text.includes("früheren Laufzeiten"), "an empty history explains itself");
   await context.close();
 }
 

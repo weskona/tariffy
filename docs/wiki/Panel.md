@@ -14,13 +14,14 @@ In der Seitenleiste erscheint der Eintrag **Tariffy** (Symbol `mdi:cash-multiple
 
 Das Panel folgt der Sprache von Home Assistant (Deutsch, sonst Englisch) und passt sich der Breite an: Auf dem Handy werden die Karten zu aufklappbaren Zeilen.
 
-## Die drei Ansichten
+## Die vier Ansichten
 
 | Ansicht | Inhalt |
 |---|---|
 | **Übersicht** | Oben vier Kacheln: die **Abschläge pro Monat** (mit Jahreswert und einem Balken, der Verbrauchs- und Pauschalverträge aufteilt), die **Kosten bisher** (mit den bis heute fälligen Abschlägen und dem Saldo), die **Prognose zum Vertragsende** (mit der Prognose je Vertrag, die schlechteste zuerst; nur Verträge mit Verbrauchsmessung) und die **nächsten Termine** (Kündigungsfrist, Wechsel, Vertragsende). Darunter zwei Gruppen mit je einer Karte pro Vertrag: **Verbrauchsverträge** (Strom, Gas, Wasser) und **Pauschalverträge** (Internet, Mobilfunk, Versicherung, Sonstiges). Die Karten sind nach dem Zustand getönt (grün Guthaben, rot Nachzahlung, orange Kündigung fällig). Eine Verbrauchskarte zeigt die Prognose zum Vertragsende als große Zahl neben dem Laufzeit-Ring, höchstens drei Zahlen (Kosten bisher, Saldo heute, Verbrauch), die gezahlten Abschläge gegen die Kosten, die Restlaufzeit und Hinweise. Zeigen der Saldo heute und die Prognose in verschiedene Richtungen (Rückstand heute, Guthaben zum Vertragsende), steht darunter, warum. Eine Pauschalkarte zeigt den Abschlag pro Monat, die Kosten bisher und das Vertragsende samt Laufzeit-Balken, ohne Ring und ohne Verbrauch. In der Übersicht gibt es keine Bearbeitungs-Aktionen. |
 | **Kosten** | Zwei Tabellen wie in der Übersicht. **Verbrauchsverträge:** Kosten bisher, Saldo heute, Saldo zum Vertragsende, Abschlag und empfohlener Abschlag. **Pauschalverträge:** Kosten bisher (die bis heute fälligen Abschläge), Restlaufzeit, Vertragsende und Abschlag; Saldo und Prognose gibt es dort nicht. Beide Tabellen haben dasselbe Spaltenraster, „Kosten bisher“ und „Abschlag“ stehen also untereinander. Jede Tabelle hat eine Summenzeile, darunter steht die Gesamtsumme. |
 | **Verträge** | In denselben zwei Gruppen pro Vertrag aufklappbare Details: Vertragsdaten, Preise, Verbrauch, Empfehlungen. Hier stehen auch **alle Aktionen, die einen Vertrag ändern**, als Symbole in jeder Zeile (Kalender: Folgevertrag planen oder bearbeiten, Stift: Vertrag bearbeiten) und oben der Button **Neuer Vertrag** (nur Administratoren). |
+| **Historie** | Die **früheren Laufzeiten** jedes Vertrags (Zeitraum, Anbieter, Tarif, Abschlag, Kosten, Verbrauch und Saldo am Ende) und die **archivierten Verträge**. Wer keinen Folgevertrag hatte und keinen Vertrag archiviert hat, sieht hier zunächst nur einen kurzen Hinweis. |
 
 Vorzeichen: **Plus** ist Guthaben, **Minus** ist Nachzahlung. „Zum Vertragsende" ist aus dem bisherigen Verbrauch hochgerechnet. Deckt ein Guthaben die Kosten bis zum Vertragsende schon ab, steht beim empfohlenen Abschlag „0,00 €" mit dem Hinweis „Guthaben deckt die Kosten", nie ein negativer Betrag. Alle Werte sind dieselben wie bei den Sensoren und aktualisieren sich von selbst.
 
@@ -37,6 +38,11 @@ Die Übersicht ist nur zum Ansehen und hat keine Buttons. Planen, Bearbeiten, An
 - **Kündigung bestätigen**: quittiert die Kündigungs-Erinnerung (wie der Button „Kündigung bestätigen").
 
 Beide fragen **ein zweites Mal** nach („Ja, bestätigen" / „Abbrechen"), damit nichts aus Versehen ausgelöst wird.
+
+## Historie und Archiv
+
+- **Frühere Laufzeiten:** Wenn der Folgevertrag am geplanten Datum übernimmt, überschreibt Tariffy die Vertragsdaten (das war schon immer so). Neu: Die alte Laufzeit wird vorher als Eintrag gesichert, mit Zeitraum, Anbieter, Tarif, Preisen, Abschlag, den Kosten, dem Verbrauch und dem Saldo zum Ende. Sie steht dann im Tab **Historie** unter dem Vertrag. Für Laufzeiten, die schon vorbei sind, gibt es keine Einträge; die Historie beginnt mit dem ersten Wechsel nach dem Update. Es werden höchstens die letzten 20 Laufzeiten je Vertrag gespeichert. Kunden- und Zählernummern stehen nicht darin.
+- **Archivieren:** Ein Vertrag, dessen Ende vorbei ist und für den kein Folgevertrag geplant ist, bekommt in der Übersicht das Badge **Abgelaufen** und den Hinweis, dass er sich archivieren lässt. Im Tab **Verträge** steht in den Details der Button **Archivieren** (mit Rückfrage, nur Administratoren). Danach verschwindet der Vertrag aus Übersicht, Kosten und Verträgen und aus den Summen, steht in der **Historie**, und seine Erinnerungen und Warnungen sind aus. Es wird nichts gelöscht: Die Sensoren und ihre Statistik bleiben, der Vertrag lässt sich in der Historie mit **Zurückholen** wieder in die Übersicht holen. Nichts wird von allein archiviert.
 
 ## Folgevertrag planen
 

@@ -7,6 +7,35 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.1] - 2026-11-11
+
+Beta-Version zum Testen der Vertragshistorie. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version. HACS bietet diese Version nur an, wenn "Beta-Versionen anzeigen" eingeschaltet ist.
+
+### Added
+
+- **Vertragshistorie.** Wenn der Folgevertrag am geplanten Datum übernimmt, wird die alte Laufzeit jetzt gesichert, bevor die Vertragsdaten ersetzt werden (Zeitraum, Anbieter, Tarif, Preise, Abschlag, Kosten bisher, Verbrauch und Saldo zum Ende; keine Kunden- oder Zählernummern, höchstens die letzten 20 Laufzeiten). Der neue Tab **Historie** des Seitenleisten-Panels zeigt sie unter dem jeweiligen Vertrag. Laufzeiten, die vor dieser Version endeten, gibt es nicht; die Historie beginnt mit dem nächsten Wechsel.
+- **Abgelaufene Verträge archivieren.** Ein Vertrag, dessen Ende vorbei ist und für den kein Folgevertrag geplant ist, trägt in der Übersicht das Badge **Abgelaufen**. Administratoren können ihn im Tab "Verträge" archivieren (mit Rückfrage). Ein archivierter Vertrag verschwindet aus Übersicht, Kosten, Vertragsliste und Summen und steht in der Historie; seine Erinnerungen und Warnungen sind aus. Es wird nichts gelöscht, alle Sensoren und ihre Statistik bleiben, und **Zurückholen** holt den Vertrag wieder zurück. Nichts wird von allein archiviert: Bestehende Installationen sehen genauso aus wie vorher, bis jemand einen Vertrag archiviert.
+- Beides liegt in internen Schlüsseln der Vertragsdaten (`_historie`, `_archiviert`): kein neuer Sensor, keine neue Entität. Beim Bearbeiten eines Vertrags bleiben sie erhalten.
+
+## [1.27.3] - 2026-11-11
+
+### Behoben
+
+- **Das Seitenleisten-Panel war leer, wenn man nur Verträge einer Art hat** (zum Beispiel nur einen Strom-, Gas- oder Wasservertrag, oder nur Pauschalverträge wie Internet oder Mobilfunk). Die Übersicht brach mit „Failed to execute 'appendChild' on 'Node'" ab, weil sie eine Gruppe ohne Verträge einfügen wollte. Das Panel überspringt leere Gruppen jetzt. Gemeldet in #50.
+
+## [1.27.2] - 2026-11-10
+
+### Hinzugefügt
+
+- **Diagnose-Download.** In Home Assistant unter Einstellungen > Geräte & Dienste > Tariffy > Menü des Vertrags > „Diagnose herunterladen" gibt es eine Datei mit den Einstellungen, den zuletzt berechneten Werten, ob das letzte Update geklappt hat, wie der Verbrauch ermittelt wurde (manueller Startwert oder Statistik, mit den Rohwerten) und dem Zustand des Zählersensors. Kundennummer, Zählernummer, Marktlokation (MaLo-ID) und Benachrichtigungsziel sind geschwärzt. Diese Datei bitte an eine Fehlermeldung anhängen.
+- **Eine Zeile im Log, wenn der Verbrauch unbekannt wird.** Kann „Verbrauch (Bisher)" nicht berechnet werden, schreibt Tariffy eine Warnung mit dem Grund in das Home-Assistant-Protokoll (ohne Debug-Protokollierung), und eine Info-Zeile, sobald er wieder bekannt ist. Solange der Zustand gleich bleibt, wird nichts geloggt, das Protokoll läuft also nicht voll.
+
+## [1.27.1] - 2026-11-10
+
+### Behoben
+
+- **Verbrauchs- und Guthaben-Sensoren fielen zeitweise auf "Unbekannt", wenn ein "Zählerstand bei Vertragsbeginn" eingetragen war und der Zähler kurz nicht verfügbar war** (Wasser, Gas, Strom, auch das Niedertarif-Register beim Zweizählertarif). Mit manuellem Startwert wurde nur der Live-Zustand des Zählers gelesen. Ist er `unavailable` oder `unknown`, wird jetzt der zuletzt aufgezeichnete Statistikwert verwendet. Ohne jeden Messwert bleiben die Sensoren wie bisher unbekannt. Gemeldet in #46.
+
 ## [1.27.0] - 2026-11-07
 
 ### Added

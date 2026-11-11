@@ -24,6 +24,7 @@ from .const import (
     CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET,
     CONF_ABSCHLAG_WARNUNG_SCHWELLE,
     DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE,
+    HISTORIE_MAX,
     NOTIFY_ID_ABSCHLAG_PREFIX,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
@@ -32,8 +33,10 @@ from .const import (
     CONF_BRENNWERT,
     CONF_ENDE,
     CONF_ERINNERUNG_MONATE,
+    CONF_ARCHIVIERT,
     CONF_GAS_EINHEIT,
     CONF_GRUNDPREIS,
+    CONF_HISTORIE,
     CONF_JAHRESVERBRAUCH,
     CONF_KUENDIGUNG_BESTAETIGT,
     CONF_KUNDENNUMMER,
@@ -402,6 +405,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset_nt: float | None = None
         self._verbrauch_offset_state_nt: float | None = None
         self._verbrauch_offset_date_nt: date | None = None
+        # Fuer den Diagnose-Download und die Warnung im Log: wie der
+        # Verbrauch beim letzten Update ermittelt wurde (siehe diagnostics.py).
+        self.verbrauch_diag: dict[str, Any] = {}
+        self._verbrauch_war_unbekannt = False
 
         async def _startup_refresh(_event: Any = None) -> None:
             """Refresh nach HA-Start, damit LTS-Daten verfügbar sind."""
@@ -440,12 +447,86 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _abschlag_notification_id(self) -> str:
         return f"{NOTIFY_ID_ABSCHLAG_PREFIX}{self.entry.entry_id}"
 
+    # ------------------------------------------------------------- Historie
+    def _historie_eintrag(self, heute: date) -> dict[str, Any]:
+        """Die auslaufende Laufzeit als Eintrag der Vertragshistorie.
+
+        Nur Werte, die das Panel ohnehin zeigt (keine Kunden- oder
+        Zaehlernummern). Die Summen stammen aus der letzten Berechnung."""
+        alt = self.entry.data
+        d = self.data or {}
+
+        def _zahl(wert: Any) -> float | None:
+            zahl = _f(wert)
+            return round(zahl, 2) if zahl is not None else None
+
+        return {
+            "sparte": alt.get(CONF_SPARTE),
+            "anbieter": alt.get(CONF_ANBIETER),
+            "tarif": alt.get(CONF_TARIF),
+            "beginn": alt.get(CONF_BEGINN),
+            "ende": alt.get(CONF_ENDE) or heute.isoformat(),
+            "arbeitspreis": _f(alt.get(CONF_ARBEITSPREIS)),
+            "grundpreis": _f(alt.get(CONF_GRUNDPREIS)),
+            "abschlag": _f(alt.get(CONF_ABSCHLAG)),
+            "kosten": _zahl(d.get("kosten_bisher")),
+            "abschlag_gezahlt": _zahl(d.get("abschlag_bisher_gezahlt")),
+            "saldo": _zahl(d.get("guthaben_bisher")),
+            "verbrauch": _zahl(d.get("verbrauch_bisher")),
+            "abgeschlossen": heute.isoformat(),
+        }
+
+    async def async_archive(self) -> None:
+        """Archiviert den abgelaufenen Vertrag: ein Merker plus die letzte Laufzeit
+        als Historien-Eintrag. Nichts wird geloescht, alle Entitaeten bleiben."""
+        await self._dismiss_notifications()
+        heute = dt_util.now().date()
+        historie = list(self.entry.data.get(CONF_HISTORIE) or [])
+        historie.append({**self._historie_eintrag(heute), "archiviert": True})
+        self.hass.config_entries.async_update_entry(
+            self.entry,
+            data={
+                **self.entry.data,
+                CONF_ARCHIVIERT: heute.isoformat(),
+                CONF_HISTORIE: historie[-HISTORIE_MAX:],
+            },
+        )
+        # sofort neu berechnen (async_request_refresh waere entprellt)
+        await self.async_refresh()
+
+    async def async_restore(self) -> None:
+        """Holt einen archivierten Vertrag zurueck."""
+        data = dict(self.entry.data)
+        data.pop(CONF_ARCHIVIERT, None)
+        historie = list(data.get(CONF_HISTORIE) or [])
+        if historie and historie[-1].get("archiviert"):
+            historie.pop()  # der Eintrag, den das Archivieren angelegt hat
+        if historie:
+            data[CONF_HISTORIE] = historie
+        else:
+            data.pop(CONF_HISTORIE, None)
+        self.hass.config_entries.async_update_entry(self.entry, data=data)
+        await self.async_refresh()
+
+    async def _dismiss_notifications(self) -> None:
+        for notification_id in (self._notification_id, self._abschlag_notification_id):
+            await self.hass.services.async_call(
+                "persistent_notification",
+                "dismiss",
+                {"notification_id": notification_id},
+                blocking=True,
+            )
+
     # -------------------------------------------------------------- Wechsel
     def _switch_now(self, verbrauch_letzte: float | None = None) -> None:
         nxt = dict(self.entry.options)
         if not nxt:
             return
+        historie = list(self.entry.data.get(CONF_HISTORIE) or [])
+        if not self.entry.data.get(CONF_ARCHIVIERT):  # sonst steht die Laufzeit schon drin
+            historie.append(self._historie_eintrag(dt_util.now().date()))
         new_data: dict[str, Any] = {
+            CONF_HISTORIE: historie[-HISTORIE_MAX:],
             CONF_SPARTE: self.entry.data.get(CONF_SPARTE),
             CONF_ERINNERUNG_MONATE: self.entry.data.get(CONF_ERINNERUNG_MONATE, "0"),
             CONF_NOTIFY_TARGET: self.entry.data.get(CONF_NOTIFY_TARGET),
@@ -666,6 +747,19 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             )
         return sum_val, state_val
 
+    async def _aktueller_zaehlerstand(self, sensor_id: str) -> float | None:
+        """Aktueller roher Zaehlerstand fuer die Berechnung mit manuellem
+        Startwert. Bevorzugt den Live-Zustand; ist der Sensor gerade
+        unavailable/unknown (z.B. Funk-Zaehler kurz offline), wird der
+        zuletzt aufgezeichnete Statistik-'state' verwendet, statt alle
+        abgeleiteten Sensoren auf 'unbekannt' fallen zu lassen."""
+        state = self.hass.states.get(sensor_id)
+        live = _f(state.state) if state else None
+        if live is not None:
+            return live
+        _sum, last_state = await _get_latest_sum(self.hass, sensor_id)
+        return last_state
+
     async def _verbrauch_bisher_fuer_sensor(
         self,
         sensor_id: str | None,
@@ -684,8 +778,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if not sensor_id or beginn is None:
             return None
         if manueller_start_wert is not None:
-            state = self.hass.states.get(sensor_id)
-            aktuell = _f(state.state) if state else None
+            aktuell = await self._aktueller_zaehlerstand(sensor_id)
             if aktuell is None:
                 return None
             return round(aktuell - manueller_start_wert, 2)
@@ -701,6 +794,31 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return None
         offset_sum, offset_state = await offset_getter(sensor_id, beginn)
         return _pick_verbrauch_delta(aktuell_sum, offset_sum, aktuell_state, offset_state)
+
+    def _log_verbrauch_status(
+        self, sensor_id: str, verbrauch_bisher: float | None, diag: dict[str, Any]
+    ) -> None:
+        """Merkt sich, wie der Verbrauch ermittelt wurde, und schreibt genau
+        eine Zeile ins Log, wenn er unbekannt wird (und eine, wenn er wieder
+        da ist) -- ohne dass der Nutzer die Debug-Protokollierung einschalten
+        muss. Kein Log bei jedem Update, damit das Protokoll nicht volllaeuft."""
+        self.verbrauch_diag = {
+            **diag,
+            "sensor": sensor_id,
+            "zeitpunkt": dt_util.now().isoformat(),
+        }
+        unbekannt = verbrauch_bisher is None
+        if unbekannt and not self._verbrauch_war_unbekannt:
+            _LOGGER.warning(
+                "Tariffy '%s': Verbrauch bisher ist unbekannt (Sensor %s). Details: %s",
+                self.entry.title, sensor_id, diag,
+            )
+        elif not unbekannt and self._verbrauch_war_unbekannt:
+            _LOGGER.info(
+                "Tariffy '%s': Verbrauch bisher ist wieder bekannt (%s).",
+                self.entry.title, verbrauch_bisher,
+            )
+        self._verbrauch_war_unbekannt = unbekannt
 
     # --------------------------------------------------------------- Update
     async def _verbrauch_letzte_laufzeit_jetzt(self) -> float | None:
@@ -904,6 +1022,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         prognose_real: float | None = None
         abschlag_anpassung_empfohlen: float | None = None
 
+        diag: dict[str, Any] = {}
         if verbrauch_sensor and beginn:
             manueller_start_wert = _f(data.get(CONF_VERBRAUCH_START_WERT))
             if manueller_start_wert is not None:
@@ -918,8 +1037,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 # beliebiger, unbekannter Punkt in der Vergangenheit ist
                 # (sum und roher Zustand unterscheiden sich sonst um genau
                 # diese Baseline, was das Ergebnis unbrauchbar macht).
-                state = self.hass.states.get(verbrauch_sensor)
-                aktuell = _f(state.state) if state else None
+                _live = self.hass.states.get(verbrauch_sensor)
+                aktuell = await self._aktueller_zaehlerstand(verbrauch_sensor)
+                diag = {
+                    "pfad": "manueller_startwert",
+                    "startwert": manueller_start_wert,
+                    "live_zustand": _live.state if _live else "fehlt",
+                    "aktueller_zaehlerstand": aktuell,
+                }
                 if aktuell is not None:
                     verbrauch_bisher = round(aktuell - manueller_start_wert, 2)
             else:
@@ -939,8 +1064,16 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if live_val is not None:
                     aktuell_state = live_val
 
+                diag = {
+                    "pfad": "statistik",
+                    "live_zustand": live_state.state if live_state else "fehlt",
+                    "aktuell_sum": aktuell_sum,
+                    "aktuell_state": aktuell_state,
+                }
                 if aktuell_sum is not None:
                     offset_sum, offset_state = await self._get_verbrauch_offset(verbrauch_sensor, beginn)
+                    diag["offset_sum"] = offset_sum
+                    diag["offset_state"] = offset_state
                     verbrauch_bisher = _pick_verbrauch_delta(
                         aktuell_sum, offset_sum, aktuell_state, offset_state
                     )
@@ -953,6 +1086,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         "verbrauch_bisher unbekannt.",
                         self.entry.title, verbrauch_sensor, beginn,
                     )
+
+        if verbrauch_sensor and beginn:
+            diag["ergebnis"] = verbrauch_bisher
+            self._log_verbrauch_status(verbrauch_sensor, verbrauch_bisher, diag)
 
         # ---- Zweizaehlertarif: Niedertarif-Register dazu addieren ----
         # verbrauch_bisher (oben) ist an dieser Stelle das Hochtarif-Register
@@ -1165,11 +1302,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         erinnerung_datum = (
             _minus_months(ende, monate) if (ende is not None and monate) else None
         )
+        archiviert_am = _parse_date(data.get(CONF_ARCHIVIERT))
+        archiviert = archiviert_am is not None
         aktiv = bool(
             erinnerung_datum is not None
             and ende is not None
             and erinnerung_datum <= heute <= ende
             and not bestaetigt
+            and not archiviert
         )
         await self._handle_reminder(aktiv, ende, data)
 
@@ -1180,6 +1320,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             data.get(CONF_ABSCHLAG_WARNUNG)
             and prognose_real is not None
             and prognose_real < -warnung_schwelle
+            and not archiviert
         )
         await self._handle_abschlag_warnung(
             warnung_aktiv, prognose_real, abschlag_anpassung_empfohlen, data
@@ -1252,6 +1393,13 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "abschlag_warnung_zu_bestaetigen": warnung_zu_bestaetigen,
             "wechsel": _parse_date(nxt.get(NEXT_PREFIX + CONF_BEGINN)) if nxt else None,
             "next": nxt,
+            "archiviert": archiviert,
+            "archiviert_am": archiviert_am,
+            # abgelaufen, kein Folgevertrag geplant, noch nicht archiviert
+            "archivierbar": bool(
+                ende is not None and ende < heute and not nxt and not archiviert
+            ),
+            "historie": list(data.get(CONF_HISTORIE) or []),
             CONF_ARBEITSPREIS_NT: arbeitspreis_nt,
             "arbeitspreis_ht": arbeitspreis_ht,
             CONF_ZAEHLERNUMMER_NT: data.get(CONF_ZAEHLERNUMMER_NT),

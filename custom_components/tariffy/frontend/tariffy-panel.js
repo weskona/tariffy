@@ -61,6 +61,16 @@ const I18N = {
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
     actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract", actNew: "New contract",
     saldoShort: "Balance today",
+    history: "History", histEmptyTitle: "No history yet",
+    histEmpty: "The earlier terms of a contract appear here once the next contract takes over. Archived contracts appear here too.",
+    allArchived: "All contracts are archived. You find them in the History tab.",
+    groupArchived: "Archived contracts", groupEarlier: "Earlier terms", archived: "Archived",
+    colTerm: "Term", colTermCost: "Cost", colUsage: "Consumption", colTermBalance: "Balance",
+    expired: "Expired", noteExpired: "This contract has ended. You can archive it in the Contracts tab.",
+    actArchive: "Archive", actRestore: "Restore",
+    actAskArchive: "Archive this contract? It leaves the overview, the costs and the contracts and moves to the History tab. Nothing is deleted and you can bring it back.",
+    actYesArchive: "Yes, archive",
+    actAskRestore: "Bring this contract back to the overview?", actYesRestore: "Yes, restore",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
@@ -141,6 +151,16 @@ const I18N = {
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
     actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten", actNew: "Neuer Vertrag",
     saldoShort: "Saldo heute",
+    history: "Historie", histEmptyTitle: "Noch keine Historie",
+    histEmpty: "Die früheren Laufzeiten eines Vertrags erscheinen hier, sobald der Folgevertrag übernimmt. Archivierte Verträge erscheinen hier ebenfalls.",
+    allArchived: "Alle Verträge sind archiviert. Du findest sie im Tab Historie.",
+    groupArchived: "Archivierte Verträge", groupEarlier: "Frühere Laufzeiten", archived: "Archiviert",
+    colTerm: "Laufzeit", colTermCost: "Kosten", colUsage: "Verbrauch", colTermBalance: "Saldo",
+    expired: "Abgelaufen", noteExpired: "Dieser Vertrag ist abgelaufen. Im Tab Verträge kannst du ihn archivieren.",
+    actArchive: "Archivieren", actRestore: "Zurückholen",
+    actAskArchive: "Diesen Vertrag archivieren? Er verschwindet aus Übersicht, Kosten und Verträgen und steht in der Historie. Nichts wird gelöscht, du kannst ihn zurückholen.",
+    actYesArchive: "Ja, archivieren",
+    actAskRestore: "Diesen Vertrag wieder in die Übersicht holen?", actYesRestore: "Ja, zurückholen",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
@@ -171,7 +191,7 @@ const I18N = {
 };
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const TABS = ["overview", "costs", "contracts"];
+const TABS = ["overview", "costs", "contracts", "history"];
 // contracts that are billed by consumption; everything else (internet, mobile, ...) is a flat rate
 // column widths shared by the cost tables, so that their columns line up
 const GRID = ["24%", "15.2%", "15.2%", "15.2%", "15.2%", "15.2%"];
@@ -378,6 +398,10 @@ th:first-child, td:first-child { text-align: left; }
 th { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--panel2); }
 tr.sub td { font-size: 13px; color: var(--muted); padding-top: 6px; padding-bottom: 6px; }
 tr.sub td:first-child { padding-left: 32px; }
+.hist { margin-bottom: 16px; }
+.hist-head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
+.hist-head .who { flex: 1; }
+.hist .actions { margin-top: 10px; }
 tr.total td { font-weight: 700; border-bottom: 0; background: var(--panel2); }
 td .t2 { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
 .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
@@ -705,6 +729,7 @@ class TariffyPanel extends HTMLElement {
     // the state (credit / balance due / warning) always comes last, so it sits at the far right
     // of every card; further badges (cancel now, switch on ...) stand to its left
     const chips = [];
+    if (c.archivierbar) chips.push({ text: this._t("expired"), tone: "muted" });
     if (c.erinnerung_aktiv) chips.push({ text: this._t("cancelDue"), tone: "orange" });
     if (c.wechsel) chips.push({ text: this._t("switchOn", { d: this._date(c.wechsel) }), tone: "blue" });
     if (c.abschlag_warnung_aktiv) chips.push({ text: this._t("warning"), tone: "red" });
@@ -730,6 +755,10 @@ class TariffyPanel extends HTMLElement {
       wrap.appendChild(h("div", { class: "state", text: this._t("loading") }));
     } else if (this._contracts.length === 0) {
       wrap.appendChild(this._empty());
+    } else if (this._tab === "history") {
+      wrap.appendChild(this._history());
+    } else if (this._live.length === 0) {
+      wrap.appendChild(h("div", { class: "state", text: this._t("allArchived") }));
     } else if (this._tab === "costs") {
       wrap.appendChild(this._costs());
     } else if (this._tab === "contracts") {
@@ -739,8 +768,14 @@ class TariffyPanel extends HTMLElement {
       const group = (key, list, extra) => (list.length ? h("section", { class: "group" },
         h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
         h("div", { class: `grid ${extra}` }, list.map((c) => this._card(c)))) : null);
-      wrap.appendChild(group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte)), "metered"));
-      wrap.appendChild(group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte)), "flat"));
+      // a group is null when there is no contract of that kind: skip it (appendChild(null) throws
+      // and leaves the whole panel empty for anyone who has only metered or only flat-rate contracts)
+      for (const section of [
+        group("groupMetered", this._live.filter((c) => METERED.has(c.sparte)), "metered"),
+        group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte)), "flat"),
+      ]) {
+        if (section) wrap.appendChild(section);
+      }
     }
     root.appendChild(wrap);
     if (this._dlgEl) root.appendChild(this._dlgEl);
@@ -775,8 +810,13 @@ class TariffyPanel extends HTMLElement {
     );
   }
 
+  /* Contracts that are not archived: the overview, the costs and the list only show these. */
+  get _live() {
+    return (this._contracts || []).filter((c) => !c.archiviert);
+  }
+
   _summary() {
-    const contracts = this._contracts;
+    const contracts = this._live;
     const currency = contracts[0].currency || "EUR";
     const metered = contracts.filter((c) => METERED.has(c.sparte));
     const flat = contracts.filter((c) => !METERED.has(c.sparte));
@@ -983,6 +1023,9 @@ class TariffyPanel extends HTMLElement {
         ? this._t("noteWarning", { v: value, a: this._money(c.abschlag_anpassung_empfohlen, c.currency) })
         : this._t("noteWarningShort", { v: value }) }));
     }
+    if (c.archivierbar) {
+      notes.push(h("div", { class: "callout", text: this._t("noteExpired") }));
+    }
     if (c.erinnerung_aktiv) {
       notes.push(h("div", { class: "callout orange", text: this._t("noteCancel", { d: this._date(c.ende) }) }));
     }
@@ -1041,7 +1084,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   /* Actions are only offered to administrators; the backend checks it again. */
-  _actions(c) {
+  _actions(c, only = null) {
     if (!this._isAdmin) return null;
     const list = [];
     if (c.abschlag_warnung_zu_bestaetigen) {
@@ -1050,6 +1093,13 @@ class TariffyPanel extends HTMLElement {
     if (c.erinnerung_aktiv) {
       list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange", ask: "actAskCancel", yes: "actYesAck" });
     }
+    if (c.archivierbar) {
+      list.push({ key: "archive_contract", label: this._t("actArchive"), tone: "orange", ask: "actAskArchive", yes: "actYesArchive" });
+    }
+    if (c.archiviert) {
+      list.push({ key: "restore_contract", label: this._t("actRestore"), tone: "blue", ask: "actAskRestore", yes: "actYesRestore" });
+    }
+    if (only) list.splice(0, list.length, ...list.filter((a) => only.includes(a.key)));
     if (!list.length) return null;
 
     const id = c.entry_id;
@@ -1477,7 +1527,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   _costs() {
-    const contracts = this._contracts;
+    const contracts = this._live;
     const currency = contracts[0].currency || "EUR";
     const tone = (v) => (isNum(v) ? (v < 0 ? "red-t" : v > 0 ? "green-t" : "") : "muted-t");
     const cell = (label, value, cls) => h("td", { "data-label": label, class: [cls, value === "–" ? "empty" : ""].filter(Boolean).join(" ") || null, text: value });
@@ -1560,6 +1610,40 @@ class TariffyPanel extends HTMLElement {
   }
 
 
+  /* History: archived contracts and the earlier terms of every contract. */
+  _history() {
+    const archived = this._contracts.filter((c) => c.archiviert).sort((a, b) => a.title.localeCompare(b.title));
+    const earlier = this._contracts.filter((c) => !c.archiviert && (c.historie || []).length)
+      .sort((a, b) => a.title.localeCompare(b.title));
+    if (!archived.length && !earlier.length) {
+      return h("div", { class: "state" }, h("h2", { text: this._t("histEmptyTitle") }), h("div", { text: this._t("histEmpty") }));
+    }
+    const tone = (v) => (isNum(v) ? (v < 0 ? "red-t" : v > 0 ? "green-t" : "") : "muted-t");
+    const cell = (label, value, cls) => h("td", { "data-label": label, class: cls || null, text: value });
+    const termRow = (c, t) => h("tr", {},
+      h("td", {}, `${this._date(t.beginn)} – ${t.ende ? this._date(t.ende) : "–"}`,
+        h("span", { class: "t2", text: [t.anbieter, t.tarif].filter(Boolean).join(" · ") || "–" })),
+      cell(this._t("colInstalment"), isNum(t.abschlag) ? this._money(t.abschlag, c.currency, { digits: 2 }) : "–"),
+      cell(this._t("colTermCost"), this._money(isNum(t.kosten) ? t.kosten : t.abschlag_gezahlt, c.currency, { digits: 2 })),
+      cell(this._t("colUsage"), isNum(t.verbrauch) ? `${this._num(t.verbrauch, 0)} ${this._unit(c)}` : "–"),
+      cell(this._t("colTermBalance"), isNum(t.saldo) ? this._money(t.saldo, c.currency, { sign: true, digits: 2 }) : "–", tone(t.saldo)));
+    const contractBlock = (c) => h("div", { class: "hist", "data-id": c.entry_id },
+      h("div", { class: "hist-head" },
+        h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+        this._who(c),
+        c.archiviert ? h("span", { class: "chip", text: this._t("archived") }) : null),
+      h("table", {},
+        h("thead", {}, h("tr", {}, [this._t("colTerm"), this._t("colInstalment"), this._t("colTermCost"), this._t("colUsage"), this._t("colTermBalance")]
+          .map((label) => h("th", { text: label })))),
+        h("tbody", {}, [...(c.historie || [])].reverse().map((t) => termRow(c, t)))),
+      // the acknowledgements belong to the contract list; here only archiving and restoring
+      this._actions(c, ["archive_contract", "restore_contract"]));
+    const group = (key, list) => (list.length ? h("section", { class: "group" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
+      list.map(contractBlock)) : null);
+    return h("div", {}, group("groupArchived", archived), group("groupEarlier", earlier));
+  }
+
   _contractList() {
     const head = this._isAdmin
       ? h("div", { class: "list-head" },
@@ -1570,8 +1654,8 @@ class TariffyPanel extends HTMLElement {
       h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
       list.map((c) => this._detail(c))) : null);
     return h("div", {}, head,
-      group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte))),
-      group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte))));
+      group("groupMetered", this._live.filter((c) => METERED.has(c.sparte))),
+      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte))));
   }
 
   /* Everything that changes a contract lives here, in the list of contracts (administrators only). */

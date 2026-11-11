@@ -48,7 +48,16 @@ SIGNAL_CONTRACTS = f"{DOMAIN}_contracts_updated"
 # switches in by itself on its start date.
 ACTION_CONFIRM_CANCELLATION = "confirm_cancellation"
 ACTION_CONFIRM_WARNING = "confirm_abschlag_warning"
-ACTIONS = (ACTION_CONFIRM_CANCELLATION, ACTION_CONFIRM_WARNING)
+# Archive an expired contract / bring it back. Panel only: it stores a flag in the
+# contract data and changes no entity.
+ACTION_ARCHIVE = "archive_contract"
+ACTION_RESTORE = "restore_contract"
+ACTIONS = (
+    ACTION_CONFIRM_CANCELLATION,
+    ACTION_CONFIRM_WARNING,
+    ACTION_ARCHIVE,
+    ACTION_RESTORE,
+)
 DATA_KEY = f"{DOMAIN}_panel"
 
 # Values shown by the panel. Deliberately a whitelist: the panel is visible to
@@ -92,6 +101,10 @@ CONTRACT_FIELDS = (
     "abschlag_warnung_aktiv",
     "abschlag_warnung_zu_bestaetigen",
     "wechsel",
+    "archiviert",
+    "archiviert_am",
+    "archivierbar",
+    "historie",
 )
 NEXT_FIELDS = ("beginn", "ende", "anbieter", "tarif", "arbeitspreis", "abschlag")
 
@@ -188,6 +201,10 @@ def _action_available(action: str, data: dict[str, Any]) -> bool:
         return bool(data.get("erinnerung_aktiv"))
     if action == ACTION_CONFIRM_WARNING:
         return bool(data.get("abschlag_warnung_zu_bestaetigen"))
+    if action == ACTION_ARCHIVE:
+        return bool(data.get("archivierbar"))
+    if action == ACTION_RESTORE:
+        return bool(data.get("archiviert"))
     return False
 
 
@@ -222,8 +239,12 @@ async def ws_action(hass: HomeAssistant, connection, msg: dict[str, Any]) -> Non
 
     if action == ACTION_CONFIRM_CANCELLATION:
         await coordinator.async_confirm_kuendigung()
-    else:
+    elif action == ACTION_CONFIRM_WARNING:
         await coordinator.async_confirm_abschlag_warnung()
+    elif action == ACTION_ARCHIVE:
+        await coordinator.async_archive()
+    else:
+        await coordinator.async_restore()
     connection.send_result(msg["id"], {"ok": True})
 
 

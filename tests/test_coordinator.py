@@ -193,6 +193,24 @@ class TestConsumptionTracking:
         )
         assert d["verbrauch_bisher"] == pytest.approx(300.5)
 
+    async def test_manual_start_value_survives_unavailable_meter(self, setup_contract):
+        data = {**STROM, "verbrauch_start_wert": 5000.0}
+        _, d = await setup_contract(
+            data,
+            latest=(5300.5, 5300.5),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        # live state missing -> last recorded statistics state is used
+        assert d["verbrauch_bisher"] == pytest.approx(300.5)
+
+    async def test_manual_start_value_unknown_without_any_reading(self, setup_contract):
+        data = {**STROM, "verbrauch_start_wert": 5000.0}
+        _, d = await setup_contract(
+            data, sensor_states={SENSOR: "unavailable"}
+        )
+        assert d["verbrauch_bisher"] is None
+
     async def test_meter_reset_is_handled_via_sum(self, setup_contract):
         _, d = await setup_contract(
             STROM,
@@ -348,6 +366,54 @@ class TestDualTariff:
         assert d["verbrauch_bisher"] == pytest.approx(300.0)
         assert d["verbrauch_bisher_nt"] is None
         assert d["arbeitspreis"] == pytest.approx(0.30)
+
+
+class TestManualStartValueWithUnavailableMeter:
+    """Issue #46: a meter that is briefly unavailable must not turn the
+    consumption sensors unknown, in every contract type."""
+
+    async def test_gas(self, setup_contract):
+        data = {**TestGas.GAS, "verbrauch_start_wert": 1000.0}
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(1100.0, 1100.0),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        assert d["verbrauch_bisher"] == pytest.approx(100.0)
+        assert d["guthaben_bisher"] is not None
+
+    async def test_water(self, setup_contract):
+        data = {**TestWater.WATER, "verbrauch_sensor": SENSOR, "verbrauch_start_wert": 148.0}
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(211.5663, 211.5663),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        assert d["verbrauch_bisher"] == pytest.approx(63.57)
+        assert d["guthaben_bisher"] is not None
+
+    async def test_dual_tariff_both_registers(self, setup_contract):
+        data = {
+            **TestDualTariff.HT_NT,
+            "verbrauch_start_wert": 1000.0,
+            "verbrauch_start_wert_nt": 500.0,
+        }
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(1300.0, 1300.0),
+            offset=(1.0, 1.0),
+            latest_nt=(800.0, 800.0),
+            offset_nt=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable", SENSOR_NT: "unknown"},
+        )
+        assert d["verbrauch_bisher_ht"] == pytest.approx(300.0)
+        assert d["verbrauch_bisher_nt"] == pytest.approx(300.0)
+        assert d["verbrauch_bisher"] == pytest.approx(600.0)
 
 
 class TestPricing:
@@ -736,3 +802,109 @@ class TestInstalmentsDueForFlatRateContracts:
     async def test_it_adds_no_entity(self, setup_contract, hass):
         await setup_contract(self.INTERNET, today="2026-07-12")
         assert not [e for e in hass.states.async_entity_ids() if "abschlag_bisher_gezahlt" in e]
+
+
+class TestContractHistory:
+    """The previous term is kept when the next contract takes over; an expired contract
+    can be archived. Both live in internal keys: no new entity, nothing shown to old setups."""
+
+    OPTIONS = {
+        "next_beginn": "2027-01-01",
+        "next_ende": "2027-12-31",
+        "next_anbieter": "Neuer Anbieter",
+        "next_arbeitspreis": 0.25,
+        "next_abschlag": 55.0,
+    }
+
+    async def test_the_switch_keeps_the_ended_term(self, contract):
+        await contract.setup(
+            STROM,
+            today="2026-12-31",
+            options=dict(self.OPTIONS),
+            latest=(2481.17, 2481.17),
+            offset=(1000.0, 1000.0),
+            sensor_states={SENSOR: "2481.17"},
+        )
+        assert contract.entry.data["anbieter"] == "Stadtwerke"
+        await contract.advance_to("2027-01-01")
+        entry = contract.entry
+        assert entry.data["anbieter"] == "Neuer Anbieter"
+        (term,) = entry.data["_historie"]
+        assert term["anbieter"] == "Stadtwerke"
+        assert term["beginn"] == "2026-01-01"
+        assert term["ende"] == "2026-12-31"
+        assert term["arbeitspreis"] == 0.2977
+        assert term["abschlag"] == 40.0
+        assert term["kosten"] is not None and term["kosten"] > 0
+        assert term["verbrauch"] == pytest.approx(1481.17)
+        assert term["abgeschlossen"] == "2027-01-01"
+        assert not {"kundennummer", "zaehlernummer", "marktlokation", "notify_target"} & set(term)
+        assert entry.runtime_data.data["historie"] == entry.data["_historie"]
+
+    async def test_a_contract_without_end_date_ends_on_the_switch_day(self, contract):
+        data = {k: v for k, v in STROM.items() if k != "ende"}
+        await contract.setup(data, today="2027-01-01", options=dict(self.OPTIONS))
+        (term,) = contract.entry.data["_historie"]
+        assert term["ende"] == "2027-01-01"
+
+    async def test_only_the_newest_terms_are_kept(self, contract):
+        old = [{"anbieter": f"Alt {i}"} for i in range(20)]
+        await contract.setup(
+            {**STROM, "_historie": old}, today="2027-01-01", options=dict(self.OPTIONS)
+        )
+        history = contract.entry.data["_historie"]
+        assert len(history) == 20
+        assert history[0]["anbieter"] == "Alt 1"  # the oldest one dropped out
+        assert history[-1]["anbieter"] == "Stadtwerke"
+
+    async def test_no_history_without_a_switch(self, setup_contract):
+        entry, d = await setup_contract(STROM, today="2026-07-12")
+        assert "_historie" not in entry.data
+        assert d["historie"] == []
+        assert d["archiviert"] is False
+
+    @pytest.mark.parametrize(
+        ("today", "extra", "options", "expected"),
+        [
+            ("2027-01-02", {}, {}, True),  # ended, nothing planned
+            ("2026-12-31", {}, {}, False),  # the end day itself is not over yet
+            ("2026-07-12", {}, {}, False),  # still running
+            ("2027-01-02", {"ende": None}, {}, False),  # no end date: never expires
+            ("2027-01-02", {"_archiviert": "2027-01-01"}, {}, False),  # already archived
+        ],
+    )
+    async def test_which_contracts_can_be_archived(self, setup_contract, today, extra, options, expected):
+        data = {**STROM, **extra}
+        if data.get("ende") is None:
+            data.pop("ende")
+        _, d = await setup_contract(data, today=today, options=options)
+        assert d["archivierbar"] is expected
+
+    async def test_an_archived_contract_stays_quiet(self, contract, hass):
+        data = {**STROM, "ende": "2026-09-30", "erinnerung_monate": "3", "abschlag_warnung": True}
+        await contract.setup(data, today="2026-07-01")
+        assert contract.entry.runtime_data.data["erinnerung_aktiv"] is True
+        await contract.entry.runtime_data.async_archive()
+        await hass.async_block_till_done()
+        d = contract.entry.runtime_data.data
+        assert d["archiviert"] is True
+        assert d["erinnerung_aktiv"] is False
+        assert d["abschlag_warnung_aktiv"] is False
+        assert not any(k.startswith("tariffy_") for k in hass.data["persistent_notification"])
+        await contract.entry.runtime_data.async_restore()
+        await hass.async_block_till_done()
+        assert contract.entry.runtime_data.data["erinnerung_aktiv"] is True
+
+    async def test_restoring_keeps_the_earlier_terms(self, contract, hass):
+        earlier = [{"anbieter": "Alt", "beginn": "2024-01-01", "ende": "2024-12-31"}]
+        await contract.setup({**STROM, "_historie": earlier}, today="2027-02-01")
+        await contract.entry.runtime_data.async_archive()
+        assert len(contract.entry.data["_historie"]) == 2
+        await contract.entry.runtime_data.async_restore()
+        assert contract.entry.data["_historie"] == earlier
+
+    async def test_planning_a_contract_after_archiving_does_not_add_the_term_twice(self, contract, hass):
+        await contract.setup({**STROM, "_archiviert": "2027-01-15"}, today="2027-02-01", options=dict(self.OPTIONS))
+        history = contract.entry.data.get("_historie") or []
+        assert history == []  # the archived contract had no entry here; none is made for the switch
+        assert "_archiviert" not in contract.entry.data  # the new contract is active again
