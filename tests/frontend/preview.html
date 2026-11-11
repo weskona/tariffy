@@ -46,6 +46,23 @@
         return { values: { verbrauch, kosten, abschlag_gezahlt: paid, saldo },
           source: v.verbrauch !== undefined ? "manual" : "statistics", sensors: ["sensor.strom_haus"], months: 11.99 };
       }
+      if (message.type === "tariffy/backup_export") {
+        return { backup: { tariffy_backup: 1, created: "2026-07-12T12:00:00+02:00", version: "1.28.0",
+          contracts: [{ title: "Strom Haus", data: { sparte: "electricity", anbieter: "Stadtwerke Nord" }, options: {} }] } };
+      }
+      if (message.type === "tariffy/backup_preview") { // the first contract is missing, the others exist
+        return { contracts: message.backup.contracts.map((c, i) => ({ title: c.title, sparte: c.data.sparte, action: i === 0 ? "create" : "skip" })) };
+      }
+      if (message.type === "tariffy/backup_restore") {
+        if (params.get("bkerr") === "1") throw Object.assign(new Error("restore_failed"), { code: "restore_failed" });
+        const titles = message.backup.contracts.map((c) => c.title);
+        return { created: titles.slice(0, 1), skipped: titles.slice(1) };
+      }
+      if (message.type === "tariffy/deleted_list") {
+        return { deleted: [{ id: "d1", title: "Strom 2023", sparte: "electricity", deleted: "2026-07-01" }] };
+      }
+      if (message.type === "tariffy/deleted_restore") return { title: "Strom 2023" };
+      if (message.type === "tariffy/deleted_discard") return { ok: true };
       if (params.get("histerr") === "1" && message.type === "tariffy/history_save") {
         throw Object.assign(new Error("invalid_dates"), { code: "invalid_dates" });
       }

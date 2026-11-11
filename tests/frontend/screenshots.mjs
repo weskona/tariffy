@@ -31,7 +31,7 @@ const shots = [
   { name: "desktop", viewport: { width: 1280, height: 900 }, scale: 1, narrow: false },
   { name: "mobile", viewport: { width: 390, height: 844 }, scale: 2, narrow: true },
 ];
-const tabs = [["overview", 0], ["costs", 1], ["contracts", 2], ["history", 3]];
+const tabs = [["overview", 0], ["costs", 1], ["contracts", 2], ["history", 3], ["backup", 4]];
 const errors = [];
 
 for (const shot of shots) {
@@ -973,6 +973,108 @@ for (const width of [1280, 900, 600, 390]) {
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog .err"));
   check((await page.locator(".dialog .err").innerText()).includes("Das Ende darf nicht vor dem Beginn liegen."), "the reason is shown");
   check(await page.getByRole("button", { name: "Speichern" }).isEnabled(), "and the dialog can be corrected and saved again");
+  await context.close();
+}
+
+{ // backup: export, restore from a file, deleted contracts
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1, acceptDownloads: true });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`backup: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const wrapText = () => page.evaluate(() => window.__panel.shadowRoot.querySelector(".wrap").innerText.replace(/\u00a0/g, " "));
+  const bkCalls = async () => (await calls(page)).filter((c) => /backup_|deleted_/.test(String(c.type)) && c.type !== "tariffy/deleted_list" && c.type !== "tariffy/backup_preview");
+  await page.getByRole("tab", { name: "Sicherung", exact: true }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk-row"));
+  let text = await wrapText();
+  check(/sicherung erstellen/i.test(text) && text.includes("persönliche Daten"), "the backup tab explains that the file has personal data");
+  check(text.includes("Strom 2023") && text.includes("gelöscht am 01.07.2026"), "a deleted contract is listed with its date");
+
+  // export: a file download with all contracts
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Sicherung herunterladen" }).click()]);
+  check(/^tariffy-backup-\d{4}-\d{2}-\d{2}\.json$/.test(download.suggestedFilename()), `the file has a dated name (${download.suggestedFilename()})`);
+  const { readFile } = await import("node:fs/promises");
+  const saved = JSON.parse(await readFile(await download.path(), "utf8"));
+  check(saved.tariffy_backup === 1 && saved.contracts.length === 1, "the downloaded file is the backup");
+  check((await wrapText()).includes("Sicherung heruntergeladen: 1 Verträge."), "and the panel says so");
+  const exported = (await bkCalls()).length; // the export itself is a call; what follows must not add any until confirmed
+
+  // restore: a preview first, then asking, then only the missing contracts are created
+  const file = { tariffy_backup: 1, contracts: [
+    { title: "Strom Alt", data: { sparte: "electricity" }, options: {} }, { title: "Gas Alt", data: { sparte: "gas" }, options: {} } ] };
+  await page.locator(".bk .file").setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk table"));
+  text = await wrapText();
+  check(text.includes("Strom Alt") && text.includes("wird angelegt") && text.includes("übersprungen: gibt es schon"), "the preview says what is created and what is skipped");
+  check((await bkCalls()).length === exported, "a preview creates nothing");
+  await page.getByRole("button", { name: "Wiederherstellen (1)" }).click();
+  check((await page.locator(".bk .ask").count()) === 1 && (await bkCalls()).length === exported, "restoring asks first");
+  await page.getByRole("button", { name: "Abbrechen" }).click();
+  check((await bkCalls()).length === exported, "cancelling does nothing");
+  await page.getByRole("button", { name: "Wiederherstellen (1)" }).click();
+  await page.getByRole("button", { name: "Ja, wiederherstellen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk-msg"));
+  const restoreCall = (await bkCalls()).at(-1);
+  check(restoreCall.type === "tariffy/backup_restore" && restoreCall.backup.contracts.length === 2, "the whole file is sent for restoring");
+  check((await wrapText()).includes("Wiederhergestellt: 1 angelegt, 1 übersprungen."), "the result is shown");
+  check((await page.locator(".bk table").count()) === 0, "and the preview is gone");
+
+  // a file that is not a backup
+  await page.locator(".bk .file").setInputFiles({ name: "x.json", mimeType: "application/json", buffer: Buffer.from("das ist kein json") });
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
+  check((await page.locator(".err").innerText()).includes("keine gültige Tariffy-Sicherung"), "a file that is no backup is refused with a reason");
+
+  // forgetting a deleted contract asks first, too
+  const beforeDiscard = (await bkCalls()).length;
+  await page.getByRole("button", { name: "Jetzt vergessen" }).click();
+  check((await page.locator(".bk-row .ask").count()) === 1 && (await bkCalls()).length === beforeDiscard, "forgetting a deleted contract asks first");
+  await page.getByRole("button", { name: "Ja, vergessen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk-msg")?.innerText.includes("vergessen"));
+  const discarded = (await bkCalls()).at(-1);
+  check(discarded.type === "tariffy/deleted_discard" && discarded.item_id === "d1", "it is forgotten for good");
+
+  // deleted contracts: asks first
+  const before = (await bkCalls()).length;
+  await page.getByRole("button", { name: "Zurückholen" }).click();
+  check((await page.locator(".bk-row .ask").count()) === 1 && (await bkCalls()).length === before, "bringing a contract back asks first");
+  await page.getByRole("button", { name: "Ja, zurückholen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk-msg"));
+  const restoreOne = (await bkCalls()).at(-1);
+  check(restoreOne.type === "tariffy/deleted_restore" && restoreOne.item_id === "d1", "the deleted contract is brought back");
+  check((await wrapText()).includes("„Strom 2023“ ist wieder da."), "and the panel says so");
+  await page.screenshot({ path: join(outDir, "desktop-backup-actions.png"), fullPage: true });
+  await context.close();
+}
+
+{ // the backup tab belongs to administrators
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`backup/non-admin: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.addInitScript(() => window.localStorage.setItem("tariffy-panel-tab", "backup"));
+  await page.goto(`${base}?lang=de&admin=0`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".tabs"));
+  check((await page.getByRole("tab", { name: "Sicherung", exact: true }).count()) === 0, "non-administrators have no backup tab");
+  check((await page.locator(".bk").count()) === 0 && (await page.locator(".card").count()) > 0, "and a saved backup tab does not trap them: they get the overview");
+  await context.close();
+}
+
+{ // a refused restore says why
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`backup/error: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&bkerr=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Sicherung", exact: true }).click();
+  const file = { tariffy_backup: 1, contracts: [{ title: "Strom Alt", data: { sparte: "electricity" }, options: {} }] };
+  await page.locator(".bk .file").setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk table"));
+  await page.getByRole("button", { name: "Wiederherstellen (1)" }).click();
+  await page.getByRole("button", { name: "Ja, wiederherstellen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
+  check((await page.locator(".err").innerText()).includes("Das Wiederherstellen ist fehlgeschlagen."), "a failed restore shows its reason");
   await context.close();
 }
 

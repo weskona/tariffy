@@ -7,6 +7,15 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.3] - 2026-11-11
+
+Dritte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Sicherung und Wiederherstellung.** Der neue Tab **Sicherung** des Seitenleisten-Panels (nur Administratoren) lädt alle Verträge als Datei herunter (Daten, Historie, Archiv, geplanter Folgevertrag, interner Zustand), stellt Verträge aus einer solchen Datei wieder her und holt gelöschte Verträge zurück. Beim Wiederherstellen siehst du zuerst, was passieren würde, und es werden nur Verträge angelegt, die es noch nicht gibt (gleicher Name und Sparte); vorhandene Verträge werden nie verändert. Die Datei wird streng geprüft, eine kaputte Datei legt nichts an. **Die Datei enthält persönliche Daten** (Kundennummer, Zählernummer, Marktlokations-ID, Benachrichtigungsziel); der Tab weist darauf hin. Neue Websocket-Befehle `tariffy/backup_export`, `tariffy/backup_preview`, `tariffy/backup_restore`, `tariffy/deleted_list`, `tariffy/deleted_restore` und `tariffy/deleted_discard` (nur Administratoren) und ein `import`-Schritt des Config-Flows, der einen Vertrag aus einer Sicherung anlegt.
+- **Gelöschte Verträge lassen sich zurückholen.** Wird ein Vertrag gelöscht (im Panel oder in Home Assistant), bleibt er 30 Tage lang (höchstens die letzten 20) in Home Assistants Speicher (`.storage/tariffy.deleted`) erhalten und lässt sich im Tab Sicherung wiederherstellen. "Jetzt vergessen" entfernt eine solche Sicherung sofort. Das Löschen scheitert daran nie.
+
 ## [1.28.0-beta.2] - 2026-11-11
 
 Zweite Beta zum Testen der Vertragshistorie. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

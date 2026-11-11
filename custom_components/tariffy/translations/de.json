@@ -471,7 +471,8 @@
       }
     },
     "abort": {
-      "reconfigure_successful": "Vertrag wurde aktualisiert."
+      "reconfigure_successful": "Vertrag wurde aktualisiert.",
+      "invalid_backup": "Die Sicherung ist nicht gültig."
     },
     "error": {
       "invalid_number": "Keine gültige Zahl. Bitte Punkt oder Komma als Dezimaltrennzeichen verwenden (z.B. 11.2 oder 11,2)."

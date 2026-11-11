@@ -471,7 +471,8 @@
       }
     },
     "abort": {
-      "reconfigure_successful": "Contract updated."
+      "reconfigure_successful": "Contract updated.",
+      "invalid_backup": "The backup is not valid."
     },
     "error": {
       "invalid_number": "Not a valid number. Use a dot or comma as the decimal separator (e.g. 11.2 or 11,2)."

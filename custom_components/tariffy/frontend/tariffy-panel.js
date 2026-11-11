@@ -71,6 +71,20 @@ const I18N = {
     actAskArchive: "Archive this contract? It leaves the overview, the costs and the contracts and moves to the History tab. Nothing is deleted and you can bring it back.",
     actYesArchive: "Yes, archive",
     actAskRestore: "Bring this contract back to the overview?", actYesRestore: "Yes, restore",
+    backup: "Backup", bkTitleExport: "Create a backup", bkTitleRestore: "Restore from a file", bkTitleDeleted: "Deleted contracts",
+    bkExportText: "Saves all contracts in one file: their data, history, planned next contract and acknowledgements. The file contains personal data (customer number, meter number, market location, notification target). Keep it safe and do not pass it on.",
+    bkDownload: "Download backup", bkDownloaded: "Backup downloaded: {n} contracts.",
+    bkRestoreText: "Choose a backup file. You see what would happen before anything is created. Contracts that exist already (same name and kind) are skipped and never changed; only missing ones are created.",
+    bkPlanCreate: "will be created", bkPlanSkip: "skipped: exists already", bkNothing: "Nothing to restore: the contracts of this file exist already.",
+    bkRestoreGo: "Restore ({n})", bkAskRestore: "Create {n} missing contract(s) from this file? Existing contracts are not changed.",
+    bkYesRestore: "Yes, restore", bkDone: "Restored: {c} created, {s} skipped.",
+    bkDeletedText: "A deleted contract is kept for 30 days and can be brought back here, also if it was deleted in Home Assistant.",
+    bkDeletedEmpty: "No deleted contracts.", bkDeletedOn: "deleted {d}", bkRestoreOne: "Restore", bkAskOne: "Bring back \"{name}\"?",
+    bkYesOne: "Yes, bring back", bkRestoredOne: "\"{name}\" is back.",
+    bkDiscard: "Forget now", bkAskDiscard: "Forget \"{name}\" for good? It can not be brought back afterwards.",
+    bkYesDiscard: "Yes, forget", bkDiscarded: "\"{name}\" was forgotten.",
+    bkErr_invalid_backup: "This file is not a valid Tariffy backup.", bkErr_exists: "A contract with this name and kind exists already.",
+    bkErr_not_found: "This backup does not exist any more.", bkErr_restore_failed: "Restoring failed.", bkErrBig: "The file is too large.",
     termAdd: "Add an old contract", termEdit: "Edit this term", termTitleAdd: "Add an old contract", termTitleEdit: "Edit term",
     termHint: "Enter the term of an earlier contract. Leave the grey fields empty and they are worked out automatically (the consumption from the statistics of the meter, the rest from it and your prices). You can type a value into any field yourself.",
     termDelete: "Delete term", termDeleteAsk: "Delete this term from the history?", termDeleteYes: "Yes, delete", termManual: "entered by hand",
@@ -172,6 +186,20 @@ const I18N = {
     actAskArchive: "Diesen Vertrag archivieren? Er verschwindet aus Übersicht, Kosten und Verträgen und steht in der Historie. Nichts wird gelöscht, du kannst ihn zurückholen.",
     actYesArchive: "Ja, archivieren",
     actAskRestore: "Diesen Vertrag wieder in die Übersicht holen?", actYesRestore: "Ja, zurückholen",
+    backup: "Sicherung", bkTitleExport: "Sicherung erstellen", bkTitleRestore: "Aus Datei wiederherstellen", bkTitleDeleted: "Gelöschte Verträge",
+    bkExportText: "Speichert alle Verträge in einer Datei: ihre Daten, die Historie, den geplanten Folgevertrag und die Bestätigungen. Die Datei enthält persönliche Daten (Kundennummer, Zählernummer, Marktlokation, Benachrichtigungsziel). Bewahre sie sicher auf und gib sie nicht weiter.",
+    bkDownload: "Sicherung herunterladen", bkDownloaded: "Sicherung heruntergeladen: {n} Verträge.",
+    bkRestoreText: "Wähle eine Sicherungsdatei. Du siehst vorher, was passieren würde, bevor etwas angelegt wird. Verträge, die es schon gibt (gleicher Name und Sparte), werden übersprungen und nie verändert; nur fehlende werden angelegt.",
+    bkPlanCreate: "wird angelegt", bkPlanSkip: "übersprungen: gibt es schon", bkNothing: "Nichts wiederherzustellen: die Verträge dieser Datei gibt es schon.",
+    bkRestoreGo: "Wiederherstellen ({n})", bkAskRestore: "{n} fehlende(n) Vertrag/Verträge aus dieser Datei anlegen? Vorhandene Verträge werden nicht verändert.",
+    bkYesRestore: "Ja, wiederherstellen", bkDone: "Wiederhergestellt: {c} angelegt, {s} übersprungen.",
+    bkDeletedText: "Ein gelöschter Vertrag bleibt 30 Tage erhalten und lässt sich hier zurückholen, auch wenn er in Home Assistant gelöscht wurde.",
+    bkDeletedEmpty: "Keine gelöschten Verträge.", bkDeletedOn: "gelöscht am {d}", bkRestoreOne: "Zurückholen", bkAskOne: "„{name}“ zurückholen?",
+    bkYesOne: "Ja, zurückholen", bkRestoredOne: "„{name}“ ist wieder da.",
+    bkDiscard: "Jetzt vergessen", bkAskDiscard: "„{name}“ endgültig vergessen? Danach lässt er sich nicht mehr zurückholen.",
+    bkYesDiscard: "Ja, vergessen", bkDiscarded: "„{name}“ wurde vergessen.",
+    bkErr_invalid_backup: "Das ist keine gültige Tariffy-Sicherung.", bkErr_exists: "Einen Vertrag mit diesem Namen und dieser Sparte gibt es schon.",
+    bkErr_not_found: "Diese Sicherung gibt es nicht mehr.", bkErr_restore_failed: "Das Wiederherstellen ist fehlgeschlagen.", bkErrBig: "Die Datei ist zu groß.",
     termAdd: "Alten Vertrag hinzufügen", termEdit: "Laufzeit bearbeiten", termTitleAdd: "Alten Vertrag hinzufügen", termTitleEdit: "Laufzeit bearbeiten",
     termHint: "Trage die Laufzeit eines früheren Vertrags ein. Lass die grau hinterlegten Felder leer, dann werden sie automatisch berechnet (der Verbrauch aus den Statistiken des Zählers, der Rest daraus und aus deinen Preisen). In jedes Feld kannst du auch selbst einen Wert eintragen.",
     termDelete: "Laufzeit löschen", termDeleteAsk: "Diese Laufzeit aus der Historie löschen?", termDeleteYes: "Ja, löschen", termManual: "von Hand eingetragen",
@@ -213,7 +241,7 @@ const I18N = {
 };
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const TABS = ["overview", "costs", "contracts", "history"];
+const TABS = ["overview", "costs", "contracts", "history", "backup"];
 // contracts that are billed by consumption; everything else (internet, mobile, ...) is a flat rate
 // column widths shared by the cost tables, so that their columns line up
 const GRID = ["24%", "15.2%", "15.2%", "15.2%", "15.2%", "15.2%"];
@@ -424,6 +452,15 @@ tr.sub td:first-child { padding-left: 32px; }
 .hist-head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
 .hist-head .who { flex: 1; }
 .hist .actions { margin-top: 10px; }
+.bk { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: grid; gap: 12px; }
+.bk p { margin: 0; font-size: 13px; color: var(--muted); }
+.bk-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; justify-content: space-between; }
+.bk-row .who { flex: 1 1 200px; }
+.bk-msg { margin: 0 0 12px; font-size: 13px; color: var(--green); }
+.bk .file { font: inherit; font-size: 13px; color: var(--muted); max-width: 100%; }
+.bk .file::file-selector-button { font: inherit; font-size: 13px; font-weight: 700; padding: 8px 14px; margin-right: 10px; border-radius: 10px;
+  border: 1px solid var(--tile-line); background: var(--tile); color: var(--text); cursor: pointer; }
+.bk .file::file-selector-button:hover { background: rgba(255,255,255,.09); }
 td.act { width: 1%; white-space: nowrap; }
 .fnote { font-size: 12px; color: var(--muted); margin-top: 4px; }
 tr.total td { font-weight: 700; border-bottom: 0; background: var(--panel2); }
@@ -465,7 +502,7 @@ details[open] summary .caret svg { transform: rotate(90deg); }
 @container (max-width: 760px) {
   .wrap { padding: 12px 12px 32px; }
   .top { gap: 10px; }
-  .tabs { order: 3; width: 100%; margin: 0; }
+  .tabs { order: 3; width: 100%; margin: 0; overflow-x: auto; scrollbar-width: none; }
   .tab { flex: 1; padding: 9px 6px; }
   .spacer { display: none; }
   .summary { grid-template-columns: 1fr; gap: 10px; }
@@ -561,6 +598,7 @@ class TariffyPanel extends HTMLElement {
     this._confirming = null;
     this._busy = null;
     this._actionError = null;
+    this._bk = { deleted: null, loading: false, plan: null, backup: null, file: null, message: null, error: null, busy: false, asking: null };
     this.attachShadow({ mode: "open" });
   }
 
@@ -777,6 +815,8 @@ class TariffyPanel extends HTMLElement {
       wrap.appendChild(h("div", { class: "state" }, h("h2", { text: this._t("error" ) }), h("div", { text: this._error })));
     } else if (this._contracts === null) {
       wrap.appendChild(h("div", { class: "state", text: this._t("loading") }));
+    } else if (this._tab === "backup" && this._isAdmin) {
+      wrap.appendChild(this._backup());
     } else if (this._contracts.length === 0) {
       wrap.appendChild(this._empty());
     } else if (this._tab === "history") {
@@ -811,7 +851,7 @@ class TariffyPanel extends HTMLElement {
       : null;
     const tabs = h(
       "div", { class: "tabs", role: "tablist" },
-      TABS.map((tab) => h("button", {
+      TABS.filter((tab) => tab !== "backup" || this._isAdmin).map((tab) => h("button", {
         class: "tab", role: "tab", "aria-selected": String(this._tab === tab), text: this._t(tab),
         onclick: () => { this._tab = tab; this._saveTab(tab); this._render(); },
       }))
@@ -1544,6 +1584,145 @@ class TariffyPanel extends HTMLElement {
       const first = el.querySelector("input, select");
       if (first) first.focus();
     }
+  }
+
+  /* ----- backup: export, restore from a file, deleted contracts (administrators only) ----- */
+
+  _bkError(err) {
+    const code = String((err && (err.code || (err.body && err.body.code))) || "");
+    const key = `bkErr_${code}`;
+    return I18N[this._lang][key] || I18N.en[key] ? this._t(key) : this._t("bkErr_invalid_backup");
+  }
+
+  async _bkLoad() {
+    const bk = this._bk;
+    bk.loading = true;
+    try {
+      bk.deleted = (await this._hass.callWS({ type: "tariffy/deleted_list" })).deleted || [];
+    } catch (_err) {
+      bk.deleted = [];
+    }
+    bk.loading = false;
+    this._render();
+  }
+
+  async _bkDownload() {
+    const bk = this._bk;
+    bk.message = null;
+    bk.error = null;
+    try {
+      const { backup } = await this._hass.callWS({ type: "tariffy/backup_export" });
+      const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
+      const link = h("a", { href: url, download: `tariffy-backup-${new Date().toISOString().slice(0, 10)}.json` });
+      this.shadowRoot.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      bk.message = this._t("bkDownloaded", { n: backup.contracts.length });
+    } catch (err) {
+      bk.error = this._bkError(err);
+    }
+    this._render();
+  }
+
+  async _bkPick(file) {
+    const bk = this._bk;
+    Object.assign(bk, { plan: null, backup: null, file: null, message: null, error: null, asking: null });
+    if (file && file.size > 1048576) {
+      bk.error = this._t("bkErrBig");
+    } else if (file) {
+      try {
+        const backup = JSON.parse(await file.text());
+        bk.plan = (await this._hass.callWS({ type: "tariffy/backup_preview", backup })).contracts;
+        bk.backup = backup;
+        bk.file = file.name;
+      } catch (err) {
+        bk.error = this._bkError(err);
+      }
+    }
+    this._render();
+  }
+
+  async _bkRun(task, done) {
+    const bk = this._bk;
+    Object.assign(bk, { busy: true, asking: null, message: null, error: null });
+    this._render();
+    try {
+      bk.message = done(await task());
+    } catch (err) {
+      bk.error = this._bkError(err);
+    }
+    bk.busy = false;
+    await this._bkLoad();
+  }
+
+  _bkRestore() {
+    const bk = this._bk;
+    return this._bkRun(() => this._hass.callWS({ type: "tariffy/backup_restore", backup: bk.backup }), (r) => {
+      bk.plan = null;
+      bk.backup = null;
+      return this._t("bkDone", { c: r.created.length, s: r.skipped.length });
+    });
+  }
+
+  _bkDiscard(item) {
+    return this._bkRun(() => this._hass.callWS({ type: "tariffy/deleted_discard", item_id: item.id }),
+      () => this._t("bkDiscarded", { name: item.title }));
+  }
+
+  _bkRestoreOne(item) {
+    return this._bkRun(() => this._hass.callWS({ type: "tariffy/deleted_restore", item_id: item.id }),
+      (r) => this._t("bkRestoredOne", { name: r.title }));
+  }
+
+  _backup() {
+    const bk = this._bk;
+    if (bk.deleted === null && !bk.loading) this._bkLoad();
+    const ask = (text, yes, onYes) => h("div", { class: "ask" }, h("span", { text }),
+      h("button", { class: "btn go", type: "button", disabled: bk.busy ? "" : null, text: yes, onclick: onYes }),
+      h("button", { class: "btn", type: "button", text: this._t("actCancel"), onclick: () => { bk.asking = null; this._render(); } }));
+    const section = (title, ...children) => h("section", { class: "group" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t(title) })), h("div", { class: "bk" }, children));
+    const text = (key) => h("p", { text: this._t(key) });
+
+    const creating = (bk.plan || []).filter((step) => step.action === "create").length;
+    const plan = bk.plan ? [
+      h("table", {}, h("thead", {}, h("tr", {}, [this._t("colContract"), ""].map((label) => h("th", { text: label })))),
+        h("tbody", {}, bk.plan.map((step) => h("tr", {},
+          h("td", {}, step.title, h("span", { class: "t2", text: this._t("sparte")[step.sparte] || step.sparte })),
+          h("td", { class: step.action === "create" ? "green-t" : "muted-t", text: this._t(step.action === "create" ? "bkPlanCreate" : "bkPlanSkip") }))))),
+      creating === 0 ? h("p", { text: this._t("bkNothing") }) : null,
+      creating > 0 && bk.asking === "restore"
+        ? ask(this._t("bkAskRestore", { n: creating }), this._t("bkYesRestore"), () => this._bkRestore())
+        : creating > 0 ? h("div", { class: "actions" }, h("button", { class: "btn go", type: "button", disabled: bk.busy ? "" : null,
+          text: this._t("bkRestoreGo", { n: creating }), onclick: () => { bk.asking = "restore"; this._render(); } })) : null,
+    ] : [];
+
+    const deleted = (bk.deleted || []).map((item) => h("div", { class: "bk-row" },
+      h("div", { class: "who" }, h("div", { class: "title", text: item.title }),
+        h("div", { class: "meta", text: `${this._t("sparte")[item.sparte] || item.sparte} · ${this._t("bkDeletedOn", { d: this._date(item.deleted) })}` })),
+      bk.asking === item.id
+        ? ask(this._t("bkAskOne", { name: item.title }), this._t("bkYesOne"), () => this._bkRestoreOne(item))
+        : bk.asking === `discard:${item.id}`
+          ? ask(this._t("bkAskDiscard", { name: item.title }), this._t("bkYesDiscard"), () => this._bkDiscard(item))
+          : h("div", { class: "actions" },
+            h("button", { class: "btn blue", type: "button", disabled: bk.busy ? "" : null, text: this._t("bkRestoreOne"),
+              onclick: () => { bk.asking = item.id; this._render(); } }),
+            h("button", { class: "btn red", type: "button", disabled: bk.busy ? "" : null, text: this._t("bkDiscard"),
+              onclick: () => { bk.asking = `discard:${item.id}`; this._render(); } }))));
+
+    return h("div", {},
+      bk.message ? h("p", { class: "bk-msg", role: "status", text: bk.message }) : null,
+      bk.error ? h("div", { class: "err", role: "alert", text: bk.error }) : null,
+      section("bkTitleExport", text("bkExportText"),
+        h("div", { class: "actions" }, h("button", { class: "btn blue", type: "button", disabled: bk.busy ? "" : null,
+          text: this._t("bkDownload"), onclick: () => this._bkDownload() }))),
+      section("bkTitleRestore", text("bkRestoreText"),
+        h("input", { class: "file", type: "file", accept: ".json,application/json", "aria-label": this._t("bkTitleRestore"),
+          onchange: (ev) => this._bkPick(ev.target.files && ev.target.files[0]) }),
+        plan),
+      section("bkTitleDeleted", text("bkDeletedText"),
+        deleted.length ? deleted : (bk.deleted === null ? null : h("p", { text: this._t("bkDeletedEmpty") }))));
   }
 
   /* ----- old contracts: a term entered by hand (administrators only) ----- */
