@@ -65,3 +65,11 @@ def test_every_used_text_exists():
     used |= {"overview", "costs", "contracts", "highTariff", "lowTariff", "sparte"}
     missing = used - _keys(_block("en"))
     assert missing == set(), f"used but not defined: {missing}"
+
+
+def test_empty_overview_groups_are_not_appended():
+    """Issue #50: with only metered or only flat-rate contracts one group is null.
+    `appendChild(null)` throws and leaves the whole panel empty, so the overview
+    must never append a group directly."""
+    assert "wrap.appendChild(group(" not in SOURCE
+    assert "if (section) wrap.appendChild(section)" in SOURCE
