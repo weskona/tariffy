@@ -8,6 +8,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
+from .backup import async_remember_deleted
 from .const import (
     CONF_SPARTE,
     NOTIFY_ID_ABSCHLAG_PREFIX,
@@ -81,3 +82,5 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Ein geloeschter Vertrag hinterlaesst keine offenen Meldungen."""
     for prefix in (NOTIFY_ID_PREFIX, NOTIFY_ID_ABSCHLAG_PREFIX):
         persistent_notification.async_dismiss(hass, f"{prefix}{entry.entry_id}")
+    # 30 Tage lang zurueckholbar (Panel > Sicherung); das Loeschen scheitert daran nie
+    await async_remember_deleted(hass, entry)

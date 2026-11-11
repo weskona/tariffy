@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-beta.3] - 2026-11-11
+
+Third beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **Backup and restore.** The new **Backup** tab of the sidebar panel (administrators only) downloads all contracts as a file (data, history, archive, planned next contract, internal state), restores contracts from such a file and brings back deleted contracts. Restoring shows what would happen first and then creates only the contracts that do not exist yet (same name and kind); existing contracts are never changed. The file is checked strictly, and a broken file creates nothing. **The file contains personal data** (customer number, meter number, market location ID, notification target); the tab says so. New websocket commands `tariffy/backup_export`, `tariffy/backup_preview`, `tariffy/backup_restore`, `tariffy/deleted_list`, `tariffy/deleted_restore` and `tariffy/deleted_discard` (administrators only) and an `import` step of the config flow that creates a contract from a backup.
+- **Deleted contracts can be brought back.** When a contract is deleted (in the panel or in Home Assistant), it is kept for 30 days (at most the last 20) in Home Assistant's storage (`.storage/tariffy.deleted`) and can be restored in the Backup tab. "Forget now" removes such a backup at once. Deleting never fails because of this.
+
 ## [1.28.0-beta.2] - 2026-11-11
 
 Second beta for testing the contract history. Please report problems with the bug report form and mention this exact version.

@@ -26,7 +26,7 @@ from homeassistant.helpers.dispatcher import (
 )
 from homeassistant.loader import async_get_integration
 
-from . import history
+from . import backup, history
 from .const import (
     CONF_VERBRAUCH_SENSOR,
     DOMAIN,
@@ -336,6 +336,82 @@ async def ws_history_delete(hass: HomeAssistant, connection, msg: dict[str, Any]
     connection.send_result(msg["id"], {"ok": True})
 
 
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "tariffy/backup_export"})
+@websocket_api.async_response
+async def ws_backup_export(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Alle Vertraege als Sicherung (enthaelt persoenliche Daten, nur fuer Administratoren)."""
+    connection.send_result(msg["id"], {"backup": await backup.async_build_backup(hass)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "tariffy/backup_preview", vol.Required("backup"): dict}
+)
+@callback
+def ws_backup_preview(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Zeigt, was das Wiederherstellen taete (legt nichts an)."""
+    try:
+        contracts = backup.sanitize_backup(msg["backup"])
+    except backup.BackupError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], {"contracts": backup.plan(hass, contracts)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "tariffy/backup_restore", vol.Required("backup"): dict}
+)
+@websocket_api.async_response
+async def ws_backup_restore(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Legt die fehlenden Vertraege einer Sicherung an, vorhandene bleiben unberuehrt."""
+    try:
+        result = await backup.async_restore(hass, msg["backup"])
+    except backup.BackupError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], result)
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "tariffy/deleted_list"})
+@websocket_api.async_response
+async def ws_deleted_list(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Die geloeschten Vertraege, die sich noch zurueckholen lassen."""
+    connection.send_result(msg["id"], {"deleted": await backup.async_deleted(hass)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "tariffy/deleted_restore", vol.Required("item_id"): str}
+)
+@websocket_api.async_response
+async def ws_deleted_restore(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Holt einen geloeschten Vertrag zurueck."""
+    try:
+        title = await backup.async_restore_deleted(hass, msg["item_id"])
+    except backup.BackupError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], {"title": title})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "tariffy/deleted_discard", vol.Required("item_id"): str}
+)
+@websocket_api.async_response
+async def ws_deleted_discard(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Vergisst einen geloeschten Vertrag endgueltig."""
+    try:
+        await backup.async_discard_deleted(hass, msg["item_id"])
+    except backup.BackupError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], {"ok": True})
+
+
 async def async_setup_panel(hass: HomeAssistant) -> None:
     """Register the panel once per Home Assistant. Never raises."""
     state = hass.data.setdefault(
@@ -353,6 +429,15 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             websocket_api.async_register_command(hass, ws_history_calc)
             websocket_api.async_register_command(hass, ws_history_save)
             websocket_api.async_register_command(hass, ws_history_delete)
+            for command in (
+                ws_backup_export,
+                ws_backup_preview,
+                ws_backup_restore,
+                ws_deleted_list,
+                ws_deleted_restore,
+                ws_deleted_discard,
+            ):
+                websocket_api.async_register_command(hass, command)
             state["commands"] = True
 
         if not state["static"]:

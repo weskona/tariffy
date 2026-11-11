@@ -16,6 +16,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
 from homeassistant.util import dt as dt_util
 
+from .backup import BackupError, sanitize_contract
 from .const import (
     CONF_ABSCHLAG,
     CONF_ABSCHLAG_AB_DATUM,
@@ -729,6 +730,16 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             return await self.async_step_pauschal()
         return self.async_show_form(
             step_id="user", data_schema=_common_schema(self.hass, {}, mit_name=True)
+        )
+
+    async def async_step_import(self, import_data: dict[str, Any]) -> ConfigFlowResult:
+        """Legt einen Vertrag aus einer Sicherung an (Name, Daten, Folgevertrag)."""
+        try:
+            contract = sanitize_contract(import_data)
+        except BackupError:
+            return self.async_abort(reason="invalid_backup")
+        return self.async_create_entry(
+            title=contract["title"], data=contract["data"], options=contract["options"]
         )
 
     async def async_step_energie(
