@@ -848,12 +848,12 @@ class TestContractHistory:
         assert term["ende"] == "2027-01-01"
 
     async def test_only_the_newest_terms_are_kept(self, contract):
-        old = [{"anbieter": f"Alt {i}"} for i in range(20)]
+        old = [{"anbieter": f"Alt {i}"} for i in range(50)]
         await contract.setup(
             {**STROM, "_historie": old}, today="2027-01-01", options=dict(self.OPTIONS)
         )
         history = contract.entry.data["_historie"]
-        assert len(history) == 20
+        assert len(history) == 50
         assert history[0]["anbieter"] == "Alt 1"  # the oldest one dropped out
         assert history[-1]["anbieter"] == "Stadtwerke"
 
