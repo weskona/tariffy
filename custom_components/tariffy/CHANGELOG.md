@@ -7,6 +7,25 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.3] - 2026-11-11
+
+### Behoben
+
+- **Das Seitenleisten-Panel war leer, wenn man nur Verträge einer Art hat** (zum Beispiel nur einen Strom-, Gas- oder Wasservertrag, oder nur Pauschalverträge wie Internet oder Mobilfunk). Die Übersicht brach mit „Failed to execute 'appendChild' on 'Node'" ab, weil sie eine Gruppe ohne Verträge einfügen wollte. Das Panel überspringt leere Gruppen jetzt. Gemeldet in #50.
+
+## [1.27.2] - 2026-11-10
+
+### Hinzugefügt
+
+- **Diagnose-Download.** In Home Assistant unter Einstellungen > Geräte & Dienste > Tariffy > Menü des Vertrags > „Diagnose herunterladen" gibt es eine Datei mit den Einstellungen, den zuletzt berechneten Werten, ob das letzte Update geklappt hat, wie der Verbrauch ermittelt wurde (manueller Startwert oder Statistik, mit den Rohwerten) und dem Zustand des Zählersensors. Kundennummer, Zählernummer, Marktlokation (MaLo-ID) und Benachrichtigungsziel sind geschwärzt. Diese Datei bitte an eine Fehlermeldung anhängen.
+- **Eine Zeile im Log, wenn der Verbrauch unbekannt wird.** Kann „Verbrauch (Bisher)" nicht berechnet werden, schreibt Tariffy eine Warnung mit dem Grund in das Home-Assistant-Protokoll (ohne Debug-Protokollierung), und eine Info-Zeile, sobald er wieder bekannt ist. Solange der Zustand gleich bleibt, wird nichts geloggt, das Protokoll läuft also nicht voll.
+
+## [1.27.1] - 2026-11-10
+
+### Behoben
+
+- **Verbrauchs- und Guthaben-Sensoren fielen zeitweise auf "Unbekannt", wenn ein "Zählerstand bei Vertragsbeginn" eingetragen war und der Zähler kurz nicht verfügbar war** (Wasser, Gas, Strom, auch das Niedertarif-Register beim Zweizählertarif). Mit manuellem Startwert wurde nur der Live-Zustand des Zählers gelesen. Ist er `unavailable` oder `unknown`, wird jetzt der zuletzt aufgezeichnete Statistikwert verwendet. Ohne jeden Messwert bleiben die Sensoren wie bisher unbekannt. Gemeldet in #46.
+
 ## [1.27.0] - 2026-11-07
 
 ### Added

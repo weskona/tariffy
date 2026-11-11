@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.27.3] - 2026-11-11
+
+### Fixed
+
+- **The sidebar panel was empty if you only have contracts of one kind** (for example only an electricity, gas or water contract, or only flat-rate contracts such as internet or mobile). The overview failed with "Failed to execute 'appendChild' on 'Node'" because it tried to add a group without contracts. The panel now skips empty groups. Reported in #50.
+
+## [1.27.2] - 2026-11-10
+
+### Added
+
+- **Diagnostics download.** In Home Assistant under Settings > Devices & services > Tariffy > the contract's menu > "Download diagnostics" you get a file with the settings, the last calculated values, whether the last update succeeded, how the consumption was determined (manual start value or statistics, with the raw values) and the state of the meter sensor. Customer number, meter number, market location (MaLo-ID) and notification target are masked. Attach this file to a bug report.
+- **A log line when the consumption becomes unknown.** When "Consumption so far" cannot be calculated, Tariffy writes one warning to the Home Assistant log with the reason (no debug logging needed), and one info line when it is known again. Nothing is logged while the state stays the same, so the log does not fill up.
+
+## [1.27.1] - 2026-11-10
+
+### Fixed
+
+- **Consumption and balance sensors briefly turned "Unknown" when a "Meter reading at contract start" was entered and the meter was temporarily unavailable** (water, gas, electricity, including the low-tariff register of a dual-tariff contract). With a manual start value only the live state of the meter was read. When it is `unavailable` or `unknown`, the last recorded statistics value is now used. Without any reading the sensors stay unknown as before. Reported in #46.
+
 ## [1.27.0] - 2026-11-07
 
 ### Added

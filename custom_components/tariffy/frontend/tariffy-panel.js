@@ -739,8 +739,14 @@ class TariffyPanel extends HTMLElement {
       const group = (key, list, extra) => (list.length ? h("section", { class: "group" },
         h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
         h("div", { class: `grid ${extra}` }, list.map((c) => this._card(c)))) : null);
-      wrap.appendChild(group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte)), "metered"));
-      wrap.appendChild(group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte)), "flat"));
+      // a group is null when there is no contract of that kind: skip it (appendChild(null) throws
+      // and leaves the whole panel empty for anyone who has only metered or only flat-rate contracts)
+      for (const section of [
+        group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte)), "metered"),
+        group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte)), "flat"),
+      ]) {
+        if (section) wrap.appendChild(section);
+      }
     }
     root.appendChild(wrap);
     if (this._dlgEl) root.appendChild(this._dlgEl);

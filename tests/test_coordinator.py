@@ -193,6 +193,24 @@ class TestConsumptionTracking:
         )
         assert d["verbrauch_bisher"] == pytest.approx(300.5)
 
+    async def test_manual_start_value_survives_unavailable_meter(self, setup_contract):
+        data = {**STROM, "verbrauch_start_wert": 5000.0}
+        _, d = await setup_contract(
+            data,
+            latest=(5300.5, 5300.5),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        # live state missing -> last recorded statistics state is used
+        assert d["verbrauch_bisher"] == pytest.approx(300.5)
+
+    async def test_manual_start_value_unknown_without_any_reading(self, setup_contract):
+        data = {**STROM, "verbrauch_start_wert": 5000.0}
+        _, d = await setup_contract(
+            data, sensor_states={SENSOR: "unavailable"}
+        )
+        assert d["verbrauch_bisher"] is None
+
     async def test_meter_reset_is_handled_via_sum(self, setup_contract):
         _, d = await setup_contract(
             STROM,
@@ -348,6 +366,54 @@ class TestDualTariff:
         assert d["verbrauch_bisher"] == pytest.approx(300.0)
         assert d["verbrauch_bisher_nt"] is None
         assert d["arbeitspreis"] == pytest.approx(0.30)
+
+
+class TestManualStartValueWithUnavailableMeter:
+    """Issue #46: a meter that is briefly unavailable must not turn the
+    consumption sensors unknown, in every contract type."""
+
+    async def test_gas(self, setup_contract):
+        data = {**TestGas.GAS, "verbrauch_start_wert": 1000.0}
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(1100.0, 1100.0),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        assert d["verbrauch_bisher"] == pytest.approx(100.0)
+        assert d["guthaben_bisher"] is not None
+
+    async def test_water(self, setup_contract):
+        data = {**TestWater.WATER, "verbrauch_sensor": SENSOR, "verbrauch_start_wert": 148.0}
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(211.5663, 211.5663),
+            offset=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable"},
+        )
+        assert d["verbrauch_bisher"] == pytest.approx(63.57)
+        assert d["guthaben_bisher"] is not None
+
+    async def test_dual_tariff_both_registers(self, setup_contract):
+        data = {
+            **TestDualTariff.HT_NT,
+            "verbrauch_start_wert": 1000.0,
+            "verbrauch_start_wert_nt": 500.0,
+        }
+        _, d = await setup_contract(
+            data,
+            today="2026-07-12",
+            latest=(1300.0, 1300.0),
+            offset=(1.0, 1.0),
+            latest_nt=(800.0, 800.0),
+            offset_nt=(1.0, 1.0),
+            sensor_states={SENSOR: "unavailable", SENSOR_NT: "unknown"},
+        )
+        assert d["verbrauch_bisher_ht"] == pytest.approx(300.0)
+        assert d["verbrauch_bisher_nt"] == pytest.approx(300.0)
+        assert d["verbrauch_bisher"] == pytest.approx(600.0)
 
 
 class TestPricing:
