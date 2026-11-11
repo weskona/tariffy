@@ -81,6 +81,15 @@ async def test_edited_fields_are_stored_and_internal_state_stays(frontend_env, c
     assert data["_kuendigung_bestaetigt"] is True
 
 
+async def test_history_and_archive_flag_survive_a_reconfiguration(frontend_env, contract, hass):  # noqa: F811
+    history = [{"anbieter": "Alt", "beginn": "2025-01-01", "ende": "2025-12-31", "kosten": 480.0}]
+    entry, _ = await _contract(contract, _historie=history, _archiviert="2026-05-01")
+    data = await _reconfigure(hass, entry, first={"tarif": "Neu"})
+    assert data["tarif"] == "Neu"
+    assert data["_historie"] == history
+    assert data["_archiviert"] == "2026-05-01"
+
+
 @pytest.mark.parametrize(
     ("first", "what"),
     [({"ende": "2027-03-31"}, "end date"), ({"erinnerung_monate": "1"}, "lead time")],

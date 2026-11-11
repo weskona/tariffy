@@ -34,6 +34,20 @@ CONTRACTS = [
             "beginn": "2026-01-01", "ende": "2026-12-31", "erinnerung_monate": "3",
             "verbrauch_sensor": "sensor.strom_haus", "abschlag_warnung": True,
             "abschlag_warnung_schwelle": 50.0,
+            "_historie": [
+                {
+                    "sparte": "electricity", "anbieter": "Stadtwerke Nord", "tarif": "Öko Fix 12",
+                    "beginn": "2024-01-01", "ende": "2024-12-31", "arbeitspreis": 0.2815,
+                    "grundpreis": 10.9, "abschlag": 90.0, "kosten": 1042.5, "abschlag_gezahlt": 1080.0,
+                    "saldo": 37.5, "verbrauch": 3210.0, "abgeschlossen": "2025-01-01",
+                },
+                {
+                    "sparte": "electricity", "anbieter": "Stadtwerke Nord", "tarif": "Öko Fix 12",
+                    "beginn": "2025-01-01", "ende": "2025-12-31", "arbeitspreis": 0.2977,
+                    "grundpreis": 11.51, "abschlag": 85.0, "kosten": 1166.2, "abschlag_gezahlt": 1020.0,
+                    "saldo": -146.2, "verbrauch": 3340.0, "abgeschlossen": "2026-01-01",
+                },
+            ],
         },
         {"sensor.strom_haus": ((2481.17, 2481.17), (1000.0, 1000.0), "kWh")},
         {},
@@ -98,6 +112,31 @@ CONTRACTS = [
             "next_beginn": "2027-01-01", "next_ende": "2028-12-31",
             "next_anbieter": "Mobil Plus", "next_tarif": "Flat 20 GB", "next_abschlag": 14.99,
         },
+    ),
+    (
+        "Strom Altvertrag",
+        {
+            "sparte": "electricity", "anbieter": "Stadtwerke Süd", "tarif": "Basis 24",
+            "arbeitspreis": 0.29, "grundpreis": 10.0, "abschlag": 35.0,
+            "beginn": "2024-01-01", "ende": "2025-12-31", "erinnerung_monate": "0",
+            "_archiviert": "2026-01-15",
+            "_historie": [
+                {
+                    "sparte": "electricity", "anbieter": "Stadtwerke Süd", "tarif": "Basis 23",
+                    "beginn": "2022-01-01", "ende": "2023-12-31", "arbeitspreis": 0.31,
+                    "grundpreis": 9.5, "abschlag": 30.0, "kosten": 820.0, "abschlag_gezahlt": 720.0,
+                    "saldo": -100.0, "verbrauch": 2450.0, "abgeschlossen": "2024-01-01",
+                },
+                {
+                    "sparte": "electricity", "anbieter": "Stadtwerke Süd", "tarif": "Basis 24",
+                    "beginn": "2024-01-01", "ende": "2025-12-31", "arbeitspreis": 0.29,
+                    "grundpreis": 10.0, "abschlag": 35.0, "kosten": 905.4, "abschlag_gezahlt": 840.0,
+                    "saldo": -65.4, "verbrauch": 2890.0, "abgeschlossen": "2026-01-15", "archiviert": True,
+                },
+            ],
+        },
+        {},
+        {},
     ),
 ]
 

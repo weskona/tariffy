@@ -120,6 +120,15 @@ CONF_NOTIFY_GESENDET = "_notify_gesendet"
 
 NOTIFY_ID_PREFIX = "tariffy_kuendigung_"
 
+# Vertragshistorie: beim Tarifwechsel wird die alte Laufzeit als Eintrag in
+# `_historie` gesichert (die Vertragsdaten werden dabei ueberschrieben); ein
+# abgelaufener Vertrag ohne Folgevertrag kann archiviert werden (`_archiviert`
+# = Datum). Beides sind interne Schluessel: kein neuer Sensor, keine neue
+# Entitaet, und beim Bearbeiten (Neu konfigurieren) bleiben sie erhalten.
+CONF_HISTORIE = "_historie"
+CONF_ARCHIVIERT = "_archiviert"
+HISTORIE_MAX = 20
+
 # Abschlag-Warnung (optional, pro Vertrag): warnt, wenn die Prognose zum
 # Vertragsende eine Nachzahlung ueber der Schwelle erwarten laesst.
 CONF_ABSCHLAG_WARNUNG = "abschlag_warnung"

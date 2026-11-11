@@ -7,6 +7,16 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.1] - 2026-11-11
+
+Beta-Version zum Testen der Vertragshistorie. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version. HACS bietet diese Version nur an, wenn "Beta-Versionen anzeigen" eingeschaltet ist.
+
+### Added
+
+- **Vertragshistorie.** Wenn der Folgevertrag am geplanten Datum übernimmt, wird die alte Laufzeit jetzt gesichert, bevor die Vertragsdaten ersetzt werden (Zeitraum, Anbieter, Tarif, Preise, Abschlag, Kosten bisher, Verbrauch und Saldo zum Ende; keine Kunden- oder Zählernummern, höchstens die letzten 20 Laufzeiten). Der neue Tab **Historie** des Seitenleisten-Panels zeigt sie unter dem jeweiligen Vertrag. Laufzeiten, die vor dieser Version endeten, gibt es nicht; die Historie beginnt mit dem nächsten Wechsel.
+- **Abgelaufene Verträge archivieren.** Ein Vertrag, dessen Ende vorbei ist und für den kein Folgevertrag geplant ist, trägt in der Übersicht das Badge **Abgelaufen**. Administratoren können ihn im Tab "Verträge" archivieren (mit Rückfrage). Ein archivierter Vertrag verschwindet aus Übersicht, Kosten, Vertragsliste und Summen und steht in der Historie; seine Erinnerungen und Warnungen sind aus. Es wird nichts gelöscht, alle Sensoren und ihre Statistik bleiben, und **Zurückholen** holt den Vertrag wieder zurück. Nichts wird von allein archiviert: Bestehende Installationen sehen genauso aus wie vorher, bis jemand einen Vertrag archiviert.
+- Beides liegt in internen Schlüsseln der Vertragsdaten (`_historie`, `_archiviert`): kein neuer Sensor, keine neue Entität. Beim Bearbeiten eines Vertrags bleiben sie erhalten.
+
 ## [1.27.3] - 2026-11-11
 
 ### Behoben
