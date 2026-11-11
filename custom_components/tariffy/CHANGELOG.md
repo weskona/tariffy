@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.27.3] - 2026-11-11
+
+### Behoben
+
+- **Das Seitenleisten-Panel war leer, wenn man nur Verträge einer Art hat** (zum Beispiel nur einen Strom-, Gas- oder Wasservertrag, oder nur Pauschalverträge wie Internet oder Mobilfunk). Die Übersicht brach mit „Failed to execute 'appendChild' on 'Node'" ab, weil sie eine Gruppe ohne Verträge einfügen wollte. Das Panel überspringt leere Gruppen jetzt. Gemeldet in #50.
+
 ## [1.27.2] - 2026-11-10
 
 ### Hinzugefügt

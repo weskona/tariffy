@@ -1,7 +1,7 @@
 <!doctype html>
 <!-- Preview harness for the Tariffy panel: a mock `hass` fed with fixtures.json,
      which tests/test_panel_fixtures.py keeps in sync with the real backend.
-     Query: ?lang=de|en  &state=loading|empty|error  &narrow=1  &admin=0  &fail=1  &flowfail=1 (backend rejects the form)  &flowerr=1 (REST error)  &reload=N (action answers not_found N times)  &deletefail=1 (removing fails) -->
+     Query: ?lang=de|en  &state=loading|empty|error  &narrow=1  &admin=0  &fail=1  &flowfail=1 (backend rejects the form)  &flowerr=1 (REST error)  &reload=N (action answers not_found N times)  &deletefail=1 (removing fails)  &kind=metered|flat (only contracts of that kind) -->
 <html>
 <head>
   <meta charset="utf-8">
@@ -101,7 +101,10 @@
       subscribeMessage: async (callback) => {
         if (state === "error") throw new Error("Unknown command.");
         if (state === "loading") return () => {};
-        callback({ contracts: state === "empty" ? [] : fixtures.contracts });
+        const metered = ["electricity", "electricity_ht_nt", "gas", "water"];
+        const kind = params.get("kind");
+        const list = fixtures.contracts.filter((c) => !kind || (kind === "metered") === metered.includes(c.sparte));
+        callback({ contracts: state === "empty" ? [] : list });
         return () => {};
       },
     },
