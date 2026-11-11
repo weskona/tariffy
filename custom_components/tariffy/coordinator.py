@@ -499,8 +499,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         data = dict(self.entry.data)
         data.pop(CONF_ARCHIVIERT, None)
         historie = list(data.get(CONF_HISTORIE) or [])
-        if historie and historie[-1].get("archiviert"):
-            historie.pop()  # der Eintrag, den das Archivieren angelegt hat
+        for position in range(len(historie) - 1, -1, -1):
+            if historie[position].get("archiviert"):
+                del historie[position]  # der Eintrag, den das Archivieren angelegt hat
+                break
         if historie:
             data[CONF_HISTORIE] = historie
         else:

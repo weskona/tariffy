@@ -7,6 +7,18 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.2] - 2026-11-11
+
+Zweite Beta zum Testen der Vertragshistorie. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Alte Verträge von Hand hinzufügen.** In der Historie können Administratoren mit "Alten Vertrag hinzufügen" eine frühere Laufzeit eines Vertrags eintragen (zum Beispiel einen Vertrag von vor zwei Jahren) und sie mit dem Stift in der Zeile bearbeiten oder löschen. Beginn und Ende sind Pflicht; Anbieter, Tarif, Preis, Grundpreis und Abschlag sind optional. **Verbrauch, Kosten, gezahlte Abschläge und Saldo werden automatisch ermittelt**, soweit es geht: der Verbrauch aus den Langzeitstatistiken des Zählers des Vertrags, der Rest daraus und aus den Preisen (Gas mit Brennwert und Zustandszahl; bei Pauschalverträgen sind die Kosten die gezahlten Abschläge). Der Dialog zeigt die berechneten Werte und woher sie kommen, und jeder Wert lässt sich selbst eintragen und hat dann Vorrang. Neue Websocket-Befehle `tariffy/history_calc`, `tariffy/history_save` und `tariffy/history_delete` (nur Administratoren).
+
+### Changed
+
+- Die Historie speichert bis zu 50 Laufzeiten je Vertrag (vorher 20), weil Laufzeiten jetzt auch von Hand dazukommen können.
+
 ## [1.28.0-beta.1] - 2026-11-11
 
 Beta-Version zum Testen der Vertragshistorie. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version. HACS bietet diese Version nur an, wenn "Beta-Versionen anzeigen" eingeschaltet ist.

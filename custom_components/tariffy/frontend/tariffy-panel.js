@@ -71,6 +71,17 @@ const I18N = {
     actAskArchive: "Archive this contract? It leaves the overview, the costs and the contracts and moves to the History tab. Nothing is deleted and you can bring it back.",
     actYesArchive: "Yes, archive",
     actAskRestore: "Bring this contract back to the overview?", actYesRestore: "Yes, restore",
+    termAdd: "Add an old contract", termEdit: "Edit this term", termTitleAdd: "Add an old contract", termTitleEdit: "Edit term",
+    termHint: "Enter the term of an earlier contract. Leave the grey fields empty and they are worked out automatically (the consumption from the statistics of the meter, the rest from it and your prices). You can type a value into any field yourself.",
+    termDelete: "Delete term", termDeleteAsk: "Delete this term from the history?", termDeleteYes: "Yes, delete", termManual: "entered by hand",
+    tf_entry_id: "Contract", tf_beginn: "Start", tf_ende: "End", tf_anbieter: "Provider", tf_tarif: "Tariff",
+    tf_arbeitspreis: "Price per unit (€)", tf_grundpreis: "Base price per month (€)", tf_abschlag: "Instalment per month (€)",
+    tf_verbrauch: "Consumption", tf_kosten: "Cost (€)", tf_abschlag_gezahlt: "Instalments paid (€)", tf_saldo: "Balance (€)",
+    autoStat: "Automatic, from the statistics of {s}", autoNoSensor: "No meter is set for this contract, please enter it",
+    autoNoStat: "No statistics for this term, please enter it", autoFlat: "Flat-rate contract: no consumption",
+    autoCalc: "Calculated", autoWait: "Calculated as soon as the other values are there", autoOwn: "Entered by you",
+    termErr_invalid_dates: "The end must not be before the start.", termErr_too_many: "The history is full (50 terms).",
+    termErr_not_found: "This term does not exist any more.", termErr_invalid: "One of the numbers is not valid.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
@@ -161,6 +172,17 @@ const I18N = {
     actAskArchive: "Diesen Vertrag archivieren? Er verschwindet aus Übersicht, Kosten und Verträgen und steht in der Historie. Nichts wird gelöscht, du kannst ihn zurückholen.",
     actYesArchive: "Ja, archivieren",
     actAskRestore: "Diesen Vertrag wieder in die Übersicht holen?", actYesRestore: "Ja, zurückholen",
+    termAdd: "Alten Vertrag hinzufügen", termEdit: "Laufzeit bearbeiten", termTitleAdd: "Alten Vertrag hinzufügen", termTitleEdit: "Laufzeit bearbeiten",
+    termHint: "Trage die Laufzeit eines früheren Vertrags ein. Lass die grau hinterlegten Felder leer, dann werden sie automatisch berechnet (der Verbrauch aus den Statistiken des Zählers, der Rest daraus und aus deinen Preisen). In jedes Feld kannst du auch selbst einen Wert eintragen.",
+    termDelete: "Laufzeit löschen", termDeleteAsk: "Diese Laufzeit aus der Historie löschen?", termDeleteYes: "Ja, löschen", termManual: "von Hand eingetragen",
+    tf_entry_id: "Vertrag", tf_beginn: "Beginn", tf_ende: "Ende", tf_anbieter: "Anbieter", tf_tarif: "Tarif",
+    tf_arbeitspreis: "Arbeitspreis je Einheit (€)", tf_grundpreis: "Grundpreis pro Monat (€)", tf_abschlag: "Abschlag pro Monat (€)",
+    tf_verbrauch: "Verbrauch", tf_kosten: "Kosten (€)", tf_abschlag_gezahlt: "Gezahlte Abschläge (€)", tf_saldo: "Saldo (€)",
+    autoStat: "Automatisch aus den Statistiken von {s}", autoNoSensor: "Am Vertrag ist kein Zähler hinterlegt, bitte eintragen",
+    autoNoStat: "Keine Statistik für diese Laufzeit, bitte eintragen", autoFlat: "Pauschalvertrag: kein Verbrauch",
+    autoCalc: "Berechnet", autoWait: "Wird berechnet, sobald die anderen Werte da sind", autoOwn: "Von dir eingetragen",
+    termErr_invalid_dates: "Das Ende darf nicht vor dem Beginn liegen.", termErr_too_many: "Die Historie ist voll (50 Laufzeiten).",
+    termErr_not_found: "Diese Laufzeit gibt es nicht mehr.", termErr_invalid: "Eine der Zahlen ist nicht gültig.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
@@ -402,6 +424,8 @@ tr.sub td:first-child { padding-left: 32px; }
 .hist-head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
 .hist-head .who { flex: 1; }
 .hist .actions { margin-top: 10px; }
+td.act { width: 1%; white-space: nowrap; }
+.fnote { font-size: 12px; color: var(--muted); margin-top: 4px; }
 tr.total td { font-weight: 700; border-bottom: 0; background: var(--panel2); }
 td .t2 { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
 .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
@@ -1424,6 +1448,7 @@ class TariffyPanel extends HTMLElement {
   _renderDialog() {
     const dlg = this._dlg;
     if (!dlg) return;
+    if (dlg.mode === "term") { this._renderTermDialog(); return; }
     const busy = dlg.stage === "saving";
     const body = [h("h2", { id: "dlg-title", text: this._t({ edit: "dlgTitleEdit", create: "dlgTitleCreate", next: "dlgTitle" }[dlg.mode], { name: dlg.name }) })];
     const buttons = [];
@@ -1496,7 +1521,10 @@ class TariffyPanel extends HTMLElement {
       }
     }
     body.push(h("div", { class: "actions" }, buttons));
+    this._mountDialog(dlg, body, busy);
+  }
 
+  _mountDialog(dlg, body, busy) {
     const el = this._dlgEl || (this._dlgEl = h("div", { class: "overlay" }));
     el.onkeydown = (ev) => { if (ev.key === "Escape" && !busy) this._closeFlow(); };
     el.replaceChildren(h("div", { class: "dialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "dlg-title" }, body));
@@ -1514,6 +1542,186 @@ class TariffyPanel extends HTMLElement {
     if (dlg.refocus && dlg.stage === "form") {
       dlg.refocus = false;
       const first = el.querySelector("input, select");
+      if (first) first.focus();
+    }
+  }
+
+  /* ----- old contracts: a term entered by hand (administrators only) ----- */
+
+  _openTerm(c, index) {
+    this._closeFlow();
+    const target = c || this._live[0] || this._contracts[0];
+    const term = c && index !== null ? (c.historie || [])[index] : null;
+    const AUTO = ["verbrauch", "kosten", "abschlag_gezahlt", "saldo"];
+    const spec = (name, kind, extra = {}) => ({
+      name, kind, label: this._t(`tf_${name}`), required: false, min: kind === "number" ? 0 : null,
+      domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const fields = [
+      spec("entry_id", "select", { options: this._contracts.map((x) => ({ value: x.entry_id, label: x.title })) }),
+      spec("beginn", "date", { required: true }), spec("ende", "date", { required: true }),
+      spec("anbieter", "text"), spec("tarif", "text"),
+      spec("arbeitspreis", "number"), spec("grundpreis", "number"), spec("abschlag", "number"),
+      spec("verbrauch", "number", { auto: true }), spec("kosten", "number", { auto: true }),
+      spec("abschlag_gezahlt", "number", { auto: true }), spec("saldo", "number", { auto: true, min: null }),
+    ];
+    const values = { entry_id: target.entry_id };
+    if (term) {
+      // the values the user typed in stay filled in; the ones that were worked out are worked out again
+      const own = Array.isArray(term.eigene) ? term.eigene : AUTO;
+      for (const f of fields) {
+        const stored = term[f.name];
+        if (f.name === "entry_id" || stored === undefined || stored === null) continue;
+        if (!f.auto || own.includes(f.name)) values[f.name] = String(stored);
+      }
+    }
+    const dlg = {
+      mode: "term", stage: "form", id: target.entry_id, name: target.title, index: term ? index : null, fields, values,
+      fieldErrors: {}, message: null, asking: null, calc: null, calcSeq: 0, flowId: null, localize: () => "",
+    };
+    this._dlg = dlg;
+    this._renderTermDialog();
+    this._termCalc(dlg);
+  }
+
+  async _termCalc(dlg) {
+    const { values } = this._collectFlow(dlg);
+    if (!values.beginn || !values.ende) {
+      dlg.calc = null;
+      this._termPaint(dlg);
+      return;
+    }
+    const seq = ++dlg.calcSeq;
+    const { entry_id: _id, ...rest } = values;
+    let calc = null;
+    try {
+      calc = await this._hass.callWS({ type: "tariffy/history_calc", entry_id: dlg.values.entry_id, values: rest });
+    } catch (_err) { /* invalid dates and the like: nothing to show yet */ }
+    if (this._dlg !== dlg || seq !== dlg.calcSeq) return;
+    dlg.calc = calc;
+    this._termPaint(dlg);
+  }
+
+  /* Shows the worked-out values as grey placeholders and says where each one comes from. */
+  _termPaint(dlg) {
+    const el = this._dlgEl;
+    if (!el || this._dlg !== dlg) return;
+    const calc = dlg.calc;
+    const contract = (this._contracts || []).find((c) => c.entry_id === dlg.values.entry_id);
+    for (const f of dlg.fields.filter((x) => x.auto)) {
+      const typed = String(dlg.values[f.name] ?? "").trim() !== "";
+      const computed = calc ? calc.values[f.name] : null;
+      const input = el.querySelector(`[name="${f.name}"]`);
+      const note = el.querySelector(`[data-note="${f.name}"]`);
+      if (input) input.placeholder = isNum(computed) ? this._num(computed, 2) : "";
+      let text;
+      if (typed) text = this._t("autoOwn");
+      else if (f.name === "verbrauch") {
+        if (!calc) text = this._t("autoWait");
+        else if (isNum(computed)) text = this._t("autoStat", { s: (calc.sensors || []).join(", ") });
+        else if (contract && !METERED.has(contract.sparte)) text = this._t("autoFlat");
+        else if (!(calc.sensors || []).length) text = this._t("autoNoSensor");
+        else text = this._t("autoNoStat");
+      } else text = isNum(computed) ? this._t("autoCalc") : this._t("autoWait");
+      if (note) note.textContent = text;
+    }
+  }
+
+  _termError(err) {
+    const code = String((err && (err.code || (err.body && err.body.code))) || "");
+    const key = code.startsWith("invalid_") && code !== "invalid_dates" ? "termErr_invalid" : `termErr_${code}`;
+    return I18N[this._lang][key] || I18N.en[key] ? this._t(key) : this._t("dlgSaveFailed", { m: this._errorText(err) });
+  }
+
+  async _saveTerm() {
+    const dlg = this._dlg;
+    const { values, errors } = this._collectFlow(dlg);
+    dlg.fieldErrors = errors;
+    dlg.message = null;
+    if (Object.keys(errors).length) {
+      this._renderTermDialog();
+      return;
+    }
+    dlg.stage = "saving";
+    this._renderTermDialog();
+    const { entry_id: _id, ...rest } = values;
+    const message = { type: "tariffy/history_save", entry_id: dlg.values.entry_id, values: rest };
+    if (dlg.index !== null) message.index = dlg.index;
+    try {
+      await this._hass.callWS(message);
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.message = this._termError(err);
+      this._renderTermDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  async _deleteTerm() {
+    const dlg = this._dlg;
+    dlg.stage = "saving";
+    this._renderTermDialog();
+    try {
+      await this._hass.callWS({ type: "tariffy/history_delete", entry_id: dlg.values.entry_id, index: dlg.index });
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.asking = null;
+      dlg.message = this._termError(err);
+      this._renderTermDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderTermDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t(dlg.index === null ? "termTitleAdd" : "termTitleEdit") }),
+      h("p", { class: "hint", text: this._t("termHint") }),
+      h("div", { class: "fields" }, dlg.fields.map((f) => {
+        const error = dlg.fieldErrors[f.name];
+        return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+          h("span", { class: "lbl", text: f.label }), this._fieldInput(dlg, f),
+          f.auto ? h("div", { class: "fnote", "data-note": f.name }) : null,
+          error ? h("div", { class: "ferr", text: error }) : null);
+      })),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    const buttons = [];
+    if (dlg.asking === "delete") {
+      buttons.push(h("div", { class: "ask" },
+        h("span", { text: this._t("termDeleteAsk") }),
+        h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("termDeleteYes"), onclick: () => this._deleteTerm() }),
+        h("button", { class: "btn", type: "button", text: this._t("actCancel"), onclick: () => { dlg.asking = null; this._renderTermDialog(); } })));
+    } else {
+      buttons.push(h("button", { class: "btn go", type: "button", disabled: busy ? "" : null,
+        text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveTerm() }));
+      buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() }));
+      if (dlg.index !== null) {
+        buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("termDelete"),
+          onclick: () => { dlg.asking = "delete"; this._renderTermDialog(); } }));
+      }
+    }
+    body.push(h("div", { class: "actions" }, buttons));
+    this._mountDialog(dlg, body, busy);
+    const el = this._dlgEl;
+    // a finished edit of any field (blur, drop-down) works the automatic values out again
+    el.onchange = () => this._termCalc(dlg);
+    if (dlg.index !== null) {
+      const select = el.querySelector('[name="entry_id"]');
+      if (select) select.disabled = true; // a term stays with its contract
+    }
+    this._termPaint(dlg);
+    if (!dlg.focused) { // keyboard users start in the dialog (Escape closes it)
+      dlg.focused = true;
+      const first = el.querySelector("select:not(:disabled), input");
       if (first) first.focus();
     }
   }
@@ -1615,18 +1823,27 @@ class TariffyPanel extends HTMLElement {
     const archived = this._contracts.filter((c) => c.archiviert).sort((a, b) => a.title.localeCompare(b.title));
     const earlier = this._contracts.filter((c) => !c.archiviert && (c.historie || []).length)
       .sort((a, b) => a.title.localeCompare(b.title));
+    const toolbar = this._isAdmin
+      ? h("div", { class: "list-head" },
+        h("button", { class: "btn blue", type: "button", onclick: () => this._openTerm(null, null) }, icon("plus"), this._t("termAdd")))
+      : null;
     if (!archived.length && !earlier.length) {
-      return h("div", { class: "state" }, h("h2", { text: this._t("histEmptyTitle") }), h("div", { text: this._t("histEmpty") }));
+      return h("div", {}, toolbar,
+        h("div", { class: "state" }, h("h2", { text: this._t("histEmptyTitle") }), h("div", { text: this._t("histEmpty") })));
     }
     const tone = (v) => (isNum(v) ? (v < 0 ? "red-t" : v > 0 ? "green-t" : "") : "muted-t");
     const cell = (label, value, cls) => h("td", { "data-label": label, class: cls || null, text: value });
-    const termRow = (c, t) => h("tr", {},
+    const termRow = (c, t, index) => h("tr", {},
       h("td", {}, `${this._date(t.beginn)} – ${t.ende ? this._date(t.ende) : "–"}`,
         h("span", { class: "t2", text: [t.anbieter, t.tarif].filter(Boolean).join(" · ") || "–" })),
       cell(this._t("colInstalment"), isNum(t.abschlag) ? this._money(t.abschlag, c.currency, { digits: 2 }) : "–"),
       cell(this._t("colTermCost"), this._money(isNum(t.kosten) ? t.kosten : t.abschlag_gezahlt, c.currency, { digits: 2 })),
       cell(this._t("colUsage"), isNum(t.verbrauch) ? `${this._num(t.verbrauch, 0)} ${this._unit(c)}` : "–"),
-      cell(this._t("colTermBalance"), isNum(t.saldo) ? this._money(t.saldo, c.currency, { sign: true, digits: 2 }) : "–", tone(t.saldo)));
+      cell(this._t("colTermBalance"), isNum(t.saldo) ? this._money(t.saldo, c.currency, { sign: true, digits: 2 }) : "–", tone(t.saldo)),
+      this._isAdmin ? h("td", { class: "act" }, h("button", {
+        class: "icon-btn", type: "button", title: this._t("termEdit"), "aria-label": this._t("termEdit"),
+        onclick: () => this._openTerm(c, index),
+      }, icon("edit"))) : null);
     const contractBlock = (c) => h("div", { class: "hist", "data-id": c.entry_id },
       h("div", { class: "hist-head" },
         h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
@@ -1634,14 +1851,15 @@ class TariffyPanel extends HTMLElement {
         c.archiviert ? h("span", { class: "chip", text: this._t("archived") }) : null),
       h("table", {},
         h("thead", {}, h("tr", {}, [this._t("colTerm"), this._t("colInstalment"), this._t("colTermCost"), this._t("colUsage"), this._t("colTermBalance")]
-          .map((label) => h("th", { text: label })))),
-        h("tbody", {}, [...(c.historie || [])].reverse().map((t) => termRow(c, t)))),
+          .concat(this._isAdmin ? [""] : []).map((label) => h("th", { text: label })))),
+        // newest first; `index` is the position in the stored list (oldest first), needed to edit a term
+        h("tbody", {}, (c.historie || []).map((t, index) => [t, index]).reverse().map(([t, index]) => termRow(c, t, index)))),
       // the acknowledgements belong to the contract list; here only archiving and restoring
       this._actions(c, ["archive_contract", "restore_contract"]));
     const group = (key, list) => (list.length ? h("section", { class: "group" },
       h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
       list.map(contractBlock)) : null);
-    return h("div", {}, group("groupArchived", archived), group("groupEarlier", earlier));
+    return h("div", {}, toolbar, group("groupArchived", archived), group("groupEarlier", earlier));
   }
 
   _contractList() {

@@ -26,6 +26,7 @@ from homeassistant.helpers.dispatcher import (
 )
 from homeassistant.loader import async_get_integration
 
+from . import history
 from .const import (
     CONF_VERBRAUCH_SENSOR,
     DOMAIN,
@@ -248,6 +249,93 @@ async def ws_action(hass: HomeAssistant, connection, msg: dict[str, Any]) -> Non
     connection.send_result(msg["id"], {"ok": True})
 
 
+def _loaded_entry(hass: HomeAssistant, entry_id: str) -> ConfigEntry | None:
+    entry = hass.config_entries.async_get_entry(entry_id)
+    if (
+        entry is None
+        or entry.domain != DOMAIN
+        or entry.state is not ConfigEntryState.LOADED
+        or getattr(entry, "runtime_data", None) is None
+    ):
+        return None
+    return entry
+
+
+HISTORY_VALUES = vol.Schema({str: vol.Any(None, str, int, float)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/history_calc",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+    }
+)
+@websocket_api.async_response
+async def ws_history_calc(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Berechnet die automatisch ermittelbaren Werte einer alten Laufzeit (nur Vorschau)."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        result = await history.async_calc(hass, entry, msg["values"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], result)
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/history_save",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+        vol.Optional("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_history_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Legt eine alte Laufzeit an oder ersetzt eine vorhandene."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        index = await history.async_save_term(hass, entry, msg["values"], msg.get("index"))
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"index": index})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/history_delete",
+        vol.Required("entry_id"): str,
+        vol.Required("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_history_delete(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Loescht eine Laufzeit aus der Historie."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        history.delete_term(hass, entry, msg["index"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
 async def async_setup_panel(hass: HomeAssistant) -> None:
     """Register the panel once per Home Assistant. Never raises."""
     state = hass.data.setdefault(
@@ -262,6 +350,9 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             websocket_api.async_register_command(hass, ws_contracts)
             websocket_api.async_register_command(hass, ws_subscribe)
             websocket_api.async_register_command(hass, ws_action)
+            websocket_api.async_register_command(hass, ws_history_calc)
+            websocket_api.async_register_command(hass, ws_history_save)
+            websocket_api.async_register_command(hass, ws_history_delete)
             state["commands"] = True
 
         if not state["static"]:

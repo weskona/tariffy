@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-beta.2] - 2026-11-11
+
+Second beta for testing the contract history. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **Add old contracts by hand.** In the History tab, administrators can add an earlier term of a contract (for example a contract from two years ago) with "Add an old contract" and edit or delete it with the pencil in its row. Start and end are required; provider, tariff, price, base price and instalment are optional. **Consumption, cost, instalments paid and balance are worked out automatically** where possible: the consumption from the long-term statistics of the contract's meter, the rest from it and the prices (gas with calorific value and state number; for flat-rate contracts the cost is what was paid). The dialog shows the calculated values and where they come from, and every value can be typed in by hand, which takes precedence. New websocket commands `tariffy/history_calc`, `tariffy/history_save` and `tariffy/history_delete` (administrators only).
+
+### Changed
+
+- The history keeps up to 50 terms per contract (was 20), because terms can now be added by hand.
+
 ## [1.28.0-beta.1] - 2026-11-11
 
 Beta release for testing the contract history. Please report problems with the bug report form and mention this exact version. HACS offers this version only if "Show beta versions" is enabled.

@@ -861,6 +861,7 @@ for (const width of [1280, 900, 600, 390]) {
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
   await page.getByRole("tab", { name: "Historie", exact: true }).click();
   check((await page.locator(".hist").count()) >= 2 && (await page.locator(".hist .btn").count()) === 0, "non-administrators see the history without buttons");
+  check((await page.getByRole("button", { name: /Alten Vertrag hinzufügen|Laufzeit bearbeiten/ }).count()) === 0, "and without the buttons for old contracts");
   await context.close();
 }
 
@@ -879,6 +880,99 @@ for (const width of [1280, 900, 600, 390]) {
   });
   const text = await page.evaluate(() => window.__panel.shadowRoot.querySelector(".wrap").innerText);
   check(text.includes("Noch keine Historie") && text.includes("früheren Laufzeiten"), "an empty history explains itself");
+  await context.close();
+}
+
+{ // old contracts: a term entered by hand, worked out automatically where possible
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`term: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Historie", exact: true }).click();
+  const dialogText = async () => (await page.locator(".dialog").innerText()).replace(/\u00a0/g, " ");
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  const enter = async (name, value) => { await field(name).fill(value); await field(name).blur(); };
+  const termCalls = async () => (await calls(page)).filter((c) => String(c.type).startsWith("tariffy/history_") && c.type !== "tariffy/history_calc");
+
+  await page.getByRole("button", { name: "Alten Vertrag hinzufügen" }).click();
+  check((await dialogText()).includes("Alten Vertrag hinzufügen"), "the dialog for an old contract opens");
+  check((await field("entry_id").inputValue()) === "contract-1", "the first contract is preselected");
+
+  // nothing can be worked out without the term
+  await page.getByRole("button", { name: "Speichern" }).click();
+  check((await dialogText()).includes("Pflichtfeld") && (await termCalls()).length === 0, "start and end are required, nothing is sent");
+
+  await enter("beginn", "2024-01-01");
+  await enter("ende", "2024-12-31");
+  check((await field("verbrauch").getAttribute("placeholder")) === "3.200,00", `the consumption is worked out from the statistics (${await field("verbrauch").getAttribute("placeholder")})`);
+  check((await dialogText()).includes("Automatisch aus den Statistiken von sensor.strom_haus"), "and the dialog says where it comes from");
+  check((await field("kosten").getAttribute("placeholder")) === "", "the cost needs prices first");
+
+  await enter("arbeitspreis", "0,30");
+  await enter("grundpreis", "10");
+  await enter("abschlag", "90");
+  check((await field("kosten").getAttribute("placeholder")) === "1.079,90", `the cost follows from the prices (${await field("kosten").getAttribute("placeholder")})`);
+  check((await field("abschlag_gezahlt").getAttribute("placeholder")) === "1.079,10", "and the instalments paid from the instalment");
+  check((await field("saldo").getAttribute("placeholder")) === "−0,80" || (await field("saldo").getAttribute("placeholder")) === "-0,80", "and the balance from both");
+
+  // a value typed by hand wins and the rest follows from it
+  await enter("verbrauch", "3000");
+  check((await dialogText()).includes("Von dir eingetragen"), "a typed value is marked as the user's own");
+  check((await field("kosten").getAttribute("placeholder")) === "1.019,90", `the cost follows the typed consumption (${await field("kosten").getAttribute("placeholder")})`);
+  await dialog(page).screenshot({ path: join(outDir, "term-dialog.png") });
+
+  await page.getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const saved = (await termCalls()).at(-1);
+  check(saved.type === "tariffy/history_save" && saved.entry_id === "contract-1" && saved.index === undefined, "a new term is saved for the contract");
+  check(JSON.stringify(saved.values) === JSON.stringify({ beginn: "2024-01-01", ende: "2024-12-31", arbeitspreis: 0.3, grundpreis: 10, abschlag: 90, verbrauch: 3000 }),
+    `only what was entered is sent, the rest is left to the backend (${JSON.stringify(saved.values)})`);
+
+  // editing: the newest term is the first row; the stored list is oldest first, so it is index 1
+  await page.locator(".hist[data-id=contract-1] tbody tr").first().getByRole("button", { name: "Laufzeit bearbeiten" }).click();
+  check((await dialogText()).includes("Laufzeit bearbeiten") && (await field("beginn").inputValue()) === "2025-01-01", "editing opens the term with its values");
+  check(await field("entry_id").isDisabled(), "a term stays with its contract");
+  await enter("tarif", "Neu");
+  await page.getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const edited = (await termCalls()).at(-1);
+  check(edited.type === "tariffy/history_save" && edited.index === 1 && edited.values.tarif === "Neu", "an edited term is saved at its position");
+
+  // deleting asks first
+  await page.locator(".hist[data-id=contract-1] tbody tr").first().getByRole("button", { name: "Laufzeit bearbeiten" }).click();
+  const before = (await termCalls()).length;
+  await page.getByRole("button", { name: "Laufzeit löschen" }).click();
+  check((await dialogText()).includes("Diese Laufzeit aus der Historie löschen?") && (await termCalls()).length === before, "deleting a term asks first");
+  await page.getByRole("button", { name: "Ja, löschen" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const deleted = (await termCalls()).at(-1);
+  check(deleted.type === "tariffy/history_delete" && deleted.entry_id === "contract-1" && deleted.index === 1, "the term is deleted");
+
+  // escape closes the dialog without saving
+  await page.getByRole("button", { name: "Alten Vertrag hinzufügen" }).click();
+  const callsBefore = (await termCalls()).length;
+  await page.keyboard.press("Escape");
+  check((await page.locator(".dialog").count()) === 0 && (await termCalls()).length === callsBefore, "escape closes the dialog and sends nothing");
+  await context.close();
+}
+
+{ // a refused term shows why and keeps the dialog open
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`term/error: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&histerr=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Historie", exact: true }).click();
+  await page.getByRole("button", { name: "Alten Vertrag hinzufügen" }).click();
+  await page.locator(".dialog [name=beginn]").fill("2024-12-31");
+  await page.locator(".dialog [name=ende]").fill("2024-01-01");
+  await page.getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog .err"));
+  check((await page.locator(".dialog .err").innerText()).includes("Das Ende darf nicht vor dem Beginn liegen."), "the reason is shown");
+  check(await page.getByRole("button", { name: "Speichern" }).isEnabled(), "and the dialog can be corrected and saved again");
   await context.close();
 }
 

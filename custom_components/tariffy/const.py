@@ -127,7 +127,7 @@ NOTIFY_ID_PREFIX = "tariffy_kuendigung_"
 # Entitaet, und beim Bearbeiten (Neu konfigurieren) bleiben sie erhalten.
 CONF_HISTORIE = "_historie"
 CONF_ARCHIVIERT = "_archiviert"
-HISTORIE_MAX = 20
+HISTORIE_MAX = 50
 
 # Abschlag-Warnung (optional, pro Vertrag): warnt, wenn die Prognose zum
 # Vertragsende eine Nachzahlung ueber der Schwelle erwarten laesst.

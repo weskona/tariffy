@@ -35,6 +35,20 @@
     user: { is_admin: params.get("admin") !== "0" },
     callWS: async (message) => {
       window.__calls.push(message);
+      if (message.type === "tariffy/history_calc") { // like the backend: typed values stay, empty ones are worked out
+        const v = message.values;
+        const round = (x) => Math.round(x * 100) / 100;
+        const verbrauch = v.verbrauch !== undefined ? v.verbrauch : 3200;
+        const paid = v.abschlag_gezahlt !== undefined ? v.abschlag_gezahlt : (v.abschlag !== undefined ? round(v.abschlag * 11.99) : null);
+        const kosten = v.kosten !== undefined ? v.kosten
+          : (v.arbeitspreis !== undefined ? round(verbrauch * v.arbeitspreis + (v.grundpreis || 0) * 11.99) : null);
+        const saldo = v.saldo !== undefined ? v.saldo : (kosten !== null && paid !== null ? round(paid - kosten) : null);
+        return { values: { verbrauch, kosten, abschlag_gezahlt: paid, saldo },
+          source: v.verbrauch !== undefined ? "manual" : "statistics", sensors: ["sensor.strom_haus"], months: 11.99 };
+      }
+      if (params.get("histerr") === "1" && message.type === "tariffy/history_save") {
+        throw Object.assign(new Error("invalid_dates"), { code: "invalid_dates" });
+      }
       if (message.action === "confirm_cancellation" && notFound > 0) {
         notFound -= 1;
         throw Object.assign(new Error("Contract not found or not loaded"), { code: "not_found" });
