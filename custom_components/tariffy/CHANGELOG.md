@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.9] - 2026-11-12
+
+Neunte Beta zum Testen der Vertragshistorie, der Sicherung und der Versicherungsangaben. Das ist die letzte Nummer der Reihe `beta`, danach folgt `rc.1`. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Hinzugefügt
+
+- **Mehr Angaben bei Versicherungsverträgen.** Beim Anlegen oder Bearbeiten einer Versicherung kann man jetzt die **Art der Versicherung** (Auto, Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige) und, für eine Kfz-Versicherung, das **Kennzeichen**, den **Kilometerstand bei Vertragsbeginn** und die **erlaubten Kilometer pro Jahr** eintragen. Alle Felder sind optional und dokumentieren nur den Vertrag, es wird nichts daraus berechnet. Jedes Feld wird ein Sensor des Vertrags; das Seitenleisten-Panel zeigt die Art und die Kilometer in den Vertragsdetails. Das Kennzeichen wird wie die Kundennummer behandelt: Es wird nicht ans Panel gesendet und im Diagnose-Download geschwärzt. Gewünscht in #57.
+
 ## [1.28.0-beta.8] - 2026-11-12
 
 Achte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

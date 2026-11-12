@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-beta.9] - 2026-11-12
+
+Ninth beta for testing the contract history, the backup and the insurance details. This is the last number of the `beta` series, the next one is `rc.1`. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **More details for insurance contracts.** When you create or edit an insurance contract you can now enter the **type of insurance** (car, building / house, household contents, liability, health, life, legal protection, accident, other) and, for a car insurance, the **licence plate**, the **odometer at contract start** and the **allowed kilometres per year**. All fields are optional and only document the contract, nothing is calculated from them. Each one becomes a sensor of the contract; the side panel shows the type and the kilometres in the contract details. The licence plate is treated like the customer number: it is not sent to the side panel and is masked in the diagnostics download. Requested in #57.
+
 ## [1.28.0-beta.8] - 2026-11-12
 
 Eighth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.

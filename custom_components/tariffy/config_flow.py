@@ -41,6 +41,9 @@ from .const import (
     CONF_ARCHIVIERT,
     CONF_GRUNDPREIS,
     CONF_JAHRESVERBRAUCH,
+    CONF_KENNZEICHEN,
+    CONF_KM_PRO_JAHR,
+    CONF_KM_START,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_TARGET,
@@ -48,6 +51,7 @@ from .const import (
     CONF_PREISGARANTIE,
     CONF_SPARTE,
     CONF_TARIF,
+    CONF_VERSICHERUNGSART,
     CONF_ZAEHLERNUMMER,
     CONF_ZAHLWEISE,
     CONF_ZUSTANDSZAHL,
@@ -84,11 +88,13 @@ from .const import (
     GAS_SPARTE,
     NEXT_PREFIX,
     SPARTEN,
+    VERSICHERUNGSARTEN,
     VERBRAUCH_EINHEIT,
     VERBRAUCH_M3_EINHEIT,
     WASSER_EINHEITEN,
     WASSER_SPARTE,
     SPARTE_ELECTRICITY_HT_NT,
+    SPARTE_INSURANCE,
     CONF_ARBEITSPREIS_NT,
     CONF_VERBRAUCH_SENSOR_NT,
     CONF_VERBRAUCH_START_WERT_NT,
@@ -586,8 +592,28 @@ def _zahlweise_von(d: dict[str, Any]) -> str:
     return zahlweise if zahlweise in ZAHLWEISE_MONATE else DEFAULT_ZAHLWEISE
 
 
-def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
-    """Schritt 2 für Pauschalverträge (Internet, Mobilfunk, Versicherung, …).
+def _versicherung_fields(d: dict[str, Any]) -> dict[Any, Any]:
+    """Zusatzangaben einer Versicherung: Art und, fuer eine Kfz-Versicherung,
+    Kennzeichen, Kilometerstand bei Vertragsbeginn und Kilometer pro Jahr.
+    Alles optional und nur zur Dokumentation."""
+    km = selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            min=0, step=1, mode=selector.NumberSelectorMode.BOX, unit_of_measurement="km"
+        )
+    )
+    return {
+        _opt(CONF_VERSICHERUNGSART, d.get(CONF_VERSICHERUNGSART)): _select(
+            VERSICHERUNGSARTEN, translation_key=CONF_VERSICHERUNGSART
+        ),
+        _opt(CONF_KENNZEICHEN, d.get(CONF_KENNZEICHEN)): selector.TextSelector(),
+        _opt(CONF_KM_START, d.get(CONF_KM_START)): km,
+        _opt(CONF_KM_PRO_JAHR, d.get(CONF_KM_PRO_JAHR)): km,
+    }
+
+
+def _pauschal_schema(d: dict[str, Any], *, versicherung: bool = False) -> vol.Schema:
+    """Schritt 2 für Pauschalverträge (Internet, Mobilfunk, Versicherung, …); bei einer
+    Versicherung zusätzlich mit den Versicherungsangaben.
 
     Der Betrag wird pro Zahlung eingegeben (monatlich, vierteljährlich, halbjährlich,
     jährlich); gespeichert wird weiter der Betrag pro Monat (siehe _pauschal_monatlich)."""
@@ -600,6 +626,7 @@ def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
             ),
             vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
             _opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS)): _preis(0.01),
+            **(_versicherung_fields(d) if versicherung else {}),
         }
     )
 
@@ -801,7 +828,10 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             data = {**self._data, **_pauschal_monatlich(user_input)}
             return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(
-            step_id="pauschal", data_schema=_pauschal_schema({})
+            step_id="pauschal",
+            data_schema=_pauschal_schema(
+                {}, versicherung=self._data.get(CONF_SPARTE) == SPARTE_INSURANCE
+            ),
         )
 
     async def async_step_gas(
@@ -901,7 +931,10 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             )
         return self.async_show_form(
             step_id="reconfigure_pauschal",
-            data_schema=_pauschal_schema(dict(entry.data)),
+            data_schema=_pauschal_schema(
+                dict(entry.data),
+                versicherung=self._data.get(CONF_SPARTE, entry.data.get(CONF_SPARTE)) == SPARTE_INSURANCE,
+            ),
         )
 
     async def async_step_reconfigure_gas(

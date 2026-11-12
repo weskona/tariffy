@@ -14,6 +14,7 @@ from homeassistant.core import HomeAssistant
 
 from . import TariffyConfigEntry
 from .const import (
+    CONF_KENNZEICHEN,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_TARGET,
@@ -24,6 +25,7 @@ from .const import (
 )
 
 TO_REDACT = {
+    CONF_KENNZEICHEN,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_TARGET,

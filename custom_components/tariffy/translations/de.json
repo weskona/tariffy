@@ -260,12 +260,20 @@
         "data": {
           "zahlweise": "Zahlweise",
           "abschlag": "Betrag pro Zahlung (€)",
-          "grundpreis": "Grundpreis (€/Monat)"
+          "grundpreis": "Grundpreis (€/Monat)",
+          "versicherungsart": "Art der Versicherung",
+          "kennzeichen": "Kennzeichen (Kfz)",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km, Kfz)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km, Kfz)"
         },
         "data_description": {
           "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
           "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
-          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird"
+          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird",
+          "versicherungsart": "Optional: was die Versicherung abdeckt",
+          "kennzeichen": "Optional, für eine Kfz-Versicherung. Wird wie die Kundennummer behandelt: nicht im Seitenleisten-Panel sichtbar",
+          "km_start": "Optional, für eine Kfz-Versicherung: Kilometerstand zu Vertragsbeginn",
+          "km_pro_jahr": "Optional, für eine Kfz-Versicherung: im Vertrag vereinbarte Kilometer pro Jahr"
         }
       },
       "reconfigure_pauschal": {
@@ -274,12 +282,20 @@
         "data": {
           "zahlweise": "Zahlweise",
           "abschlag": "Betrag pro Zahlung (€)",
-          "grundpreis": "Grundpreis (€/Monat)"
+          "grundpreis": "Grundpreis (€/Monat)",
+          "versicherungsart": "Art der Versicherung",
+          "kennzeichen": "Kennzeichen (Kfz)",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km, Kfz)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km, Kfz)"
         },
         "data_description": {
           "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
           "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
-          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird"
+          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird",
+          "versicherungsart": "Optional: was die Versicherung abdeckt",
+          "kennzeichen": "Optional, für eine Kfz-Versicherung. Wird wie die Kundennummer behandelt: nicht im Seitenleisten-Panel sichtbar",
+          "km_start": "Optional, für eine Kfz-Versicherung: Kilometerstand zu Vertragsbeginn",
+          "km_pro_jahr": "Optional, für eine Kfz-Versicherung: im Vertrag vereinbarte Kilometer pro Jahr"
         }
       },
       "wasser": {
@@ -549,6 +565,19 @@
         "halfyearly": "Halbjährlich",
         "yearly": "Jährlich"
       }
+    },
+    "versicherungsart": {
+      "options": {
+        "car": "Auto (Kfz)",
+        "house": "Gebäude / Haus",
+        "household": "Hausrat",
+        "liability": "Haftpflicht",
+        "health": "Kranken",
+        "life": "Leben",
+        "legal": "Rechtsschutz",
+        "accident": "Unfall",
+        "other": "Sonstige"
+      }
     }
   },
   "entity": {
@@ -651,6 +680,29 @@
       },
       "kosten_nt_bisher": {
         "name": "Kosten Niedertarif (Bisher)"
+      },
+      "versicherungsart": {
+        "name": "Art der Versicherung",
+        "state": {
+          "car": "Auto (Kfz)",
+          "house": "Gebäude / Haus",
+          "household": "Hausrat",
+          "liability": "Haftpflicht",
+          "health": "Kranken",
+          "life": "Leben",
+          "legal": "Rechtsschutz",
+          "accident": "Unfall",
+          "other": "Sonstige"
+        }
+      },
+      "kennzeichen": {
+        "name": "Kennzeichen"
+      },
+      "km_start": {
+        "name": "Kilometerstand bei Vertragsbeginn"
+      },
+      "km_pro_jahr": {
+        "name": "Erlaubte Kilometer pro Jahr"
       }
     },
     "button": {

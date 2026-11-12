@@ -260,12 +260,20 @@
         "data": {
           "zahlweise": "Payment interval",
           "abschlag": "Amount per payment (€)",
-          "grundpreis": "Base price (€/month)"
+          "grundpreis": "Base price (€/month)",
+          "versicherungsart": "Type of insurance",
+          "kennzeichen": "Licence plate (car)",
+          "km_start": "Odometer at contract start (km, car)",
+          "km_pro_jahr": "Allowed kilometres per year (km, car)"
         },
         "data_description": {
           "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
           "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
-          "grundpreis": "Optional base charge if billed separately from the instalment"
+          "grundpreis": "Optional base charge if billed separately from the instalment",
+          "versicherungsart": "Optional: what the insurance covers",
+          "kennzeichen": "Optional, for a car insurance. Treated like the customer number: not shown in the side panel",
+          "km_start": "Optional, for a car insurance: odometer reading at the start of the contract",
+          "km_pro_jahr": "Optional, for a car insurance: kilometres per year agreed in the contract"
         }
       },
       "reconfigure_pauschal": {
@@ -274,12 +282,20 @@
         "data": {
           "zahlweise": "Payment interval",
           "abschlag": "Amount per payment (€)",
-          "grundpreis": "Base price (€/month)"
+          "grundpreis": "Base price (€/month)",
+          "versicherungsart": "Type of insurance",
+          "kennzeichen": "Licence plate (car)",
+          "km_start": "Odometer at contract start (km, car)",
+          "km_pro_jahr": "Allowed kilometres per year (km, car)"
         },
         "data_description": {
           "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
           "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
-          "grundpreis": "Optional base charge if billed separately from the instalment"
+          "grundpreis": "Optional base charge if billed separately from the instalment",
+          "versicherungsart": "Optional: what the insurance covers",
+          "kennzeichen": "Optional, for a car insurance. Treated like the customer number: not shown in the side panel",
+          "km_start": "Optional, for a car insurance: odometer reading at the start of the contract",
+          "km_pro_jahr": "Optional, for a car insurance: kilometres per year agreed in the contract"
         }
       },
       "wasser": {
@@ -549,6 +565,19 @@
         "halfyearly": "Half-yearly",
         "yearly": "Yearly"
       }
+    },
+    "versicherungsart": {
+      "options": {
+        "car": "Car",
+        "house": "Building / house",
+        "household": "Household contents",
+        "liability": "Liability",
+        "health": "Health",
+        "life": "Life",
+        "legal": "Legal protection",
+        "accident": "Accident",
+        "other": "Other"
+      }
     }
   },
   "entity": {
@@ -651,6 +680,29 @@
       },
       "kosten_nt_bisher": {
         "name": "Cost, low tariff (so far)"
+      },
+      "versicherungsart": {
+        "name": "Type of insurance",
+        "state": {
+          "car": "Car",
+          "house": "Building / house",
+          "household": "Household contents",
+          "liability": "Liability",
+          "health": "Health",
+          "life": "Life",
+          "legal": "Legal protection",
+          "accident": "Accident",
+          "other": "Other"
+        }
+      },
+      "kennzeichen": {
+        "name": "Licence plate"
+      },
+      "km_start": {
+        "name": "Odometer at contract start"
+      },
+      "km_pro_jahr": {
+        "name": "Allowed kilometres per year"
       }
     },
     "button": {

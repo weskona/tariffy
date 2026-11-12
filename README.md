@@ -358,6 +358,10 @@ Wie Strom, zusätzlich:
 |------|---------|-------------|
 | Monatlicher Abschlag | ✅ | €/Monat |
 | Grundpreis | – | €/Monat (falls separat ausgewiesen) |
+| Art der Versicherung | – | Nur bei Versicherungen: Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige |
+| Kennzeichen | – | Nur bei Versicherungen (Kfz). Wie die Kundennummer persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
+| Kilometerstand bei Vertragsbeginn | – | Nur bei Versicherungen (Kfz), in km |
+| Erlaubte Kilometer pro Jahr | – | Nur bei Versicherungen (Kfz), in km. Alle Versicherungsangaben dienen der Dokumentation, es wird nichts berechnet |
 
 ---
 

@@ -44,7 +44,7 @@ const I18N = {
     costsHint: "Positive = credit, negative = balance due. “At contract end” is projected from the consumption so far. For flat-rate contracts the cost so far is the instalments due until today.",
     secContract: "Contract", secPrices: "Prices", secConsumption: "Consumption",
     secAdvice: "Recommendations", secNext: "Next contract",
-    provider: "Provider", tariff: "Tariff", start: "Start", end: "End",
+    provider: "Provider", tariff: "Tariff", insuranceType: "Type of insurance", kmStart: "Odometer at start", kmPerYear: "Allowed per year", start: "Start", end: "End",
     unitPrice: "Unit price", unitPriceLow: "Unit price low tariff", unitPriceNight: "Unit price night",
     unitPriceEff: "Unit price effective", unitPriceWater: "Water price incl. wastewater",
     basePrice: "Base price", perMonth: "/ month",
@@ -130,6 +130,10 @@ const I18N = {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
       water: "Water", internet: "Internet", mobile: "Mobile", insurance: "Insurance", other: "Other",
     },
+    versicherungsart: {
+      car: "Car", house: "Building / house", household: "Household contents", liability: "Liability",
+      health: "Health", life: "Life", legal: "Legal protection", accident: "Accident", other: "Other",
+    },
   },
   de: {
     overview: "Übersicht", costs: "Kosten", contracts: "Verträge",
@@ -166,7 +170,7 @@ const I18N = {
     costsHint: "Positiv = Guthaben, negativ = Nachzahlung. „Zum Vertragsende“ ist aus dem bisherigen Verbrauch hochgerechnet. Bei Pauschalverträgen sind die Kosten bisher die bis heute fälligen Abschläge.",
     secContract: "Vertrag", secPrices: "Preise", secConsumption: "Verbrauch",
     secAdvice: "Empfehlungen", secNext: "Folgevertrag",
-    provider: "Anbieter", tariff: "Tarif", start: "Beginn", end: "Ende",
+    provider: "Anbieter", tariff: "Tarif", insuranceType: "Art der Versicherung", kmStart: "Kilometerstand bei Beginn", kmPerYear: "Erlaubt pro Jahr", start: "Beginn", end: "Ende",
     unitPrice: "Arbeitspreis", unitPriceLow: "Arbeitspreis Niedertarif", unitPriceNight: "Arbeitspreis Nacht",
     unitPriceEff: "Arbeitspreis effektiv", unitPriceWater: "Wasserpreis inkl. Abwasser",
     basePrice: "Grundpreis", perMonth: "/ Monat",
@@ -252,6 +256,10 @@ const I18N = {
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
       water: "Wasser", internet: "Internet", mobile: "Mobilfunk", insurance: "Versicherung", other: "Sonstiges",
+    },
+    versicherungsart: {
+      car: "Auto (Kfz)", house: "Gebäude / Haus", household: "Hausrat", liability: "Haftpflicht",
+      health: "Kranken", life: "Leben", legal: "Rechtsschutz", accident: "Unfall", other: "Sonstige",
     },
   },
 };
@@ -788,6 +796,11 @@ class TariffyPanel extends HTMLElement {
   _days(iso) {
     const d = this._parse(iso);
     return d ? Math.round((d - this._today()) / 86400000) : null;
+  }
+
+  _insuranceType(key) {
+    const labels = (I18N[this._lang] && I18N[this._lang].versicherungsart) || I18N.en.versicherungsart;
+    return labels[key] || key;
   }
 
   _unit(contract) {
@@ -2230,6 +2243,9 @@ class TariffyPanel extends HTMLElement {
     const sections = [
       section(this._t("secContract"), [
         row(this._t("provider"), c.anbieter), row(this._t("tariff"), c.tarif),
+        row(this._t("insuranceType"), c.versicherungsart ? this._insuranceType(c.versicherungsart) : null),
+        row(this._t("kmStart"), isNum(c.km_start) ? `${this._num(c.km_start, 0)} km` : null),
+        row(this._t("kmPerYear"), isNum(c.km_pro_jahr) ? `${this._num(c.km_pro_jahr, 0)} km` : null),
         row(this._t("start"), c.beginn ? this._date(c.beginn) : null),
         row(this._t("end"), c.ende ? this._date(c.ende) : null),
         row(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : null),
