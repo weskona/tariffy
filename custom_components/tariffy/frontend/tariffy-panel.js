@@ -422,11 +422,14 @@ section.card .foot { padding-top: 12px; }
 .dialog h2 { margin: 0 0 6px; font-size: 18px; }
 .dialog .hint { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
 .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
-.fld { display: block; margin: 8px 0; }
+.fld { display: block; margin: 8px 0; min-width: 0; }
 .fld .lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .fld input, .fld select { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
 /* the list of a drop-down is drawn by the browser: some ignore color-scheme, so it gets its colours explicitly
    (otherwise light text on a white list) */
+/* iOS draws a date field with its own intrinsic width and no height while empty: it stuck out of the dialog */
+.fld input[type="date"] { appearance: none; -webkit-appearance: none; min-width: 0; max-width: 100%; min-height: 38px; text-align: left; }
+.fld input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 1.2em; }
 .fld select option, .fld select optgroup { background: #1a1d25; color: var(--text); }
 .fld input:focus-visible, .fld select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
 .confirm-name { width: 100%; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }

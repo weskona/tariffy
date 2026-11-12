@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-beta.8] - 2026-11-12
+
+Eighth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- **Date fields in the panel's dialogs stuck out of the dialog on an iPhone** (and were drawn too low while empty), for example "Contract start" and "Contract end" when editing a contract. The fields now keep to the width of their column.
+
 ## [1.28.0-beta.7] - 2026-11-12
 
 Seventh beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
