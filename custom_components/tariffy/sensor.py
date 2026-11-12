@@ -32,6 +32,9 @@ from .const import (
     CONF_ENDE,
     CONF_GRUNDPREIS,
     CONF_JAHRESVERBRAUCH,
+    CONF_KENNZEICHEN,
+    CONF_KM_PRO_JAHR,
+    CONF_KM_START,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_OEKOSTROM,
@@ -39,6 +42,7 @@ from .const import (
     CONF_SPARTE,
     CONF_TARIF,
     CONF_VERBRAUCH_SENSOR,
+    CONF_VERSICHERUNGSART,
     CONF_ZAEHLERNUMMER,
     CONF_ZUSTANDSZAHL,
     DOMAIN,
@@ -48,6 +52,8 @@ from .const import (
     VERBRAUCH_KWH_EINHEIT,
     WASSER_SPARTE,
     SPARTE_ELECTRICITY_HT_NT,
+    SPARTE_INSURANCE,
+    VERSICHERUNGSARTEN,
     CONF_ARBEITSPREIS_NT,
     CONF_ZAEHLERNUMMER_NT,
 )
@@ -135,6 +141,7 @@ class VertragSensorDescription(SensorEntityDescription):
     tag_nacht_only: bool = False
     tiered_only: bool = False
     ht_nt_only: bool = False
+    versicherung_only: bool = False
     currency_icon: bool = False
 
 
@@ -237,6 +244,39 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         icon="mdi:card-account-details",
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda d: d.get(CONF_KUNDENNUMMER),
+    ),
+    VertragSensorDescription(
+        key=CONF_VERSICHERUNGSART,
+        translation_key="versicherungsart",
+        icon="mdi:shield-check",
+        device_class=SensorDeviceClass.ENUM,
+        options=VERSICHERUNGSARTEN,
+        versicherung_only=True,
+        value_fn=lambda d: d.get(CONF_VERSICHERUNGSART) or None,
+    ),
+    VertragSensorDescription(
+        key=CONF_KENNZEICHEN,
+        translation_key="kennzeichen",
+        icon="mdi:car-info",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        versicherung_only=True,
+        value_fn=lambda d: d.get(CONF_KENNZEICHEN) or None,
+    ),
+    VertragSensorDescription(
+        key=CONF_KM_START,
+        translation_key="km_start",
+        icon="mdi:counter",
+        native_unit_of_measurement="km",
+        versicherung_only=True,
+        value_fn=lambda d: d.get(CONF_KM_START),
+    ),
+    VertragSensorDescription(
+        key=CONF_KM_PRO_JAHR,
+        translation_key="km_pro_jahr",
+        icon="mdi:road-variant",
+        native_unit_of_measurement="km",
+        versicherung_only=True,
+        value_fn=lambda d: d.get(CONF_KM_PRO_JAHR),
     ),
     VertragSensorDescription(
         key=CONF_ZAEHLERNUMMER,
@@ -503,6 +543,7 @@ async def async_setup_entry(
     ist_wasser = sparte == WASSER_SPARTE
     ist_strom = sparte in ("electricity", "strom", SPARTE_ELECTRICITY_HT_NT)
     ist_ht_nt = sparte == SPARTE_ELECTRICITY_HT_NT
+    ist_versicherung = sparte == SPARTE_INSURANCE
     hat_tag_nacht = bool(coordinator.data.get("hat_tag_nacht"))
     hat_tiered = bool(coordinator.data.get("ist_tiered"))
 
@@ -520,6 +561,8 @@ async def async_setup_entry(
         if desc.tiered_only and not hat_tiered:
             return False
         if desc.ht_nt_only and not ist_ht_nt:
+            return False
+        if desc.versicherung_only and not ist_versicherung:
             return False
         return True
 

@@ -79,6 +79,27 @@ CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE = "verbrauch_letzte_laufzeit_monate"
 # das die automatische Erkennung normalerweise funktioniert.
 CONF_VERBRAUCH_START_WERT = "verbrauch_start_wert"
 
+# Versicherung (nur Sparte "insurance"): Art der Versicherung und, fuer eine
+# Kfz-Versicherung, Kennzeichen, Kilometerstand bei Vertragsbeginn und die
+# vereinbarten Kilometer pro Jahr. Nur zur Dokumentation, es wird nichts
+# berechnet. Das Kennzeichen gilt wie die Kundennummer als persoenlich.
+SPARTE_INSURANCE = "insurance"
+CONF_VERSICHERUNGSART = "versicherungsart"
+CONF_KENNZEICHEN = "kennzeichen"
+CONF_KM_START = "km_start"
+CONF_KM_PRO_JAHR = "km_pro_jahr"
+VERSICHERUNGSARTEN = [
+    "car",
+    "house",
+    "household",
+    "liability",
+    "health",
+    "life",
+    "legal",
+    "accident",
+    "other",
+]
+
 # Einspeiseverguetung (nur Strom)
 CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"
 
@@ -193,6 +214,9 @@ BASIS_FELDER = [
     CONF_ARBEITSPREIS_NT,
     CONF_VERBRAUCH_SENSOR_NT,
     CONF_ZAEHLERNUMMER_NT,
+    CONF_VERSICHERUNGSART,
+    CONF_KENNZEICHEN,
+    CONF_KM_PRO_JAHR,
 ]
 
 SPARTEN = [
@@ -202,7 +226,7 @@ SPARTEN = [
     "water",
     "internet",
     "mobile",
-    "insurance",
+    SPARTE_INSURANCE,
     "other",
 ]
 

@@ -62,6 +62,8 @@
         }
       ],
       "jahreskosten": 478.32,
+      "km_pro_jahr": null,
+      "km_start": null,
       "kosten_bisher": 513.54,
       "kosten_ht_bisher": null,
       "kosten_jahr": 618.12,
@@ -80,6 +82,7 @@
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
       "verlaengerbar": false,
+      "versicherungsart": null,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -114,6 +117,8 @@
       "guthaben_bisher": 452.39,
       "historie": [],
       "jahreskosten": 1674.11,
+      "km_pro_jahr": null,
+      "km_start": null,
       "kosten_bisher": 991.76,
       "kosten_ht_bisher": null,
       "kosten_jahr": 1794.0,
@@ -132,6 +137,7 @@
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
       "verlaengerbar": false,
+      "versicherungsart": null,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -166,6 +172,8 @@
       "guthaben_bisher": -13.14,
       "historie": [],
       "jahreskosten": 334.82,
+      "km_pro_jahr": null,
+      "km_start": null,
       "kosten_bisher": 189.75,
       "kosten_ht_bisher": null,
       "kosten_jahr": 408.0,
@@ -184,6 +192,7 @@
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
       "verlaengerbar": false,
+      "versicherungsart": null,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -218,6 +227,8 @@
       "guthaben_bisher": -186.57,
       "historie": [],
       "jahreskosten": 657.69,
+      "km_pro_jahr": null,
+      "km_start": null,
       "kosten_bisher": 477.47,
       "kosten_ht_bisher": 288.0,
       "kosten_jahr": 804.0,
@@ -236,6 +247,7 @@
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
       "verlaengerbar": false,
+      "versicherungsart": null,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -270,6 +282,8 @@
       "guthaben_bisher": null,
       "historie": [],
       "jahreskosten": 478.2,
+      "km_pro_jahr": null,
+      "km_start": null,
       "kosten_bisher": null,
       "kosten_ht_bisher": null,
       "kosten_jahr": 479.88,
@@ -288,6 +302,7 @@
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
       "verlaengerbar": true,
+      "versicherungsart": null,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -322,6 +337,8 @@
       "guthaben_bisher": null,
       "historie": [],
       "jahreskosten": 339.51,
+      "km_pro_jahr": null,
+      "km_start": null,
       "kosten_bisher": null,
       "kosten_ht_bisher": null,
       "kosten_jahr": 239.88,
@@ -347,6 +364,7 @@
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
       "verlaengerbar": true,
+      "versicherungsart": null,
       "wechsel": "2027-01-01",
       "zahlweise": "monthly"
     },
@@ -413,6 +431,8 @@
         }
       ],
       "jahreskosten": 839.36,
+      "km_pro_jahr": null,
+      "km_start": null,
       "kosten_bisher": null,
       "kosten_ht_bisher": null,
       "kosten_jahr": 540.0,
@@ -431,6 +451,7 @@
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
       "verlaengerbar": false,
+      "versicherungsart": null,
       "wechsel": null,
       "zahlweise": "monthly"
     }
