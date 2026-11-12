@@ -79,6 +79,7 @@
       "verbrauch_hochgerechnet": 2808.1,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
+      "verlaengerbar": false,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -130,6 +131,7 @@
       "verbrauch_hochgerechnet": 927.4,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
+      "verlaengerbar": false,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -181,6 +183,7 @@
       "verbrauch_hochgerechnet": 77.7,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
+      "verlaengerbar": false,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -232,6 +235,7 @@
       "verbrauch_hochgerechnet": 3391.3,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
+      "verlaengerbar": false,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -283,6 +287,7 @@
       "verbrauch_hochgerechnet": null,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
+      "verlaengerbar": true,
       "wechsel": null,
       "zahlweise": "monthly"
     },
@@ -341,6 +346,7 @@
       "verbrauch_hochgerechnet": null,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
+      "verlaengerbar": true,
       "wechsel": "2027-01-01",
       "zahlweise": "monthly"
     },
@@ -424,6 +430,7 @@
       "verbrauch_hochgerechnet": null,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
+      "verlaengerbar": false,
       "wechsel": null,
       "zahlweise": "monthly"
     }

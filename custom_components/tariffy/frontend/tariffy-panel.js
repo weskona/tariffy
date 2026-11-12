@@ -48,6 +48,12 @@ const I18N = {
     unitPrice: "Unit price", unitPriceLow: "Unit price low tariff", unitPriceNight: "Unit price night",
     unitPriceEff: "Unit price effective", unitPriceWater: "Water price incl. wastewater",
     basePrice: "Base price", perMonth: "/ month",
+    actRenew: "Renew contract", renewTitle: "Renew contract", renewGo: "Renew",
+    renewHint: "The current term goes to the history. The contract runs on with the new start, end and amount; reminders start over. Use it when the premium or price changes at the end of the term.",
+    rf_zahlweise: "Payment interval", rf_abschlag: "Amount per payment (€)",
+    renewUp: "{p} % dearer ({n} instead of {o} per month)", renewDown: "{p} % cheaper ({n} instead of {o} per month)", renewSame: "Amount unchanged",
+    termErr_invalid_abschlag: "Enter an amount above zero.", termErr_invalid_zahlweise: "Choose a payment interval.",
+    termErr_not_available: "This contract cannot be renewed (no end date, or not a flat-rate contract).",
     instalmentYear: "Instalment / year", costYear: "Cost / year", payment: "Payment", perYearShort: "{v} / year",
     interval: { monthly: "monthly", quarterly: "quarterly", halfyearly: "half-yearly", yearly: "yearly" },
     soFar: "So far", soFarHigh: "So far, high tariff", soFarLow: "So far, low tariff",
@@ -164,6 +170,12 @@ const I18N = {
     unitPrice: "Arbeitspreis", unitPriceLow: "Arbeitspreis Niedertarif", unitPriceNight: "Arbeitspreis Nacht",
     unitPriceEff: "Arbeitspreis effektiv", unitPriceWater: "Wasserpreis inkl. Abwasser",
     basePrice: "Grundpreis", perMonth: "/ Monat",
+    actRenew: "Vertrag verlängern", renewTitle: "Vertrag verlängern", renewGo: "Verlängern",
+    renewHint: "Die bisherige Laufzeit kommt in die Historie. Der Vertrag läuft mit neuem Beginn, Ende und Betrag weiter; die Erinnerungen beginnen neu. Nutze es, wenn sich Beitrag oder Preis zum Ende der Laufzeit ändert.",
+    rf_zahlweise: "Zahlweise", rf_abschlag: "Betrag pro Zahlung (€)",
+    renewUp: "{p} % teurer ({n} statt {o} pro Monat)", renewDown: "{p} % günstiger ({n} statt {o} pro Monat)", renewSame: "Betrag unverändert",
+    termErr_invalid_abschlag: "Trage einen Betrag über null ein.", termErr_invalid_zahlweise: "Wähle eine Zahlweise.",
+    termErr_not_available: "Dieser Vertrag lässt sich nicht verlängern (kein Ende eingetragen oder kein Pauschalvertrag).",
     instalmentYear: "Abschlag / Jahr", costYear: "Kosten / Jahr", payment: "Zahlung", perYearShort: "{v} / Jahr",
     interval: { monthly: "monatlich", quarterly: "vierteljährlich", halfyearly: "halbjährlich", yearly: "jährlich" },
     soFar: "Bisher", soFarHigh: "Bisher, Hochtarif", soFarLow: "Bisher, Niedertarif",
@@ -249,6 +261,7 @@ const TABS = ["overview", "costs", "contracts", "history", "backup"];
 // contracts that are billed by consumption; everything else (internet, mobile, ...) is a flat rate
 // column widths shared by the cost tables, so that their columns line up
 const GRID = ["24%", "15.2%", "15.2%", "15.2%", "15.2%", "15.2%"];
+const INTERVAL_MONTHS = { monthly: 1, quarterly: 3, halfyearly: 6, yearly: 12 };
 const METERED = new Set(["electricity", "electricity_ht_nt", "gas", "water"]);
 const TAB_KEY = "tariffy-panel-tab";
 
@@ -277,6 +290,7 @@ const ICONS = {
   ],
   plus: [["path", { d: "M12 5v14M5 12h14" }]],
   chevron: [["path", { d: "M9 6l6 6-6 6" }]],
+  renew: [["path", { d: "M20 11a8 8 0 0 0-14.500-3.500M4 5v4h4" }], ["path", { d: "M4 13a8 8 0 0 0 14.500 3.500M20 19v-4h-4" }]],
   other: [
     ["circle", { cx: "6", cy: "12", r: "1.600", fill: "currentColor" }],
     ["circle", { cx: "12", cy: "12", r: "1.600", fill: "currentColor" }],
@@ -1501,6 +1515,7 @@ class TariffyPanel extends HTMLElement {
     const dlg = this._dlg;
     if (!dlg) return;
     if (dlg.mode === "term") { this._renderTermDialog(); return; }
+    if (dlg.mode === "renew") { this._renderRenewDialog(); return; }
     const busy = dlg.stage === "saving";
     const body = [h("h2", { id: "dlg-title", text: this._t({ edit: "dlgTitleEdit", create: "dlgTitleCreate", next: "dlgTitle" }[dlg.mode], { name: dlg.name }) })];
     const buttons = [];
@@ -1737,6 +1752,114 @@ class TariffyPanel extends HTMLElement {
         deleted.length ? deleted : (bk.deleted === null ? null : h("p", { text: this._t("bkDeletedEmpty") }))));
   }
 
+  /* ----- renew a flat-rate contract: new start, end and amount; the old term goes to the history ----- */
+
+  _isoShift(iso, { days = 0, years = 0 }) {
+    const date = this._parse(iso);
+    if (!date) return "";
+    date.setFullYear(date.getFullYear() + years);
+    date.setDate(date.getDate() + days);
+    const two = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())}`;
+  }
+
+  _openRenew(c) {
+    this._closeFlow();
+    const spec = (name, kind, label, extra = {}) => ({
+      name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const zahlweise = c.zahlweise && INTERVAL_MONTHS[c.zahlweise] ? c.zahlweise : "monthly";
+    const dlg = {
+      mode: "renew", stage: "form", id: c.entry_id, name: c.title, contract: c, flowId: null, localize: () => "",
+      fields: [
+        spec("beginn", "date", this._t("tf_beginn"), { required: true }),
+        spec("ende", "date", this._t("tf_ende"), { required: true }),
+        spec("zahlweise", "select", this._t("rf_zahlweise"), { options: Object.keys(INTERVAL_MONTHS).map((k) => ({ value: k, label: this._t("interval")[k] })) }),
+        spec("abschlag", "number", this._t("rf_abschlag"), { required: true, min: 0.01 }),
+      ],
+      values: {
+        beginn: this._isoShift(c.ende, { days: 1 }), ende: this._isoShift(c.ende, { years: 1 }), zahlweise,
+        abschlag: String(isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : (c.abschlag ?? "")),
+      },
+      fieldErrors: {}, message: null,
+    };
+    this._dlg = dlg;
+    this._renderRenewDialog();
+  }
+
+  /* "5 % dearer": what the new amount means compared with the current one */
+  _renewChange(dlg) {
+    const amount = Number(String(dlg.values.abschlag ?? "").replace(",", "."));
+    const months = INTERVAL_MONTHS[dlg.values.zahlweise] || 1;
+    const old = dlg.contract.abschlag;
+    if (!Number.isFinite(amount) || amount <= 0 || !isNum(old) || old <= 0) return "";
+    const monthly = amount / months;
+    const percent = ((monthly - old) / old) * 100;
+    if (Math.abs(percent) < 0.05) return this._t("renewSame");
+    return this._t(percent > 0 ? "renewUp" : "renewDown", {
+      p: this._num(Math.abs(percent), 1), n: this._money(monthly, dlg.contract.currency, { digits: 2 }), o: this._money(old, dlg.contract.currency, { digits: 2 }),
+    });
+  }
+
+  async _saveRenew() {
+    const dlg = this._dlg;
+    const { values, errors } = this._collectFlow(dlg);
+    dlg.fieldErrors = errors;
+    dlg.message = null;
+    if (Object.keys(errors).length) {
+      this._renderRenewDialog();
+      return;
+    }
+    dlg.stage = "saving";
+    this._renderRenewDialog();
+    try {
+      await this._hass.callWS({ type: "tariffy/renew", entry_id: dlg.id, values });
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.message = this._termError(err);
+      this._renderRenewDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderRenewDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t("renewTitle") }),
+      h("p", { class: "hint", text: dlg.name }),
+      h("p", { class: "hint", text: this._t("renewHint") }),
+      h("div", { class: "fields" }, dlg.fields.map((f) => {
+        const error = dlg.fieldErrors[f.name];
+        return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+          h("span", { class: "lbl", text: f.label }), this._fieldInput(dlg, f),
+          f.name === "abschlag" ? h("div", { class: "fnote", "data-note": "change", text: this._renewChange(dlg) }) : null,
+          error ? h("div", { class: "ferr", text: error }) : null);
+      })),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    body.push(h("div", { class: "actions" },
+      h("button", { class: "btn go", type: "button", disabled: busy ? "" : null, text: this._t(busy ? "dlgSaving" : "renewGo"), onclick: () => this._saveRenew() }),
+      h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() })));
+    this._mountDialog(dlg, body, busy);
+    const el = this._dlgEl;
+    // a finished edit of the amount or the interval updates the note under the amount
+    el.onchange = () => {
+      const note = el.querySelector('[data-note="change"]');
+      if (note) note.textContent = this._renewChange(dlg);
+    };
+    el.oninput = el.onchange;
+    if (!dlg.focused) {
+      dlg.focused = true;
+      const first = el.querySelector("input, select");
+      if (first) first.focus();
+    }
+  }
+
   /* ----- old contracts: a term entered by hand (administrators only) ----- */
 
   _openTerm(c, index) {
@@ -1820,8 +1943,10 @@ class TariffyPanel extends HTMLElement {
 
   _termError(err) {
     const code = String((err && (err.code || (err.body && err.body.code))) || "");
-    const key = code.startsWith("invalid_") && code !== "invalid_dates" ? "termErr_invalid" : `termErr_${code}`;
-    return I18N[this._lang][key] || I18N.en[key] ? this._t(key) : this._t("dlgSaveFailed", { m: this._errorText(err) });
+    const specific = `termErr_${code}`;
+    const has = (key) => Boolean(I18N[this._lang][key] || I18N.en[key]);
+    const key = has(specific) ? specific : (code.startsWith("invalid_") ? "termErr_invalid" : specific);
+    return has(key) ? this._t(key) : this._t("dlgSaveFailed", { m: this._errorText(err) });
   }
 
   async _saveTerm() {
@@ -2077,6 +2202,10 @@ class TariffyPanel extends HTMLElement {
       onclick: (ev) => { ev.preventDefault(); ev.stopPropagation(); this._openFlow(c, flow); },
     }, icon(name));
     return h("div", { class: "row-actions" },
+      c.verlaengerbar ? h("button", {
+        class: "icon-btn", type: "button", title: this._t("actRenew"), "aria-label": this._t("actRenew"),
+        onclick: (ev) => { ev.preventDefault(); ev.stopPropagation(); this._openRenew(c); },
+      }, icon("renew")) : null,
       button("next", this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"), "plan"),
       button("edit", this._t("actEdit"), "edit"));
   }

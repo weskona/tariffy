@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.7] - 2026-11-12
+
+Siebte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Pauschalverträge verlängern.** Verträge ohne Verbrauch (Versicherung, Internet, Mobilfunk, Sonstiges) mit einem Vertragsende bekommen im Tab "Verträge" das Symbol "Vertrag verlängern" (nur Administratoren). Der Dialog schlägt als Beginn den Tag nach dem bisherigen Ende vor, als neues Ende ein Jahr später und den bisherigen Betrag und die Zahlweise, und zeigt, wie viel teurer oder günstiger der neue Betrag ist. Beim Verlängern wird die bisherige Laufzeit in der Historie gesichert, der Vertrag läuft mit neuem Beginn, Ende und Betrag weiter, und die Erinnerungen beginnen neu. Gedacht ist das für einen Beitrag, der jedes Jahr steigt, wie bei einer Kfz-Versicherung. Neuer Websocket-Befehl `tariffy/renew` (nur Administratoren) und das Vertragsdatum `verlaengerbar` für das Panel.
+
 ## [1.28.0-beta.6] - 2026-11-12
 
 Sechste Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

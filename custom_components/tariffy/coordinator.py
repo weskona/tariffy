@@ -26,6 +26,7 @@ from .const import (
     DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE,
     DEFAULT_ZAHLWEISE,
     HISTORIE_MAX,
+    METERED_SPARTEN,
     NOTIFY_ID_ABSCHLAG_PREFIX,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
@@ -1422,6 +1423,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 ende is not None and ende < heute and not nxt and not archiviert
             ),
             "historie": list(data.get(CONF_HISTORIE) or []),
+            # Pauschalvertrag mit Ende, nicht archiviert: laesst sich verlaengern (neuer Betrag, neues Ende)
+            "verlaengerbar": bool(
+                sparte not in METERED_SPARTEN and ende is not None and not archiviert
+            ),
             CONF_ARBEITSPREIS_NT: arbeitspreis_nt,
             "arbeitspreis_ht": arbeitspreis_ht,
             CONF_ZAEHLERNUMMER_NT: data.get(CONF_ZAEHLERNUMMER_NT),

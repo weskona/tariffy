@@ -63,6 +63,10 @@
       }
       if (message.type === "tariffy/deleted_restore") return { title: "Strom 2023" };
       if (message.type === "tariffy/deleted_discard") return { ok: true };
+      if (message.type === "tariffy/renew") {
+        if (params.get("renewerr") === "1") throw Object.assign(new Error("invalid_abschlag"), { code: "invalid_abschlag" });
+        return { ok: true };
+      }
       if (params.get("histerr") === "1" && message.type === "tariffy/history_save") {
         throw Object.assign(new Error("invalid_dates"), { code: "invalid_dates" });
       }
