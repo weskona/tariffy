@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.8] - 2026-11-12
+
+Achte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Fixed
+
+- **Datumsfelder in den Dialogen des Panels ragten auf dem iPhone über den Dialog hinaus** (und waren leer zu niedrig gezeichnet), zum Beispiel "Vertragsbeginn" und "Vertragsende" beim Bearbeiten eines Vertrags. Die Felder bleiben jetzt in der Breite ihrer Spalte.
+
 ## [1.28.0-beta.7] - 2026-11-12
 
 Siebte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

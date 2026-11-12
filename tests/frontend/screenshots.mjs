@@ -303,6 +303,12 @@ const configFlow = "config/config_entries/flow";
     "editing starts the reconfigure flow of the contract");
   check((await page.locator(".dialog [name=sparte] option:checked").innerText()) === "Strom", "the sparte drop-down shows translated names");
   check((await page.locator(".dialog [name=name]").inputValue()) === "Strom Haus", "the name of the contract can be changed: it is the first field and filled in");
+  const dateStyle = await page.locator(".dialog [name=beginn]").evaluate((el) => {
+    const style = getComputedStyle(el);
+    return { appearance: style.appearance, minWidth: style.minWidth, label: getComputedStyle(el.closest("label")).minWidth };
+  });
+  check(dateStyle.appearance === "none" && dateStyle.minWidth === "0px" && dateStyle.label === "0px",
+    `a date field cannot be wider than its column (${JSON.stringify(dateStyle)})`);
   check((await page.locator(".dialog .lbl").first().innerText()) === "Name", "and labelled");
   check((await page.locator(".dialog [name=anbieter]").inputValue()) === "Stadtwerke Nord", "stored provider is filled in");
   check((await page.locator(".dialog [name=erinnerung_monate] option:checked").innerText()) === "3 Monate vorher", "the reminder lead time is readable, not a bare number");
