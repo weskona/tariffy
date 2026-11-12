@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-beta.6] - 2026-11-12
+
+Sixth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **Payment interval and yearly values for flat-rate contracts** (internet, mobile, insurance, other). The cost step has a new field "Payment interval" (monthly, quarterly, half-yearly, yearly), and the amount is entered per payment, so a yearly insurance premium can be entered as it is billed. Internally the integration still works with the amount per month (600 € a year is stored as 50 € a month, `abschlag` keeps its meaning), so **existing contracts stay exactly as they are** (monthly). Changing only the interval is not an instalment change. The panel shows the yearly instalment ("480 € / year") on the card, in the cost table and in the contract details, together with the yearly cost (instalment and base price) and the amount per payment when it is not monthly. No new sensors: the values are data for the panel only.
+
 ## [1.28.0-beta.5] - 2026-11-12
 
 Fifth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.

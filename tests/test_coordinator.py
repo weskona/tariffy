@@ -908,3 +908,54 @@ class TestContractHistory:
         history = contract.entry.data.get("_historie") or []
         assert history == []  # the archived contract had no entry here; none is made for the switch
         assert "_archiviert" not in contract.entry.data  # the new contract is active again
+
+
+class TestYearlyValuesAndPaymentInterval:
+    """`abschlag` is always the amount per month; the interval and the yearly values are display data."""
+
+    INSURANCE = {
+        "sparte": "insurance",
+        "anbieter": "Versicherung AG",
+        "abschlag": 50.0,
+        "beginn": "2026-01-01",
+        "ende": "2026-12-31",
+    }
+
+    async def test_yearly_values(self, setup_contract):
+        _, d = await setup_contract({**self.INSURANCE, "zahlweise": "yearly"}, today="2026-07-12")
+        assert d["zahlweise"] == "yearly"
+        assert d["abschlag_jahr"] == 600.0
+        assert d["abschlag_je_zahlung"] == 600.0
+        assert d["kosten_jahr"] == 600.0
+
+    async def test_the_base_price_counts_for_the_yearly_cost_only(self, setup_contract):
+        _, d = await setup_contract({**self.INSURANCE, "grundpreis": 5.0}, today="2026-07-12")
+        assert d["abschlag_jahr"] == 600.0
+        assert d["kosten_jahr"] == 660.0
+
+    @pytest.mark.parametrize(
+        ("zahlweise", "per_payment"), [("monthly", 50.0), ("quarterly", 150.0), ("halfyearly", 300.0), ("yearly", 600.0)]
+    )
+    async def test_the_amount_of_one_payment(self, setup_contract, zahlweise, per_payment):
+        _, d = await setup_contract({**self.INSURANCE, "zahlweise": zahlweise}, today="2026-07-12")
+        assert d["abschlag_je_zahlung"] == per_payment
+
+    @pytest.mark.parametrize("stored", [None, "", "weekly"])
+    async def test_existing_contracts_are_monthly(self, setup_contract, stored):
+        data = dict(self.INSURANCE)
+        if stored is not None:
+            data["zahlweise"] = stored
+        _, d = await setup_contract(data, today="2026-07-12")
+        assert d["zahlweise"] == "monthly"
+        assert d["abschlag_je_zahlung"] == 50.0
+
+    async def test_no_instalment_no_yearly_values(self, setup_contract):
+        data = {k: v for k, v in self.INSURANCE.items() if k != "abschlag"}
+        _, d = await setup_contract(data, today="2026-07-12")
+        assert d["abschlag_jahr"] is None and d["kosten_jahr"] is None and d["abschlag_je_zahlung"] is None
+
+    async def test_nothing_else_changes(self, setup_contract):
+        _, monthly = await setup_contract(dict(self.INSURANCE), today="2026-07-12")
+        _, yearly = await setup_contract({**self.INSURANCE, "zahlweise": "yearly"}, today="2026-07-12")
+        for key in ("abschlag", "jahreskosten", "abschlag_bisher_gezahlt", "restlaufzeit"):
+            assert monthly[key] == yearly[key], key

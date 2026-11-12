@@ -49,6 +49,7 @@ from .const import (
     CONF_SPARTE,
     CONF_TARIF,
     CONF_ZAEHLERNUMMER,
+    CONF_ZAHLWEISE,
     CONF_ZUSTANDSZAHL,
     CONF_ABWASSER_TYP,
     ABWASSER_TYPEN,
@@ -77,6 +78,7 @@ from .const import (
     CONF_WASSER_EINHEIT,
     DOMAIN,
     ENERGIE_SPARTEN,
+    DEFAULT_ZAHLWEISE,
     ERINNERUNG_OPTIONS,
     GAS_EINHEITEN,
     GAS_SPARTE,
@@ -91,6 +93,7 @@ from .const import (
     CONF_VERBRAUCH_SENSOR_NT,
     CONF_VERBRAUCH_START_WERT_NT,
     CONF_ZAEHLERNUMMER_NT,
+    ZAHLWEISE_MONATE,
 )
 
 
@@ -578,16 +581,37 @@ def _gas_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
     )
 
 
+def _zahlweise_von(d: dict[str, Any]) -> str:
+    zahlweise = d.get(CONF_ZAHLWEISE)
+    return zahlweise if zahlweise in ZAHLWEISE_MONATE else DEFAULT_ZAHLWEISE
+
+
 def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
-    """Schritt 2 für Pauschalverträge (Internet, Mobilfunk, …)."""
+    """Schritt 2 für Pauschalverträge (Internet, Mobilfunk, Versicherung, …).
+
+    Der Betrag wird pro Zahlung eingegeben (monatlich, vierteljährlich, halbjährlich,
+    jährlich); gespeichert wird weiter der Betrag pro Monat (siehe _pauschal_monatlich)."""
+    zahlweise = _zahlweise_von(d)
+    betrag = round(float(d.get(CONF_ABSCHLAG) or 0.0) * ZAHLWEISE_MONATE[zahlweise], 2)
     return vol.Schema(
         {
-            vol.Required(
-                CONF_ABSCHLAG, default=d.get(CONF_ABSCHLAG, 0.0)
-            ): _preis(0.01),
+            vol.Required(CONF_ZAHLWEISE, default=zahlweise): _select(
+                list(ZAHLWEISE_MONATE), translation_key="zahlweise"
+            ),
+            vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
             _opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS)): _preis(0.01),
         }
     )
+
+
+def _pauschal_monatlich(user_input: dict[str, Any]) -> dict[str, Any]:
+    """Rechnet den Betrag pro Zahlung in den Monatsbetrag um, den die Integration speichert."""
+    daten = dict(user_input)
+    zahlweise = _zahlweise_von(daten)
+    daten[CONF_ZAHLWEISE] = zahlweise
+    if daten.get(CONF_ABSCHLAG) is not None:
+        daten[CONF_ABSCHLAG] = round(float(daten[CONF_ABSCHLAG]) / ZAHLWEISE_MONATE[zahlweise], 6)
+    return daten
 
 
 def _wasser_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
@@ -774,7 +798,7 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         if user_input is not None:
-            data = {**self._data, **user_input}
+            data = {**self._data, **_pauschal_monatlich(user_input)}
             return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(
             step_id="pauschal", data_schema=_pauschal_schema({})
@@ -867,7 +891,10 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         entry = self._get_reconfigure_entry()
         if user_input is not None:
             neu = _keep_internal_state(
-                entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+                entry.data,
+                _stamp_abschlag_change(
+                    entry.data, {**self._data, **_pauschal_monatlich(user_input)}
+                ),
             )
             return self.async_update_reload_and_abort(
                 entry, title=self._entry_title or entry.title, data=neu

@@ -625,7 +625,8 @@ for (const width of [1280, 900, 600, 390]) {
   const expected = await page.evaluate(() => window.__panel._contracts.find((c) => c.title === "Internet").abschlag_bisher_gezahlt);
   check(expected > 300, `the backend delivers the instalments due so far (${expected})`);
   check(internet[1].includes("373"), `Internet: the cost so far is filled in (${internet[1]})`);
-  check(internet[2] === "80 Tage" && internet[3] === "30.09.2026" && internet[4] === "39,99 €", `Internet: remaining term, end and instalment (${internet})`);
+  check(internet[2] === "80 Tage" && internet[3] === "30.09.2026" && internet[4].startsWith("39,99 €"), `Internet: remaining term, end and instalment (${internet})`);
+  check(internet[4].includes("480 € / Jahr"), "Internet: the yearly instalment stands under the monthly one");
   // both tables share one column grid: cost so far and instalment sit exactly below each other
   const edges = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group table")].map((t) => [...t.querySelectorAll("th")].map((th) => Math.round(th.getBoundingClientRect().right))));
   check(edges.length === 2 && edges[0][1] === edges[1][1] && edges[0][4] === edges[1][4] && edges[0].length === edges[1].length,
@@ -1084,6 +1085,48 @@ for (const width of [1280, 900, 600, 390]) {
   await page.getByRole("button", { name: "Ja, wiederherstellen" }).click();
   await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
   check((await page.locator(".err").innerText()).includes("Das Wiederherstellen ist fehlgeschlagen."), "a failed restore shows its reason");
+  await context.close();
+}
+
+{ // flat-rate contracts show yearly values; the payment interval shows when it is not monthly
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`yearly: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const text = async (sel) => (await page.locator(sel).first().innerText()).replace(/\u00a0/g, " ");
+  const internet = await text("section.card:has-text('Internet')");
+  check(internet.includes("480 € / Jahr") && !internet.includes("jährlich"), `a monthly flat-rate card shows the yearly instalment (${internet.replace(/\n/g, " | ")})`);
+
+  // a yearly premium: 600 a year is 50 a month
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet"
+      ? { ...c, abschlag: 50, zahlweise: "yearly", abschlag_je_zahlung: 600, abschlag_jahr: 600, kosten_jahr: 600 } : c));
+    panel._render();
+  });
+  const yearly = await text("section.card:has-text('Internet')");
+  check(yearly.includes("600,00 € jährlich"), `the card says how it is paid (${yearly.replace(/\n/g, " | ")})`);
+  check(!yearly.includes("600 € / Jahr"), "and does not repeat the yearly figure");
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
+  const details = await text("details:has-text('Internet')");
+  check(details.includes("Abschlag / Jahr") && details.includes("Kosten / Jahr") && details.includes("Zahlung"), "the details show the yearly instalment, the yearly cost and the payment");
+  check(/Zahlung\s*600,00 € jährlich/.test(details), `the payment row says the amount and the interval (${details.replace(/\n/g, " | ")})`);
+  await page.getByRole("tab", { name: "Kosten", exact: true }).click();
+  check((await text("tr:has-text('Internet')")).includes("600 € / Jahr"), "the cost table shows the yearly instalment");
+
+  // the base price counts for the yearly cost, not for the yearly instalment
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Mobilfunk" ? { ...c, grundpreis: 5, kosten_jahr: 299.88 } : c));
+    panel._tab = "contracts";
+    panel._render();
+  });
+  await page.locator("details", { hasText: "Mobilfunk" }).first().locator("summary").click();
+  const mobile = await text("details:has-text('Mobilfunk')");
+  check(/Abschlag \/ Jahr\s*239,88 €/.test(mobile) && /Kosten \/ Jahr\s*299,88 €/.test(mobile), `yearly cost includes the base price, the yearly instalment does not (${mobile.replace(/\n/g, " | ")})`);
   await context.close();
 }
 

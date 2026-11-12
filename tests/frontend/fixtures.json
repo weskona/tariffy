@@ -4,6 +4,8 @@
       "abschlag": 40.0,
       "abschlag_anpassung_empfohlen": 127.66,
       "abschlag_bisher_gezahlt": 252.3,
+      "abschlag_jahr": 480.0,
+      "abschlag_je_zahlung": 40.0,
       "abschlag_warnung_aktiv": true,
       "abschlag_warnung_zu_bestaetigen": true,
       "anbieter": "Stadtwerke Nord",
@@ -62,6 +64,7 @@
       "jahreskosten": 478.32,
       "kosten_bisher": 513.54,
       "kosten_ht_bisher": null,
+      "kosten_jahr": 618.12,
       "kosten_nt_bisher": null,
       "next": null,
       "prognose_real": -495.29,
@@ -76,12 +79,15 @@
       "verbrauch_hochgerechnet": 2808.1,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
-      "wechsel": null
+      "wechsel": null,
+      "zahlweise": "monthly"
     },
     {
       "abschlag": 140.0,
       "abschlag_anpassung_empfohlen": -179.27,
       "abschlag_bisher_gezahlt": 1444.15,
+      "abschlag_jahr": 1680.0,
+      "abschlag_je_zahlung": 140.0,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Energie Süd",
@@ -109,6 +115,7 @@
       "jahreskosten": 1674.11,
       "kosten_bisher": 991.76,
       "kosten_ht_bisher": null,
+      "kosten_jahr": 1794.0,
       "kosten_nt_bisher": null,
       "next": null,
       "prognose_real": 524.42,
@@ -123,12 +130,15 @@
       "verbrauch_hochgerechnet": 927.4,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
-      "wechsel": null
+      "wechsel": null,
+      "zahlweise": "monthly"
     },
     {
       "abschlag": 28.0,
       "abschlag_anpassung_empfohlen": 32.39,
       "abschlag_bisher_gezahlt": 176.61,
+      "abschlag_jahr": 336.0,
+      "abschlag_je_zahlung": 28.0,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Stadtwerke Nord",
@@ -156,6 +166,7 @@
       "jahreskosten": 334.82,
       "kosten_bisher": 189.75,
       "kosten_ht_bisher": null,
+      "kosten_jahr": 408.0,
       "kosten_nt_bisher": null,
       "next": null,
       "prognose_real": -24.81,
@@ -170,12 +181,15 @@
       "verbrauch_hochgerechnet": 77.7,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
-      "wechsel": null
+      "wechsel": null,
+      "zahlweise": "monthly"
     },
     {
       "abschlag": 55.0,
       "abschlag_anpassung_empfohlen": 118.25,
       "abschlag_bisher_gezahlt": 290.9,
+      "abschlag_jahr": 660.0,
+      "abschlag_je_zahlung": 55.0,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Naturstrom",
@@ -203,6 +217,7 @@
       "jahreskosten": 657.69,
       "kosten_bisher": 477.47,
       "kosten_ht_bisher": 288.0,
+      "kosten_jahr": 804.0,
       "kosten_nt_bisher": 126.0,
       "next": null,
       "prognose_real": -421.8,
@@ -217,12 +232,15 @@
       "verbrauch_hochgerechnet": 3391.3,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
-      "wechsel": null
+      "wechsel": null,
+      "zahlweise": "monthly"
     },
     {
       "abschlag": 39.99,
       "abschlag_anpassung_empfohlen": null,
       "abschlag_bisher_gezahlt": 373.1,
+      "abschlag_jahr": 479.88,
+      "abschlag_je_zahlung": 39.99,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Glasfaser GmbH",
@@ -250,6 +268,7 @@
       "jahreskosten": 478.2,
       "kosten_bisher": null,
       "kosten_ht_bisher": null,
+      "kosten_jahr": 479.88,
       "kosten_nt_bisher": null,
       "next": null,
       "prognose_real": null,
@@ -264,12 +283,15 @@
       "verbrauch_hochgerechnet": null,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
-      "wechsel": null
+      "wechsel": null,
+      "zahlweise": "monthly"
     },
     {
       "abschlag": 19.99,
       "abschlag_anpassung_empfohlen": null,
       "abschlag_bisher_gezahlt": 226.56,
+      "abschlag_jahr": 239.88,
+      "abschlag_je_zahlung": 19.99,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Mobil Eins",
@@ -297,6 +319,7 @@
       "jahreskosten": 339.51,
       "kosten_bisher": null,
       "kosten_ht_bisher": null,
+      "kosten_jahr": 239.88,
       "kosten_nt_bisher": null,
       "next": {
         "abschlag": 14.99,
@@ -318,12 +341,15 @@
       "verbrauch_hochgerechnet": null,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
-      "wechsel": "2027-01-01"
+      "wechsel": "2027-01-01",
+      "zahlweise": "monthly"
     },
     {
       "abschlag": 35.0,
       "abschlag_anpassung_empfohlen": null,
       "abschlag_bisher_gezahlt": 839.36,
+      "abschlag_jahr": 420.0,
+      "abschlag_je_zahlung": 35.0,
       "abschlag_warnung_aktiv": false,
       "abschlag_warnung_zu_bestaetigen": false,
       "anbieter": "Stadtwerke Süd",
@@ -383,6 +409,7 @@
       "jahreskosten": 839.36,
       "kosten_bisher": null,
       "kosten_ht_bisher": null,
+      "kosten_jahr": 540.0,
       "kosten_nt_bisher": null,
       "next": null,
       "prognose_real": null,
@@ -397,7 +424,8 @@
       "verbrauch_hochgerechnet": null,
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
-      "wechsel": null
+      "wechsel": null,
+      "zahlweise": "monthly"
     }
   ],
   "create": {
@@ -1183,6 +1211,26 @@
       },
       "internet": {
         "data_schema": [
+          {
+            "default": "monthly",
+            "name": "zahlweise",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "monthly",
+                  "quarterly",
+                  "halfyearly",
+                  "yearly"
+                ],
+                "sort": false,
+                "translation_key": "zahlweise"
+              }
+            }
+          },
           {
             "default": 0.0,
             "name": "abschlag",
@@ -3831,6 +3879,26 @@
       "second": {
         "data_schema": [
           {
+            "default": "monthly",
+            "name": "zahlweise",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "monthly",
+                  "quarterly",
+                  "halfyearly",
+                  "yearly"
+                ],
+                "sort": false,
+                "translation_key": "zahlweise"
+              }
+            }
+          },
+          {
             "default": 39.99,
             "name": "abschlag",
             "required": true,
@@ -4013,6 +4081,26 @@
       },
       "second": {
         "data_schema": [
+          {
+            "default": "monthly",
+            "name": "zahlweise",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "monthly",
+                  "quarterly",
+                  "halfyearly",
+                  "yearly"
+                ],
+                "sort": false,
+                "translation_key": "zahlweise"
+              }
+            }
+          },
           {
             "default": 19.99,
             "name": "abschlag",
