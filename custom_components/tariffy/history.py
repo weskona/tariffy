@@ -18,12 +18,14 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 
 from . import coordinator as coord
 from .const import (
     CONF_ABSCHLAG,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
+    CONF_ARCHIVIERT,
     CONF_BEGINN,
     CONF_BRENNWERT,
     CONF_ENDE,
@@ -31,15 +33,17 @@ from .const import (
     CONF_HISTORIE,
     CONF_SPARTE,
     CONF_TARIF,
+    CONF_ZAHLWEISE,
     CONF_VERBRAUCH_SENSOR,
     CONF_VERBRAUCH_SENSOR_NT,
     CONF_ZUSTANDSZAHL,
     GAS_SPARTE,
     HISTORIE_MAX,
+    METERED_SPARTEN,
+    ZAHLWEISE_MONATE,
 )
 
-# Vertraege, die nach Verbrauch abgerechnet werden (wie im Panel); alles andere ist Pauschale.
-METERED = {"electricity", "electricity_ht_nt", "gas", "water"}
+METERED = METERED_SPARTEN
 NUMBER_FIELDS = (
     "arbeitspreis",
     "grundpreis",
@@ -235,4 +239,48 @@ def delete_term(hass: HomeAssistant, entry: ConfigEntry, index: int) -> None:
         data[CONF_HISTORIE] = historie
     else:
         data.pop(CONF_HISTORIE, None)
+    hass.config_entries.async_update_entry(entry, data=data)
+
+
+# Zustand des alten Vertragsabschnitts, der beim Verlaengern nicht in die neue Laufzeit mitgeht
+_RENEW_RESET = (
+    "_kuendigung_bestaetigt",
+    "_notify_gesendet",
+    "_abschlag_ab_datum",
+    "_abschlag_vorheriger_wert",
+    "_abschlag_warnung_bestaetigt",
+    "_abschlag_warnung_notify_gesendet",
+    CONF_ARCHIVIERT,
+)
+
+
+async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str, Any]) -> None:
+    """Verlaengert einen Pauschalvertrag (Versicherung, Internet, ...): die bisherige Laufzeit
+    kommt in die Historie, der Vertrag laeuft mit neuem Beginn, Ende und Betrag weiter."""
+    coordinator = entry.runtime_data
+    if not (coordinator.data or {}).get("verlaengerbar"):
+        raise HistoryError("not_available")
+    beginn, ende = _dates(values)
+    if ende <= beginn:
+        raise HistoryError("invalid_dates")
+    betrag = _number(values.get("abschlag"), "abschlag")
+    if betrag is None or betrag <= 0:
+        raise HistoryError("invalid_abschlag")
+    zahlweise = values.get(CONF_ZAHLWEISE) or entry.data.get(CONF_ZAHLWEISE) or "monthly"
+    if zahlweise not in ZAHLWEISE_MONATE:
+        raise HistoryError("invalid_zahlweise")
+
+    historie = list(entry.data.get(CONF_HISTORIE) or [])
+    historie.append(coordinator._historie_eintrag(dt_util.now().date()))
+    data = {key: value for key, value in entry.data.items() if key not in _RENEW_RESET}
+    data.update(
+        {
+            CONF_BEGINN: beginn.isoformat(),
+            CONF_ENDE: ende.isoformat(),
+            CONF_ABSCHLAG: round(betrag / ZAHLWEISE_MONATE[zahlweise], 6),
+            CONF_ZAHLWEISE: zahlweise,
+            CONF_HISTORIE: _sorted(historie)[-HISTORIE_MAX:],
+        }
+    )
+    await coordinator._dismiss_notifications()
     hass.config_entries.async_update_entry(entry, data=data)

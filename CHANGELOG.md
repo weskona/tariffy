@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-beta.7] - 2026-11-12
+
+Seventh beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **Renew flat-rate contracts.** Contracts without consumption (insurance, internet, mobile, other) that have a contract end get the icon "Renew contract" in the "Contracts" tab (administrators only). The dialog suggests the start the day after the current end, a new end a year later and the current amount and interval, and shows how much dearer or cheaper the new amount is. Renewing saves the current term in the history, lets the contract run on with the new start, end and amount, and starts the reminders over. This is meant for a premium that rises every year, like a car insurance. New websocket command `tariffy/renew` (administrators only) and the contract data `verlaengerbar` for the panel.
+
 ## [1.28.0-beta.6] - 2026-11-12
 
 Sixth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.

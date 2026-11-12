@@ -109,6 +109,7 @@ CONTRACT_FIELDS = (
     "archiviert",
     "archiviert_am",
     "archivierbar",
+    "verlaengerbar",
     "historie",
 )
 NEXT_FIELDS = ("beginn", "ende", "anbieter", "tarif", "arbeitspreis", "abschlag")
@@ -319,6 +320,30 @@ async def ws_history_save(hass: HomeAssistant, connection, msg: dict[str, Any]) 
 @websocket_api.require_admin
 @websocket_api.websocket_command(
     {
+        vol.Required("type"): "tariffy/renew",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+    }
+)
+@websocket_api.async_response
+async def ws_renew(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Verlaengert einen Pauschalvertrag mit neuem Betrag und Ende."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        await history.async_renew(hass, entry, msg["values"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
         vol.Required("type"): "tariffy/history_delete",
         vol.Required("entry_id"): str,
         vol.Required("index"): vol.All(int, vol.Range(min=0)),
@@ -433,6 +458,7 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             websocket_api.async_register_command(hass, ws_history_calc)
             websocket_api.async_register_command(hass, ws_history_save)
             websocket_api.async_register_command(hass, ws_history_delete)
+            websocket_api.async_register_command(hass, ws_renew)
             for command in (
                 ws_backup_export,
                 ws_backup_preview,

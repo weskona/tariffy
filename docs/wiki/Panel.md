@@ -55,6 +55,16 @@ Die normalen Backups von Home Assistant sichern Tariffy schon vollständig mit. 
 - **Gelöschte Verträge:** Wird ein Vertrag gelöscht (im Panel oder in Home Assistant), merkt sich Tariffy ihn **30 Tage lang** (höchstens die letzten 20) und bietet ihn im Tab **Sicherung** zum **Zurückholen** an, mit Rückfrage. Das geht nicht, wenn es inzwischen einen Vertrag mit gleichem Namen und gleicher Sparte gibt. Die Daten liegen in Home Assistants Speicher (`.storage/tariffy.deleted`) und werden nach 30 Tagen entfernt; mit **Jetzt vergessen** (mit Rückfrage) verschwindet ein Eintrag sofort, auch seine persönlichen Daten.
 - **Grenze:** Das Panel gibt es erst, wenn mindestens ein Vertrag existiert. Wurde der letzte Vertrag gelöscht, legst du zuerst irgendeinen neuen Vertrag an, dann steht das Panel wieder zur Verfügung.
 
+## Pauschalvertrag verlängern
+
+Bei Verträgen ohne Verbrauch (Versicherung, Internet, Mobilfunk, Sonstiges), die ein **Vertragsende** haben, steht in jeder Zeile des Tabs **Verträge** ein Symbol **Vertrag verlängern** (zwei Pfeile im Kreis, nur Administratoren). Der Dialog schlägt vor: Beginn am Tag nach dem bisherigen Ende, neues Ende ein Jahr später, Zahlweise und Betrag wie bisher. Du trägst zum Beispiel den neuen Beitrag ein, und der Dialog zeigt sofort, um wie viel Prozent der Vertrag teurer oder günstiger wird (verglichen pro Monat). Mit **Verlängern** passiert Folgendes:
+
+- Die bisherige Laufzeit kommt in die **Historie** (Zeitraum, Anbieter, Tarif, Abschlag, gezahlte Abschläge). So entsteht pro Jahr ein Eintrag und man sieht, wie der Beitrag steigt.
+- Der Vertrag läuft mit dem neuen Beginn, Ende und Betrag weiter. Anbieter, Tarif, Kundennummer und alles andere bleiben.
+- Bestätigte Kündigungs-Erinnerungen und der Zeitpunkt einer früheren Abschlagsänderung gelten nur für die alte Laufzeit und beginnen neu; die Erinnerung richtet sich nach dem neuen Ende.
+
+Verbrauchsverträge (Strom, Gas, Wasser) haben dafür den **Folgevertrag**, der am geplanten Datum von selbst übernimmt. Erhöhungen mitten in der Laufzeit trägst du über **Vertrag bearbeiten** ein (der neue Abschlag gilt ab dem Tag des Speicherns).
+
 ## Folgevertrag planen
 
 **Folgevertrag planen** (bzw. **Folgevertrag bearbeiten**, wenn schon einer eingetragen ist) öffnet dasselbe Formular wie „Konfigurieren" in Home Assistant. Felder, die du leer lässt, behalten den aktuellen Wert. Zum Wechseldatum übernimmt Home Assistant den Folgevertrag von selbst (siehe [Tarifwechsel und Erinnerungen](Tarifwechsel-und-Erinnerungen)).

@@ -865,6 +865,8 @@ for (const width of [1280, 900, 600, 390]) {
   await page.getByRole("tab", { name: "Historie", exact: true }).click();
   check((await page.locator(".hist").count()) >= 2 && (await page.locator(".hist .btn").count()) === 0, "non-administrators see the history without buttons");
   check((await page.getByRole("button", { name: /Alten Vertrag hinzufügen|Laufzeit bearbeiten/ }).count()) === 0, "and without the buttons for old contracts");
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  check((await page.getByRole("button", { name: "Vertrag verlängern" }).count()) === 0, "non-administrators have no renew icon");
   await context.close();
 }
 
@@ -1127,6 +1129,68 @@ for (const width of [1280, 900, 600, 390]) {
   await page.locator("details", { hasText: "Mobilfunk" }).first().locator("summary").click();
   const mobile = await text("details:has-text('Mobilfunk')");
   check(/Abschlag \/ Jahr\s*239,88 €/.test(mobile) && /Kosten \/ Jahr\s*299,88 €/.test(mobile), `yearly cost includes the base price, the yearly instalment does not (${mobile.replace(/\n/g, " | ")})`);
+  await context.close();
+}
+
+{ // renewing a flat-rate contract: new start, end and amount
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`renew: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  const renewButtons = page.getByRole("button", { name: "Vertrag verlängern" });
+  check((await renewButtons.count()) === 2, `only the flat-rate contracts with an end can be renewed (${await renewButtons.count()})`);
+  check((await page.locator("details", { hasText: "Strom Haus" }).first().getByRole("button", { name: "Vertrag verlängern" }).count()) === 0, "a metered contract has no renew icon");
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  const dialogText = async () => (await page.locator(".dialog").innerText()).replace(/\u00a0/g, " ");
+
+  await page.locator("details", { hasText: "Internet" }).first().getByRole("button", { name: "Vertrag verlängern" }).click();
+  check((await dialogText()).includes("Die bisherige Laufzeit kommt in die Historie"), "the dialog says that the old term goes to the history");
+  check((await field("beginn").inputValue()) === "2026-10-01" && (await field("ende").inputValue()) === "2027-09-30", "the new term starts the day after the old end and runs a year");
+  check((await field("abschlag").inputValue()) === "39.99" && (await field("zahlweise").inputValue()) === "monthly", "the current amount and interval are filled in");
+  check((await dialogText()).includes("Betrag unverändert"), "an unchanged amount says so");
+
+  await field("abschlag").fill("43,99");
+  check((await dialogText()).includes("10,0 % teurer (43,99 € statt 39,99 € pro Monat)"), `a dearer amount says by how much (${(await dialogText()).split("\n").find((l) => l.includes("teurer"))})`);
+  await field("zahlweise").selectOption("yearly");
+  await field("abschlag").fill("528");
+  check((await dialogText()).includes("10,0 % teurer (44,00 € statt 39,99 € pro Monat)"), "a yearly amount is compared per month");
+  await field("abschlag").fill("432");
+  check((await dialogText()).includes("10,0 % günstiger"), "a cheaper amount says so");
+  await dialog(page).screenshot({ path: join(outDir, "renew-dialog.png") });
+
+  await field("beginn").fill("");
+  await page.getByRole("button", { name: "Verlängern", exact: true }).click();
+  check((await dialogText()).includes("Pflichtfeld") && !(await calls(page)).some((c) => c.type === "tariffy/renew"), "the start is required and nothing is sent");
+  await field("beginn").fill("2026-10-01");
+  await field("abschlag").fill("528");
+  await page.getByRole("button", { name: "Verlängern", exact: true }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const sent = (await calls(page)).find((c) => c.type === "tariffy/renew");
+  check(sent && sent.entry_id === "contract-5" && JSON.stringify(sent.values) === JSON.stringify({ beginn: "2026-10-01", ende: "2027-09-30", zahlweise: "yearly", abschlag: 528 }),
+    `the renewal is sent for the contract (${JSON.stringify(sent)})`);
+
+  await page.locator("details", { hasText: "Mobilfunk" }).first().getByRole("button", { name: "Vertrag verlängern" }).click();
+  await page.keyboard.press("Escape");
+  check((await page.locator(".dialog").count()) === 0 && (await calls(page)).filter((c) => c.type === "tariffy/renew").length === 1, "escape closes the dialog and sends nothing");
+  await context.close();
+}
+
+{ // a refused renewal says why and keeps the dialog
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`renew/error: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&renewerr=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Internet" }).first().getByRole("button", { name: "Vertrag verlängern" }).click();
+  await page.getByRole("button", { name: "Verlängern", exact: true }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog .err"));
+  check((await page.locator(".dialog .err").innerText()).includes("Trage einen Betrag über null ein."), "the reason is shown");
+  check(await page.getByRole("button", { name: "Verlängern", exact: true }).isEnabled(), "and the dialog can be corrected");
   await context.close();
 }
 

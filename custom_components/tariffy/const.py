@@ -120,6 +120,9 @@ CONF_NOTIFY_GESENDET = "_notify_gesendet"
 
 NOTIFY_ID_PREFIX = "tariffy_kuendigung_"
 
+# Sparten, die nach Verbrauch abgerechnet werden (wie im Panel); alles andere ist eine Pauschale.
+METERED_SPARTEN = frozenset({"electricity", "electricity_ht_nt", "gas", "water"})
+
 # Zahlweise bei Pauschalvertraegen (Versicherung usw.): der Betrag pro Zahlung wird in einen
 # Monatsbetrag umgerechnet; `abschlag` bleibt immer der Betrag pro Monat.
 CONF_ZAHLWEISE = "zahlweise"
