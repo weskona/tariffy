@@ -2266,6 +2266,17 @@
       "first": {
         "data_schema": [
           {
+            "default": "Strom Haus",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "default": "electricity",
             "name": "sparte",
             "required": true,
@@ -2601,6 +2612,17 @@
     "contract-2": {
       "first": {
         "data_schema": [
+          {
+            "default": "Gas Heizung",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
           {
             "default": "gas",
             "name": "sparte",
@@ -2943,6 +2965,17 @@
       "first": {
         "data_schema": [
           {
+            "default": "Wasser",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "default": "water",
             "name": "sparte",
             "required": true,
@@ -3253,6 +3286,17 @@
     "contract-4": {
       "first": {
         "data_schema": [
+          {
+            "default": "Strom Wohnung (HT/NT)",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
           {
             "default": "electricity_ht_nt",
             "name": "sparte",
@@ -3642,6 +3686,17 @@
       "first": {
         "data_schema": [
           {
+            "default": "Internet",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "default": "internet",
             "name": "sparte",
             "required": true,
@@ -3814,6 +3869,17 @@
       "first": {
         "data_schema": [
           {
+            "default": "Mobilfunk",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "default": "mobile",
             "name": "sparte",
             "required": true,
@@ -3985,6 +4051,17 @@
     "contract-7": {
       "first": {
         "data_schema": [
+          {
+            "default": "Strom Altvertrag",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
           {
             "default": "electricity",
             "name": "sparte",

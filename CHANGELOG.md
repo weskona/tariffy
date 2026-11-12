@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-beta.5] - 2026-11-12
+
+Fifth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **The name of a contract can be changed.** The first step of "Edit contract" (in the panel and in Home Assistant under "Reconfigure") now starts with the field "Name", filled in with the current name. Saving applies it: the name of the contract and of its device change, while the sensors, their entity IDs and all contract data stay as they are. An empty name keeps the old one. Until now the name could only be set when the contract was created.
+
 ## [1.28.0-beta.4] - 2026-11-12
 
 Fourth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.

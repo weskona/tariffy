@@ -30,6 +30,7 @@
         "title": "Vertrag bearbeiten",
         "description": "Allgemeine Vertragsdaten.",
         "data": {
+          "name": "Name",
           "sparte": "Sparte",
           "anbieter": "Anbieter",
           "kundennummer": "Kundennummer",

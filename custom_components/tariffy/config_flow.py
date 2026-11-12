@@ -405,14 +405,21 @@ def _tag_nacht_fields(d: dict, enabled: bool = True) -> dict:
 
 # ------------------------------------------------------------------- schemas
 def _common_schema(
-    hass: HomeAssistant, d: dict[str, Any], *, mit_name: bool
+    hass: HomeAssistant,
+    d: dict[str, Any],
+    *,
+    mit_name: bool,
+    name: str | None = None,
 ) -> vol.Schema:
-    """Schritt 1: für alle Sparten gleich."""
+    """Schritt 1: für alle Sparten gleich. `name` ist der bisherige Name beim Bearbeiten."""
     fields: dict[Any, Any] = {}
     if mit_name:
         # FIX: vol.Required mit leerem String-Default → vol.Optional ohne Default
         # verhindert den 400-Fehler beim Laden des Config-Flows
-        fields[vol.Required("name")] = selector.TextSelector()
+        if name:
+            fields[vol.Required("name", default=name)] = selector.TextSelector()
+        else:
+            fields[vol.Required("name")] = selector.TextSelector()
     fields[vol.Required(CONF_SPARTE, default=d.get(CONF_SPARTE, "electricity"))] = _select(
         SPARTEN, translation_key="sparte"
     )
@@ -806,6 +813,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         entry = self._get_reconfigure_entry()
         if user_input is not None:
             self._data = dict(user_input)
+            # der Name ist der Titel des Vertrags, kein Vertragsdatum; leer = bleibt wie er ist
+            self._entry_title = str(self._data.pop("name", "") or "").strip() or entry.title
             if user_input[CONF_SPARTE] == GAS_SPARTE:
                 return await self.async_step_reconfigure_gas()
             if user_input[CONF_SPARTE] == WASSER_SPARTE:
@@ -817,7 +826,7 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             return await self.async_step_reconfigure_pauschal()
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=_common_schema(self.hass, dict(entry.data), mit_name=False),
+            data_schema=_common_schema(self.hass, dict(entry.data), mit_name=True, name=entry.title),
         )
 
     async def async_step_reconfigure_energie(
@@ -828,7 +837,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-            return self.async_update_reload_and_abort(entry, data=neu)
+            return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_energie",
             data_schema=_energie_schema(dict(entry.data), _country_features(self.hass)),
@@ -842,7 +853,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-            return self.async_update_reload_and_abort(entry, data=neu)
+            return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_energie_ht_nt",
             data_schema=_energie_ht_nt_schema(dict(entry.data), _country_features(self.hass)),
@@ -856,7 +869,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-            return self.async_update_reload_and_abort(entry, data=neu)
+            return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_pauschal",
             data_schema=_pauschal_schema(dict(entry.data)),
@@ -873,7 +888,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-                return self.async_update_reload_and_abort(entry, data=neu)
+                return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_gas",
             data_schema=_gas_schema(user_input or dict(entry.data), _country_features(self.hass)),
@@ -888,7 +905,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-            return self.async_update_reload_and_abort(entry, data=neu)
+            return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_wasser",
             data_schema=_wasser_schema(dict(entry.data), _country_features(self.hass)),

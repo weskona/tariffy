@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.5] - 2026-11-12
+
+Fünfte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Der Name eines Vertrags lässt sich ändern.** Der erste Schritt von "Vertrag bearbeiten" (im Panel und in Home Assistant unter "Neu konfigurieren") beginnt jetzt mit dem Feld "Name", gefüllt mit dem aktuellen Namen. Beim Speichern wird er übernommen: Name des Vertrags und seines Geräts ändern sich, die Sensoren, ihre Entity-IDs und alle Vertragsdaten bleiben. Ein leerer Name behält den alten. Bisher ließ sich der Name nur beim Anlegen des Vertrags setzen.
+
 ## [1.28.0-beta.4] - 2026-11-12
 
 Vierte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

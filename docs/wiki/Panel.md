@@ -69,6 +69,7 @@ Die normalen Backups von Home Assistant sichern Tariffy schon vollständig mit. 
 
 - Bestätigte Erinnerungen, „Benachrichtigung gesendet" und der eingefrorene Verbrauch der letzten Laufzeit bleiben beim Bearbeiten erhalten. Die Kündigungs-Erinnerung beginnt nur dann neu, wenn sich das Vertragsende oder die Vorlaufzeit ändert.
 - Ändert sich der Abschlag, merkt sich Tariffy wie bisher das Änderungsdatum, damit die Berechnung für die Zeit davor mit dem alten Abschlag weiterläuft.
+- **Der Name** des Vertrags steht als erstes Feld im ersten Schritt und lässt sich ändern (leer lassen = der Name bleibt). Er ändert den Namen des Vertrags und seines Geräts; Sensoren, Entity-IDs und Vertragsdaten bleiben.
 - Ein leeres optionales Feld entfernt den Wert.
 
 ## Neuer Vertrag
