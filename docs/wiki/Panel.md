@@ -69,6 +69,7 @@ Die normalen Backups von Home Assistant sichern Tariffy schon vollständig mit. 
 
 - Bestätigte Erinnerungen, „Benachrichtigung gesendet" und der eingefrorene Verbrauch der letzten Laufzeit bleiben beim Bearbeiten erhalten. Die Kündigungs-Erinnerung beginnt nur dann neu, wenn sich das Vertragsende oder die Vorlaufzeit ändert.
 - Ändert sich der Abschlag, merkt sich Tariffy wie bisher das Änderungsdatum, damit die Berechnung für die Zeit davor mit dem alten Abschlag weiterläuft.
+- **Pauschalverträge (Internet, Mobilfunk, Versicherung, Sonstiges):** Im Kosten-Schritt wählst du die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein, bei einer Versicherung also zum Beispiel den Jahresbeitrag. Tariffy rechnet intern weiter mit dem Betrag pro Monat (600 € jährlich sind 50 € im Monat); bestehende Verträge sind monatlich und bleiben unverändert. Eine Änderung nur der Zahlweise gilt nicht als Preisänderung. Steigt der Beitrag, trägst du den neuen Betrag ein (gilt ab dem Tag des Speicherns) oder verlängerst den Vertrag.
 - **Der Name** des Vertrags steht als erstes Feld im ersten Schritt und lässt sich ändern (leer lassen = der Name bleibt). Er ändert den Namen des Vertrags und seines Geräts; Sensoren, Entity-IDs und Vertragsdaten bleiben.
 - Ein leeres optionales Feld entfernt den Wert.
 

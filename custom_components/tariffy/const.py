@@ -120,6 +120,12 @@ CONF_NOTIFY_GESENDET = "_notify_gesendet"
 
 NOTIFY_ID_PREFIX = "tariffy_kuendigung_"
 
+# Zahlweise bei Pauschalvertraegen (Versicherung usw.): der Betrag pro Zahlung wird in einen
+# Monatsbetrag umgerechnet; `abschlag` bleibt immer der Betrag pro Monat.
+CONF_ZAHLWEISE = "zahlweise"
+ZAHLWEISE_MONATE = {"monthly": 1, "quarterly": 3, "halfyearly": 6, "yearly": 12}
+DEFAULT_ZAHLWEISE = "monthly"
+
 # Vertragshistorie: beim Tarifwechsel wird die alte Laufzeit als Eintrag in
 # `_historie` gesichert (die Vertragsdaten werden dabei ueberschrieben); ein
 # abgelaufener Vertrag ohne Folgevertrag kann archiviert werden (`_archiviert`

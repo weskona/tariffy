@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.6] - 2026-11-12
+
+Sechste Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Zahlweise und Jahreswerte für Pauschalverträge** (Internet, Mobilfunk, Versicherung, Sonstiges). Der Kosten-Schritt hat ein neues Feld "Zahlweise" (monatlich, vierteljährlich, halbjährlich, jährlich), und der Betrag wird pro Zahlung eingegeben, ein Versicherungs-Jahresbeitrag also so, wie er abgerechnet wird. Intern rechnet die Integration weiter mit dem Betrag pro Monat (600 € im Jahr werden als 50 € im Monat gespeichert, `abschlag` behält seine Bedeutung), **bestehende Verträge bleiben deshalb genau wie sie sind** (monatlich). Eine Änderung nur der Zahlweise gilt nicht als Abschlagsänderung. Das Panel zeigt den Jahres-Abschlag ("480 € / Jahr") auf der Karte, in der Kostentabelle und in den Vertragsdetails, dazu die Jahreskosten (Abschlag und Grundpreis) und, wenn nicht monatlich gezahlt wird, den Betrag pro Zahlung. Keine neuen Sensoren: Die Werte sind nur Daten für das Panel.
+
 ## [1.28.0-beta.5] - 2026-11-12
 
 Fünfte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

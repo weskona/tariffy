@@ -24,6 +24,7 @@ from .const import (
     CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET,
     CONF_ABSCHLAG_WARNUNG_SCHWELLE,
     DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE,
+    DEFAULT_ZAHLWEISE,
     HISTORIE_MAX,
     NOTIFY_ID_ABSCHLAG_PREFIX,
     CONF_ANBIETER,
@@ -52,6 +53,7 @@ from .const import (
     CONF_VERBRAUCH_SENSOR,
     CONF_VERBRAUCH_START_WERT,
     CONF_ZAEHLERNUMMER,
+    CONF_ZAHLWEISE,
     CONF_ZUSTANDSZAHL,
     ABWASSER_TYP_PAUSCHAL,
     ABWASSER_TYP_PROZENT,
@@ -74,6 +76,7 @@ from .const import (
     NEXT_PREFIX,
     NOTIFY_ID_PREFIX,
     SPARTEN_MIGRATION,
+    ZAHLWEISE_MONATE,
     SPARTE_ELECTRICITY_HT_NT,
     CONF_ARBEITSPREIS_NT,
     CONF_VERBRAUCH_SENSOR_NT,
@@ -1005,6 +1008,19 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         abschlagssumme = round(abschlag * laufzeit_monate, 2) if abschlag is not None else None
 
+        # Jahreswerte und Zahlweise (nur Anzeige im Panel, keine neuen Sensoren): `abschlag` ist
+        # immer der Betrag pro Monat, die Zahlweise sagt nur, wie er bezahlt wird.
+        zahlweise = data.get(CONF_ZAHLWEISE)
+        if zahlweise not in ZAHLWEISE_MONATE:
+            zahlweise = DEFAULT_ZAHLWEISE
+        abschlag_jahr = round(abschlag * 12, 2) if abschlag is not None else None
+        abschlag_je_zahlung = (
+            round(abschlag * ZAHLWEISE_MONATE[zahlweise], 2) if abschlag is not None else None
+        )
+        kosten_jahr = (
+            round((abschlag + (grundpreis or 0)) * 12, 2) if abschlag is not None else None
+        )
+
         # Bis heute faellige Abschlaege. Bei Pauschalvertraegen (Internet, Mobilfunk, ...)
         # sind das die Kosten bisher. Bewusst nur ein Datenwert, kein Sensor: bestehende
         # Installationen bekommen dadurch keine neuen Entitaeten.
@@ -1377,6 +1393,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ENDE: ende,
             "restlaufzeit": restlaufzeit,
             "jahreskosten": abschlagssumme,
+            "zahlweise": zahlweise,
+            "abschlag_jahr": abschlag_jahr,
+            "abschlag_je_zahlung": abschlag_je_zahlung,
+            "kosten_jahr": kosten_jahr,
             "abschlag_bisher_gezahlt": abschlag_bisher_gezahlt_wert,
             "verbrauch_bisher": verbrauch_bisher,
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,

@@ -256,25 +256,29 @@
       },
       "pauschal": {
         "title": "Cost",
-        "description": "Monthly cost of the contract.",
+        "description": "Cost of the contract. Enter what one payment is and how often you pay; the integration works with the monthly amount.",
         "data": {
-          "abschlag": "Monthly instalment (€/month)",
+          "zahlweise": "Payment interval",
+          "abschlag": "Amount per payment (€)",
           "grundpreis": "Base price (€/month)"
         },
         "data_description": {
-          "abschlag": "Monthly flat rate for this contract",
+          "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
+          "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
           "grundpreis": "Optional base charge if billed separately from the instalment"
         }
       },
       "reconfigure_pauschal": {
         "title": "Cost",
-        "description": "Monthly cost of the contract.",
+        "description": "Cost of the contract. Enter what one payment is and how often you pay; the integration works with the monthly amount.",
         "data": {
-          "abschlag": "Monthly instalment (€/month)",
+          "zahlweise": "Payment interval",
+          "abschlag": "Amount per payment (€)",
           "grundpreis": "Base price (€/month)"
         },
         "data_description": {
-          "abschlag": "Monthly flat rate for this contract",
+          "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
+          "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
           "grundpreis": "Optional base charge if billed separately from the instalment"
         }
       },
@@ -536,6 +540,14 @@
         "price_per_unit": "Fixed price per unit (e.g. DE, AT, CH)",
         "percentage": "Percentage of fresh water price (e.g. US, UK, AU)",
         "flat_rate": "Flat monthly rate (e.g. FR, BE)"
+      }
+    },
+    "zahlweise": {
+      "options": {
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "halfyearly": "Half-yearly",
+        "yearly": "Yearly"
       }
     }
   },

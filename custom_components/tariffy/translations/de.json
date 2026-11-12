@@ -256,26 +256,30 @@
       },
       "pauschal": {
         "title": "Kosten",
-        "description": "Monatliche Kosten des Vertrags.",
+        "description": "Kosten des Vertrags. Trage ein, wie hoch eine Zahlung ist und wie oft du zahlst; die Integration rechnet mit dem Monatsbetrag.",
         "data": {
-          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "zahlweise": "Zahlweise",
+          "abschlag": "Betrag pro Zahlung (€)",
           "grundpreis": "Grundpreis (€/Monat)"
         },
         "data_description": {
-          "abschlag": "Monatliche Pauschale für diesen Vertrag",
-          "grundpreis": "Optionaler Grundbetrag, falls separat vom Abschlag ausgewiesen"
+          "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
+          "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
+          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird"
         }
       },
       "reconfigure_pauschal": {
         "title": "Kosten",
-        "description": "Monatliche Kosten des Vertrags.",
+        "description": "Kosten des Vertrags. Trage ein, wie hoch eine Zahlung ist und wie oft du zahlst; die Integration rechnet mit dem Monatsbetrag.",
         "data": {
-          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "zahlweise": "Zahlweise",
+          "abschlag": "Betrag pro Zahlung (€)",
           "grundpreis": "Grundpreis (€/Monat)"
         },
         "data_description": {
-          "abschlag": "Monatliche Pauschale für diesen Vertrag",
-          "grundpreis": "Optionaler Grundbetrag, falls separat vom Abschlag ausgewiesen"
+          "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
+          "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
+          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird"
         }
       },
       "wasser": {
@@ -536,6 +540,14 @@
         "price_per_unit": "Fixer Preis pro Einheit (z.B. DE, AT, CH)",
         "percentage": "Prozentsatz des Frischwasserpreises (z.B. US, UK, AU)",
         "flat_rate": "Monatliche Pauschale (z.B. FR, BE)"
+      }
+    },
+    "zahlweise": {
+      "options": {
+        "monthly": "Monatlich",
+        "quarterly": "Vierteljährlich",
+        "halfyearly": "Halbjährlich",
+        "yearly": "Jährlich"
       }
     }
   },

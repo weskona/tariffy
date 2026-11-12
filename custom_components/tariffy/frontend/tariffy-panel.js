@@ -48,6 +48,8 @@ const I18N = {
     unitPrice: "Unit price", unitPriceLow: "Unit price low tariff", unitPriceNight: "Unit price night",
     unitPriceEff: "Unit price effective", unitPriceWater: "Water price incl. wastewater",
     basePrice: "Base price", perMonth: "/ month",
+    instalmentYear: "Instalment / year", costYear: "Cost / year", payment: "Payment", perYearShort: "{v} / year",
+    interval: { monthly: "monthly", quarterly: "quarterly", halfyearly: "half-yearly", yearly: "yearly" },
     soFar: "So far", soFarHigh: "So far, high tariff", soFarLow: "So far, low tariff",
     projectedTerm: "Projected for the term", lastPeriod: "Last period",
     recommended: "Recommended instalment", adjustment: "Instalment adjustment",
@@ -162,6 +164,8 @@ const I18N = {
     unitPrice: "Arbeitspreis", unitPriceLow: "Arbeitspreis Niedertarif", unitPriceNight: "Arbeitspreis Nacht",
     unitPriceEff: "Arbeitspreis effektiv", unitPriceWater: "Wasserpreis inkl. Abwasser",
     basePrice: "Grundpreis", perMonth: "/ Monat",
+    instalmentYear: "Abschlag / Jahr", costYear: "Kosten / Jahr", payment: "Zahlung", perYearShort: "{v} / Jahr",
+    interval: { monthly: "monatlich", quarterly: "vierteljährlich", halfyearly: "halbjährlich", yearly: "jährlich" },
     soFar: "Bisher", soFarHigh: "Bisher, Hochtarif", soFarLow: "Bisher, Niedertarif",
     projectedTerm: "Hochgerechnet auf die Laufzeit", lastPeriod: "Letzte Laufzeit",
     recommended: "Empfohlener Abschlag", adjustment: "Abschlag-Anpassung",
@@ -1038,7 +1042,12 @@ class TariffyPanel extends HTMLElement {
     const heroLabel = flat ? this._t("instalment") : d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
     const heroTone = !flat && d.hasMetering ? (heroValue < 0 ? "red-t" : "green-t") : "";
     const heroSub = flat
-      ? (c.ende && isNum(c.jahreskosten) ? this._t("overTerm", { v: this._money(c.jahreskosten, c.currency) }) : null)
+      ? [
+        c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)
+          ? `${this._money(c.abschlag_je_zahlung, c.currency, { digits: 2 })} ${this._t("interval")[c.zahlweise] || c.zahlweise}` : null,
+        isNum(c.abschlag_jahr) && c.zahlweise !== "yearly" ? this._t("perYearShort", { v: this._money(c.abschlag_jahr, c.currency) }) : null,
+        c.ende && isNum(c.jahreskosten) ? this._t("overTerm", { v: this._money(c.jahreskosten, c.currency) }) : null,
+      ].filter(Boolean).join(" · ") || null
       : isNum(c.abschlag)
       ? `${this._t("instalment")}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
         (isNum(c.abschlag_anpassung_empfohlen)
@@ -1961,7 +1970,8 @@ class TariffyPanel extends HTMLElement {
       cell(this._t("colCost"), this._money(this._costSoFar(c), c.currency, { digits: 2 })),
       cell(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : "–"),
       cell(this._t("contractEnd"), c.ende ? this._date(c.ende) : this._t("noEnd")),
-      cell(this._t("colInstalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
+      h("td", { "data-label": this._t("colInstalment") }, this._money(c.abschlag, c.currency, { digits: 2 }),
+        isNum(c.abschlag_jahr) ? h("span", { class: "t2", text: this._t("perYearShort", { v: this._money(c.abschlag_jahr, c.currency) }) }) : null),
       h("td", { class: "empty" })));
     flatRows.push(h("tr", { class: "total" },
       h("td", { text: this._t("total") }),
@@ -2103,6 +2113,11 @@ class TariffyPanel extends HTMLElement {
         row(this._t("unitPriceWater"), isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
         row(this._t("basePrice"), isNum(c.grundpreis) ? `${money(c.grundpreis)} ${this._t("perMonth")}` : null),
         row(this._t("instalment"), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
+        row(this._t("instalmentYear"), isNum(c.abschlag_jahr) ? money(c.abschlag_jahr) : null),
+        // flat-rate contracts: what the contract costs a year, and how it is paid when not monthly
+        row(this._t("costYear"), !METERED.has(c.sparte) && isNum(c.kosten_jahr) ? money(c.kosten_jahr) : null),
+        row(this._t("payment"), c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)
+          ? `${money(c.abschlag_je_zahlung)} ${this._t("interval")[c.zahlweise] || c.zahlweise}` : null),
         row(this._t("costSoFar"), !METERED.has(c.sparte) && isNum(this._costSoFar(c)) ? money(this._costSoFar(c)) : null),
       ]),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
