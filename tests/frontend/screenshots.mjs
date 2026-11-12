@@ -302,6 +302,8 @@ const configFlow = "config/config_entries/flow";
   check(JSON.stringify((await api(page))[0]) === JSON.stringify({ method: "POST", path: configFlow, body: { handler: "tariffy", entry_id: "contract-1" } }),
     "editing starts the reconfigure flow of the contract");
   check((await page.locator(".dialog [name=sparte] option:checked").innerText()) === "Strom", "the sparte drop-down shows translated names");
+  check((await page.locator(".dialog [name=name]").inputValue()) === "Strom Haus", "the name of the contract can be changed: it is the first field and filled in");
+  check((await page.locator(".dialog .lbl").first().innerText()) === "Name", "and labelled");
   check((await page.locator(".dialog [name=anbieter]").inputValue()) === "Stadtwerke Nord", "stored provider is filled in");
   check((await page.locator(".dialog [name=erinnerung_monate] option:checked").innerText()) === "3 Monate vorher", "the reminder lead time is readable, not a bare number");
   check((await page.locator(".dialog [name=ende]").inputValue()) === "2026-12-31", "stored end date is filled in");

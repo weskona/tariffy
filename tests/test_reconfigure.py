@@ -72,6 +72,38 @@ async def test_nothing_is_lost_when_the_form_is_saved_unchanged(frontend_env, co
     assert data["ende"] == "2026-12-31"
 
 
+async def test_the_form_offers_the_name_first_with_the_current_one(frontend_env, contract, hass):  # noqa: F811
+    entry, _ = await _contract(contract)
+    result = await hass.config_entries.flow.async_init(
+        "tariffy", context={"source": "reconfigure", "entry_id": entry.entry_id}
+    )
+    first = next(iter(result["data_schema"].schema))
+    assert str(first) == "name" and first.default() == "Test"
+
+
+@pytest.mark.parametrize("sparte", ["electricity", "gas", "internet", "insurance"])
+async def test_the_name_can_be_changed(frontend_env, contract, hass, sparte):  # noqa: F811
+    from homeassistant.helpers import device_registry as dr, entity_registry as er
+
+    entry, _ = await _contract(contract, sparte=sparte)
+    entities_before = {e.entity_id for e in er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)}
+    extra = {"brennwert": "11.2", "zustandszahl": "0.95"} if sparte == "gas" else {}
+    data = await _reconfigure(hass, entry, first={"name": "  Autoversicherung  "}, second=extra)
+    assert entry.title == "Autoversicherung"  # trimmed
+    assert "name" not in data  # the name is the title, not a contract value
+    assert data["anbieter"] == "Stadtwerke"
+    device = dr.async_get(hass).async_get_device(identifiers={("tariffy", entry.entry_id)})
+    assert device is not None and device.name == "Autoversicherung"
+    entities_after = {e.entity_id for e in er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)}
+    assert entities_after == entities_before  # entity ids stay as they are
+
+
+async def test_an_empty_name_keeps_the_old_one(frontend_env, contract, hass):  # noqa: F811
+    entry, _ = await _contract(contract)
+    await _reconfigure(hass, entry, first={"name": "   "})
+    assert entry.title == "Test"
+
+
 async def test_edited_fields_are_stored_and_internal_state_stays(frontend_env, contract, hass):  # noqa: F811
     entry, _ = await _contract(contract)
     data = await _reconfigure(hass, entry, first={"tarif": "Neu"}, second={"arbeitspreis": 0.31})

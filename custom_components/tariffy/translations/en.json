@@ -30,6 +30,7 @@
         "title": "Edit contract",
         "description": "General contract data.",
         "data": {
+          "name": "Name",
           "sparte": "Category",
           "anbieter": "Provider",
           "kundennummer": "Customer number",
