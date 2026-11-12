@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-beta.4] - 2026-11-12
+
+Fourth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- **The list of a drop-down in the panel's dialogs was unreadable in some browsers** (white list with light text, for example "Cancellation reminder" or the kind of contract in the dialog for a new contract). The options now have the dark colours of the panel, and the whole panel tells the browser that it is dark, so the date picker and other native controls follow.
+
 ## [1.28.0-beta.3] - 2026-11-11
 
 Third beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.

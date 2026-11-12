@@ -899,6 +899,13 @@ for (const width of [1280, 900, 600, 390]) {
   await page.getByRole("button", { name: "Alten Vertrag hinzufügen" }).click();
   check((await dialogText()).includes("Alten Vertrag hinzufügen"), "the dialog for an old contract opens");
   check((await field("entry_id").inputValue()) === "contract-1", "the first contract is preselected");
+  // the list of a drop-down must be readable in the dark layout: dark background, light text (not the browser's white list)
+  const option = await field("entry_id").locator("option").first().evaluate((el) => {
+    const style = getComputedStyle(el);
+    return { background: style.backgroundColor, color: style.color, scheme: getComputedStyle(el.parentElement).colorScheme };
+  });
+  check(option.background === "rgb(26, 29, 37)" && option.color === "rgb(243, 245, 249)" && option.scheme === "dark",
+    `the options of a drop-down have dark colours (${JSON.stringify(option)})`);
 
   // nothing can be worked out without the term
   await page.getByRole("button", { name: "Speichern" }).click();

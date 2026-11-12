@@ -287,7 +287,7 @@ const STYLE = `
   --text: #f3f5f9; --muted: #8b91a1; --dim: #5d6373;
   --green: #34d399; --red: #f87171; --orange: #fb923c; --blue: #60a5fa; --gold: #f7b733;
   display: block; min-height: 100%; box-sizing: border-box;
-  background: var(--bg); color: var(--text);
+  background: var(--bg); color: var(--text); color-scheme: dark;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   container-type: inline-size;
 }
@@ -407,6 +407,9 @@ section.card .foot { padding-top: 12px; }
 .fld { display: block; margin: 8px 0; }
 .fld .lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .fld input, .fld select { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
+/* the list of a drop-down is drawn by the browser: some ignore color-scheme, so it gets its colours explicitly
+   (otherwise light text on a white list) */
+.fld select option, .fld select optgroup { background: #1a1d25; color: var(--text); }
 .fld input:focus-visible, .fld select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
 .confirm-name { width: 100%; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
 .confirm-name:focus-visible { outline: 2px solid var(--red); outline-offset: 1px; }

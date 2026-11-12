@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-beta.4] - 2026-11-12
+
+Vierte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Fixed
+
+- **Die Auswahlliste eines Dropdowns in den Dialogen des Panels war in manchen Browsern unlesbar** (weiße Liste mit heller Schrift, zum Beispiel bei "Kündigung erinnern" oder der Sparte im Dialog für einen neuen Vertrag). Die Einträge haben jetzt die dunklen Farben des Panels, und das ganze Panel meldet dem Browser, dass es dunkel ist, damit auch die Datumsauswahl und andere eingebaute Elemente passen.
+
 ## [1.28.0-beta.3] - 2026-11-11
 
 Dritte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
