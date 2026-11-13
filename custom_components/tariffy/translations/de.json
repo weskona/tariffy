@@ -41,6 +41,7 @@
           "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
         },
         "data_description": {
+          "name": "Name des Vertrags: wird im Panel gezeigt und ist der Name seines Geräts",
           "anbieter": "Name des Energieversorgers oder Anbieters",
           "kundennummer": "Deine Kundennummer aus den Vertragsunterlagen",
           "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
@@ -261,21 +262,37 @@
           "zahlweise": "Zahlweise",
           "abschlag": "Betrag pro Zahlung (€)",
           "erste_zahlung": "Erste Abbuchung am",
-          "grundpreis": "Grundpreis (€/Monat)",
-          "versicherungsart": "Art der Versicherung",
-          "kennzeichen": "Kennzeichen (Kfz)",
-          "km_start": "Kilometerstand bei Vertragsbeginn (km, Kfz)",
-          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km, Kfz)"
+          "grundpreis": "Grundpreis (€/Monat)"
         },
         "data_description": {
           "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
           "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
           "erste_zahlung": "Nur bei vierteljährlicher, halbjährlicher oder jährlicher Zahlung: der Tag, an dem der erste Betrag abgebucht wird. Leer = Vertragsbeginn. Die weiteren Abbuchungen folgen im Abstand der Zahlweise.",
-          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird",
-          "versicherungsart": "Optional: was die Versicherung abdeckt",
-          "kennzeichen": "Optional, für eine Kfz-Versicherung. Wird wie die Kundennummer behandelt: nicht im Seitenleisten-Panel sichtbar",
-          "km_start": "Optional, für eine Kfz-Versicherung: Kilometerstand zu Vertragsbeginn",
-          "km_pro_jahr": "Optional, für eine Kfz-Versicherung: im Vertrag vereinbarte Kilometer pro Jahr"
+          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird"
+        }
+      },
+      "versicherung": {
+        "title": "Versicherung",
+        "description": "Was versichert der Vertrag? Nur eine Kfz-Versicherung fragt nach weiteren Angaben.",
+        "data": {
+          "versicherungsart": "Art der Versicherung"
+        },
+        "data_description": {
+          "versicherungsart": "Optional: was die Versicherung abdeckt"
+        }
+      },
+      "versicherung_kfz": {
+        "title": "Kfz-Versicherung",
+        "description": "Angaben zur Kfz-Versicherung. Alles optional, es dokumentiert nur den Vertrag.",
+        "data": {
+          "kennzeichen": "Kennzeichen",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)"
+        },
+        "data_description": {
+          "kennzeichen": "Wird wie die Kundennummer behandelt: im Seitenleisten-Panel nicht sichtbar",
+          "km_start": "Kilometerstand zu Beginn des Vertrags",
+          "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr"
         }
       },
       "reconfigure_pauschal": {
@@ -285,21 +302,37 @@
           "zahlweise": "Zahlweise",
           "abschlag": "Betrag pro Zahlung (€)",
           "erste_zahlung": "Erste Abbuchung am",
-          "grundpreis": "Grundpreis (€/Monat)",
-          "versicherungsart": "Art der Versicherung",
-          "kennzeichen": "Kennzeichen (Kfz)",
-          "km_start": "Kilometerstand bei Vertragsbeginn (km, Kfz)",
-          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km, Kfz)"
+          "grundpreis": "Grundpreis (€/Monat)"
         },
         "data_description": {
           "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
           "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
           "erste_zahlung": "Nur bei vierteljährlicher, halbjährlicher oder jährlicher Zahlung: der Tag, an dem der erste Betrag abgebucht wird. Leer = Vertragsbeginn. Die weiteren Abbuchungen folgen im Abstand der Zahlweise.",
-          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird",
-          "versicherungsart": "Optional: was die Versicherung abdeckt",
-          "kennzeichen": "Optional, für eine Kfz-Versicherung. Wird wie die Kundennummer behandelt: nicht im Seitenleisten-Panel sichtbar",
-          "km_start": "Optional, für eine Kfz-Versicherung: Kilometerstand zu Vertragsbeginn",
-          "km_pro_jahr": "Optional, für eine Kfz-Versicherung: im Vertrag vereinbarte Kilometer pro Jahr"
+          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird"
+        }
+      },
+      "reconfigure_versicherung": {
+        "title": "Versicherung",
+        "description": "Was versichert der Vertrag? Nur eine Kfz-Versicherung fragt nach weiteren Angaben.",
+        "data": {
+          "versicherungsart": "Art der Versicherung"
+        },
+        "data_description": {
+          "versicherungsart": "Optional: was die Versicherung abdeckt"
+        }
+      },
+      "reconfigure_versicherung_kfz": {
+        "title": "Kfz-Versicherung",
+        "description": "Angaben zur Kfz-Versicherung. Alles optional, es dokumentiert nur den Vertrag.",
+        "data": {
+          "kennzeichen": "Kennzeichen",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)"
+        },
+        "data_description": {
+          "kennzeichen": "Wird wie die Kundennummer behandelt: im Seitenleisten-Panel nicht sichtbar",
+          "km_start": "Kilometerstand zu Beginn des Vertrags",
+          "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr"
         }
       },
       "wasser": {

@@ -388,6 +388,24 @@ const configFlow = "config/config_entries/flow";
 // ---- create and delete contracts ----
 const entryApi = "config/config_entries/entry";
 
+{ // an insurance asks what it covers first: a step that is not the last one says "Weiter", never "Speichern"
+  const { context, page } = await openPage(browser, "lang=de");
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  await page.getByRole("button", { name: "Neuer Vertrag" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=name]"));
+  await page.locator(".dialog [name=name]").fill("Kfz Allianz");
+  await page.locator(".dialog [name=sparte]").selectOption("insurance");
+  await page.locator(".dialog [name=anbieter]").fill("Allianz");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=versicherungsart]"));
+  const text = (await dialog(page).innerText()).replace(/\u00a0/g, " ");
+  check((await page.locator(".dialog [name=versicherungsart]").count()) === 1 && (await page.locator(".dialog .fld").count()) === 1, "the insurance step asks only for the type");
+  check((await dialog(page).getByRole("button", { name: "Weiter" }).count()) === 1 && (await dialog(page).getByRole("button", { name: "Speichern" }).count()) === 0,
+    "a step that is not the last one offers Weiter, not Speichern");
+  check(!text.includes("Kennzeichen"), "no licence plate field before a car insurance is chosen");
+  await context.close();
+}
+
 { // a new contract: the integration's setup flow, name and sparte first
   const { context, page } = await openPage(browser, "lang=de");
   await page.getByRole("tab", { name: "Verträge" }).click();

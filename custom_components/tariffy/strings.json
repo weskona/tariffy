@@ -41,6 +41,7 @@
           "notify_target": "Notification target (notify service)"
         },
         "data_description": {
+          "name": "Name of the contract: shown in the panel and used as the name of its device",
           "anbieter": "Name of the energy provider or supplier",
           "kundennummer": "Your customer number from the provider's documents",
           "tarif": "Tariff name, e.g. 'Eco Power Plus'",
@@ -261,21 +262,37 @@
           "zahlweise": "Payment interval",
           "abschlag": "Amount per payment (€)",
           "erste_zahlung": "Date of the first debit",
-          "grundpreis": "Base price (€/month)",
-          "versicherungsart": "Type of insurance",
-          "kennzeichen": "Licence plate (car)",
-          "km_start": "Odometer at contract start (km, car)",
-          "km_pro_jahr": "Allowed kilometres per year (km, car)"
+          "grundpreis": "Base price (€/month)"
         },
         "data_description": {
           "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
           "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
           "erste_zahlung": "Only for quarterly, half-yearly or yearly payment: the day the first amount is debited. Empty = the contract start. The following debits follow at the interval.",
-          "grundpreis": "Optional base charge if billed separately from the instalment",
-          "versicherungsart": "Optional: what the insurance covers",
-          "kennzeichen": "Optional, for a car insurance. Treated like the customer number: not shown in the side panel",
-          "km_start": "Optional, for a car insurance: odometer reading at the start of the contract",
-          "km_pro_jahr": "Optional, for a car insurance: kilometres per year agreed in the contract"
+          "grundpreis": "Optional base charge if billed separately from the instalment"
+        }
+      },
+      "versicherung": {
+        "title": "Insurance",
+        "description": "What does the insurance cover? Only a car insurance asks for more details.",
+        "data": {
+          "versicherungsart": "Type of insurance"
+        },
+        "data_description": {
+          "versicherungsart": "Optional: what the insurance covers"
+        }
+      },
+      "versicherung_kfz": {
+        "title": "Car insurance",
+        "description": "Details of the car insurance. All optional, they only document the contract.",
+        "data": {
+          "kennzeichen": "Licence plate",
+          "km_start": "Odometer at contract start (km)",
+          "km_pro_jahr": "Allowed kilometres per year (km)"
+        },
+        "data_description": {
+          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "km_start": "Odometer reading at the start of the contract",
+          "km_pro_jahr": "Kilometres per year agreed in the contract"
         }
       },
       "reconfigure_pauschal": {
@@ -285,21 +302,37 @@
           "zahlweise": "Payment interval",
           "abschlag": "Amount per payment (€)",
           "erste_zahlung": "Date of the first debit",
-          "grundpreis": "Base price (€/month)",
-          "versicherungsart": "Type of insurance",
-          "kennzeichen": "Licence plate (car)",
-          "km_start": "Odometer at contract start (km, car)",
-          "km_pro_jahr": "Allowed kilometres per year (km, car)"
+          "grundpreis": "Base price (€/month)"
         },
         "data_description": {
           "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
           "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
           "erste_zahlung": "Only for quarterly, half-yearly or yearly payment: the day the first amount is debited. Empty = the contract start. The following debits follow at the interval.",
-          "grundpreis": "Optional base charge if billed separately from the instalment",
-          "versicherungsart": "Optional: what the insurance covers",
-          "kennzeichen": "Optional, for a car insurance. Treated like the customer number: not shown in the side panel",
-          "km_start": "Optional, for a car insurance: odometer reading at the start of the contract",
-          "km_pro_jahr": "Optional, for a car insurance: kilometres per year agreed in the contract"
+          "grundpreis": "Optional base charge if billed separately from the instalment"
+        }
+      },
+      "reconfigure_versicherung": {
+        "title": "Insurance",
+        "description": "What does the insurance cover? Only a car insurance asks for more details.",
+        "data": {
+          "versicherungsart": "Type of insurance"
+        },
+        "data_description": {
+          "versicherungsart": "Optional: what the insurance covers"
+        }
+      },
+      "reconfigure_versicherung_kfz": {
+        "title": "Car insurance",
+        "description": "Details of the car insurance. All optional, they only document the contract.",
+        "data": {
+          "kennzeichen": "Licence plate",
+          "km_start": "Odometer at contract start (km)",
+          "km_pro_jahr": "Allowed kilometres per year (km)"
+        },
+        "data_description": {
+          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "km_start": "Odometer reading at the start of the contract",
+          "km_pro_jahr": "Kilometres per year agreed in the contract"
         }
       },
       "wasser": {

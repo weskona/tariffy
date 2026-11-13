@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.3] - 2026-11-13
+
+Third release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- **An insurance only asks for what fits its type.** The form for an insurance used to show the licence plate and the kilometre fields for every kind of insurance (also for a household contents insurance). The insurance now has its own step "Type of insurance" in front of the costs; only a **car insurance** is asked for licence plate, odometer at the start and allowed kilometres in a further step, all other types go straight on to the costs. This applies to creating and to editing a contract, in the panel and in Home Assistant. The stored values and the sensors are unchanged; changing the type away from "Car" removes the car details.
+- The panel takes from Home Assistant whether a step is the last one, so a step in the middle of a longer form says "Continue" and not "Save".
+
 ## [1.28.0-rc.2] - 2026-11-13
 
 Second release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.

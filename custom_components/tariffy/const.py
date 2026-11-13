@@ -88,8 +88,9 @@ CONF_VERSICHERUNGSART = "versicherungsart"
 CONF_KENNZEICHEN = "kennzeichen"
 CONF_KM_START = "km_start"
 CONF_KM_PRO_JAHR = "km_pro_jahr"
+VERSICHERUNGSART_KFZ = "car"
 VERSICHERUNGSARTEN = [
-    "car",
+    VERSICHERUNGSART_KFZ,
     "house",
     "household",
     "liability",

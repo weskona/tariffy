@@ -27,6 +27,8 @@ async def _create(hass, zahlweise, betrag):
         result["flow_id"],
         {"name": "Kfz", "sparte": "insurance", "anbieter": "Versicherung AG", "erinnerung_monate": "0"},
     )
+    if result["step_id"] == "versicherung":  # an insurance first asks what it covers
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
     assert result["step_id"] == "pauschal"
     names = [str(key) for key in result["data_schema"].schema]
     assert names[:2] == ["zahlweise", "abschlag"]  # the interval comes before the amount
@@ -54,6 +56,8 @@ async def test_the_form_shows_the_amount_per_payment(frontend_env, contract, has
         DOMAIN, context={"source": "reconfigure", "entry_id": entry.entry_id}
     )
     result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
+    while result["step_id"].startswith("reconfigure_versicherung"):
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
     assert result["step_id"] == "reconfigure_pauschal"
     defaults = _form_defaults(result)
     assert defaults["zahlweise"] == "yearly"
@@ -119,5 +123,7 @@ async def test_the_form_has_the_field_for_the_first_debit(frontend_env, contract
         DOMAIN, context={"source": "reconfigure", "entry_id": entry.entry_id}
     )
     result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
+    while result["step_id"].startswith("reconfigure_versicherung"):
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
     names = [str(key) for key in result["data_schema"].schema]
     assert names.index("abschlag") < names.index("erste_zahlung") < names.index("grundpreis")
