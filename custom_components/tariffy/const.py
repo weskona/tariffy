@@ -133,6 +133,10 @@ ENERGIE_SPARTEN_MIT_WASSER = ("strom", "gas", "wasser")
 
 # Kündigungs-Erinnerung
 CONF_ERINNERUNG_MONATE = "erinnerung_monate"
+# Optional, in Monaten: Kuendigungsfrist (die Erinnerung bezieht sich dann auf den letzten
+# Kuendigungstag statt auf das Vertragsende) und Mindestvertragslaufzeit (nur Anzeige).
+CONF_KUENDIGUNGSFRIST = "kuendigungsfrist"
+CONF_MINDESTLAUFZEIT = "mindestlaufzeit"
 CONF_NOTIFY_TARGET = "notify_target"
 ERINNERUNG_OPTIONS = ["0", "1", "2", "3", "4"]
 

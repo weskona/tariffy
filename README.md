@@ -208,6 +208,8 @@ When contract end is set and the reminder period is reached:
 2. One-time **push notification** via the configured notify service
 3. **"Confirm cancellation"** button to acknowledge
 
+**With a notice period:** If you enter a **notice period** (in months) for the contract, the reminder refers to the **last day to cancel** (contract end minus notice period) instead of the contract end. Example: contract end 31 Dec, notice period 3 months, reminder "3 months before": the cancellation has to be received by 30 Sep, and the message comes on 30 Jun, 6 months before the contract end. The message names the last day to cancel. Without a notice period nothing changes. The panel shows the **minimum term** (in months) as "until <start + minimum term>"; it does not affect any reminder. Both fields are optional; the "Cancellation reminder" sensor gets the attributes `kuendigungsfrist_monate` and `kuendigung_bis`. A tariff switch keeps the notice period, not the minimum term.
+
 ---
 
 ### Low-instalment warning (optional)
@@ -303,7 +305,9 @@ Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
 | Tarifname | – | Bezeichnung des Tarifs |
 | Vertragsbeginn | – | Startdatum des Vertrags |
 | Vertragsende | – | Enddatum / Laufzeit bis |
-| Kündigung erinnern | ✅ | 0–4 Monate vorher (0 = deaktiviert) |
+| Mindestlaufzeit (Monate) | – | Das Panel zeigt, bis wann der Vertrag mindestens läuft |
+| Kündigungsfrist (Monate) | – | Wenn eingetragen, bezieht sich die Erinnerung auf den letzten Kündigungstag |
+| Kündigung erinnern | ✅ | 0–4 Monate vorher (0 = deaktiviert); vor Vertragsende, mit Kündigungsfrist vor Ablauf der Frist |
 | Benachrichtigungs-Ziel | – | notify-Dienst (z. B. `mobile_app_iphone`) |
 
 #### Schritt 2a – Strom-Details
@@ -515,6 +519,8 @@ Wenn Vertragsende gesetzt und der Erinnerungszeitraum erreicht ist:
 1. **Dauerbenachrichtigung** im HA-Benachrichtigungscenter
 2. Einmalige **Push-Benachrichtigung** via konfiguriertem notify-Dienst
 3. Button **„Kündigung bestätigen"** zum Quittieren
+
+**Mit Kündigungsfrist:** Trägst du beim Vertrag eine **Kündigungsfrist** (in Monaten) ein, bezieht sich die Erinnerung auf den **letzten Kündigungstag** (Vertragsende minus Frist) statt auf das Vertragsende. Beispiel: Vertragsende 31.12., Kündigungsfrist 3 Monate, Erinnerung „3 Monate vorher": Die Kündigung muss bis 30.09. vorliegen, die Meldung kommt am 30.06., also 6 Monate vor dem Vertragsende. Die Meldung nennt den letzten Kündigungstag. Ohne Kündigungsfrist ändert sich nichts. Die **Mindestlaufzeit** (in Monaten) zeigt das Panel als „bis <Beginn + Mindestlaufzeit>"; sie beeinflusst keine Erinnerung. Beide Felder sind freiwillig; der Sensor „Kündigungs-Erinnerung" hat dazu die Attribute `kuendigungsfrist_monate` und `kuendigung_bis`. Bei einem Tarifwechsel bleibt die Kündigungsfrist erhalten, die Mindestlaufzeit nicht.
 
 ---
 

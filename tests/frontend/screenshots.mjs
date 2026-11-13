@@ -1316,6 +1316,24 @@ for (const width of [1280, 900, 600, 390]) {
   await context.close();
 }
 
+{ // notice period and minimum term
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`notice: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
+  const net = (await page.locator("details:has-text('Internet')").first().innerText()).replace(/\u00a0/g, " ");
+  check(/Mindestlaufzeit\s*12 Monate · bis 01\.10\.2026/.test(net), `the minimum term is shown (${net.split("\n").filter((l) => l.includes("Mindest"))})`);
+  check(/Kündigungsfrist\s*3 Monate/.test(net) && /Kündigen bis\s*30\.06\.2026/.test(net), "the notice period and the cancellation deadline are shown");
+  check(/Kündigung erinnern|Erinnerung/.test(net) && net.includes("30.03.2026"), "the reminder date counts from the deadline (6 months before the end)");
+  const other = (await page.locator("details:has-text('Gas Heizung')").first().innerText()).replace(/\u00a0/g, " ");
+  check(!other.includes("Kündigungsfrist") && !other.includes("Mindestlaufzeit"), "a contract without them shows nothing new");
+  await context.close();
+}
+
 await browser.close();
 server.close();
 if (errors.length) { console.error("Browser errors:\n" + errors.join("\n")); process.exit(1); }

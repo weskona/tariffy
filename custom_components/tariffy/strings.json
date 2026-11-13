@@ -12,6 +12,8 @@
           "tarif": "Tariff name",
           "beginn": "Contract start",
           "ende": "Contract end / valid until",
+          "mindestlaufzeit": "Minimum term (months)",
+          "kuendigungsfrist": "Notice period (months)",
           "erinnerung_monate": "Cancellation reminder",
           "notify_target": "Notification target (notify service)"
         },
@@ -22,7 +24,9 @@
           "tarif": "Tariff name, e.g. 'Eco Power Plus'",
           "beginn": "Date from which the contract is valid",
           "ende": "Last day of the contract term",
-          "erinnerung_monate": "How many months before contract end to show a cancellation reminder",
+          "mindestlaufzeit": "Optional. The panel shows until when the contract runs at least (start + minimum term).",
+          "kuendigungsfrist": "Optional. Months before contract end by which the cancellation must be received. If set, the reminder refers to this deadline instead of the contract end.",
+          "erinnerung_monate": "How many months before the cancellation deadline to show a reminder (before contract end, if no notice period is entered)",
           "notify_target": "Home Assistant notification service for the cancellation reminder"
         }
       },
@@ -37,6 +41,8 @@
           "tarif": "Tariff name",
           "beginn": "Contract start",
           "ende": "Contract end / valid until",
+          "mindestlaufzeit": "Minimum term (months)",
+          "kuendigungsfrist": "Notice period (months)",
           "erinnerung_monate": "Cancellation reminder",
           "notify_target": "Notification target (notify service)"
         },
@@ -47,7 +53,9 @@
           "tarif": "Tariff name, e.g. 'Eco Power Plus'",
           "beginn": "Date from which the contract is valid",
           "ende": "Last day of the contract term",
-          "erinnerung_monate": "How many months before contract end to show a cancellation reminder",
+          "mindestlaufzeit": "Optional. The panel shows until when the contract runs at least (start + minimum term).",
+          "kuendigungsfrist": "Optional. Months before contract end by which the cancellation must be received. If set, the reminder refers to this deadline instead of the contract end.",
+          "erinnerung_monate": "How many months before the cancellation deadline to show a reminder (before contract end, if no notice period is entered)",
           "notify_target": "Home Assistant notification service for the cancellation reminder"
         }
       },

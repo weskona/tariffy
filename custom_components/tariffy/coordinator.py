@@ -35,6 +35,8 @@ from .const import (
     CONF_BRENNWERT,
     CONF_ENDE,
     CONF_ERINNERUNG_MONATE,
+    CONF_KUENDIGUNGSFRIST,
+    CONF_MINDESTLAUFZEIT,
     CONF_ERSTE_ZAHLUNG,
     CONF_ARCHIVIERT,
     CONF_GAS_EINHEIT,
@@ -186,6 +188,12 @@ def _f(value: Any) -> float | None:
         return float(value)
     except (ValueError, TypeError):
         return None
+
+
+def _monate_wert(value: Any) -> int:
+    """Monate aus einer optionalen Eingabe (leer, 0 oder ungueltig = 0)."""
+    zahl = _f(value)
+    return int(zahl) if zahl is not None and zahl > 0 else 0
 
 
 def _minus_months(d: date, months: int) -> date:
@@ -653,6 +661,12 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_HISTORIE: historie[-HISTORIE_MAX:],
             CONF_SPARTE: self.entry.data.get(CONF_SPARTE),
             CONF_ERINNERUNG_MONATE: self.entry.data.get(CONF_ERINNERUNG_MONATE, "0"),
+            # die Erinnerung haengt an der Kuendigungsfrist: sie bleibt beim Wechsel erhalten
+            **(
+                {CONF_KUENDIGUNGSFRIST: self.entry.data[CONF_KUENDIGUNGSFRIST]}
+                if self.entry.data.get(CONF_KUENDIGUNGSFRIST) not in (None, "")
+                else {}
+            ),
             CONF_NOTIFY_TARGET: self.entry.data.get(CONF_NOTIFY_TARGET),
         }
         for feld in BASIS_FELDER:
@@ -730,13 +744,20 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     ) -> None:
         if not aktiv:
             return
+        frist = _monate_wert(data.get(CONF_KUENDIGUNGSFRIST))
+        kuendigung_bis = _minus_months(ende, frist) if (ende is not None and frist) else None
         title = f"Kündigung: {self.entry.title}"
         ende_str = ende.isoformat() if ende else "?"
         message = (
             f"Vertrag **{data.get(CONF_ANBIETER) or ''}** "
             f"({data.get(CONF_TARIF) or ''}) läuft am **{ende_str}** aus.\n\n"
-            f"Erinnerung {data.get(CONF_ERINNERUNG_MONATE)} Monat(e) vorher. "
-            "Bitte rechtzeitig kündigen oder den Folgevertrag eintragen.\n\n"
+            + (
+                f"Kündigungsfrist {frist} Monat(e): Die Kündigung muss **bis {kuendigung_bis.isoformat()}** "
+                f"vorliegen. Erinnerung {data.get(CONF_ERINNERUNG_MONATE)} Monat(e) vorher. "
+                if frist and kuendigung_bis
+                else f"Erinnerung {data.get(CONF_ERINNERUNG_MONATE)} Monat(e) vorher. "
+            )
+            + "Bitte rechtzeitig kündigen oder den Folgevertrag eintragen.\n\n"
             "_Diese Meldung bleibt bestehen, bis du sie über den Button "
             "'Kündigung bestätigen' quittierst._"
         )
@@ -1446,9 +1467,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         monate = int(data.get(CONF_ERINNERUNG_MONATE) or 0)
         bestaetigt = bool(data.get(CONF_KUENDIGUNG_BESTAETIGT))
+        frist = _monate_wert(data.get(CONF_KUENDIGUNGSFRIST))
+        mindest = _monate_wert(data.get(CONF_MINDESTLAUFZEIT))
+        # letzter Tag, an dem noch gekuendigt werden kann; die Erinnerung kommt `monate` davor
+        kuendigung_bis = _minus_months(ende, frist) if (ende is not None and frist) else None
         erinnerung_datum = (
-            _minus_months(ende, monate) if (ende is not None and monate) else None
+            _minus_months(ende, monate + frist) if (ende is not None and monate) else None
         )
+        mindestlaufzeit_bis = _plus_months(beginn, mindest) if (beginn is not None and mindest) else None
         archiviert_am = _parse_date(data.get(CONF_ARCHIVIERT))
         archiviert = archiviert_am is not None
         aktiv = bool(
@@ -1550,6 +1576,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "erinnerung_aktiv": aktiv,
             "erinnerung_bestaetigt": bestaetigt,
             "erinnerung_monate": monate,
+            "kuendigungsfrist": frist or None,
+            "kuendigung_bis": kuendigung_bis,
+            "mindestlaufzeit": mindest or None,
+            "mindestlaufzeit_bis": mindestlaufzeit_bis,
             "abschlag_warnung_aktiv": warnung_aktiv,
             "abschlag_warnung_zu_bestaetigen": warnung_zu_bestaetigen,
             "wechsel": _parse_date(nxt.get(NEXT_PREFIX + CONF_BEGINN)) if nxt else None,

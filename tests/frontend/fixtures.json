@@ -84,7 +84,11 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 618.12,
       "kosten_nt_bisher": null,
+      "kuendigung_bis": null,
+      "kuendigungsfrist": null,
       "laufzeiten_anzahl": 3,
+      "mindestlaufzeit": null,
+      "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
       "prognose_real": -495.29,
@@ -147,7 +151,11 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 1794.0,
       "kosten_nt_bisher": null,
+      "kuendigung_bis": null,
+      "kuendigungsfrist": null,
       "laufzeiten_anzahl": 1,
+      "mindestlaufzeit": null,
+      "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
       "prognose_real": 524.42,
@@ -210,7 +218,11 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 408.0,
       "kosten_nt_bisher": null,
+      "kuendigung_bis": null,
+      "kuendigungsfrist": null,
       "laufzeiten_anzahl": 1,
+      "mindestlaufzeit": null,
+      "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
       "prognose_real": -24.81,
@@ -273,7 +285,11 @@
       "kosten_ht_bisher": 288.0,
       "kosten_jahr": 804.0,
       "kosten_nt_bisher": 126.0,
+      "kuendigung_bis": null,
+      "kuendigungsfrist": null,
       "laufzeiten_anzahl": 1,
+      "mindestlaufzeit": null,
+      "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
       "prognose_real": -421.8,
@@ -321,7 +337,7 @@
       "entry_id": "contract-5",
       "erinnerung_aktiv": true,
       "erinnerung_bestaetigt": false,
-      "erinnerung_datum": "2026-06-30",
+      "erinnerung_datum": "2026-03-30",
       "erinnerung_monate": 3,
       "erste_zahlung": null,
       "grundpreis": null,
@@ -336,7 +352,11 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 479.88,
       "kosten_nt_bisher": null,
+      "kuendigung_bis": "2026-06-30",
+      "kuendigungsfrist": 3,
       "laufzeiten_anzahl": 1,
+      "mindestlaufzeit": 12,
+      "mindestlaufzeit_bis": "2026-10-01",
       "naechste_zahlung": null,
       "next": null,
       "prognose_real": null,
@@ -399,7 +419,11 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 239.88,
       "kosten_nt_bisher": null,
+      "kuendigung_bis": null,
+      "kuendigungsfrist": null,
       "laufzeiten_anzahl": 1,
+      "mindestlaufzeit": null,
+      "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": {
         "abschlag": 14.99,
@@ -501,7 +525,11 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 540.0,
       "kosten_nt_bisher": null,
+      "kuendigung_bis": null,
+      "kuendigungsfrist": null,
       "laufzeiten_anzahl": 2,
+      "mindestlaufzeit": null,
+      "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
       "prognose_real": null,
@@ -606,6 +634,32 @@
           "required": false,
           "selector": {
             "date": {}
+          }
+        },
+        {
+          "name": "mindestlaufzeit",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "max": 120.0,
+              "min": 0.0,
+              "mode": "box",
+              "step": 1.0
+            }
+          }
+        },
+        {
+          "name": "kuendigungsfrist",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "max": 120.0,
+              "min": 0.0,
+              "mode": "box",
+              "step": 1.0
+            }
           }
         },
         {
@@ -2547,6 +2601,32 @@
             }
           },
           {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
             "default": "3",
             "name": "erinnerung_monate",
             "required": true,
@@ -2891,6 +2971,32 @@
             "required": false,
             "selector": {
               "date": {}
+            }
+          },
+          {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
             }
           },
           {
@@ -3246,6 +3352,32 @@
             }
           },
           {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
             "default": "0",
             "name": "erinnerung_monate",
             "required": true,
@@ -3565,6 +3697,32 @@
             "required": false,
             "selector": {
               "date": {}
+            }
+          },
+          {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
             }
           },
           {
@@ -3967,6 +4125,38 @@
             }
           },
           {
+            "description": {
+              "suggested_value": 12
+            },
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 3
+            },
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
             "default": "3",
             "name": "erinnerung_monate",
             "required": true,
@@ -4178,6 +4368,32 @@
             }
           },
           {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
             "default": "0",
             "name": "erinnerung_monate",
             "required": true,
@@ -4386,6 +4602,32 @@
             "required": false,
             "selector": {
               "date": {}
+            }
+          },
+          {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
             }
           },
           {

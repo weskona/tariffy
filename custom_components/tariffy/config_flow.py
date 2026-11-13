@@ -33,6 +33,8 @@ from .const import (
     CONF_BRENNWERT,
     CONF_ENDE,
     CONF_ERINNERUNG_MONATE,
+    CONF_KUENDIGUNGSFRIST,
+    CONF_MINDESTLAUFZEIT,
     CONF_KUENDIGUNG_BESTAETIGT,
     CONF_NOTIFY_GESENDET,
     CONF_VERBRAUCH_LETZTE_LAUFZEIT,
@@ -233,12 +235,23 @@ def _keep_internal_state(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str, 
     for key in _INTERNER_ZUSTAND:
         if key in alt and key not in ergebnis:
             ergebnis[key] = alt[key]
-    if alt.get(CONF_ENDE) != ergebnis.get(CONF_ENDE) or str(
-        alt.get(CONF_ERINNERUNG_MONATE, "")
-    ) != str(ergebnis.get(CONF_ERINNERUNG_MONATE, "")):
+    def _monate(daten: dict[str, Any], key: str) -> str:
+        return str(int(_parse_dezimal(daten.get(key)) or 0))
+
+    if (
+        alt.get(CONF_ENDE) != ergebnis.get(CONF_ENDE)
+        or str(alt.get(CONF_ERINNERUNG_MONATE, "")) != str(ergebnis.get(CONF_ERINNERUNG_MONATE, ""))
+        or _monate(alt, CONF_KUENDIGUNGSFRIST) != _monate(ergebnis, CONF_KUENDIGUNGSFRIST)
+    ):
         ergebnis.pop(CONF_KUENDIGUNG_BESTAETIGT, None)
         ergebnis.pop(CONF_NOTIFY_GESENDET, None)
     return ergebnis
+
+
+def _monate_feld() -> selector.NumberSelector:
+    return selector.NumberSelector(
+        selector.NumberSelectorConfig(min=0, max=120, step=1, mode=selector.NumberSelectorMode.BOX)
+    )
 
 
 def _dezimal_feld() -> selector.TextSelector:
@@ -446,6 +459,8 @@ def _common_schema(
     fields[_opt(CONF_TARIF, d.get(CONF_TARIF))] = selector.TextSelector()
     fields[_opt(CONF_BEGINN, d.get(CONF_BEGINN))] = selector.DateSelector()
     fields[_opt(CONF_ENDE, d.get(CONF_ENDE))] = selector.DateSelector()
+    fields[_opt(CONF_MINDESTLAUFZEIT, d.get(CONF_MINDESTLAUFZEIT))] = _monate_feld()
+    fields[_opt(CONF_KUENDIGUNGSFRIST, d.get(CONF_KUENDIGUNGSFRIST))] = _monate_feld()
     fields[
         vol.Required(
             CONF_ERINNERUNG_MONATE, default=d.get(CONF_ERINNERUNG_MONATE, "3")
