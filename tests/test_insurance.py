@@ -149,7 +149,7 @@ async def test_a_car_insurance_may_leave_the_car_details_empty(hass):
     assert result["data"]["versicherungsart"] == "car"
 
 
-@pytest.mark.parametrize("sparte", ["internet", "mobile", "other"])
+@pytest.mark.parametrize("sparte", ["internet", "mobile", "streaming", "other"])
 async def test_other_flat_rate_contracts_go_straight_to_the_costs(hass, sparte):
     result = await _start(hass, sparte)
     assert result["step_id"] == "pauschal"

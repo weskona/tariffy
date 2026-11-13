@@ -1297,6 +1297,18 @@ for (const width of [1280, 900, 600, 390]) {
   check(gone && gone.index === 0, "an item can be deleted");
 
   await page.getByRole("tab", { name: "Kosten", exact: true }).click();
+  // by category (the default): contracts of one category count together
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = [...panel._contracts, { ...panel._contracts.find((c) => c.title === "Internet"), entry_id: "contract-98", title: "Zweitanschluss" }];
+    panel._render();
+  });
+  const grouped = await text(".chart .cs-legend");
+  check(grouped.includes("Internet (2)") && !grouped.includes("Zweitanschluss") && !grouped.includes("Strom Haus"), `contracts of one category are added up (${grouped.replace(/\n/g, " | ").slice(0, 160)})`);
+  await page.locator(".chart").screenshot({ path: join(outDir, "cost-chart-sparte.png") });
+  await page.getByRole("button", { name: "Je Vertrag" }).click();
+  const each = await text(".chart .cs-legend");
+  check(each.includes("Zweitanschluss") && each.includes("Strom Haus") && !each.includes("Internet (2)"), "per contract lists every contract");
   const chart = await text(".chart");
   check(chart.toLowerCase().includes("kostenaufteilung") && chart.includes("Strom Haus") && chart.includes("%"), `the cost split lists the contracts with their share (${chart.slice(0, 200)})`);
   check((await page.locator(".chart .cs-ring circle").count()) >= 3, "the ring has one slice per contract");
@@ -1331,6 +1343,24 @@ for (const width of [1280, 900, 600, 390]) {
   check(/Kündigung erinnern|Erinnerung/.test(net) && net.includes("30.03.2026"), "the reminder date counts from the deadline (6 months before the end)");
   const other = (await page.locator("details:has-text('Gas Heizung')").first().innerText()).replace(/\u00a0/g, " ");
   check(!other.includes("Kündigungsfrist") && !other.includes("Mindestlaufzeit"), "a contract without them shows nothing new");
+  await context.close();
+}
+
+{ // the sparte "streaming" has a name and an icon in both languages
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`streaming: ${e.message}`));
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const de = await page.evaluate(() => window.__panel._t("sparte").streaming);
+  check(de === "Streaming", `the sparte has a name (${de})`);
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = [...panel._contracts, { ...panel._contracts.find((c) => c.title === "Mobilfunk"), entry_id: "contract-99", title: "Musik", anbieter: "Spotify", sparte: "streaming" }];
+    panel._render();
+  });
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  check((await page.locator("details:has-text('Musik') .badge.streaming svg").count()) === 1, "a streaming contract has its own badge and icon");
   await context.close();
 }
 

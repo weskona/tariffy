@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.9] - 2026-11-13
+
+Ninth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **The cost split adds up contracts of the same category.** The chart now shows one slice per category (for example all streaming subscriptions together, with the number of contracts in brackets); the switch "By contract" shows every contract on its own again.
+- **New category "Streaming"** for subscriptions such as music, video or audio books. It is a flat-rate category like internet and mobile (payment interval, first debit, renewing, history, total cost), with its own icon and colour in the panel. Existing contracts stay as they are; to move a subscription from "Other" to "Streaming", edit the contract and change the category.
+
 ## [1.28.0-rc.8] - 2026-11-13
 
 Eighth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.

@@ -5,7 +5,7 @@
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
 | Bezeichnung | ✅ | Anzeigename (z. B. „Strom Haus") |
-| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges |
+| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Sonstiges |
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
@@ -62,7 +62,7 @@ Wie Strom, zusätzlich:
 | Abwassergebühr | – | Betrag je nach gewähltem Typ |
 | Zählernummer | – | Für Dokumentation |
 
-## Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Versicherung, …)
+## Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Streaming, Versicherung, …)
 
 **Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Bei nicht monatlicher Zahlweise zählen die **Abbuchungen** zu den Kosten bisher; die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.
 
