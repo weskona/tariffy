@@ -65,6 +65,10 @@ Bei Verträgen ohne Verbrauch (Versicherung, Internet, Mobilfunk, Sonstiges), di
 
 Verbrauchsverträge (Strom, Gas, Wasser) haben dafür den **Folgevertrag**, der am geplanten Datum von selbst übernimmt. Erhöhungen mitten in der Laufzeit trägst du über **Vertrag bearbeiten** ein (der neue Abschlag gilt ab dem Tag des Speicherns).
 
+## Kosten bisher bei Pauschalverträgen
+
+Bei Pauschalverträgen (Internet, Mobilfunk, Versicherung, Abos, ...) sind die **Kosten bisher** die **gebuchten Raten**: Jede Rate zählt am Tag der Zahlung, bei monatlicher Zahlung am Monatstag des Beginns (Beginn 1. April, Rate 17,99 €: am 13. November sind es acht Raten = 143,92 €). Bei quartalsweiser, halbjährlicher und jährlicher Zahlung zählt jede Abbuchung (mit dem Feld „Erste Abbuchung“ legst du ihren Tag fest). Eine Abschlagsänderung gilt für die Raten ab ihrem Datum.
+
 ## Gesamtkosten über alle Laufzeiten
 
 Hat ein Vertrag eine **Historie** (zum Beispiel weil du ihn jährlich **verlängerst** oder weil der Folgevertrag übernommen hat), zeigt Tariffy die **Kosten gesamt** über alle Laufzeiten: die früheren Laufzeiten aus der Historie plus die laufende. Bei Pauschalverträgen ist das eine eigene Kachel auf der Karte, bei Verbrauchsverträgen eine Zeile unter der Restlaufzeit; dazu stehen sie in den Vertragsdetails und im Tab **Historie** unter den früheren Laufzeiten, jeweils mit „seit <Datum> · n Laufzeiten“. Für eine frühere Laufzeit zählen ihre Kosten, wenn es sie gibt, sonst die gezahlten Abschläge. Fehlt bei einer Laufzeit beides, steht „mindestens …“, weil die Summe dann nicht vollständig ist. Bei einem archivierten Vertrag steht seine letzte Laufzeit schon in der Historie und wird nicht doppelt gezählt. Ohne Historie und ohne Einmalposten gibt es keine zusätzliche Anzeige. Einmalposten (siehe unten) fließen in die Kosten gesamt ein.

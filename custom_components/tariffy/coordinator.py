@@ -1167,12 +1167,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         abschlag_bisher_gezahlt_wert: float | None = None
         naechste_zahlung: date | None = None
         if abschlag is not None and beginn is not None:
-            if sparte not in METERED_SPARTEN and zahlweise != DEFAULT_ZAHLWEISE:
-                # Pauschalvertrag mit Zahlung im Voraus (quartalsweise bis jaehrlich): gezaehlt werden
-                # die Abbuchungen, nicht ein monatlicher Anteil
+            if sparte not in METERED_SPARTEN:
+                # Pauschalvertrag: gezaehlt werden die Abbuchungen (jede Rate am Tag der Zahlung, bei
+                # monatlicher Zahlung also am Monatstag des Beginns), nicht ein tagesgenauer Anteil
                 abschlag_bisher_gezahlt_wert, naechste_zahlung = _abschlag_nach_zahlungen(
                     abschlag, ZAHLWEISE_MONATE[zahlweise], beginn, ende, heute, data
                 )
+                if zahlweise == DEFAULT_ZAHLWEISE:
+                    naechste_zahlung = None  # bei monatlicher Zahlung gibt es dazu keine Anzeige
             else:
                 monate_bisher = max(0, (heute - beginn).days) / 30.44
                 if ende is not None:

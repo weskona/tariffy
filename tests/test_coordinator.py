@@ -772,16 +772,16 @@ class TestInstalmentsDueForFlatRateContracts:
 
     async def test_until_today(self, setup_contract):
         _, d = await setup_contract(self.INTERNET, today="2026-07-12")
-        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 284 / 30.44, abs=0.01)
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 10, abs=0.01)  # 1 Oct .. 1 Jul, one rate each
 
     async def test_stops_at_the_contract_end(self, setup_contract):
         _, d = await setup_contract(self.INTERNET, today="2026-12-01")
-        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 364 / 30.44, abs=0.01)
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 12, abs=0.01)
 
     async def test_without_an_end_date_it_keeps_counting(self, setup_contract):
         data = {k: v for k, v in self.INTERNET.items() if k != "ende"}
         _, d = await setup_contract(data, today="2027-10-01")
-        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 730 / 30.44, abs=0.01)
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(39.99 * 25, abs=0.01)
 
     async def test_not_started_yet_is_zero(self, setup_contract):
         data = {**self.INTERNET, "beginn": "2026-08-01", "ende": "2027-07-31"}
@@ -791,7 +791,7 @@ class TestInstalmentsDueForFlatRateContracts:
     async def test_an_instalment_change_is_respected(self, setup_contract):
         data = {**self.INTERNET, "_abschlag_ab_datum": "2026-01-01", "_abschlag_vorheriger_wert": 30.0}
         _, d = await setup_contract(data, today="2026-07-12")
-        expected = 30.0 * 92 / 30.44 + 39.99 * (284 - 92) / 30.44
+        expected = 30.0 * 3 + 39.99 * 7  # Oct-Dec before the change, Jan-Jul after it
         assert d["abschlag_bisher_gezahlt"] == pytest.approx(expected, abs=0.01)
 
     async def test_without_a_start_date_there_is_no_value(self, setup_contract):
@@ -985,7 +985,7 @@ class TestTotalCostOverAllTerms:
         ]
         _, d = await setup_contract({**self.INSURANCE, "_historie": history}, today="2026-07-12")
         running = d["abschlag_bisher_gezahlt"]
-        assert 100 < running < 200  # about 1.4 months of 100
+        assert running == 200.0  # the rates of 1 June and 1 July
         assert d["kosten_gesamt"] == pytest.approx(1100.0 + 1200.0 + running, abs=0.01)
         assert d["laufzeiten_anzahl"] == 3
         assert d["seit"].isoformat() == "2024-06-01"
@@ -1077,11 +1077,18 @@ class TestPaymentsByDebit:
         assert d["abschlag_bisher_gezahlt"] == 896.63  # the debit of 2026-05-01 belongs to the next term
         assert d["naechste_zahlung"] is None
 
-    async def test_monthly_contracts_still_accrue_per_month(self, setup_contract):
+    async def test_monthly_contracts_count_one_rate_per_month_on_the_day_of_the_start(self, setup_contract):
         data = {**self.YEARLY, "zahlweise": "monthly", "abschlag": 50.0}
         _, d = await setup_contract(data, today="2025-07-01")
-        assert d["abschlag_bisher_gezahlt"] == pytest.approx(50.0 * 61 / 30.44, abs=0.01)
+        assert d["abschlag_bisher_gezahlt"] == 150.0  # three rates, not a share of the days
         assert d["naechste_zahlung"] is None
+
+    async def test_a_streaming_subscription_counts_the_rates_booked(self, setup_contract):
+        # 17.99 a month since 1 April: by 13 November eight rates are booked (1 Apr .. 1 Nov), not 7.42 months
+        data = {"sparte": "other", "anbieter": "Spotify", "abschlag": 17.99, "beginn": "2026-04-01", "erinnerung_monate": "0"}
+        _, d = await setup_contract(data, today="2026-11-13")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(143.92, abs=0.001)
+        assert d["abschlag_jahr"] == pytest.approx(215.88, abs=0.001)  # the yearly values are unchanged
 
     async def test_a_price_change_applies_to_the_debits_after_it(self, setup_contract):
         data = {**self.YEARLY, "abschlag": 80.0, "_abschlag_ab_datum": "2026-03-01", "_abschlag_vorheriger_wert": 70.0}
@@ -1096,4 +1103,4 @@ class TestInstalmentEnteredAfterwards:
         data = {"sparte": "insurance", "anbieter": "X", "abschlag": 50.0, "beginn": "2026-01-01", "ende": "2026-12-31",
                 "_abschlag_ab_datum": "2026-07-12", "_abschlag_vorheriger_wert": 0.0}
         _, d = await setup_contract(data, today="2026-07-12")
-        assert d["abschlag_bisher_gezahlt"] == pytest.approx(50.0 * 192 / 30.44, abs=0.01)  # not 0
+        assert d["abschlag_bisher_gezahlt"] == 350.0  # seven rates, not 0

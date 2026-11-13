@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.7] - 2026-11-13
+
+Seventh release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- **"Cost so far" of a flat-rate contract paid monthly counted a share of the days, not the rates booked.** A subscription of 17.99 € a month that started on 1 April showed 133.57 € on 13 November (7.42 months). By then eight rates have been booked (1 April to 1 November): **143.92 €**. A flat-rate contract (internet, mobile, insurance, subscriptions, ...) now counts every rate on the day of its payment, the same way contracts with quarterly, half-yearly or yearly payment already did. This also changes the "total cost over all terms" and a term that is archived or renewed afterwards. The yearly values, the instalment and everything about consumption contracts are unchanged.
+
 ## [1.28.0-rc.6] - 2026-11-13
 
 Sixth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
