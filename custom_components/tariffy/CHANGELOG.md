@@ -13,6 +13,7 @@ Neunter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular 
 
 ### Added
 
+- **Die Kostenaufteilung zählt Verträge gleicher Sparten zusammen.** Die Grafik zeigt jetzt eine Scheibe je Sparte (zum Beispiel alle Streaming-Abos zusammen, mit der Zahl der Verträge in Klammern); mit dem Umschalter "Je Vertrag" erscheint wieder jeder Vertrag einzeln.
 - **Neue Sparte "Streaming"** für Abos wie Musik, Video oder Hörbücher. Sie ist eine Pauschal-Sparte wie Internet und Mobilfunk (Zahlweise, erste Abbuchung, Verlängern, Historie, Gesamtkosten) und hat im Panel ein eigenes Symbol und eine eigene Farbe. Bestehende Verträge bleiben wie sie sind; um ein Abo von "Sonstiges" nach "Streaming" zu holen, bearbeitest du den Vertrag und änderst die Sparte.
 
 ## [1.28.0-rc.8] - 2026-11-13

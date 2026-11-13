@@ -111,7 +111,7 @@ const I18N = {
     onceName: "Description", onceAmount: "Amount (+ credit, − bill)", onceDate: "Date", onceDelete: "Delete item", onceDeleteAsk: "Delete this item?", onceDeleteYes: "Yes, delete", onceSum: "Net",
     termErr_invalid_bezeichnung: "Enter a description.", termErr_invalid_betrag: "Enter an amount other than zero (with a minus for a bill).",
     minTerm: "Minimum term", noticePeriod: "Notice period", cancelBy: "Cancel by", untilDate: "until {d}",
-    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
+    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.", chartBySparte: "By category", chartByContract: "By contract", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
@@ -246,7 +246,7 @@ const I18N = {
     onceName: "Bezeichnung", onceAmount: "Betrag (+ Gutschrift, − Rechnung)", onceDate: "Datum", onceDelete: "Posten löschen", onceDeleteAsk: "Diesen Posten löschen?", onceDeleteYes: "Ja, löschen", onceSum: "Saldo",
     termErr_invalid_bezeichnung: "Trage eine Bezeichnung ein.", termErr_invalid_betrag: "Trage einen Betrag ungleich null ein (mit Minus für eine Rechnung).",
     minTerm: "Mindestlaufzeit", noticePeriod: "Kündigungsfrist", cancelBy: "Kündigen bis", untilDate: "bis {d}",
-    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
+    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.", chartBySparte: "Je Sparte", chartByContract: "Je Vertrag", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
@@ -2293,8 +2293,16 @@ class TariffyPanel extends HTMLElement {
       return isNum(v) && v > 0 ? v : 0;
     };
     const currency = contracts[0].currency || "EUR";
-    const items = contracts.map((c, i) => ({ c, v: value(c), color: CHART_COLORS[i % CHART_COLORS.length] }))
-      .filter((it) => it.v > 0.005).sort((a, b) => b.v - a.v);
+    const grouped = this._costGroup !== "contract"; // by category unless "per contract" is chosen
+    const perContract = contracts.map((c) => ({ label: c.title, sparte: c.sparte, currency: c.currency, n: 1, v: value(c) }))
+      .filter((it) => it.v > 0.005);
+    const merged = new Map(); // contracts of one category count together
+    for (const it of perContract) {
+      const old = merged.get(it.sparte);
+      if (old) { old.v += it.v; old.n += 1; } else merged.set(it.sparte, { ...it, label: this._t("sparte")[it.sparte] || it.sparte });
+    }
+    const items = (grouped ? [...merged.values()] : perContract).sort((a, b) => b.v - a.v)
+      .map((it, i) => ({ ...it, color: CHART_COLORS[i % CHART_COLORS.length] }));
     const total = items.reduce((s, it) => s + it.v, 0);
     const toggle = h("div", { class: "seg", role: "group" }, [["sofar", "chartSoFar"], ["year", "chartYear"]].map(([key, label]) => h("button", {
       class: year === null && basis === key ? "on" : "", type: "button", "aria-pressed": String(year === null && basis === key), text: this._t(label),
@@ -2307,9 +2315,13 @@ class TariffyPanel extends HTMLElement {
         onchange: (ev) => { this._costYear = ev.target.value ? Number(ev.target.value) : null; this._render(); },
       }, [h("option", { value: "", text: this._t("chartYearAll") })].concat(
         years.map((y) => h("option", { value: String(y), text: String(y), selected: y === year ? "" : null }))))) : null;
+    const groupToggle = h("div", { class: "seg", role: "group" }, [["sparte", "chartBySparte"], ["contract", "chartByContract"]].map(([key, label]) => h("button", {
+      class: (grouped ? "sparte" : "contract") === key ? "on" : "", type: "button", "aria-pressed": String((grouped ? "sparte" : "contract") === key), text: this._t(label),
+      onclick: () => { this._costGroup = key; this._render(); },
+    })));
     const card = h("section", { class: "chart" },
       h("h3", { class: "group-title" }, h("span", { text: this._t("chartTitle") })),
-      h("div", { class: "chart-ctl" }, toggle, picker),
+      h("div", { class: "chart-ctl" }, toggle, picker, groupToggle),
       year !== null ? h("p", { class: "hint", text: this._t("chartYearHint") }) : null);
     if (!total) {
       card.appendChild(h("div", { class: "hint", text: this._t("chartEmpty") }));
@@ -2330,14 +2342,14 @@ class TariffyPanel extends HTMLElement {
     const ring = svg("svg", { viewBox: "0 0 42 42", class: "cs-ring", role: "img", "aria-label": this._t("chartTitle") },
       svg("circle", { cx: "21", cy: "21", r: "15.9155", fill: "none", stroke: "rgba(255,255,255,.06)", "stroke-width": "6" }), slices);
     const kinds = [["chartMetered", (c) => METERED.has(c.sparte)], ["chartFlat", (c) => !METERED.has(c.sparte)]]
-      .map(([label, test]) => ({ label, v: items.filter((it) => test(it.c)).reduce((s, it) => s + it.v, 0) })).filter((k) => k.v > 0);
+      .map(([label, test]) => ({ label, v: items.filter((it) => test(it)).reduce((s, it) => s + it.v, 0) })).filter((k) => k.v > 0);
     card.appendChild(h("div", { class: "chart-body" },
       h("div", { class: "cs-ringwrap" }, ring,
         h("div", { class: "cs-mid" }, h("b", { text: this._money(total, currency, { digits: 0 }) }))),
       h("ul", { class: "cs-legend" }, items.map((it) => h("li", {},
         h("span", { class: "cs-dot", style: `background:${it.color}` }),
-        h("span", { class: "nm", text: it.c.title }),
-        h("span", { class: "val", text: this._money(it.v, it.c.currency, { digits: 2 }) }),
+        h("span", { class: "nm", text: it.n > 1 ? `${it.label} (${it.n})` : it.label }),
+        h("span", { class: "val", text: this._money(it.v, it.currency, { digits: 2 }) }),
         h("span", { class: "pct", text: percent(it.v) }))))));
     if (kinds.length > 1) {
       card.appendChild(h("div", { class: "kindbar" },
