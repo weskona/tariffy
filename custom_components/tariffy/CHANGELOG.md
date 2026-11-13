@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.8] - 2026-11-13
+
+Achter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- **Eine monatliche Rate zählt, sobald ihr Monat begonnen hat.** Bei einer ersten Abbuchung am 27. wurde die Rate des laufenden Monats erst ab dem 27. gezählt, die "Kosten bisher" eines Abos hinkten also fast den ganzen Monat eine Rate hinterher. Jetzt zählt die Rate eines Monats ab dem ersten Tag dieses Monats, an welchem Tag auch immer abgebucht wird. Das gilt für monatliche Zahlung; vierteljährliche, halbjährliche und jährliche Abbuchungen zählen weiter am Zahltag. Die angezeigte nächste Zahlung dazu bleibt unverändert.
+
 ## [1.28.0-rc.7] - 2026-11-13
 
 Siebter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

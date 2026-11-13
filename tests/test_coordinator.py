@@ -1090,6 +1090,16 @@ class TestPaymentsByDebit:
         assert d["abschlag_bisher_gezahlt"] == pytest.approx(143.92, abs=0.001)
         assert d["abschlag_jahr"] == pytest.approx(215.88, abs=0.001)  # the yearly values are unchanged
 
+    async def test_a_monthly_rate_counts_as_soon_as_its_month_has_begun(self, setup_contract):
+        # first debit on the 27th: on 13 November the rate of 27 November already counts (April to November)
+        data = {"sparte": "other", "anbieter": "Spotify", "abschlag": 17.99, "beginn": "2026-04-01",
+                "erste_zahlung": "2026-04-27", "erinnerung_monate": "0"}
+        _, d = await setup_contract(data, today="2026-11-13")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(8 * 17.99, abs=0.001)
+        assert d["naechste_zahlung"] is None  # monthly contracts show no next payment
+        _, d = await setup_contract(data, today="2026-03-20")
+        assert d["abschlag_bisher_gezahlt"] == 0.0  # not started
+
     async def test_a_price_change_applies_to_the_debits_after_it(self, setup_contract):
         data = {**self.YEARLY, "abschlag": 80.0, "_abschlag_ab_datum": "2026-03-01", "_abschlag_vorheriger_wert": 70.0}
         _, d = await setup_contract(data, today="2026-11-13")
