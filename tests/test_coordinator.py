@@ -959,3 +959,65 @@ class TestYearlyValuesAndPaymentInterval:
         _, yearly = await setup_contract({**self.INSURANCE, "zahlweise": "yearly"}, today="2026-07-12")
         for key in ("abschlag", "jahreskosten", "abschlag_bisher_gezahlt", "restlaufzeit"):
             assert monthly[key] == yearly[key], key
+
+
+class TestTotalCostOverAllTerms:
+    """Cost over the whole life of a contract: the earlier terms from the history plus the running one."""
+
+    INSURANCE = {
+        "sparte": "insurance",
+        "anbieter": "Versicherung AG",
+        "abschlag": 100.0,
+        "beginn": "2026-06-01",
+        "ende": "2027-05-31",
+    }
+
+    @staticmethod
+    def _term(beginn, ende, **values):
+        return {"anbieter": "Versicherung AG", "beginn": beginn, "ende": ende, **values}
+
+    async def test_earlier_terms_and_the_running_one_are_added(self, setup_contract):
+        history = [
+            self._term("2024-06-01", "2025-05-31", abschlag_gezahlt=1100.0),
+            self._term("2025-06-01", "2026-05-31", abschlag_gezahlt=1200.0),
+        ]
+        _, d = await setup_contract({**self.INSURANCE, "_historie": history}, today="2026-07-12")
+        running = d["abschlag_bisher_gezahlt"]
+        assert 100 < running < 200  # about 1.4 months of 100
+        assert d["kosten_gesamt"] == pytest.approx(1100.0 + 1200.0 + running, abs=0.01)
+        assert d["laufzeiten_anzahl"] == 3
+        assert d["seit"].isoformat() == "2024-06-01"
+        assert d["kosten_gesamt_vollstaendig"] is True
+
+    async def test_a_term_with_a_cost_uses_it_before_the_instalments(self, setup_contract):
+        history = [self._term("2025-06-01", "2026-05-31", kosten=1234.5, abschlag_gezahlt=1200.0)]
+        _, d = await setup_contract({**self.INSURANCE, "_historie": history}, today="2026-07-12")
+        assert d["kosten_gesamt"] == pytest.approx(1234.5 + d["abschlag_bisher_gezahlt"], abs=0.01)
+
+    async def test_without_history_it_is_the_running_term(self, setup_contract):
+        _, d = await setup_contract(dict(self.INSURANCE), today="2026-07-12")
+        assert d["kosten_gesamt"] == d["abschlag_bisher_gezahlt"]
+        assert d["laufzeiten_anzahl"] == 1
+        assert d["seit"].isoformat() == "2026-06-01"
+
+    async def test_an_archived_contract_does_not_count_its_last_term_twice(self, contract):
+        await contract.setup({**self.INSURANCE, "ende": "2026-06-30"}, today="2026-08-01")
+        await contract.entry.runtime_data.async_archive()
+        (term,) = contract.entry.data["_historie"]
+        d = contract.entry.runtime_data.data
+        assert d["archiviert"] is True
+        assert d["kosten_gesamt"] == pytest.approx(term["abschlag_gezahlt"], abs=0.01)  # only the history entry
+        assert d["laufzeiten_anzahl"] == 1
+
+    async def test_a_term_without_any_cost_makes_the_total_a_lower_bound(self, setup_contract):
+        history = [self._term("2024-06-01", "2025-05-31"), self._term("2025-06-01", "2026-05-31", abschlag_gezahlt=1200.0)]
+        _, d = await setup_contract({**self.INSURANCE, "_historie": history}, today="2026-07-12")
+        assert d["kosten_gesamt_vollstaendig"] is False
+        assert d["kosten_gesamt"] == pytest.approx(1200.0 + d["abschlag_bisher_gezahlt"], abs=0.01)
+
+    async def test_metered_contracts_use_the_measured_cost(self, setup_contract):
+        history = [self._term("2025-01-01", "2025-12-31", kosten=900.0)]
+        _, d = await setup_contract({**STROM, "_historie": history}, today="2026-07-12", **dict(
+            latest=(2481.17, 2481.17), offset=(1000.0, 1000.0), sensor_states={SENSOR: "2481.17"}))
+        assert d["kosten_gesamt"] == pytest.approx(900.0 + d["kosten_bisher"], abs=0.01)
+        assert d["laufzeiten_anzahl"] == 2

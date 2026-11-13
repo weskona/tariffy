@@ -114,6 +114,10 @@ CONTRACT_FIELDS = (
     "archivierbar",
     "verlaengerbar",
     "historie",
+    "kosten_gesamt",
+    "kosten_gesamt_vollstaendig",
+    "laufzeiten_anzahl",
+    "seit",
 )
 NEXT_FIELDS = ("beginn", "ende", "anbieter", "tarif", "arbeitspreis", "abschlag")
 

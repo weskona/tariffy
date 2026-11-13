@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.1] - 2026-11-13
+
+Erster Release Candidate von 1.28.0 (die Nummerierung geht mit `rc` weiter, weil GitHub `beta.10` unter `beta.2` einsortieren würde, siehe "Beta-Releases" in der Dokumentation). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Gesamtkosten über alle Laufzeiten eines Vertrags.** Ein Vertrag mit Historie (zum Beispiel einer, der jedes Jahr verlängert wird) zeigt die Kosten der früheren Laufzeiten plus der laufenden, mit dem Beginn der ersten Laufzeit und der Anzahl der Laufzeiten: als Kachel auf Pauschal-Karten, als Zeile auf Verbrauchs-Karten, in den Vertragsdetails und im Tab Historie. Für eine frühere Laufzeit zählen ihre Kosten, sonst die gezahlten Abschläge; hat eine Laufzeit beides nicht, steht die Summe als "mindestens". Ein archivierter Vertrag zählt seine letzte Laufzeit nicht doppelt. Gewünscht in #63. Neue Vertragsdaten `kosten_gesamt`, `kosten_gesamt_vollstaendig`, `laufzeiten_anzahl` und `seit` für das Panel; keine neuen Sensoren.
+
 ## [1.28.0-beta.9] - 2026-11-12
 
 Neunte Beta zum Testen der Vertragshistorie, der Sicherung und der Versicherungsangaben. Das ist die letzte Nummer der Reihe `beta`, danach folgt `rc.1`. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

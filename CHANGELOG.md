@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.1] - 2026-11-13
+
+First release candidate of 1.28.0 (the numbering continues with `rc` because GitHub would list `beta.10` below `beta.2`, see "Beta releases" in the documentation). Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **Total cost over all terms of a contract.** A contract that has a history (for example one that is renewed every year) shows the total cost of the earlier terms plus the running one, with the start of the first term and the number of terms: as a tile on flat-rate cards, as a line on metered cards, in the contract details and in the History tab. For an earlier term its cost counts, otherwise the instalments paid; if a term has neither, the sum is shown as "at least". An archived contract does not count its last term twice. Requested in #63. New contract data `kosten_gesamt`, `kosten_gesamt_vollstaendig`, `laufzeiten_anzahl` and `seit` for the panel; no new sensors.
+
 ## [1.28.0-beta.9] - 2026-11-12
 
 Ninth beta for testing the contract history, the backup and the insurance details. This is the last number of the `beta` series, the next one is `rc.1`. Please report problems with the bug report form and mention this exact version.

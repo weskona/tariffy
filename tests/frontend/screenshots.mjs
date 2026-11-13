@@ -1200,6 +1200,50 @@ for (const width of [1280, 900, 600, 390]) {
   await context.close();
 }
 
+{ // total cost over all terms of a contract
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`total: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const text = async (sel) => (await page.locator(sel).first().innerText()).replace(/\u00a0/g, " ");
+
+  // a metered contract with a history: one line in the footer
+  const strom = await text("section.card:has-text('Strom Haus')");
+  check(strom.includes("Kosten gesamt 2.722,24 €") && strom.includes("seit 01.01.2024 · 3 Laufzeiten"), `a metered card sums the earlier terms and the running one (${strom.split("\n").find((l) => l.includes("gesamt"))})`);
+  check(!(await text("section.card:has-text('Gas Heizung')")).includes("Kosten gesamt"), "a contract without a history shows no total");
+
+  // a flat-rate contract with a history: a tile of its own
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet"
+      ? { ...c, historie: [{ beginn: "2025-10-01", ende: "2026-09-30", abschlag_gezahlt: 480 }], kosten_gesamt: 853.1, kosten_gesamt_vollstaendig: true, laufzeiten_anzahl: 2, seit: "2025-10-01" } : c));
+    panel._render();
+  });
+  const internet = await text("section.card:has-text('Internet')");
+  check(/KOSTEN GESAMT\s*853,10 €/i.test(internet) && internet.includes("seit 01.10.2025 · 2 Laufzeiten"), `a flat-rate card has a tile for the total (${internet.replace(/\n/g, " | ")})`);
+
+  // a term without any cost: the total is a lower bound
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet" ? { ...c, kosten_gesamt_vollstaendig: false } : c));
+    panel._render();
+  });
+  check((await text("section.card:has-text('Internet')")).includes("mindestens 853,10 €"), "an incomplete total says at least");
+
+  // the contract list and the history tab
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Strom Haus" }).first().locator("summary").click();
+  check(/Kosten gesamt\s*2\.722,24 € · seit 01\.01\.2024 · 3 Laufzeiten/.test(await text("details:has-text('Strom Haus')")), "the details show the total");
+  await page.getByRole("tab", { name: "Historie", exact: true }).click();
+  const hist = await text(".hist[data-id=contract-1]");
+  check(hist.includes("Kosten gesamt: 2.722,24 €"), "the history shows the total under the earlier terms");
+  const archived = await text(".hist[data-id=contract-7]");
+  check(archived.includes("Kosten gesamt: 1.725,40 € · seit 01.01.2022 · 2 Laufzeiten"), `an archived contract counts its last term only once (${archived.split("\n").find((l) => l.includes("gesamt"))})`);
+  await context.close();
+}
+
 await browser.close();
 server.close();
 if (errors.length) { console.error("Browser errors:\n" + errors.join("\n")); process.exit(1); }
