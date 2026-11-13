@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.9] - 2026-11-13
+
+Neunter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Neue Sparte "Streaming"** für Abos wie Musik, Video oder Hörbücher. Sie ist eine Pauschal-Sparte wie Internet und Mobilfunk (Zahlweise, erste Abbuchung, Verlängern, Historie, Gesamtkosten) und hat im Panel ein eigenes Symbol und eine eigene Farbe. Bestehende Verträge bleiben wie sie sind; um ein Abo von "Sonstiges" nach "Streaming" zu holen, bearbeitest du den Vertrag und änderst die Sparte.
+
 ## [1.28.0-rc.8] - 2026-11-13
 
 Achter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

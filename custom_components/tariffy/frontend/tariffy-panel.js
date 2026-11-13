@@ -136,7 +136,7 @@ const I18N = {
     adviceNone: "No instalment needed: the credit covers the costs until the contract ends", adviceOk: "The instalment fits",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
-      water: "Water", internet: "Internet", mobile: "Mobile", insurance: "Insurance", other: "Other",
+      water: "Water", internet: "Internet", mobile: "Mobile", streaming: "Streaming", insurance: "Insurance", other: "Other",
     },
     versicherungsart: {
       car: "Car", house: "Building / house", household: "Household contents", liability: "Liability",
@@ -271,7 +271,7 @@ const I18N = {
     adviceNone: "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende", adviceOk: "Der Abschlag passt",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
-      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", insurance: "Versicherung", other: "Sonstiges",
+      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", streaming: "Streaming", insurance: "Versicherung", other: "Sonstiges",
     },
     versicherungsart: {
       car: "Auto (Kfz)", house: "Gebäude / Haus", household: "Hausrat", liability: "Haftpflicht",
@@ -304,6 +304,10 @@ const ICONS = {
   mobile: [
     ["rect", { x: "7", y: "2.500", width: "10", height: "19", rx: "2.500" }],
     ["path", { d: "M11 18.500h2" }],
+  ],
+  streaming: [
+    ["rect", { x: "3", y: "5", width: "18", height: "14", rx: "3" }],
+    ["path", { d: "M10 9.500v5l4.500-2.500z" }],
   ],
   insurance: [["path", { d: "M12 2.500 20 5.500v6c0 5-3.500 8.500-8 10.500-4.500-2-8-5.500-8-10.500v-6z" }]],
   // actions of the contract list
@@ -408,7 +412,7 @@ section.card .foot { padding-top: 12px; }
   background: var(--tile); border: 1px solid var(--tile-line); color: var(--blue); }
 .badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .badge.gas { color: var(--orange); } .badge.water { color: #38bdf8; } .badge.electricity,
-.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); }
+.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); } .badge.streaming { color: #f472b6; }
 .title { font-size: 17px; font-weight: 700; line-height: 1.2; }
 .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .who { min-width: 0; flex: 1; }

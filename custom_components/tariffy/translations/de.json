@@ -582,6 +582,7 @@
         "water": "Wasser",
         "internet": "Internet",
         "mobile": "Mobilfunk",
+        "streaming": "Streaming",
         "insurance": "Versicherung",
         "other": "Sonstiges",
         "electricity_ht_nt": "Strom (Zweizählertarif, Hoch-/Niedertarif)"

@@ -37,7 +37,7 @@ On a phone the cards turn into expandable rows:
 
 ### Features
 
-- **Categories:** Electricity, Gas, Water, Internet, Mobile, Insurance, Other
+- **Categories:** Electricity, Gas, Water, Internet, Mobile, Streaming, Insurance, Other
 - **Real consumption tracking** – connect any HA sensor as your meter; Tariffy reads the meter value at contract start from Long-Term Statistics and calculates consumption since contract start and projected annual usage
 - **Real billing forecast** – forecast based on actual measured consumption (credit or surcharge)
 - **Last contract period consumption** – frozen at tariff switch; used to calculate the recommended monthly payment for the new period
@@ -273,7 +273,7 @@ Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
 
 ### Features
 
-- **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges
+- **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Sonstiges
 - **Echte Verbrauchsmessung** – beliebigen HA-Sensor als Zähler einbinden; Tariffy liest den Stand zum Vertragsbeginn aus den Long-Term Statistics und berechnet Verbrauch seit Vertragsbeginn sowie hochgerechneten Jahresverbrauch
 - **Abrechnungsprognose (real)** – Prognose basierend auf dem tatsächlich gemessenen Verbrauch (Guthaben oder Nachzahlung)
 - **Verbrauch letzte Vertragslaufzeit** – wird beim Tarifwechsel eingefroren; Basis für den empfohlenen Abschlag
@@ -299,7 +299,7 @@ Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
 | Bezeichnung | ✅ | Anzeigename (z. B. „Strom Haus") |
-| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges |
+| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Sonstiges |
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
@@ -356,7 +356,7 @@ Wie Strom, zusätzlich:
 | Abwassergebühr | – | Betrag je nach gewähltem Typ |
 | Zählernummer | – | Für Dokumentation |
 
-#### Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Versicherung, …)
+#### Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Streaming, Versicherung, …)
 
 **Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Bei nicht monatlicher Zahlweise zählen die **Abbuchungen** zu den Kosten bisher; die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.
 

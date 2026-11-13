@@ -2,7 +2,7 @@
 
 ## Features
 
-- **Categories:** Electricity, Gas, Water, Internet, Mobile, Insurance, Other
+- **Categories:** Electricity, Gas, Water, Internet, Mobile, Streaming, Insurance, Other
 - **Real consumption tracking** – connect any HA sensor as your meter; Tariffy reads the meter value at contract start from Long-Term Statistics and calculates consumption since contract start and projected annual usage
 - **Real billing forecast** – forecast based on actual measured consumption (credit or surcharge)
 - **Last contract period consumption** – frozen at tariff switch; used to calculate the recommended monthly payment for the new period

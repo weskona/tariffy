@@ -238,6 +238,7 @@ SPARTEN = [
     "water",
     "internet",
     "mobile",
+    "streaming",
     SPARTE_INSURANCE,
     "other",
 ]

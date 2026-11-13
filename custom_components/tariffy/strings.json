@@ -582,6 +582,7 @@
         "water": "Water",
         "internet": "Internet",
         "mobile": "Mobile",
+        "streaming": "Streaming",
         "insurance": "Insurance",
         "other": "Other",
         "electricity_ht_nt": "Electricity (dual tariff, HT/NT)"

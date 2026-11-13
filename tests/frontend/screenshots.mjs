@@ -1334,6 +1334,24 @@ for (const width of [1280, 900, 600, 390]) {
   await context.close();
 }
 
+{ // the sparte "streaming" has a name and an icon in both languages
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`streaming: ${e.message}`));
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const de = await page.evaluate(() => window.__panel._t("sparte").streaming);
+  check(de === "Streaming", `the sparte has a name (${de})`);
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = [...panel._contracts, { ...panel._contracts.find((c) => c.title === "Mobilfunk"), entry_id: "contract-99", title: "Musik", anbieter: "Spotify", sparte: "streaming" }];
+    panel._render();
+  });
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  check((await page.locator("details:has-text('Musik') .badge.streaming svg").count()) === 1, "a streaming contract has its own badge and icon");
+  await context.close();
+}
+
 await browser.close();
 server.close();
 if (errors.length) { console.error("Browser errors:\n" + errors.join("\n")); process.exit(1); }

@@ -17,7 +17,7 @@ Quellcode, Releases und Changelog: [weskona/tariffy](https://github.com/weskona/
 
 ## Features
 
-- **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges
+- **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Sonstiges
 - **Echte Verbrauchsmessung** – beliebigen HA-Sensor als Zähler einbinden; Tariffy liest den Stand zum Vertragsbeginn aus den Long-Term Statistics und berechnet Verbrauch seit Vertragsbeginn sowie hochgerechneten Jahresverbrauch
 - **Abrechnungsprognose (real)** – Prognose basierend auf dem tatsächlich gemessenen Verbrauch (Guthaben oder Nachzahlung)
 - **Verbrauch letzte Vertragslaufzeit** – wird beim Tarifwechsel eingefroren; Basis für den empfohlenen Abschlag

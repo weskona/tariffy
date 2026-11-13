@@ -85,7 +85,7 @@ async def test_the_form_offers_the_name_first_with_the_current_one(frontend_env,
     assert str(first) == "name" and first.default() == "Test"
 
 
-@pytest.mark.parametrize("sparte", ["electricity", "gas", "internet", "mobile"])
+@pytest.mark.parametrize("sparte", ["electricity", "gas", "internet", "mobile", "streaming"])
 async def test_the_name_can_be_changed(frontend_env, contract, hass, sparte):  # noqa: F811
     from homeassistant.helpers import device_registry as dr, entity_registry as er
 
