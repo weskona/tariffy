@@ -95,3 +95,29 @@ async def test_energy_contracts_have_no_interval(frontend_env, contract, hass): 
     entry, _ = await contract.setup(dict(STROM), **GOLDEN)
     data = await _reconfigure(hass, entry)
     assert "zahlweise" not in data
+
+
+async def test_filling_in_the_amount_later_is_no_price_change(frontend_env, contract, hass):  # noqa: F811
+    entry, _ = await contract.setup({**INSURANCE, "abschlag": 0.0}, **GOLDEN)  # 0 is the default when creating
+    data = await _reconfigure(hass, entry, second={"abschlag": 50.0})
+    assert data["abschlag"] == 50.0
+    assert "_abschlag_ab_datum" not in data and "_abschlag_vorheriger_wert" not in data
+
+
+async def test_the_date_of_the_first_debit_is_stored_and_can_be_removed(frontend_env, contract, hass):  # noqa: F811
+    entry, _ = await contract.setup({**INSURANCE, "zahlweise": "yearly"}, **GOLDEN)
+    data = await _reconfigure(hass, entry, second={"erste_zahlung": "2026-02-10"})
+    assert data["erste_zahlung"] == "2026-02-10"
+    assert entry.runtime_data.data["erste_zahlung"].isoformat() == "2026-02-10"
+    data = await _reconfigure(hass, entry, drop=("erste_zahlung",))
+    assert "erste_zahlung" not in data
+
+
+async def test_the_form_has_the_field_for_the_first_debit(frontend_env, contract, hass):  # noqa: F811
+    entry, _ = await contract.setup(dict(INSURANCE), **GOLDEN)
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": "reconfigure", "entry_id": entry.entry_id}
+    )
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
+    names = [str(key) for key in result["data_schema"].schema]
+    assert names.index("abschlag") < names.index("erste_zahlung") < names.index("grundpreis")

@@ -55,6 +55,7 @@ const I18N = {
     renewUp: "{p} % dearer ({n} instead of {o} per month)", renewDown: "{p} % cheaper ({n} instead of {o} per month)", renewSame: "Amount unchanged",
     termErr_invalid_abschlag: "Enter an amount above zero.", termErr_invalid_zahlweise: "Choose a payment interval.",
     termErr_not_available: "This contract cannot be renewed (no end date, or not a flat-rate contract).",
+    firstDebit: "First debit", nextPayment: "Next payment", rf_erste: "First debit (optional)",
     instalmentYear: "Instalment / year", costYear: "Cost / year", payment: "Payment", perYearShort: "{v} / year",
     interval: { monthly: "monthly", quarterly: "quarterly", halfyearly: "half-yearly", yearly: "yearly" },
     soFar: "So far", soFarHigh: "So far, high tariff", soFarLow: "So far, low tariff",
@@ -182,6 +183,7 @@ const I18N = {
     renewUp: "{p} % teurer ({n} statt {o} pro Monat)", renewDown: "{p} % günstiger ({n} statt {o} pro Monat)", renewSame: "Betrag unverändert",
     termErr_invalid_abschlag: "Trage einen Betrag über null ein.", termErr_invalid_zahlweise: "Wähle eine Zahlweise.",
     termErr_not_available: "Dieser Vertrag lässt sich nicht verlängern (kein Ende eingetragen oder kein Pauschalvertrag).",
+    firstDebit: "Erste Abbuchung", nextPayment: "Nächste Zahlung", rf_erste: "Erste Abbuchung (optional)",
     instalmentYear: "Abschlag / Jahr", costYear: "Kosten / Jahr", payment: "Zahlung", perYearShort: "{v} / Jahr",
     interval: { monthly: "monatlich", quarterly: "vierteljährlich", halfyearly: "halbjährlich", yearly: "jährlich" },
     soFar: "Bisher", soFarHigh: "Bisher, Hochtarif", soFarLow: "Bisher, Niedertarif",
@@ -1812,6 +1814,7 @@ class TariffyPanel extends HTMLElement {
         spec("ende", "date", this._t("tf_ende"), { required: true }),
         spec("zahlweise", "select", this._t("rf_zahlweise"), { options: Object.keys(INTERVAL_MONTHS).map((k) => ({ value: k, label: this._t("interval")[k] })) }),
         spec("abschlag", "number", this._t("rf_abschlag"), { required: true, min: 0.01 }),
+        spec("erste_zahlung", "date", this._t("rf_erste")),
       ],
       values: {
         beginn: this._isoShift(c.ende, { days: 1 }), ende: this._isoShift(c.ende, { years: 1 }), zahlweise,
@@ -2288,6 +2291,8 @@ class TariffyPanel extends HTMLElement {
         row(this._t("costYear"), !METERED.has(c.sparte) && isNum(c.kosten_jahr) ? money(c.kosten_jahr) : null),
         row(this._t("payment"), c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)
           ? `${money(c.abschlag_je_zahlung)} ${this._t("interval")[c.zahlweise] || c.zahlweise}` : null),
+        row(this._t("firstDebit"), c.zahlweise && c.zahlweise !== "monthly" && c.erste_zahlung ? this._date(c.erste_zahlung) : null),
+        row(this._t("nextPayment"), c.naechste_zahlung ? this._date(c.naechste_zahlung) : null),
         row(this._t("costSoFar"), !METERED.has(c.sparte) && isNum(this._costSoFar(c)) ? money(this._costSoFar(c)) : null),
         row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),

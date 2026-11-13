@@ -260,6 +260,7 @@
         "data": {
           "zahlweise": "Zahlweise",
           "abschlag": "Betrag pro Zahlung (€)",
+          "erste_zahlung": "Erste Abbuchung am",
           "grundpreis": "Grundpreis (€/Monat)",
           "versicherungsart": "Art der Versicherung",
           "kennzeichen": "Kennzeichen (Kfz)",
@@ -269,6 +270,7 @@
         "data_description": {
           "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
           "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
+          "erste_zahlung": "Nur bei vierteljährlicher, halbjährlicher oder jährlicher Zahlung: der Tag, an dem der erste Betrag abgebucht wird. Leer = Vertragsbeginn. Die weiteren Abbuchungen folgen im Abstand der Zahlweise.",
           "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird",
           "versicherungsart": "Optional: was die Versicherung abdeckt",
           "kennzeichen": "Optional, für eine Kfz-Versicherung. Wird wie die Kundennummer behandelt: nicht im Seitenleisten-Panel sichtbar",
@@ -282,6 +284,7 @@
         "data": {
           "zahlweise": "Zahlweise",
           "abschlag": "Betrag pro Zahlung (€)",
+          "erste_zahlung": "Erste Abbuchung am",
           "grundpreis": "Grundpreis (€/Monat)",
           "versicherungsart": "Art der Versicherung",
           "kennzeichen": "Kennzeichen (Kfz)",
@@ -291,6 +294,7 @@
         "data_description": {
           "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
           "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
+          "erste_zahlung": "Nur bei vierteljährlicher, halbjährlicher oder jährlicher Zahlung: der Tag, an dem der erste Betrag abgebucht wird. Leer = Vertragsbeginn. Die weiteren Abbuchungen folgen im Abstand der Zahlweise.",
           "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird",
           "versicherungsart": "Optional: was die Versicherung abdeckt",
           "kennzeichen": "Optional, für eine Kfz-Versicherung. Wird wie die Kundennummer behandelt: nicht im Seitenleisten-Panel sichtbar",

@@ -1111,7 +1111,8 @@ for (const width of [1280, 900, 600, 390]) {
   await page.evaluate(() => {
     const panel = window.__panel;
     panel._contracts = panel._contracts.map((c) => (c.title === "Internet"
-      ? { ...c, abschlag: 50, zahlweise: "yearly", abschlag_je_zahlung: 600, abschlag_jahr: 600, kosten_jahr: 600 } : c));
+      ? { ...c, abschlag: 50, zahlweise: "yearly", abschlag_je_zahlung: 600, abschlag_jahr: 600, kosten_jahr: 600,
+        erste_zahlung: "2026-05-05", naechste_zahlung: "2027-05-05" } : c));
     panel._render();
   });
   const yearly = await text("section.card:has-text('Internet')");
@@ -1122,6 +1123,7 @@ for (const width of [1280, 900, 600, 390]) {
   const details = await text("details:has-text('Internet')");
   check(details.includes("Abschlag / Jahr") && details.includes("Kosten / Jahr") && details.includes("Zahlung"), "the details show the yearly instalment, the yearly cost and the payment");
   check(/Zahlung\s*600,00 € jährlich/.test(details), `the payment row says the amount and the interval (${details.replace(/\n/g, " | ")})`);
+  check(/Erste Abbuchung\s*05\.05\.2026/.test(details) && /Nächste Zahlung\s*05\.05\.2027/.test(details), "the first and the next debit are shown");
   await page.getByRole("tab", { name: "Kosten", exact: true }).click();
   check((await text("tr:has-text('Internet')")).includes("600 € / Jahr"), "the cost table shows the yearly instalment");
 
@@ -1156,6 +1158,7 @@ for (const width of [1280, 900, 600, 390]) {
   check((await dialogText()).includes("Die bisherige Laufzeit kommt in die Historie"), "the dialog says that the old term goes to the history");
   check((await field("beginn").inputValue()) === "2026-10-01" && (await field("ende").inputValue()) === "2027-09-30", "the new term starts the day after the old end and runs a year");
   check((await field("abschlag").inputValue()) === "39.99" && (await field("zahlweise").inputValue()) === "monthly", "the current amount and interval are filled in");
+  check((await field("erste_zahlung").count()) === 1 && (await field("erste_zahlung").inputValue()) === "", "the first debit of the new term can be given, and is empty by default");
   check((await dialogText()).includes("Betrag unverändert"), "an unchanged amount says so");
 
   await field("abschlag").fill("43,99");

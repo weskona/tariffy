@@ -27,6 +27,7 @@
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": "2026-09-30",
       "erinnerung_monate": 3,
+      "erste_zahlung": null,
       "grundpreis": 11.51,
       "guthaben_bisher": -261.24,
       "historie": [
@@ -71,6 +72,7 @@
       "kosten_jahr": 618.12,
       "kosten_nt_bisher": null,
       "laufzeiten_anzahl": 3,
+      "naechste_zahlung": null,
       "next": null,
       "prognose_real": -495.29,
       "restlaufzeit": 172,
@@ -117,6 +119,7 @@
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
       "erinnerung_monate": 0,
+      "erste_zahlung": null,
       "grundpreis": 9.5,
       "guthaben_bisher": 452.39,
       "historie": [],
@@ -130,6 +133,7 @@
       "kosten_jahr": 1794.0,
       "kosten_nt_bisher": null,
       "laufzeiten_anzahl": 1,
+      "naechste_zahlung": null,
       "next": null,
       "prognose_real": 524.42,
       "restlaufzeit": 50,
@@ -176,6 +180,7 @@
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
       "erinnerung_monate": 0,
+      "erste_zahlung": null,
       "grundpreis": 6.0,
       "guthaben_bisher": -13.14,
       "historie": [],
@@ -189,6 +194,7 @@
       "kosten_jahr": 408.0,
       "kosten_nt_bisher": null,
       "laufzeiten_anzahl": 1,
+      "naechste_zahlung": null,
       "next": null,
       "prognose_real": -24.81,
       "restlaufzeit": 172,
@@ -235,6 +241,7 @@
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
       "erinnerung_monate": 0,
+      "erste_zahlung": null,
       "grundpreis": 12.0,
       "guthaben_bisher": -186.57,
       "historie": [],
@@ -248,6 +255,7 @@
       "kosten_jahr": 804.0,
       "kosten_nt_bisher": 126.0,
       "laufzeiten_anzahl": 1,
+      "naechste_zahlung": null,
       "next": null,
       "prognose_real": -421.8,
       "restlaufzeit": 203,
@@ -294,6 +302,7 @@
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": "2026-06-30",
       "erinnerung_monate": 3,
+      "erste_zahlung": null,
       "grundpreis": null,
       "guthaben_bisher": null,
       "historie": [],
@@ -307,6 +316,7 @@
       "kosten_jahr": 479.88,
       "kosten_nt_bisher": null,
       "laufzeiten_anzahl": 1,
+      "naechste_zahlung": null,
       "next": null,
       "prognose_real": null,
       "restlaufzeit": 80,
@@ -353,6 +363,7 @@
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
       "erinnerung_monate": 0,
+      "erste_zahlung": null,
       "grundpreis": null,
       "guthaben_bisher": null,
       "historie": [],
@@ -366,6 +377,7 @@
       "kosten_jahr": 239.88,
       "kosten_nt_bisher": null,
       "laufzeiten_anzahl": 1,
+      "naechste_zahlung": null,
       "next": {
         "abschlag": 14.99,
         "anbieter": "Mobil Plus",
@@ -419,6 +431,7 @@
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
       "erinnerung_monate": 0,
+      "erste_zahlung": null,
       "grundpreis": 10.0,
       "guthaben_bisher": null,
       "historie": [
@@ -464,6 +477,7 @@
       "kosten_jahr": 540.0,
       "kosten_nt_bisher": null,
       "laufzeiten_anzahl": 2,
+      "naechste_zahlung": null,
       "next": null,
       "prognose_real": null,
       "restlaufzeit": -193,
@@ -1297,6 +1311,14 @@
                 "mode": "box",
                 "step": 0.01
               }
+            }
+          },
+          {
+            "name": "erste_zahlung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
             }
           },
           {
@@ -3967,6 +3989,14 @@
             }
           },
           {
+            "name": "erste_zahlung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
             "name": "grundpreis",
             "optional": true,
             "required": false,
@@ -4167,6 +4197,14 @@
                 "mode": "box",
                 "step": 0.01
               }
+            }
+          },
+          {
+            "name": "erste_zahlung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
             }
           },
           {

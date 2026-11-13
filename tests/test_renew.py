@@ -44,14 +44,14 @@ async def test_a_renewed_contract_runs_on_with_the_new_amount_and_keeps_the_old_
     (term,) = entry.data["_historie"]  # the old term
     assert term["beginn"] == "2025-01-01" and term["ende"] == "2025-12-31"
     assert term["abschlag"] == 50.0 and term["anbieter"] == "Versicherung AG" and term["tarif"] == "Kasko"
-    assert term["abschlag_gezahlt"] == pytest.approx(600.0, abs=5.0)  # the whole old year (accrued per day)
+    assert term["abschlag_gezahlt"] == 600.0  # the yearly premium, debited once
     assert "kundennummer" not in term
 
     now = entry.runtime_data.data
     assert now["abschlag_jahr"] == 660.0
     assert now["historie"] == entry.data["_historie"]
     assert now["restlaufzeit"] > 300  # a full new year
-    assert now["abschlag_bisher_gezahlt"] < 20  # counted from the new start, with the new amount
+    assert now["abschlag_bisher_gezahlt"] == 660.0  # the new premium, debited at the new start, with the new amount
 
 
 async def test_a_second_renewal_adds_a_second_term(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
@@ -144,3 +144,31 @@ async def test_administrators_only(
     reply = await _call(client, entry_id=entry.entry_id, values=NEW)
     assert reply["error"]["code"] == "unauthorized"
     assert entry.data["beginn"] == "2025-01-01"
+
+
+async def test_the_first_debit_of_the_new_term_can_be_given(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    client = await hass_ws_client()
+    old = {**INSURANCE, "erste_zahlung": "2025-01-15"}
+    entry, _ = await contract.setup(old, **{**GOLDEN, "today": "2026-01-10"})
+    reply = await _call(client, entry_id=entry.entry_id, values={**NEW, "erste_zahlung": "2026-01-20"})
+    assert reply["success"] is True
+    assert entry.data["erste_zahlung"] == "2026-01-20"
+    assert entry.runtime_data.data["naechste_zahlung"] is None or entry.runtime_data.data["naechste_zahlung"].isoformat() >= "2026-01-20"
+    assert entry.runtime_data.data["abschlag_bisher_gezahlt"] == 0.0  # the new premium is debited on the 20th, today is the 10th
+
+
+async def test_the_old_first_debit_does_not_follow_into_the_new_term(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    client = await hass_ws_client()
+    entry, _ = await contract.setup({**INSURANCE, "erste_zahlung": "2025-01-15"}, **{**GOLDEN, "today": "2026-01-10"})
+    await _call(client, entry_id=entry.entry_id, values=NEW)
+    assert "erste_zahlung" not in entry.data  # the new term starts with the debit on its start
+    assert entry.runtime_data.data["abschlag_bisher_gezahlt"] == 660.0
+
+
+async def test_an_invalid_first_debit_is_refused(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    client = await hass_ws_client()
+    entry, _ = await contract.setup(INSURANCE, **{**GOLDEN, "today": "2026-01-10"})
+    before = dict(entry.data)
+    reply = await _call(client, entry_id=entry.entry_id, values={**NEW, "erste_zahlung": "bald"})
+    assert reply["error"]["code"] == "invalid_dates"
+    assert dict(entry.data) == before
