@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.7] - 2026-11-13
+
+Siebter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Fixed
+
+- **Die "Kosten bisher" eines monatlich bezahlten Pauschalvertrags zählten einen Anteil der Tage, nicht die gebuchten Raten.** Ein Abo mit 17,99 € im Monat, das am 1. April begann, zeigte am 13. November 133,57 € (7,42 Monate). Bis dahin sind aber acht Raten gebucht (1. April bis 1. November): **143,92 €**. Ein Pauschalvertrag (Internet, Mobilfunk, Versicherung, Abos, ...) zählt jetzt jede Rate am Tag der Zahlung, so wie es bei vierteljährlicher, halbjährlicher und jährlicher Zahlung schon war. Das ändert auch die "Kosten gesamt über alle Laufzeiten" und eine Laufzeit, die danach archiviert oder verlängert wird. Die Jahreswerte, der Abschlag und alles bei Verbrauchsverträgen bleiben unverändert.
+
 ## [1.28.0-rc.6] - 2026-11-13
 
 Sechster Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

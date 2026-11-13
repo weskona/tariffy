@@ -648,7 +648,7 @@ for (const width of [1280, 900, 600, 390]) {
   const internet = await cells("Internet");
   const expected = await page.evaluate(() => window.__panel._contracts.find((c) => c.title === "Internet").abschlag_bisher_gezahlt);
   check(expected > 300, `the backend delivers the instalments due so far (${expected})`);
-  check(internet[1].includes("373"), `Internet: the cost so far is filled in (${internet[1]})`);
+  check(internet[1].includes("399"), `Internet: the cost so far is filled in (${internet[1]})`);
   check(internet[2] === "80 Tage" && internet[3] === "30.09.2026" && internet[4].startsWith("39,99 €"), `Internet: remaining term, end and instalment (${internet})`);
   check(internet[4].includes("480 € / Jahr"), "Internet: the yearly instalment stands under the monthly one");
   // both tables share one column grid: cost so far and instalment sit exactly below each other
@@ -714,7 +714,7 @@ for (const width of [1280, 900, 600, 390]) {
   check(tiles[0].text.includes("322,98 €") && tiles[0].text.includes("≈ 3.876 € / Jahr"), "instalments per month and per year");
   check(tiles[0].text.includes("Verbrauch 263,00 €") && tiles[0].text.includes("Pauschal 59,98 €"), "split into metered and flat-rate contracts");
   check(tiles[0].segments.length === 2 && Math.abs(tiles[0].segments[0] - 81.4) < 0.3 && Math.abs(tiles[0].segments[1] - 18.6) < 0.3, `the bar is proportional (${tiles[0].segments})`);
-  check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.772,18 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
+  check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.812,30 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
   check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo heute") && tiles[1].rows[0].includes("+46,44 €"), `balance so far (${tiles[1].rows})`);
   check(tiles[2].rows.length === 4 && tiles[2].rows[0].startsWith("Strom Haus") && tiles[2].rows[3].startsWith("Gas Heizung"), `forecast per contract, worst first (${tiles[2].rows})`);
   check(tiles[3].text.toLowerCase().includes("nächste termine") && tiles[3].rows.length === 2, `the next dates (${tiles[3].rows.length} more rows)`);
@@ -1239,11 +1239,11 @@ for (const width of [1280, 900, 600, 390]) {
   await page.evaluate(() => {
     const panel = window.__panel;
     panel._contracts = panel._contracts.map((c) => (c.title === "Internet"
-      ? { ...c, historie: [{ beginn: "2025-10-01", ende: "2026-09-30", abschlag_gezahlt: 480 }], kosten_gesamt: 853.1, kosten_gesamt_vollstaendig: true, laufzeiten_anzahl: 2, seit: "2025-10-01" } : c));
+      ? { ...c, historie: [{ beginn: "2025-10-01", ende: "2026-09-30", abschlag_gezahlt: 480 }], kosten_gesamt: 879.9, kosten_gesamt_vollstaendig: true, laufzeiten_anzahl: 2, seit: "2025-10-01" } : c));
     panel._render();
   });
   const internet = await text("section.card:has-text('Internet')");
-  check(/KOSTEN GESAMT\s*853,10 €/i.test(internet) && internet.includes("seit 01.10.2025 · 2 Laufzeiten"), `a flat-rate card has a tile for the total (${internet.replace(/\n/g, " | ")})`);
+  check(/KOSTEN GESAMT\s*879,90 €/i.test(internet) && internet.includes("seit 01.10.2025 · 2 Laufzeiten"), `a flat-rate card has a tile for the total (${internet.replace(/\n/g, " | ")})`);
 
   // a term without any cost: the total is a lower bound
   await page.evaluate(() => {
@@ -1251,7 +1251,7 @@ for (const width of [1280, 900, 600, 390]) {
     panel._contracts = panel._contracts.map((c) => (c.title === "Internet" ? { ...c, kosten_gesamt_vollstaendig: false } : c));
     panel._render();
   });
-  check((await text("section.card:has-text('Internet')")).includes("mindestens 853,10 €"), "an incomplete total says at least");
+  check((await text("section.card:has-text('Internet')")).includes("mindestens 879,90 €"), "an incomplete total says at least");
 
   // the contract list and the history tab
   await page.getByRole("tab", { name: "Verträge", exact: true }).click();
