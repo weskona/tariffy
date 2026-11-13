@@ -1336,7 +1336,9 @@ class TariffyPanel extends HTMLElement {
       dlg.values = {};
       dlg.refocus = true;
     }
-    dlg.final = dlg.mode === "next" || form.step_id !== (dlg.mode === "create" ? "user" : "reconfigure");
+    // Home Assistant says whether a step is the last one; without it every step after the first is
+    dlg.final = dlg.mode === "next" || (typeof form.last_step === "boolean" ? form.last_step
+      : form.step_id !== (dlg.mode === "create" ? "user" : "reconfigure"));
     dlg.fields = (form.data_schema || []).map((f) => this._fieldSpec(f, dlg, form.step_id));
     dlg.unsupported = dlg.fields.some((f) => !f.kind);
     dlg.hint = dlg.localize(`component.tariffy.${dlg.category}.step.${form.step_id}.description`) || "";

@@ -1279,6 +1279,43 @@
         "step_id": "gas",
         "type": "form"
       },
+      "insurance": {
+        "data_schema": [
+          {
+            "name": "versicherungsart",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "car",
+                  "house",
+                  "household",
+                  "liability",
+                  "health",
+                  "life",
+                  "legal",
+                  "accident",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "versicherungsart"
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "cflow-1",
+        "handler": "tariffy",
+        "last_step": false,
+        "preview": null,
+        "step_id": "versicherung",
+        "type": "form"
+      },
       "internet": {
         "data_schema": [
           {

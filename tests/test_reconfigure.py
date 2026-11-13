@@ -49,6 +49,8 @@ async def _reconfigure(hass, entry, first=None, second=None, drop=()):
         result["flow_id"], {**_form_defaults(result), **(first or {})}
     )
     assert result["type"] is FlowResultType.FORM
+    while result["step_id"].startswith("reconfigure_versicherung"):  # an insurance asks for its type (and car details)
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
     values = {**_form_defaults(result), **(second or {})}
     for name in drop:  # a field the user emptied: the panel leaves it out
         values.pop(name, None)
@@ -82,7 +84,7 @@ async def test_the_form_offers_the_name_first_with_the_current_one(frontend_env,
     assert str(first) == "name" and first.default() == "Test"
 
 
-@pytest.mark.parametrize("sparte", ["electricity", "gas", "internet", "insurance"])
+@pytest.mark.parametrize("sparte", ["electricity", "gas", "internet", "mobile"])
 async def test_the_name_can_be_changed(frontend_env, contract, hass, sparte):  # noqa: F811
     from homeassistant.helpers import device_registry as dr, entity_registry as er
 

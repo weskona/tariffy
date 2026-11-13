@@ -62,11 +62,19 @@ Wie Strom, zusätzlich:
 
 ## Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Versicherung, …)
 
+**Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Bei nicht monatlicher Zahlweise zählen die **Abbuchungen** zu den Kosten bisher; die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.
+
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
-| Monatlicher Abschlag | ✅ | €/Monat |
+| Zahlweise | ✅ | monatlich, vierteljährlich, halbjährlich oder jährlich |
+| Betrag pro Zahlung | ✅ | € pro Zahlung in der gewählten Zahlweise (zum Beispiel der Jahresbeitrag) |
+| Erste Abbuchung am | – | Nur bei nicht monatlicher Zahlweise; leer = Vertragsbeginn |
 | Grundpreis | – | €/Monat (falls separat ausgewiesen) |
-| Art der Versicherung | – | Nur bei Versicherungen: Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige |
-| Kennzeichen | – | Nur bei Versicherungen (Kfz). Wie die Kundennummer persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
-| Kilometerstand bei Vertragsbeginn | – | Nur bei Versicherungen (Kfz), in km |
-| Erlaubte Kilometer pro Jahr | – | Nur bei Versicherungen (Kfz), in km. Alle Versicherungsangaben dienen der Dokumentation, es wird nichts berechnet |
+
+**Versicherungen** haben vor den Kosten einen eigenen Schritt **Art der Versicherung** (Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige). **Nur bei einer Kfz-Versicherung** folgt danach ein Schritt mit Angaben zum Auto; alle anderen Arten gehen gleich weiter zu den Kosten. Alle Versicherungsangaben sind optional und dienen der Dokumentation, es wird nichts berechnet.
+
+| Feld (nur Kfz) | Pflicht | Beschreibung |
+|------|---------|-------------|
+| Kennzeichen | – | Wie die Kundennummer persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
+| Kilometerstand bei Vertragsbeginn | – | in km |
+| Erlaubte Kilometer pro Jahr | – | in km |

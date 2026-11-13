@@ -7,6 +7,15 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.3] - 2026-11-13
+
+Dritter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- **Eine Versicherung fragt nur nach dem, was zu ihrer Art passt.** Das Formular einer Versicherung zeigte Kennzeichen und Kilometerfelder bei jeder Art von Versicherung (auch bei einer Hausratversicherung). Die Versicherung hat jetzt vor den Kosten einen eigenen Schritt "Art der Versicherung"; nur bei einer **Kfz-Versicherung** werden Kennzeichen, Kilometerstand bei Beginn und erlaubte Kilometer in einem weiteren Schritt abgefragt, alle anderen Arten gehen direkt weiter zu den Kosten. Das gilt beim Anlegen und beim Bearbeiten, im Panel und in Home Assistant. Die gespeicherten Werte und die Sensoren bleiben gleich; wechselt man die Art weg von "Auto (Kfz)", fallen die Kfz-Angaben weg.
+- Das Panel übernimmt von Home Assistant, ob ein Schritt der letzte ist, damit ein Schritt mitten in einem längeren Formular "Weiter" sagt und nicht "Speichern".
+
 ## [1.28.0-rc.2] - 2026-11-13
 
 Zweiter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

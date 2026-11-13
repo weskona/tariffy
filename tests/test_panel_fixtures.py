@@ -219,7 +219,7 @@ async def _build(hass: HomeAssistant, freezer) -> tuple[list[dict], dict[str, di
     start["flow_id"], start["handler"] = "cflow-1", DOMAIN
     hass.config_entries.flow.async_abort(first["flow_id"])
     steps: dict[str, dict] = {}
-    for sparte in ("electricity", "electricity_ht_nt", "gas", "water", "internet"):
+    for sparte in ("electricity", "electricity_ht_nt", "gas", "water", "internet", "insurance"):
         result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
         values = {**_form_defaults(result), "name": "Neuer Vertrag", "sparte": sparte, "anbieter": "Anbieter"}
         result = await hass.config_entries.flow.async_configure(result["flow_id"], values)

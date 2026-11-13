@@ -89,6 +89,7 @@ from .const import (
     GAS_SPARTE,
     NEXT_PREFIX,
     SPARTEN,
+    VERSICHERUNGSART_KFZ,
     VERSICHERUNGSARTEN,
     VERBRAUCH_EINHEIT,
     VERBRAUCH_M3_EINHEIT,
@@ -596,28 +597,37 @@ def _zahlweise_von(d: dict[str, Any]) -> str:
     return zahlweise if zahlweise in ZAHLWEISE_MONATE else DEFAULT_ZAHLWEISE
 
 
-def _versicherung_fields(d: dict[str, Any]) -> dict[Any, Any]:
-    """Zusatzangaben einer Versicherung: Art und, fuer eine Kfz-Versicherung,
-    Kennzeichen, Kilometerstand bei Vertragsbeginn und Kilometer pro Jahr.
-    Alles optional und nur zur Dokumentation."""
+def _versicherungsart_schema(d: dict[str, Any]) -> vol.Schema:
+    """Eigener Schritt einer Versicherung: was sie versichert (optional, nur zur Dokumentation)."""
+    return vol.Schema(
+        {
+            _opt(CONF_VERSICHERUNGSART, d.get(CONF_VERSICHERUNGSART)): _select(
+                VERSICHERUNGSARTEN, translation_key=CONF_VERSICHERUNGSART
+            ),
+        }
+    )
+
+
+def _kfz_schema(d: dict[str, Any]) -> vol.Schema:
+    """Schritt nur fuer eine Kfz-Versicherung: Kennzeichen, Kilometerstand bei Vertragsbeginn und
+    Kilometer pro Jahr. Alles optional und nur zur Dokumentation."""
     km = selector.NumberSelector(
         selector.NumberSelectorConfig(
             min=0, step=1, mode=selector.NumberSelectorMode.BOX, unit_of_measurement="km"
         )
     )
-    return {
-        _opt(CONF_VERSICHERUNGSART, d.get(CONF_VERSICHERUNGSART)): _select(
-            VERSICHERUNGSARTEN, translation_key=CONF_VERSICHERUNGSART
-        ),
-        _opt(CONF_KENNZEICHEN, d.get(CONF_KENNZEICHEN)): selector.TextSelector(),
-        _opt(CONF_KM_START, d.get(CONF_KM_START)): km,
-        _opt(CONF_KM_PRO_JAHR, d.get(CONF_KM_PRO_JAHR)): km,
-    }
+    return vol.Schema(
+        {
+            _opt(CONF_KENNZEICHEN, d.get(CONF_KENNZEICHEN)): selector.TextSelector(),
+            _opt(CONF_KM_START, d.get(CONF_KM_START)): km,
+            _opt(CONF_KM_PRO_JAHR, d.get(CONF_KM_PRO_JAHR)): km,
+        }
+    )
 
 
-def _pauschal_schema(d: dict[str, Any], *, versicherung: bool = False) -> vol.Schema:
-    """Schritt 2 für Pauschalverträge (Internet, Mobilfunk, Versicherung, …); bei einer
-    Versicherung zusätzlich mit den Versicherungsangaben.
+def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
+    """Kosten-Schritt für Pauschalverträge (Internet, Mobilfunk, Versicherung, …); bei einer
+    Versicherung kommen die Versicherungsangaben in eigenen Schritten davor.
 
     Der Betrag wird pro Zahlung eingegeben (monatlich, vierteljährlich, halbjährlich,
     jährlich); gespeichert wird weiter der Betrag pro Monat (siehe _pauschal_monatlich)."""
@@ -631,7 +641,6 @@ def _pauschal_schema(d: dict[str, Any], *, versicherung: bool = False) -> vol.Sc
             vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
             _opt(CONF_ERSTE_ZAHLUNG, d.get(CONF_ERSTE_ZAHLUNG)): selector.DateSelector(),
             _opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS)): _preis(0.01),
-            **(_versicherung_fields(d) if versicherung else {}),
         }
     )
 
@@ -790,6 +799,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_energie_ht_nt()
             if user_input[CONF_SPARTE] in ENERGIE_SPARTEN:
                 return await self.async_step_energie()
+            if user_input[CONF_SPARTE] == SPARTE_INSURANCE:
+                return await self.async_step_versicherung()
             return await self.async_step_pauschal()
         return self.async_show_form(
             step_id="user", data_schema=_common_schema(self.hass, {}, mit_name=True)
@@ -832,11 +843,29 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             data = {**self._data, **_pauschal_monatlich(user_input)}
             return self.async_create_entry(title=self._entry_title, data=data)
+        return self.async_show_form(step_id="pauschal", data_schema=_pauschal_schema({}))
+
+    async def async_step_versicherung(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Was versichert der Vertrag? Nur eine Kfz-Versicherung fragt danach weiter."""
+        if user_input is not None:
+            self._data.update(user_input)
+            if user_input.get(CONF_VERSICHERUNGSART) == VERSICHERUNGSART_KFZ:
+                return await self.async_step_versicherung_kfz()
+            return await self.async_step_pauschal()
         return self.async_show_form(
-            step_id="pauschal",
-            data_schema=_pauschal_schema(
-                {}, versicherung=self._data.get(CONF_SPARTE) == SPARTE_INSURANCE
-            ),
+            step_id="versicherung", data_schema=_versicherungsart_schema({}), last_step=False
+        )
+
+    async def async_step_versicherung_kfz(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_pauschal()
+        return self.async_show_form(
+            step_id="versicherung_kfz", data_schema=_kfz_schema({}), last_step=False
         )
 
     async def async_step_gas(
@@ -882,6 +911,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_reconfigure_energie_ht_nt()
             if user_input[CONF_SPARTE] in ENERGIE_SPARTEN:
                 return await self.async_step_reconfigure_energie()
+            if user_input[CONF_SPARTE] == SPARTE_INSURANCE:
+                return await self.async_step_reconfigure_versicherung()
             return await self.async_step_reconfigure_pauschal()
         return self.async_show_form(
             step_id="reconfigure",
@@ -935,11 +966,35 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 entry, title=self._entry_title or entry.title, data=neu
             )
         return self.async_show_form(
-            step_id="reconfigure_pauschal",
-            data_schema=_pauschal_schema(
-                dict(entry.data),
-                versicherung=self._data.get(CONF_SPARTE, entry.data.get(CONF_SPARTE)) == SPARTE_INSURANCE,
-            ),
+            step_id="reconfigure_pauschal", data_schema=_pauschal_schema(dict(entry.data))
+        )
+
+    async def async_step_reconfigure_versicherung(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            self._data.update(user_input)
+            if user_input.get(CONF_VERSICHERUNGSART) == VERSICHERUNGSART_KFZ:
+                return await self.async_step_reconfigure_versicherung_kfz()
+            return await self.async_step_reconfigure_pauschal()
+        return self.async_show_form(
+            step_id="reconfigure_versicherung",
+            data_schema=_versicherungsart_schema(dict(entry.data)),
+            last_step=False,
+        )
+
+    async def async_step_reconfigure_versicherung_kfz(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_reconfigure_pauschal()
+        return self.async_show_form(
+            step_id="reconfigure_versicherung_kfz",
+            data_schema=_kfz_schema(dict(entry.data)),
+            last_step=False,
         )
 
     async def async_step_reconfigure_gas(
