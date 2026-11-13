@@ -35,6 +35,7 @@ from .const import (
     CONF_BRENNWERT,
     CONF_ENDE,
     CONF_ERINNERUNG_MONATE,
+    CONF_ERSTE_ZAHLUNG,
     CONF_ARCHIVIERT,
     CONF_GAS_EINHEIT,
     CONF_GRUNDPREIS,
@@ -164,7 +165,9 @@ def _abschlag_bisher_gezahlt(
     """
     ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
     vorheriger_wert = data.get(CONF_ABSCHLAG_VORHERIGER_WERT)
-    if ab_datum is None or vorheriger_wert is None or ab_datum <= beginn:
+    # Ein vorheriger Wert von 0 heisst: vorher war kein Abschlag eingetragen (aeltere Staende haben
+    # so einen Stempel noch); dann gilt der Betrag fuer die ganze Laufzeit.
+    if ab_datum is None or not vorheriger_wert or ab_datum <= beginn:
         return abschlag * vergangene_monate
     monate_alt = (ab_datum - beginn).days / 30.44
     if monate_alt >= vergangene_monate:
@@ -192,6 +195,41 @@ def _minus_months(d: date, months: int) -> date:
     month = index % 12 + 1
     day = min(d.day, calendar.monthrange(year, month)[1])
     return date(year, month, day)
+
+
+def _plus_months(d: date, months: int) -> date:
+    return _minus_months(d, -months)
+
+
+def _abschlag_nach_zahlungen(
+    abschlag: float,
+    intervall: int,
+    beginn: date,
+    ende: date | None,
+    heute: date,
+    data: dict[str, Any],
+) -> tuple[float, date | None]:
+    """Bis heute tatsaechlich abgebuchte Betraege bei nicht monatlicher Zahlweise (zum Beispiel eine
+    Versicherung, die jaehrlich im Voraus bezahlt wird): gezaehlt wird jede Zahlung ab der ersten
+    Abbuchung (leer = Vertragsbeginn), nicht ein monatlicher Anteil. Gibt auch die naechste Zahlung
+    zurueck. Eine Preisaenderung gilt fuer Zahlungen ab ihrem Datum."""
+    erste = _parse_date(data.get(CONF_ERSTE_ZAHLUNG)) or beginn
+    bis = min(heute, ende) if ende is not None else heute
+    ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
+    vorher = _f(data.get(CONF_ABSCHLAG_VORHERIGER_WERT))
+    summe = 0.0
+    zahlung = 0
+    while zahlung < 1200:
+        termin = _plus_months(erste, zahlung * intervall)
+        if termin > bis:
+            break
+        monatlich = vorher if (ab_datum is not None and vorher and termin < ab_datum) else abschlag
+        summe += round(monatlich * intervall, 2)
+        zahlung += 1
+    naechste = _plus_months(erste, zahlung * intervall)
+    if naechste <= heute or (ende is not None and naechste > ende):
+        naechste = None
+    return round(summe, 2), naechste
 
 
 def _entry_sum_state(entry: dict) -> tuple[float | None, float | None]:
@@ -1073,13 +1111,21 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # sind das die Kosten bisher. Bewusst nur ein Datenwert, kein Sensor: bestehende
         # Installationen bekommen dadurch keine neuen Entitaeten.
         abschlag_bisher_gezahlt_wert: float | None = None
+        naechste_zahlung: date | None = None
         if abschlag is not None and beginn is not None:
-            monate_bisher = max(0, (heute - beginn).days) / 30.44
-            if ende is not None:
-                monate_bisher = min(monate_bisher, laufzeit_monate)
-            abschlag_bisher_gezahlt_wert = round(
-                _abschlag_bisher_gezahlt(abschlag, monate_bisher, beginn, data), 2
-            )
+            if sparte not in METERED_SPARTEN and zahlweise != DEFAULT_ZAHLWEISE:
+                # Pauschalvertrag mit Zahlung im Voraus (quartalsweise bis jaehrlich): gezaehlt werden
+                # die Abbuchungen, nicht ein monatlicher Anteil
+                abschlag_bisher_gezahlt_wert, naechste_zahlung = _abschlag_nach_zahlungen(
+                    abschlag, ZAHLWEISE_MONATE[zahlweise], beginn, ende, heute, data
+                )
+            else:
+                monate_bisher = max(0, (heute - beginn).days) / 30.44
+                if ende is not None:
+                    monate_bisher = min(monate_bisher, laufzeit_monate)
+                abschlag_bisher_gezahlt_wert = round(
+                    _abschlag_bisher_gezahlt(abschlag, monate_bisher, beginn, data), 2
+                )
 
         # ---- Echte Verbrauchsmessung via Sensor ----
         verbrauch_sensor = data.get(CONF_VERBRAUCH_SENSOR)
@@ -1449,6 +1495,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "abschlag_jahr": abschlag_jahr,
             "abschlag_je_zahlung": abschlag_je_zahlung,
             "kosten_jahr": kosten_jahr,
+            "erste_zahlung": _parse_date(data.get(CONF_ERSTE_ZAHLUNG)),
+            "naechste_zahlung": naechste_zahlung,
             "abschlag_bisher_gezahlt": abschlag_bisher_gezahlt_wert,
             "verbrauch_bisher": verbrauch_bisher,
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,

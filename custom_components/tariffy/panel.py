@@ -88,6 +88,8 @@ CONTRACT_FIELDS = (
     "abschlag_jahr",
     "abschlag_je_zahlung",
     "kosten_jahr",
+    "erste_zahlung",
+    "naechste_zahlung",
     "jahreskosten",
     "verbrauch_bisher",
     "verbrauch_bisher_ht",

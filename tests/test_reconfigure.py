@@ -40,7 +40,7 @@ def _form_defaults(form) -> dict:
 from voluptuous.schema_builder import UNDEFINED as vol_UNDEFINED  # noqa: E402
 
 
-async def _reconfigure(hass, entry, first=None, second=None):
+async def _reconfigure(hass, entry, first=None, second=None, drop=()):
     result = await hass.config_entries.flow.async_init(
         "tariffy", context={"source": "reconfigure", "entry_id": entry.entry_id}
     )
@@ -49,9 +49,10 @@ async def _reconfigure(hass, entry, first=None, second=None):
         result["flow_id"], {**_form_defaults(result), **(first or {})}
     )
     assert result["type"] is FlowResultType.FORM
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {**_form_defaults(result), **(second or {})}
-    )
+    values = {**_form_defaults(result), **(second or {})}
+    for name in drop:  # a field the user emptied: the panel leaves it out
+        values.pop(name, None)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], values)
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
     await hass.async_block_till_done()

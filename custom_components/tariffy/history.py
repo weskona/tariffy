@@ -29,6 +29,7 @@ from .const import (
     CONF_BEGINN,
     CONF_BRENNWERT,
     CONF_ENDE,
+    CONF_ERSTE_ZAHLUNG,
     CONF_GRUNDPREIS,
     CONF_HISTORIE,
     CONF_SPARTE,
@@ -251,6 +252,7 @@ _RENEW_RESET = (
     "_abschlag_warnung_bestaetigt",
     "_abschlag_warnung_notify_gesendet",
     CONF_ARCHIVIERT,
+    CONF_ERSTE_ZAHLUNG,
 )
 
 
@@ -270,9 +272,18 @@ async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str,
     if zahlweise not in ZAHLWEISE_MONATE:
         raise HistoryError("invalid_zahlweise")
 
+    erste = values.get("erste_zahlung")
+    if erste not in (None, ""):
+        try:
+            erste = date.fromisoformat(str(erste)).isoformat()
+        except ValueError as err:
+            raise HistoryError("invalid_dates") from err
+
     historie = list(entry.data.get(CONF_HISTORIE) or [])
     historie.append(coordinator._historie_eintrag(dt_util.now().date()))
     data = {key: value for key, value in entry.data.items() if key not in _RENEW_RESET}
+    if erste not in (None, ""):
+        data[CONF_ERSTE_ZAHLUNG] = erste
     data.update(
         {
             CONF_BEGINN: beginn.isoformat(),

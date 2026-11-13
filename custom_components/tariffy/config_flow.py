@@ -53,6 +53,7 @@ from .const import (
     CONF_TARIF,
     CONF_VERSICHERUNGSART,
     CONF_ZAEHLERNUMMER,
+    CONF_ERSTE_ZAHLUNG,
     CONF_ZAHLWEISE,
     CONF_ZUSTANDSZAHL,
     CONF_ABWASSER_TYP,
@@ -168,6 +169,9 @@ def _stamp_abschlag_change(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str
     bereits_heute_gestempelt = alt.get(CONF_ABSCHLAG_AB_DATUM) == heute
     if (
         alter_abschlag is not None
+        # War vorher kein Abschlag eingetragen (0 ist der Vorgabewert beim Anlegen), ist das Eintragen
+        # keine Preisaenderung: der Betrag gilt dann fuer die ganze Laufzeit.
+        and float(alter_abschlag) > 0
         and neuer_abschlag is not None
         and round(float(alter_abschlag), 2) != round(float(neuer_abschlag), 2)
         and not bereits_heute_gestempelt
@@ -625,6 +629,7 @@ def _pauschal_schema(d: dict[str, Any], *, versicherung: bool = False) -> vol.Sc
                 list(ZAHLWEISE_MONATE), translation_key="zahlweise"
             ),
             vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
+            _opt(CONF_ERSTE_ZAHLUNG, d.get(CONF_ERSTE_ZAHLUNG)): selector.DateSelector(),
             _opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS)): _preis(0.01),
             **(_versicherung_fields(d) if versicherung else {}),
         }

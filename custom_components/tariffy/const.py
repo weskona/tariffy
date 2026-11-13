@@ -149,6 +149,8 @@ METERED_SPARTEN = frozenset({"electricity", "electricity_ht_nt", "gas", "water"}
 CONF_ZAHLWEISE = "zahlweise"
 ZAHLWEISE_MONATE = {"monthly": 1, "quarterly": 3, "halfyearly": 6, "yearly": 12}
 DEFAULT_ZAHLWEISE = "monthly"
+# Datum der ersten Abbuchung bei nicht monatlicher Zahlweise (leer = am Vertragsbeginn)
+CONF_ERSTE_ZAHLUNG = "erste_zahlung"
 
 # Vertragshistorie: beim Tarifwechsel wird die alte Laufzeit als Eintrag in
 # `_historie` gesichert (die Vertragsdaten werden dabei ueberschrieben); ein

@@ -260,6 +260,7 @@
         "data": {
           "zahlweise": "Payment interval",
           "abschlag": "Amount per payment (€)",
+          "erste_zahlung": "Date of the first debit",
           "grundpreis": "Base price (€/month)",
           "versicherungsart": "Type of insurance",
           "kennzeichen": "Licence plate (car)",
@@ -269,6 +270,7 @@
         "data_description": {
           "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
           "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
+          "erste_zahlung": "Only for quarterly, half-yearly or yearly payment: the day the first amount is debited. Empty = the contract start. The following debits follow at the interval.",
           "grundpreis": "Optional base charge if billed separately from the instalment",
           "versicherungsart": "Optional: what the insurance covers",
           "kennzeichen": "Optional, for a car insurance. Treated like the customer number: not shown in the side panel",
@@ -282,6 +284,7 @@
         "data": {
           "zahlweise": "Payment interval",
           "abschlag": "Amount per payment (€)",
+          "erste_zahlung": "Date of the first debit",
           "grundpreis": "Base price (€/month)",
           "versicherungsart": "Type of insurance",
           "kennzeichen": "Licence plate (car)",
@@ -291,6 +294,7 @@
         "data_description": {
           "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
           "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
+          "erste_zahlung": "Only for quarterly, half-yearly or yearly payment: the day the first amount is debited. Empty = the contract start. The following debits follow at the interval.",
           "grundpreis": "Optional base charge if billed separately from the instalment",
           "versicherungsart": "Optional: what the insurance covers",
           "kennzeichen": "Optional, for a car insurance. Treated like the customer number: not shown in the side panel",

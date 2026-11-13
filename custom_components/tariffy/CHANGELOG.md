@@ -7,6 +7,22 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.2] - 2026-11-13
+
+Zweiter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Fixed
+
+- **"Kosten bisher" war 0,00 €, wenn der Abschlag erst nach dem Anlegen eingetragen wurde.** Das Feld Abschlag steht beim Anlegen eines Vertrags auf 0; den echten Betrag später einzutragen, wurde als Preisänderung von 0 behandelt und zählte den alten Wert (0) für die ganze Laufzeit. Ein vorheriger Wert von 0 heißt jetzt "vorher gab es keinen Abschlag", und der Betrag gilt für die ganze Laufzeit. Bereits betroffene Verträge werden von selbst korrigiert, es muss nichts neu eingetragen werden.
+
+### Changed
+
+- **Die Kosten bisher von Pauschalverträgen mit Zahlung im Voraus (vierteljährlich, halbjährlich, jährlich) zählen die Abbuchungen.** Eine Versicherung, die kurz nach Beginn jährlich bezahlt wurde, zeigte bisher einen monatlichen Anteil; jetzt zeigt sie, was abgebucht wurde: den ganzen Beitrag nach der ersten Abbuchung, nach einem Jahr die zweite. Tariffy nimmt die erste Abbuchung am Vertragsbeginn an. Monatliche Verträge bleiben unverändert.
+
+### Added
+
+- **Erste Abbuchung am** (optional) im Kosten-Schritt von Pauschalverträgen und im Dialog zum Verlängern: der Tag, an dem der erste Betrag abgebucht wird; die weiteren folgen im Abstand der Zahlweise. Die Vertragsdetails zeigen die erste und die nächste Zahlung.
+
 ## [1.28.0-rc.1] - 2026-11-13
 
 Erster Release Candidate von 1.28.0 (die Nummerierung geht mit `rc` weiter, weil GitHub `beta.10` unter `beta.2` einsortieren würde, siehe "Beta-Releases" in der Dokumentation). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

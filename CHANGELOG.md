@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.2] - 2026-11-13
+
+Second release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- **"Cost so far" was 0.00 € when the instalment was filled in after the contract was created.** The instalment field starts with 0 when a contract is created; filling in the real amount later was treated as a price change from 0 and counted the old value (0) for the whole term. A previous value of 0 now means "there was no instalment before", and the amount counts for the whole term. Contracts that were already affected are corrected on their own, nothing has to be entered again.
+
+### Changed
+
+- **Cost so far for flat-rate contracts that are paid in advance (quarterly, half-yearly, yearly) counts the debits.** An insurance paid yearly shortly after its start used to show a monthly share; now it shows what was debited: the whole premium after the first debit, the second one after a year. Tariffy assumes the first debit at the contract start. Monthly contracts are unchanged.
+
+### Added
+
+- **Date of the first debit** (optional) in the cost step of flat-rate contracts and in the renew dialog: the day the first amount is debited; the following debits come at the interval. The contract details show the first and the next payment.
+
 ## [1.28.0-rc.1] - 2026-11-13
 
 First release candidate of 1.28.0 (the numbering continues with `rc` because GitHub would list `beta.10` below `beta.2`, see "Beta releases" in the documentation). Please report problems with the bug report form and mention this exact version.

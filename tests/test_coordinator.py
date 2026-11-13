@@ -957,8 +957,10 @@ class TestYearlyValuesAndPaymentInterval:
     async def test_nothing_else_changes(self, setup_contract):
         _, monthly = await setup_contract(dict(self.INSURANCE), today="2026-07-12")
         _, yearly = await setup_contract({**self.INSURANCE, "zahlweise": "yearly"}, today="2026-07-12")
-        for key in ("abschlag", "jahreskosten", "abschlag_bisher_gezahlt", "restlaufzeit"):
+        for key in ("abschlag", "jahreskosten", "restlaufzeit"):
             assert monthly[key] == yearly[key], key
+        # what was paid so far follows the debits, not a monthly share (see TestPaymentsByDebit)
+        assert monthly["abschlag_bisher_gezahlt"] < yearly["abschlag_bisher_gezahlt"]
 
 
 class TestTotalCostOverAllTerms:
@@ -1021,3 +1023,77 @@ class TestTotalCostOverAllTerms:
             latest=(2481.17, 2481.17), offset=(1000.0, 1000.0), sensor_states={SENSOR: "2481.17"}))
         assert d["kosten_gesamt"] == pytest.approx(900.0 + d["kosten_bisher"], abs=0.01)
         assert d["laufzeiten_anzahl"] == 2
+
+
+class TestPaymentsByDebit:
+    """A flat-rate contract paid quarterly to yearly in advance: the cost so far is what was debited."""
+
+    YEARLY = {
+        "sparte": "insurance",
+        "anbieter": "Allianz",
+        "abschlag": 74.719167,  # 896.63 a year
+        "zahlweise": "yearly",
+        "beginn": "2025-05-01",
+        "ende": "2027-04-30",
+    }
+
+    async def test_the_premium_counts_from_the_first_debit(self, setup_contract):
+        _, d = await setup_contract(self.YEARLY, today="2025-05-20")
+        assert d["abschlag_bisher_gezahlt"] == 896.63  # paid shortly after the start
+        assert d["naechste_zahlung"].isoformat() == "2026-05-01"
+
+    async def test_each_year_adds_a_debit(self, setup_contract):
+        _, d = await setup_contract(self.YEARLY, today="2026-11-13")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(2 * 896.63, abs=0.01)  # May 2025 and May 2026
+        assert d["naechste_zahlung"] is None  # the contract ends before the next one is due
+
+    async def test_the_day_of_the_debit_counts(self, setup_contract):
+        _, before = await setup_contract(self.YEARLY, today="2026-04-30")
+        assert before["abschlag_bisher_gezahlt"] == 896.63
+        _, on = await setup_contract(self.YEARLY, today="2026-05-01")
+        assert on["abschlag_bisher_gezahlt"] == pytest.approx(2 * 896.63, abs=0.01)
+
+    async def test_a_date_of_the_first_debit_overrides_the_start(self, setup_contract):
+        _, d = await setup_contract({**self.YEARLY, "erste_zahlung": "2025-06-15"}, today="2026-06-01")
+        assert d["abschlag_bisher_gezahlt"] == 896.63  # the second debit is on 2026-06-15
+        assert d["naechste_zahlung"].isoformat() == "2026-06-15"
+        assert d["erste_zahlung"].isoformat() == "2025-06-15"
+
+    async def test_nothing_is_paid_before_the_first_debit(self, setup_contract):
+        _, d = await setup_contract({**self.YEARLY, "erste_zahlung": "2025-06-15"}, today="2025-05-20")
+        assert d["abschlag_bisher_gezahlt"] == 0.0
+        assert d["naechste_zahlung"].isoformat() == "2025-06-15"
+
+    @pytest.mark.parametrize(
+        ("zahlweise", "today", "expected"),
+        [("quarterly", "2025-08-15", 2 * 224.16), ("halfyearly", "2025-12-01", 2 * 448.32), ("quarterly", "2025-04-01", 0.0)],
+    )
+    async def test_quarterly_and_half_yearly(self, setup_contract, zahlweise, today, expected):
+        _, d = await setup_contract({**self.YEARLY, "zahlweise": zahlweise}, today=today)
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(expected, abs=0.02)
+
+    async def test_the_end_of_the_term_stops_the_debits(self, setup_contract):
+        _, d = await setup_contract({**self.YEARLY, "ende": "2026-04-30"}, today="2026-11-13")
+        assert d["abschlag_bisher_gezahlt"] == 896.63  # the debit of 2026-05-01 belongs to the next term
+        assert d["naechste_zahlung"] is None
+
+    async def test_monthly_contracts_still_accrue_per_month(self, setup_contract):
+        data = {**self.YEARLY, "zahlweise": "monthly", "abschlag": 50.0}
+        _, d = await setup_contract(data, today="2025-07-01")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(50.0 * 61 / 30.44, abs=0.01)
+        assert d["naechste_zahlung"] is None
+
+    async def test_a_price_change_applies_to_the_debits_after_it(self, setup_contract):
+        data = {**self.YEARLY, "abschlag": 80.0, "_abschlag_ab_datum": "2026-03-01", "_abschlag_vorheriger_wert": 70.0}
+        _, d = await setup_contract(data, today="2026-11-13")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(70.0 * 12 + 80.0 * 12, abs=0.01)  # 2025-05 old, 2026-05 new
+
+
+class TestInstalmentEnteredAfterwards:
+    """0 is the default when a contract is created: filling the amount in later is no price change."""
+
+    async def test_a_stamp_with_a_previous_value_of_zero_is_ignored(self, setup_contract):
+        data = {"sparte": "insurance", "anbieter": "X", "abschlag": 50.0, "beginn": "2026-01-01", "ende": "2026-12-31",
+                "_abschlag_ab_datum": "2026-07-12", "_abschlag_vorheriger_wert": 0.0}
+        _, d = await setup_contract(data, today="2026-07-12")
+        assert d["abschlag_bisher_gezahlt"] == pytest.approx(50.0 * 192 / 30.44, abs=0.01)  # not 0
