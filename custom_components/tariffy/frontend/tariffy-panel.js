@@ -48,6 +48,7 @@ const I18N = {
     unitPrice: "Unit price", unitPriceLow: "Unit price low tariff", unitPriceNight: "Unit price night",
     unitPriceEff: "Unit price effective", unitPriceWater: "Water price incl. wastewater",
     basePrice: "Base price", perMonth: "/ month",
+    totalCost: "Total cost", totalSince: "since {d}", termsOne: "1 term", termsMany: "{n} terms", atLeast: "at least {v}",
     actRenew: "Renew contract", renewTitle: "Renew contract", renewGo: "Renew",
     renewHint: "The current term goes to the history. The contract runs on with the new start, end and amount; reminders start over. Use it when the premium or price changes at the end of the term.",
     rf_zahlweise: "Payment interval", rf_abschlag: "Amount per payment (€)",
@@ -174,6 +175,7 @@ const I18N = {
     unitPrice: "Arbeitspreis", unitPriceLow: "Arbeitspreis Niedertarif", unitPriceNight: "Arbeitspreis Nacht",
     unitPriceEff: "Arbeitspreis effektiv", unitPriceWater: "Wasserpreis inkl. Abwasser",
     basePrice: "Grundpreis", perMonth: "/ Monat",
+    totalCost: "Kosten gesamt", totalSince: "seit {d}", termsOne: "1 Laufzeit", termsMany: "{n} Laufzeiten", atLeast: "mindestens {v}",
     actRenew: "Vertrag verlängern", renewTitle: "Vertrag verlängern", renewGo: "Verlängern",
     renewHint: "Die bisherige Laufzeit kommt in die Historie. Der Vertrag läuft mit neuem Beginn, Ende und Betrag weiter; die Erinnerungen beginnen neu. Nutze es, wenn sich Beitrag oder Preis zum Ende der Laufzeit ändert.",
     rf_zahlweise: "Zahlweise", rf_abschlag: "Betrag pro Zahlung (€)",
@@ -484,6 +486,8 @@ tr.sub td:first-child { padding-left: 32px; }
 .hist-head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
 .hist-head .who { flex: 1; }
 .hist .actions { margin-top: 10px; }
+.hist-total { margin: 8px 2px 0; }
+.hist-total b { color: var(--text); }
 .bk { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: grid; gap: 12px; }
 .bk p { margin: 0; font-size: 13px; color: var(--muted); }
 .bk-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; justify-content: space-between; }
@@ -1009,6 +1013,18 @@ class TariffyPanel extends HTMLElement {
     );
   }
 
+  /* Cost over all terms of a contract (earlier ones from the history plus the running one): value and
+   * "since 01.06.2024 · 3 terms". Only for contracts that have a history; the sum is a lower bound when a
+   * term has no cost. */
+  _total(c) {
+    if (!(c.historie || []).length || !isNum(c.kosten_gesamt)) return null;
+    const value = this._money(c.kosten_gesamt, c.currency, { digits: 2 });
+    const n = c.laufzeiten_anzahl;
+    const since = [c.seit ? this._t("totalSince", { d: this._date(c.seit) }) : null,
+      isNum(n) ? this._t(n === 1 ? "termsOne" : "termsMany", { n }) : null].filter(Boolean).join(" · ");
+    return { value: c.kosten_gesamt_vollstaendig === false ? this._t("atLeast", { v: value }) : value, since };
+  }
+
   /* Cost so far: measured for metered contracts, the instalments due until today for flat-rate ones. */
   _costSoFar(c) {
     if (isNum(c.kosten_bisher)) return c.kosten_bisher;
@@ -1096,6 +1112,7 @@ class TariffyPanel extends HTMLElement {
     // three figures at most; the remaining term goes into the footer line
     const tiles = flat ? [
       isNum(this._costSoFar(c)) ? this._tile(this._t("costSoFar"), this._money(this._costSoFar(c), c.currency, { digits: 2 })) : null,
+      this._total(c) ? this._tile(this._t("totalCost"), this._total(c).value, this._total(c).since) : null,
       c.ende ? this._tile(this._t("contractEnd"), this._date(c.ende)) : null,
     ] : d.measured
       ? [
@@ -1117,6 +1134,9 @@ class TariffyPanel extends HTMLElement {
         c.ende ? ` · ${this._t("until", { d: this._date(c.ende) })}` : ""));
     } else if (flat) {
       foot.push(h("span", { text: this._t("noEnd") }));
+    }
+    if (!flat && this._total(c)) { // the flat-rate cards have a tile for it
+      foot.push(h("span", {}, `${this._t("totalCost")} `, h("b", { text: this._total(c).value }), ` · ${this._total(c).since}`));
     }
     if (flat || !d.measured) {
       foot.push(h("span", {}, `${this._t("reminder")} `, h("b", { text: c.erinnerung_datum ? this._date(c.erinnerung_datum) : this._t("reminderOff") })));
@@ -2187,6 +2207,8 @@ class TariffyPanel extends HTMLElement {
           .concat(this._isAdmin ? [""] : []).map((label) => h("th", { text: label })))),
         // newest first; `index` is the position in the stored list (oldest first), needed to edit a term
         h("tbody", {}, (c.historie || []).map((t, index) => [t, index]).reverse().map(([t, index]) => termRow(c, t, index)))),
+      this._total(c) ? h("p", { class: "hint hist-total" }, `${this._t("totalCost")}: `,
+        h("b", { text: this._total(c).value }), ` · ${this._total(c).since}`) : null,
       // the acknowledgements belong to the contract list; here only archiving and restoring
       this._actions(c, ["archive_contract", "restore_contract"]));
     const group = (key, list) => (list.length ? h("section", { class: "group" },
@@ -2267,6 +2289,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("payment"), c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)
           ? `${money(c.abschlag_je_zahlung)} ${this._t("interval")[c.zahlweise] || c.zahlweise}` : null),
         row(this._t("costSoFar"), !METERED.has(c.sparte) && isNum(this._costSoFar(c)) ? money(this._costSoFar(c)) : null),
+        row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),

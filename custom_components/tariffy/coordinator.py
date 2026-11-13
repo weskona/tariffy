@@ -484,6 +484,49 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "abgeschlossen": heute.isoformat(),
         }
 
+    def _gesamtkosten(
+        self,
+        data: dict[str, Any],
+        beginn: date | None,
+        kosten_bisher: float | None,
+        abschlag_bisher: float | None,
+        archiviert: bool,
+    ) -> dict[str, Any]:
+        """Kosten ueber alle Laufzeiten des Vertrags: die frueheren aus der Historie plus die
+        laufende. Bei einem archivierten Vertrag steht die letzte Laufzeit schon in der Historie
+        (das Archivieren legt sie dort ab), sie wird nicht doppelt gezaehlt."""
+        historie = list(data.get(CONF_HISTORIE) or [])
+        summe = 0.0
+        vollstaendig = True
+        beginne: list[date] = []
+        for term in historie:
+            kosten = _f(term.get("kosten"))
+            if kosten is None:
+                kosten = _f(term.get("abschlag_gezahlt"))
+            if kosten is None:
+                vollstaendig = False
+            else:
+                summe += kosten
+            fruehester = _parse_date(term.get(CONF_BEGINN))
+            if fruehester is not None:
+                beginne.append(fruehester)
+        laufzeiten = len(historie)
+        if not archiviert:
+            laufzeiten += 1
+            laufende = kosten_bisher if kosten_bisher is not None else abschlag_bisher
+            if laufende is None:
+                vollstaendig = False
+            else:
+                summe += laufende
+            if beginn is not None:
+                beginne.append(beginn)
+        return {
+            "kosten_gesamt": round(summe, 2) if (summe or vollstaendig) else None,
+            "kosten_gesamt_vollstaendig": vollstaendig,
+            "laufzeiten_anzahl": laufzeiten,
+            "seit": min(beginne) if beginne else None,
+        }
+
     async def async_archive(self) -> None:
         """Archiviert den abgelaufenen Vertrag: ein Merker plus die letzte Laufzeit
         als Historien-Eintrag. Nichts wird geloescht, alle Entitaeten bleiben."""
@@ -1431,6 +1474,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 ende is not None and ende < heute and not nxt and not archiviert
             ),
             "historie": list(data.get(CONF_HISTORIE) or []),
+            **self._gesamtkosten(data, beginn, kosten_bisher, abschlag_bisher_gezahlt_wert, archiviert),
             # Pauschalvertrag mit Ende, nicht archiviert: laesst sich verlaengern (neuer Betrag, neues Ende)
             "verlaengerbar": bool(
                 sparte not in METERED_SPARTEN and ende is not None and not archiviert
