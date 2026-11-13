@@ -67,7 +67,7 @@ Verbrauchsverträge (Strom, Gas, Wasser) haben dafür den **Folgevertrag**, der 
 
 ## Kosten bisher bei Pauschalverträgen
 
-Bei Pauschalverträgen (Internet, Mobilfunk, Versicherung, Abos, ...) sind die **Kosten bisher** die **gebuchten Raten**: Jede Rate zählt am Tag der Zahlung, bei monatlicher Zahlung am Monatstag des Beginns (Beginn 1. April, Rate 17,99 €: am 13. November sind es acht Raten = 143,92 €). Bei quartalsweiser, halbjährlicher und jährlicher Zahlung zählt jede Abbuchung (mit dem Feld „Erste Abbuchung“ legst du ihren Tag fest). Eine Abschlagsänderung gilt für die Raten ab ihrem Datum.
+Bei Pauschalverträgen (Internet, Mobilfunk, Versicherung, Abos, ...) sind die **Kosten bisher** die **gebuchten Raten**: Bei monatlicher Zahlung zählt die Rate eines Monats **ab dem ersten Tag dieses Monats**, egal an welchem Tag abgebucht wird (Beginn 1. April, Rate 17,99 €: am 13. November sind es acht Raten = 143,92 €, auch wenn die Abbuchung am 27. ist). Bei quartalsweiser, halbjährlicher und jährlicher Zahlung zählt jede Abbuchung am Tag der Zahlung (mit dem Feld „Erste Abbuchung“ legst du ihren Tag fest). Eine Abschlagsänderung gilt für die Raten ab ihrem Datum.
 
 ## Gesamtkosten über alle Laufzeiten
 

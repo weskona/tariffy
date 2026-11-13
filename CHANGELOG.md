@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.8] - 2026-11-13
+
+Eighth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- **A monthly rate counts as soon as its month has begun.** With a first debit on the 27th, the rate of the 27th of the current month was only counted from the 27th on, so the "cost so far" of a subscription was one rate behind for most of the month. Now the rate of a month counts from the first day of that month, whatever the day of the debit. This applies to monthly payment; quarterly, half-yearly and yearly debits still count on their payment day. The next payment shown for those is unchanged.
+
 ## [1.28.0-rc.7] - 2026-11-13
 
 Seventh release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.

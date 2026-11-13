@@ -250,24 +250,35 @@ def _abschlag_nach_zahlungen(
 ) -> tuple[float, date | None]:
     """Bis heute tatsaechlich abgebuchte Betraege bei nicht monatlicher Zahlweise (zum Beispiel eine
     Versicherung, die jaehrlich im Voraus bezahlt wird): gezaehlt wird jede Zahlung ab der ersten
-    Abbuchung (leer = Vertragsbeginn), nicht ein monatlicher Anteil. Gibt auch die naechste Zahlung
+    Abbuchung (leer = Vertragsbeginn), nicht ein monatlicher Anteil. Bei monatlicher Zahlung zaehlt
+    eine Rate, sobald ihr Monat begonnen hat, auch wenn der Tag im Monat noch aussteht. Gibt auch die naechste Zahlung
     zurueck. Eine Preisaenderung gilt fuer Zahlungen ab ihrem Datum."""
     erste = _parse_date(data.get(CONF_ERSTE_ZAHLUNG)) or beginn
-    bis = min(heute, ende) if ende is not None else heute
+    monat_heute = (heute.year, heute.month)
     ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
     vorher = _f(data.get(CONF_ABSCHLAG_VORHERIGER_WERT))
     summe = 0.0
     zahlung = 0
+    naechste: date | None = None
     while zahlung < 1200:
         termin = _plus_months(erste, zahlung * intervall)
-        if termin > bis:
+        if ende is not None and termin > ende:
+            break
+        if termin > heute and naechste is None:
+            naechste = termin
+        # Monatliche Zahlung: die Rate zaehlt, sobald ihr Monat begonnen hat (egal, an welchem Tag des
+        # Monats sie liegt); sonst zaehlt jede Abbuchung am Tag der Zahlung
+        if (intervall == 1 and (termin.year, termin.month) > monat_heute) or (
+            intervall != 1 and termin > heute
+        ):
             break
         monatlich = vorher if (ab_datum is not None and vorher and termin < ab_datum) else abschlag
         summe += round(monatlich * intervall, 2)
         zahlung += 1
-    naechste = _plus_months(erste, zahlung * intervall)
-    if naechste <= heute or (ende is not None and naechste > ende):
-        naechste = None
+    if naechste is None:  # die naechste Abbuchung nach heute, falls der Vertrag dann noch laeuft
+        termin = _plus_months(erste, zahlung * intervall)
+        if termin > heute and (ende is None or termin <= ende):
+            naechste = termin
     return round(summe, 2), naechste
 
 
