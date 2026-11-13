@@ -116,6 +116,8 @@ CONTRACT_FIELDS = (
     "archivierbar",
     "verlaengerbar",
     "historie",
+    "einmalposten",
+    "einmal_summe",
     "kosten_gesamt",
     "kosten_gesamt_vollstaendig",
     "laufzeiten_anzahl",
@@ -375,6 +377,55 @@ async def ws_history_delete(hass: HomeAssistant, connection, msg: dict[str, Any]
 
 
 @websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/einmal_save",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+        vol.Optional("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_einmal_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Legt einen Einmalposten (Bonus oder Rechnung) an oder ersetzt ihn."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        history.save_einmal(hass, entry, msg["values"], msg.get("index"))
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/einmal_delete",
+        vol.Required("entry_id"): str,
+        vol.Required("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_einmal_delete(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Loescht einen Einmalposten."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        history.delete_einmal(hass, entry, msg["index"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
 @websocket_api.websocket_command({vol.Required("type"): "tariffy/backup_export"})
 @websocket_api.async_response
 async def ws_backup_export(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
@@ -468,6 +519,8 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             websocket_api.async_register_command(hass, ws_history_save)
             websocket_api.async_register_command(hass, ws_history_delete)
             websocket_api.async_register_command(hass, ws_renew)
+            websocket_api.async_register_command(hass, ws_einmal_save)
+            websocket_api.async_register_command(hass, ws_einmal_delete)
             for command in (
                 ws_backup_export,
                 ws_backup_preview,

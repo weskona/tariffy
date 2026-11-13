@@ -7,6 +7,15 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.4] - 2026-11-13
+
+Vierter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Einmalposten pro Vertrag** (Wechselbonus, Maklerhonorar, ...). Im Panel hat in der Vertragsliste jeder Vertrag einen Block "Einmalposten" (Administratoren können Posten anlegen, bearbeiten und löschen). Ein Posten hat Bezeichnung, Betrag und Datum: ein **positiver** Betrag ist eine Gutschrift (z. B. Wechselbonus), ein **negativer** eine Rechnung (z. B. die Rechnung eines Maklers, der sich um die Verträge kümmert). Posten zählen ab ihrem Datum: sie verändern den **Saldo bisher** und die **Gesamtkosten über alle Laufzeiten** (ein Bonus senkt die Kosten, eine Rechnung erhöht sie). Prognose und Warnung bei zu niedrigem Abschlag hängen weiter allein vom Verbrauch ab. Funktioniert bei jeder Art von Vertrag und wird mit dem Vertrag gespeichert (auch in der Sicherung). Das vorhandene Feld "Neukundenbonus" bleibt unverändert und wird weiter nur angezeigt.
+- **Kostenaufteilung im Tab "Kosten".** Ein Ringdiagramm zeigt den Anteil jedes Vertrags an den Kosten, umschaltbar zwischen "Kosten bisher" und "Pro Jahr", dazu ein Balken für die Aufteilung zwischen Verbrauchs- und Pauschalverträgen. Es ändert sich nur das Panel, es gibt keine neuen Entitäten.
+
 ## [1.28.0-rc.3] - 2026-11-13
 
 Dritter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

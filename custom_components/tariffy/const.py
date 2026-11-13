@@ -162,6 +162,11 @@ CONF_HISTORIE = "_historie"
 CONF_ARCHIVIERT = "_archiviert"
 HISTORIE_MAX = 50
 
+# Einmalposten pro Vertrag (interner Schluessel, kein neuer Sensor): Liste aus
+# {bezeichnung, betrag, datum}; positiv = Gutschrift/Bonus, negativ = Rechnung/Honorar.
+CONF_EINMALPOSTEN = "_einmalposten"
+EINMALPOSTEN_MAX = 50
+
 # Abschlag-Warnung (optional, pro Vertrag): warnt, wenn die Prognose zum
 # Vertragsende eine Nachzahlung ueber der Schwelle erwarten laesst.
 CONF_ABSCHLAG_WARNUNG = "abschlag_warnung"

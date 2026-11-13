@@ -715,7 +715,7 @@ for (const width of [1280, 900, 600, 390]) {
   check(tiles[0].text.includes("Verbrauch 263,00 €") && tiles[0].text.includes("Pauschal 59,98 €"), "split into metered and flat-rate contracts");
   check(tiles[0].segments.length === 2 && Math.abs(tiles[0].segments[0] - 81.4) < 0.3 && Math.abs(tiles[0].segments[1] - 18.6) < 0.3, `the bar is proportional (${tiles[0].segments})`);
   check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.772,18 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
-  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo heute") && tiles[1].rows[0].includes("−8,56 €"), `balance so far (${tiles[1].rows})`);
+  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo heute") && tiles[1].rows[0].includes("+46,44 €"), `balance so far (${tiles[1].rows})`);
   check(tiles[2].rows.length === 4 && tiles[2].rows[0].startsWith("Strom Haus") && tiles[2].rows[3].startsWith("Gas Heizung"), `forecast per contract, worst first (${tiles[2].rows})`);
   check(tiles[3].text.toLowerCase().includes("nächste termine") && tiles[3].rows.length === 2, `the next dates (${tiles[3].rows.length} more rows)`);
   const dateRows = tiles[3].rows.map((r) => r.match(/^(\d\d)\.(\d\d)\.(\d{4})/)).filter(Boolean).map((m) => `${m[3]}${m[2]}${m[1]}`);
@@ -1232,7 +1232,7 @@ for (const width of [1280, 900, 600, 390]) {
 
   // a metered contract with a history: one line in the footer
   const strom = await text("section.card:has-text('Strom Haus')");
-  check(strom.includes("Kosten gesamt 2.722,24 €") && strom.includes("seit 01.01.2024 · 3 Laufzeiten"), `a metered card sums the earlier terms and the running one (${strom.split("\n").find((l) => l.includes("gesamt"))})`);
+  check(strom.includes("Kosten gesamt 2.667,24 €") && strom.includes("seit 01.01.2024 · 3 Laufzeiten"), `a metered card sums the earlier terms and the running one (${strom.split("\n").find((l) => l.includes("gesamt"))})`);
   check(!(await text("section.card:has-text('Gas Heizung')")).includes("Kosten gesamt"), "a contract without a history shows no total");
 
   // a flat-rate contract with a history: a tile of its own
@@ -1256,12 +1256,55 @@ for (const width of [1280, 900, 600, 390]) {
   // the contract list and the history tab
   await page.getByRole("tab", { name: "Verträge", exact: true }).click();
   await page.locator("details", { hasText: "Strom Haus" }).first().locator("summary").click();
-  check(/Kosten gesamt\s*2\.722,24 € · seit 01\.01\.2024 · 3 Laufzeiten/.test(await text("details:has-text('Strom Haus')")), "the details show the total");
+  check(/Kosten gesamt\s*2\.667,24 € · seit 01\.01\.2024 · 3 Laufzeiten/.test(await text("details:has-text('Strom Haus')")), "the details show the total");
   await page.getByRole("tab", { name: "Historie", exact: true }).click();
   const hist = await text(".hist[data-id=contract-1]");
-  check(hist.includes("Kosten gesamt: 2.722,24 €"), "the history shows the total under the earlier terms");
+  check(hist.includes("Kosten gesamt: 2.667,24 €"), "the history shows the total under the earlier terms");
   const archived = await text(".hist[data-id=contract-7]");
   check(archived.includes("Kosten gesamt: 1.725,40 € · seit 01.01.2022 · 2 Laufzeiten"), `an archived contract counts its last term only once (${archived.split("\n").find((l) => l.includes("gesamt"))})`);
+  await context.close();
+}
+
+{ // one-time items (bonus / bill) and the cost split
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`einmal: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const text = async (sel) => (await page.locator(sel).first().innerText()).replace(/\u00a0/g, " ");
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Strom Haus" }).first().locator("summary").click();
+  const strom = await text("details:has-text('Strom Haus')");
+  check(strom.includes("Wechselbonus") && strom.includes("+80,00 €") && strom.includes("Honorar Makler") && strom.includes("−25,00 €"), `the items are listed with their sign (${strom.split("EINMALPOSTEN")[1]?.slice(0, 120)})`);
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  await page.locator("details", { hasText: "Strom Haus" }).first().getByRole("button", { name: "Posten hinzufügen" }).click();
+  await field("betrag").fill("-12,5");
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  check((await page.locator(".dialog").innerText()).includes("Pflichtfeld") && !(await calls(page)).some((c) => c.type === "tariffy/einmal_save"), "the description is required");
+  await field("bezeichnung").fill("Gebühr");
+  await dialog(page).screenshot({ path: join(outDir, "once-dialog.png") });
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const sent = (await calls(page)).find((c) => c.type === "tariffy/einmal_save");
+  check(sent && sent.entry_id === "contract-1" && sent.values.betrag === -12.5 && sent.values.bezeichnung === "Gebühr" && !("index" in sent), `the item is sent (${JSON.stringify(sent)})`);
+  await page.locator("details", { hasText: "Strom Haus" }).first().getByRole("button", { name: "Posten bearbeiten" }).first().click();
+  check((await field("bezeichnung").inputValue()) === "Wechselbonus" && (await field("datum").inputValue()) === "2026-01-15", "editing fills the item in");
+  await page.getByRole("button", { name: "Posten löschen", exact: true }).click();
+  await page.getByRole("button", { name: "Ja, löschen" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const gone = (await calls(page)).find((c) => c.type === "tariffy/einmal_delete");
+  check(gone && gone.index === 0, "an item can be deleted");
+
+  await page.getByRole("tab", { name: "Kosten", exact: true }).click();
+  const chart = await text(".chart");
+  check(chart.toLowerCase().includes("kostenaufteilung") && chart.includes("Strom Haus") && chart.includes("%"), `the cost split lists the contracts with their share (${chart.slice(0, 200)})`);
+  check((await page.locator(".chart .cs-ring circle").count()) >= 3, "the ring has one slice per contract");
+  const before = await text(".chart .cs-legend");
+  await page.getByRole("button", { name: "Pro Jahr" }).click();
+  check((await text(".chart .cs-legend")) !== before, "the basis can be switched to a year");
+  check((await text(".chart")).includes("Pauschalverträge") && (await text(".chart")).includes("Verbrauchsverträge"), "the split between consumption and flat-rate contracts is shown");
+  await page.locator(".chart").screenshot({ path: join(outDir, "cost-chart.png") });
   await context.close();
 }
 

@@ -34,6 +34,10 @@ CONTRACTS = [
             "beginn": "2026-01-01", "ende": "2026-12-31", "erinnerung_monate": "3",
             "verbrauch_sensor": "sensor.strom_haus", "abschlag_warnung": True,
             "abschlag_warnung_schwelle": 50.0,
+            "_einmalposten": [
+                {"bezeichnung": "Wechselbonus", "betrag": 80.0, "datum": "2026-01-15"},
+                {"bezeichnung": "Honorar Makler", "betrag": -25.0, "datum": "2026-01-20"},
+            ],
             "_historie": [
                 {
                     "sparte": "electricity", "anbieter": "Stadtwerke Nord", "tarif": "Öko Fix 12",

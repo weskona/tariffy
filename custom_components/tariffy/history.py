@@ -28,7 +28,9 @@ from .const import (
     CONF_ARCHIVIERT,
     CONF_BEGINN,
     CONF_BRENNWERT,
+    CONF_EINMALPOSTEN,
     CONF_ENDE,
+    EINMALPOSTEN_MAX,
     CONF_ERSTE_ZAHLUNG,
     CONF_GRUNDPREIS,
     CONF_HISTORIE,
@@ -294,4 +296,53 @@ async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str,
         }
     )
     await coordinator._dismiss_notifications()
+    hass.config_entries.async_update_entry(entry, data=data)
+
+
+# ------------------------------------------------------------ Einmalposten
+def _einmal_posten(values: dict[str, Any]) -> dict[str, Any]:
+    bezeichnung = str(values.get("bezeichnung") or "").strip()[:100]
+    if not bezeichnung:
+        raise HistoryError("invalid_bezeichnung")
+    betrag = _number(values.get("betrag"), "betrag", negative=True)
+    if betrag is None or betrag == 0:
+        raise HistoryError("invalid_betrag")
+    datum = values.get("datum")
+    if datum in (None, ""):
+        datum = None
+    else:
+        try:
+            datum = date.fromisoformat(str(datum)).isoformat()
+        except ValueError as err:
+            raise HistoryError("invalid_dates") from err
+    return {"bezeichnung": bezeichnung, "betrag": round(betrag, 2), "datum": datum}
+
+
+def save_einmal(
+    hass: HomeAssistant, entry: ConfigEntry, values: dict[str, Any], index: int | None = None
+) -> None:
+    """Legt einen Einmalposten an oder ersetzt den mit `index`."""
+    posten = _einmal_posten(values)
+    liste = list(entry.data.get(CONF_EINMALPOSTEN) or [])
+    if index is not None:
+        if not 0 <= index < len(liste):
+            raise HistoryError("not_found")
+        liste[index] = posten
+    else:
+        if len(liste) >= EINMALPOSTEN_MAX:
+            raise HistoryError("too_many")
+        liste.append(posten)
+    hass.config_entries.async_update_entry(entry, data={**entry.data, CONF_EINMALPOSTEN: liste})
+
+
+def delete_einmal(hass: HomeAssistant, entry: ConfigEntry, index: int) -> None:
+    liste = list(entry.data.get(CONF_EINMALPOSTEN) or [])
+    if not 0 <= index < len(liste):
+        raise HistoryError("not_found")
+    del liste[index]
+    data = dict(entry.data)
+    if liste:
+        data[CONF_EINMALPOSTEN] = liste
+    else:
+        data.pop(CONF_EINMALPOSTEN, None)
     hass.config_entries.async_update_entry(entry, data=data)

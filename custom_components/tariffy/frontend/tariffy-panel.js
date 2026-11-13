@@ -106,6 +106,11 @@ const I18N = {
     autoCalc: "Calculated", autoWait: "Calculated as soon as the other values are there", autoOwn: "Entered by you",
     termErr_invalid_dates: "The end must not be before the start.", termErr_too_many: "The history is full (50 terms).",
     termErr_not_found: "This term does not exist any more.", termErr_invalid: "One of the numbers is not valid.",
+    secOnce: "One-time items", onceAdd: "Add item", onceEdit: "Edit item", onceTitleAdd: "Add a one-time item", onceTitleEdit: "Edit item",
+    onceHint: "A positive amount is a credit (e.g. a switching bonus), a negative one a bill (e.g. a broker's fee). It counts in the balance and in the total cost from its date.",
+    onceName: "Description", onceAmount: "Amount (+ credit, − bill)", onceDate: "Date", onceDelete: "Delete item", onceDeleteAsk: "Delete this item?", onceDeleteYes: "Yes, delete", onceSum: "Net",
+    termErr_invalid_bezeichnung: "Enter a description.", termErr_invalid_betrag: "Enter an amount other than zero (with a minus for a bill).",
+    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
@@ -235,6 +240,11 @@ const I18N = {
     autoCalc: "Berechnet", autoWait: "Wird berechnet, sobald die anderen Werte da sind", autoOwn: "Von dir eingetragen",
     termErr_invalid_dates: "Das Ende darf nicht vor dem Beginn liegen.", termErr_too_many: "Die Historie ist voll (50 Laufzeiten).",
     termErr_not_found: "Diese Laufzeit gibt es nicht mehr.", termErr_invalid: "Eine der Zahlen ist nicht gültig.",
+    secOnce: "Einmalposten", onceAdd: "Posten hinzufügen", onceEdit: "Posten bearbeiten", onceTitleAdd: "Einmalposten hinzufügen", onceTitleEdit: "Posten bearbeiten",
+    onceHint: "Ein positiver Betrag ist eine Gutschrift (z. B. Wechselbonus), ein negativer eine Rechnung (z. B. Honorar für den Makler). Er zählt ab seinem Datum im Saldo und in den Gesamtkosten.",
+    onceName: "Bezeichnung", onceAmount: "Betrag (+ Gutschrift, − Rechnung)", onceDate: "Datum", onceDelete: "Posten löschen", onceDeleteAsk: "Diesen Posten löschen?", onceDeleteYes: "Ja, löschen", onceSum: "Saldo",
+    termErr_invalid_bezeichnung: "Trage eine Bezeichnung ein.", termErr_invalid_betrag: "Trage einen Betrag ungleich null ein (mit Minus für eine Rechnung).",
+    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
@@ -489,6 +499,29 @@ tr.sub td:first-child { padding-left: 32px; }
 .hist-head .who { flex: 1; }
 .hist .actions { margin-top: 10px; }
 .hist-total { margin: 8px 2px 0; }
+.once-row .t2 { display: block; }
+.once-row .icon-btn { margin-left: 4px; flex: none; }
+.once-add { margin-top: 8px; }
+.chart { margin-bottom: 22px; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; margin: 0 0 14px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
+.seg button { font: inherit; font-size: 13px; padding: 5px 12px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; }
+.seg button.on { background: var(--tile-line); color: var(--text); font-weight: 600; }
+.chart-body { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.cs-ringwrap { position: relative; width: 190px; height: 190px; flex: none; }
+.cs-ring { width: 100%; height: 100%; display: block; }
+.cs-mid { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.cs-legend { list-style: none; margin: 0; padding: 0; flex: 1 1 260px; min-width: 0; max-width: 560px; }
+.cs-legend li { display: flex; align-items: baseline; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.cs-legend .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-legend .val { font-variant-numeric: tabular-nums; }
+.cs-legend .pct { width: 56px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cs-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.kindbar { margin-top: 16px; }
+.kindbar .cs-split { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--tile-line); }
+.cs-dot.k0, .cs-split .k0 { background: var(--blue); }
+.cs-dot.k1, .cs-split .k1 { background: var(--orange); }
+.kindleg { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.kindleg .cs-dot { margin-right: 6px; }
 .hist-total b { color: var(--text); }
 .bk { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: grid; gap: 12px; }
 .bk p { margin: 0; font-size: 13px; color: var(--muted); }
@@ -617,6 +650,8 @@ const FLOWS = {
   // the integration's "Add entry" dialog
   create: { api: "config/config_entries/flow", body: () => ({ handler: "tariffy" }), category: "config" },
 };
+
+const CHART_COLORS = ["#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#b07aa1", "#edc948", "#9c755f"];
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
@@ -1019,7 +1054,7 @@ class TariffyPanel extends HTMLElement {
    * "since 01.06.2024 · 3 terms". Only for contracts that have a history; the sum is a lower bound when a
    * term has no cost. */
   _total(c) {
-    if (!(c.historie || []).length || !isNum(c.kosten_gesamt)) return null;
+    if (!((c.historie || []).length || (c.einmalposten || []).length) || !isNum(c.kosten_gesamt)) return null;
     const value = this._money(c.kosten_gesamt, c.currency, { digits: 2 });
     const n = c.laufzeiten_anzahl;
     const since = [c.seit ? this._t("totalSince", { d: this._date(c.seit) }) : null,
@@ -1556,6 +1591,7 @@ class TariffyPanel extends HTMLElement {
     if (!dlg) return;
     if (dlg.mode === "term") { this._renderTermDialog(); return; }
     if (dlg.mode === "renew") { this._renderRenewDialog(); return; }
+    if (dlg.mode === "once") { this._renderOnceDialog(); return; }
     const busy = dlg.stage === "saving";
     const body = [h("h2", { id: "dlg-title", text: this._t({ edit: "dlgTitleEdit", create: "dlgTitleCreate", next: "dlgTitle" }[dlg.mode], { name: dlg.name }) })];
     const buttons = [];
@@ -1901,6 +1937,117 @@ class TariffyPanel extends HTMLElement {
     }
   }
 
+  /* ----- one-time items of a contract: bonus (+) or bill (-), administrators only ----- */
+  _openOnce(c, index) {
+    this._closeFlow();
+    const spec = (name, kind, label, extra = {}) => ({
+      name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const item = index === null ? {} : (c.einmalposten || [])[index] || {};
+    this._dlg = {
+      mode: "once", stage: "form", id: c.entry_id, name: c.title, index, flowId: null, localize: () => "", asking: null,
+      fields: [
+        spec("bezeichnung", "text", this._t("onceName"), { required: true }),
+        spec("betrag", "number", this._t("onceAmount"), { required: true }),
+        spec("datum", "date", this._t("onceDate")),
+      ],
+      values: { bezeichnung: item.bezeichnung || "", betrag: isNum(item.betrag) ? String(item.betrag) : "", datum: item.datum || "" },
+      fieldErrors: {}, message: null,
+    };
+    this._renderOnceDialog();
+  }
+
+  async _saveOnce() {
+    const dlg = this._dlg;
+    const { values, errors } = this._collectFlow(dlg);
+    dlg.fieldErrors = errors;
+    dlg.message = null;
+    if (Object.keys(errors).length) { this._renderOnceDialog(); return; }
+    await this._callOnce(dlg, { type: "tariffy/einmal_save", entry_id: dlg.id, values, ...(dlg.index === null ? {} : { index: dlg.index }) });
+  }
+
+  async _deleteOnce() {
+    const dlg = this._dlg;
+    await this._callOnce(dlg, { type: "tariffy/einmal_delete", entry_id: dlg.id, index: dlg.index });
+  }
+
+  async _callOnce(dlg, message) {
+    dlg.stage = "saving";
+    this._renderOnceDialog();
+    try {
+      await this._hass.callWS(message);
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.asking = null;
+      dlg.message = this._termError(err);
+      this._renderOnceDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderOnceDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t(dlg.index === null ? "onceTitleAdd" : "onceTitleEdit") }),
+      h("p", { class: "hint", text: dlg.name }),
+      h("p", { class: "hint", text: this._t("onceHint") }),
+      h("div", { class: "fields" }, dlg.fields.map((f) => {
+        const error = dlg.fieldErrors[f.name];
+        return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+          h("span", { class: "lbl", text: f.label }), this._fieldInput(dlg, f),
+          error ? h("div", { class: "ferr", text: error }) : null);
+      })),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    const buttons = [];
+    if (dlg.asking === "delete") {
+      buttons.push(h("div", { class: "ask" },
+        h("span", { text: this._t("onceDeleteAsk") }),
+        h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("onceDeleteYes"), onclick: () => this._deleteOnce() }),
+        h("button", { class: "btn", type: "button", text: this._t("actCancel"), onclick: () => { dlg.asking = null; this._renderOnceDialog(); } })));
+    } else {
+      buttons.push(h("button", { class: "btn go", type: "button", disabled: busy ? "" : null,
+        text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveOnce() }));
+      buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() }));
+      if (dlg.index !== null) {
+        buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("onceDelete"),
+          onclick: () => { dlg.asking = "delete"; this._renderOnceDialog(); } }));
+      }
+    }
+    body.push(h("div", { class: "actions" }, buttons));
+    this._mountDialog(dlg, body, busy);
+    if (!dlg.focused) {
+      dlg.focused = true;
+      const first = this._dlgEl.querySelector("input, select");
+      if (first) first.focus();
+    }
+  }
+
+  /* the "one-time items" block of a contract */
+  _onceSection(c) {
+    const items = c.einmalposten || [];
+    if (!items.length && !this._isAdmin) return null;
+    const rows = items.map((item, index) => h("div", { class: "row once-row" },
+      h("span", {}, item.bezeichnung, item.datum ? h("span", { class: "t2", text: this._date(item.datum) }) : null),
+      h("span", { class: item.betrag < 0 ? "red-t" : "green-t", text: this._money(item.betrag, c.currency, { sign: true, digits: 2 }) }),
+      this._isAdmin ? h("button", {
+        class: "icon-btn", type: "button", title: this._t("onceEdit"), "aria-label": this._t("onceEdit"),
+        onclick: () => this._openOnce(c, index),
+      }, icon("edit")) : null));
+    return h("div", { class: "sec" }, h("h4", { text: this._t("secOnce") }), rows,
+      items.length > 1 && isNum(c.einmal_summe)
+        ? h("div", { class: "row" }, h("span", { text: this._t("onceSum") }),
+          h("span", { text: this._money(c.einmal_summe, c.currency, { sign: true, digits: 2 }) })) : null,
+      this._isAdmin ? h("div", { class: "once-add" }, h("button", {
+        class: "btn", type: "button", onclick: () => this._openOnce(c, null),
+      }, icon("plus"), this._t("onceAdd"))) : null);
+  }
+
   /* ----- old contracts: a term entered by hand (administrators only) ----- */
 
   _openTerm(c, index) {
@@ -2091,6 +2238,60 @@ class TariffyPanel extends HTMLElement {
     this._covered(raw) ? h("span", { class: "t2", text: this._t("coveredHint") }) : null);
   }
 
+  /* Cost split: a ring with one slice per contract, switchable between what has been paid so far and a year */
+  _costChart(contracts) {
+    const basis = this._costBasis || "sofar";
+    const value = (c) => {
+      const v = basis === "year" ? (isNum(c.abschlag_jahr) ? c.abschlag_jahr : isNum(c.abschlag) ? c.abschlag * 12 : null) : this._costSoFar(c);
+      return isNum(v) && v > 0 ? v : 0;
+    };
+    const currency = contracts[0].currency || "EUR";
+    const items = contracts.map((c, i) => ({ c, v: value(c), color: CHART_COLORS[i % CHART_COLORS.length] }))
+      .filter((it) => it.v > 0).sort((a, b) => b.v - a.v);
+    const total = items.reduce((s, it) => s + it.v, 0);
+    const toggle = h("div", { class: "seg", role: "group" }, [["sofar", "chartSoFar"], ["year", "chartYear"]].map(([key, label]) => h("button", {
+      class: basis === key ? "on" : "", type: "button", "aria-pressed": String(basis === key), text: this._t(label),
+      onclick: () => { this._costBasis = key; this._render(); },
+    })));
+    const card = h("section", { class: "chart" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t("chartTitle") })), toggle);
+    if (!total) {
+      card.appendChild(h("div", { class: "hint", text: this._t("chartEmpty") }));
+      return card;
+    }
+    const percent = (v) => `${this._num((v / total) * 100, 1)} %`;
+    let offset = 0;
+    const slices = items.map((it) => {
+      const part = (it.v / total) * 100;
+      const slice = svg("circle", {
+        cx: "21", cy: "21", r: "15.9155", fill: "none", stroke: it.color, "stroke-width": "6",
+        "stroke-dasharray": `${Math.max(part - 0.4, 0.01)} ${100 - Math.max(part - 0.4, 0.01)}`, "stroke-dashoffset": String(-offset),
+        transform: "rotate(-90 21 21)",
+      });
+      offset += part;
+      return slice;
+    });
+    const ring = svg("svg", { viewBox: "0 0 42 42", class: "cs-ring", role: "img", "aria-label": this._t("chartTitle") },
+      svg("circle", { cx: "21", cy: "21", r: "15.9155", fill: "none", stroke: "rgba(255,255,255,.06)", "stroke-width": "6" }), slices);
+    const kinds = [["chartMetered", (c) => METERED.has(c.sparte)], ["chartFlat", (c) => !METERED.has(c.sparte)]]
+      .map(([label, test]) => ({ label, v: items.filter((it) => test(it.c)).reduce((s, it) => s + it.v, 0) })).filter((k) => k.v > 0);
+    card.appendChild(h("div", { class: "chart-body" },
+      h("div", { class: "cs-ringwrap" }, ring,
+        h("div", { class: "cs-mid" }, h("b", { text: this._money(total, currency, { digits: 0 }) }))),
+      h("ul", { class: "cs-legend" }, items.map((it) => h("li", {},
+        h("span", { class: "cs-dot", style: `background:${it.color}` }),
+        h("span", { class: "nm", text: it.c.title }),
+        h("span", { class: "val", text: this._money(it.v, it.c.currency, { digits: 2 }) }),
+        h("span", { class: "pct", text: percent(it.v) }))))));
+    if (kinds.length > 1) {
+      card.appendChild(h("div", { class: "kindbar" },
+        h("div", { class: "cs-split" }, kinds.map((k, i) => h("span", { class: `k${i}`, style: `width:${(k.v / total) * 100}%` }))),
+        h("div", { class: "kindleg" }, kinds.map((k, i) => h("span", {}, h("span", { class: `cs-dot k${i}` }),
+          `${this._t(k.label)} ${percent(k.v)}`)))));
+    }
+    return card;
+  }
+
   _costs() {
     const contracts = this._live;
     const currency = contracts[0].currency || "EUR";
@@ -2156,6 +2357,7 @@ class TariffyPanel extends HTMLElement {
 
     return h(
       "div", {},
+      this._costChart(contracts),
       group("groupMetered", metered, [
         this._t("colContract"), this._t("colCost"), this._t("colBalance"),
         this._t("colForecast"), this._t("colInstalment"), this._t("colRecommended"),
@@ -2298,6 +2500,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("costSoFar"), !METERED.has(c.sparte) && isNum(this._costSoFar(c)) ? money(this._costSoFar(c)) : null),
         row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),
+      this._onceSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),

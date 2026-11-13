@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.4] - 2026-11-13
+
+Fourth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **One-time items per contract** (bonus for switching, broker's fee, ...). In the panel, in the list of contracts, every contract has a block "One-time items" (administrators can add, edit and delete items). An item has a description, an amount and a date: a **positive** amount is a credit (e.g. a switching bonus), a **negative** one a bill (e.g. the invoice of a broker looking after the contracts). Items count from their date: they change the **balance so far** and the **total cost over all terms** (a bonus lowers the cost, a bill raises it). The forecast and the low-instalment warning still depend on the consumption only. Works for every kind of contract and is saved with the contract (also in the backup). The existing field "New customer bonus" is unchanged and still only displayed.
+- **Cost split in the "Costs" tab.** A ring chart shows each contract's share of the cost, switchable between "Cost so far" and "Per year", with a bar for the split between consumption and flat-rate contracts. Only the panel changes, there are no new entities.
+
 ## [1.28.0-rc.3] - 2026-11-13
 
 Third release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
