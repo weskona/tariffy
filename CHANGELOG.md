@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.5] - 2026-11-13
+
+Fifth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **Pick a year in the cost split.** Next to "Cost so far / Per year" the chart has a year selection with the years for which there is data (running and earlier terms, archived contracts included). A year shows each contract's cost in that calendar year; a term that spans several years counts for its days in each of them. Only the panel changes.
+
 ## [1.28.0-rc.4] - 2026-11-13
 
 Fourth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
