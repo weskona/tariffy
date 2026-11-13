@@ -40,14 +40,15 @@ def _form_defaults(form) -> dict:
 from voluptuous.schema_builder import UNDEFINED as vol_UNDEFINED  # noqa: E402
 
 
-async def _reconfigure(hass, entry, first=None, second=None, drop=()):
+async def _reconfigure(hass, entry, first=None, second=None, drop=(), drop_first=()):
     result = await hass.config_entries.flow.async_init(
         "tariffy", context={"source": "reconfigure", "entry_id": entry.entry_id}
     )
     assert result["step_id"] == "reconfigure"
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {**_form_defaults(result), **(first or {})}
-    )
+    start = {**_form_defaults(result), **(first or {})}
+    for name in drop_first:  # a field of the first step the user emptied
+        start.pop(name, None)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], start)
     assert result["type"] is FlowResultType.FORM
     while result["step_id"].startswith("reconfigure_versicherung"):  # an insurance asks for its type (and car details)
         result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))

@@ -12,6 +12,8 @@
           "tarif": "Tarifname",
           "beginn": "Vertragsbeginn",
           "ende": "Vertragsende / Laufzeit bis",
+          "mindestlaufzeit": "Mindestlaufzeit (Monate)",
+          "kuendigungsfrist": "Kündigungsfrist (Monate)",
           "erinnerung_monate": "Kündigung erinnern",
           "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
         },
@@ -22,7 +24,9 @@
           "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
           "beginn": "Datum, ab dem der Vertrag gilt",
           "ende": "Letzter Gültigkeitstag des Vertrags",
-          "erinnerung_monate": "Wie viele Monate vor Vertragsende soll eine Kündigungs-Erinnerung erscheinen?",
+          "mindestlaufzeit": "Optional. Das Panel zeigt, bis wann der Vertrag mindestens läuft (Beginn + Mindestlaufzeit).",
+          "kuendigungsfrist": "Optional. Monate vor Vertragsende, bis zu denen die Kündigung vorliegen muss. Wenn eingetragen, bezieht sich die Erinnerung auf diese Frist statt auf das Vertragsende.",
+          "erinnerung_monate": "Wie viele Monate vor Ablauf der Kündigungsfrist soll erinnert werden (ohne eingetragene Frist: vor Vertragsende)?",
           "notify_target": "HA-Benachrichtigungsdienst für die Kündigungs-Erinnerung (z. B. notify.mobile_app)"
         }
       },
@@ -37,6 +41,8 @@
           "tarif": "Tarifname",
           "beginn": "Vertragsbeginn",
           "ende": "Vertragsende / Laufzeit bis",
+          "mindestlaufzeit": "Mindestlaufzeit (Monate)",
+          "kuendigungsfrist": "Kündigungsfrist (Monate)",
           "erinnerung_monate": "Kündigung erinnern",
           "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
         },
@@ -47,7 +53,9 @@
           "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
           "beginn": "Datum, ab dem der Vertrag gilt",
           "ende": "Letzter Gültigkeitstag des Vertrags",
-          "erinnerung_monate": "Wie viele Monate vor Vertragsende soll eine Kündigungs-Erinnerung erscheinen?",
+          "mindestlaufzeit": "Optional. Das Panel zeigt, bis wann der Vertrag mindestens läuft (Beginn + Mindestlaufzeit).",
+          "kuendigungsfrist": "Optional. Monate vor Vertragsende, bis zu denen die Kündigung vorliegen muss. Wenn eingetragen, bezieht sich die Erinnerung auf diese Frist statt auf das Vertragsende.",
+          "erinnerung_monate": "Wie viele Monate vor Ablauf der Kündigungsfrist soll erinnert werden (ohne eingetragene Frist: vor Vertragsende)?",
           "notify_target": "HA-Benachrichtigungsdienst für die Kündigungs-Erinnerung (z. B. notify.mobile_app)"
         }
       },

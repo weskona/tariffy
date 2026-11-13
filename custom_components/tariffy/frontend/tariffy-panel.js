@@ -110,6 +110,7 @@ const I18N = {
     onceHint: "A positive amount is a credit (e.g. a switching bonus), a negative one a bill (e.g. a broker's fee). It counts in the balance and in the total cost from its date.",
     onceName: "Description", onceAmount: "Amount (+ credit, − bill)", onceDate: "Date", onceDelete: "Delete item", onceDeleteAsk: "Delete this item?", onceDeleteYes: "Yes, delete", onceSum: "Net",
     termErr_invalid_bezeichnung: "Enter a description.", termErr_invalid_betrag: "Enter an amount other than zero (with a minus for a bill).",
+    minTerm: "Minimum term", noticePeriod: "Notice period", cancelBy: "Cancel by", untilDate: "until {d}",
     chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
@@ -244,6 +245,7 @@ const I18N = {
     onceHint: "Ein positiver Betrag ist eine Gutschrift (z. B. Wechselbonus), ein negativer eine Rechnung (z. B. Honorar für den Makler). Er zählt ab seinem Datum im Saldo und in den Gesamtkosten.",
     onceName: "Bezeichnung", onceAmount: "Betrag (+ Gutschrift, − Rechnung)", onceDate: "Datum", onceDelete: "Posten löschen", onceDeleteAsk: "Diesen Posten löschen?", onceDeleteYes: "Ja, löschen", onceSum: "Saldo",
     termErr_invalid_bezeichnung: "Trage eine Bezeichnung ein.", termErr_invalid_betrag: "Trage einen Betrag ungleich null ein (mit Minus für eine Rechnung).",
+    minTerm: "Mindestlaufzeit", noticePeriod: "Kündigungsfrist", cancelBy: "Kündigen bis", untilDate: "bis {d}",
     chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
@@ -2528,6 +2530,10 @@ class TariffyPanel extends HTMLElement {
         row(this._t("start"), c.beginn ? this._date(c.beginn) : null),
         row(this._t("end"), c.ende ? this._date(c.ende) : null),
         row(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : null),
+        row(this._t("minTerm"), isNum(c.mindestlaufzeit)
+          ? `${this._t("months", { n: c.mindestlaufzeit })}${c.mindestlaufzeit_bis ? ` · ${this._t("untilDate", { d: this._date(c.mindestlaufzeit_bis) })}` : ""}` : null),
+        row(this._t("noticePeriod"), isNum(c.kuendigungsfrist) ? this._t("months", { n: c.kuendigungsfrist }) : null),
+        row(this._t("cancelBy"), c.kuendigung_bis ? this._date(c.kuendigung_bis) : null),
         row(this._t("reminderDate"), c.erinnerung_datum
           ? `${this._date(c.erinnerung_datum)} · ${c.erinnerung_bestaetigt ? this._t("reminderDone") : c.erinnerung_aktiv ? this._t("reminderActive") : this._t("months", { n: c.erinnerung_monate })}`
           : null),

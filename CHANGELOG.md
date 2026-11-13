@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.28.0-rc.6] - 2026-11-13
+
+Sixth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **Notice period and minimum term per contract.** Two optional fields (in months) in the contract form, also for existing contracts: the **notice period** and the **minimum term**. The panel shows the minimum term with the date until which the contract runs at least, the notice period, and the last day to cancel ("Cancel by").
+- **The cancellation reminder can refer to the notice period.** If a notice period is entered, the reminder counts from the last day to cancel, not from the contract end: notice period 3 months and reminder "3 months before" means the message comes 6 months before the contract end, and it names the last day to cancel. **Without a notice period nothing changes** for existing contracts. A tariff switch keeps the notice period (the reminder keeps its lead), the minimum term is not carried over. The "Cancellation reminder" sensor gets two more attributes (`kuendigungsfrist_monate`, `kuendigung_bis`); there are no new entities.
+
 ## [1.28.0-rc.5] - 2026-11-13
 
 Fifth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.

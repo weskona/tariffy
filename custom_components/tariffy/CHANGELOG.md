@@ -7,6 +7,15 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.6] - 2026-11-13
+
+Sechster Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Kündigungsfrist und Mindestlaufzeit pro Vertrag.** Zwei freiwillige Felder (in Monaten) im Vertragsformular, auch für bestehende Verträge: die **Kündigungsfrist** und die **Mindestlaufzeit**. Das Panel zeigt die Mindestlaufzeit mit dem Datum, bis zu dem der Vertrag mindestens läuft, die Kündigungsfrist und den letzten Kündigungstag ("Kündigen bis").
+- **Die Kündigungs-Erinnerung kann sich auf die Kündigungsfrist beziehen.** Ist eine Kündigungsfrist eingetragen, zählt die Erinnerung ab dem letzten Kündigungstag statt ab dem Vertragsende: Kündigungsfrist 3 Monate und Erinnerung "3 Monate vorher" heißt, die Meldung kommt 6 Monate vor dem Vertragsende und nennt den letzten Kündigungstag. **Ohne Kündigungsfrist ändert sich bei bestehenden Verträgen nichts.** Ein Tarifwechsel behält die Kündigungsfrist (die Erinnerung behält ihren Vorlauf), die Mindestlaufzeit wird nicht übernommen. Der Sensor "Kündigungs-Erinnerung" hat zwei zusätzliche Attribute (`kuendigungsfrist_monate`, `kuendigung_bis`); es gibt keine neuen Entitäten.
+
 ## [1.28.0-rc.5] - 2026-11-13
 
 Fünfter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

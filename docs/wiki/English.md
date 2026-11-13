@@ -166,6 +166,8 @@ When contract end is set and the reminder period is reached:
 2. One-time **push notification** via the configured notify service
 3. **"Confirm cancellation"** button to acknowledge
 
+**With a notice period:** If you enter a **notice period** (in months) for the contract, the reminder refers to the **last day to cancel** (contract end minus notice period) instead of the contract end. Example: contract end 31 Dec, notice period 3 months, reminder "3 months before": the cancellation has to be received by 30 Sep, and the message comes on 30 Jun, 6 months before the contract end. The message names the last day to cancel. Without a notice period nothing changes. The panel shows the **minimum term** (in months) as "until <start + minimum term>"; it does not affect any reminder. Both fields are optional; the "Cancellation reminder" sensor gets the attributes `kuendigungsfrist_monate` and `kuendigung_bis`. A tariff switch keeps the notice period, not the minimum term.
+
 
 ## Low-instalment warning (optional)
 

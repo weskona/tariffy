@@ -317,6 +317,8 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
             "aktiv": d.get("erinnerung_aktiv"),
             "bestaetigt": d.get("erinnerung_bestaetigt"),
             "monate_vorher": d.get("erinnerung_monate"),
+            "kuendigungsfrist_monate": d.get("kuendigungsfrist"),
+            "kuendigung_bis": _fmt_date(d.get("kuendigung_bis")),
         },
     ),
     VertragSensorDescription(
