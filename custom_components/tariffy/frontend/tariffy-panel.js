@@ -110,7 +110,7 @@ const I18N = {
     onceHint: "A positive amount is a credit (e.g. a switching bonus), a negative one a bill (e.g. a broker's fee). It counts in the balance and in the total cost from its date.",
     onceName: "Description", onceAmount: "Amount (+ credit, − bill)", onceDate: "Date", onceDelete: "Delete item", onceDeleteAsk: "Delete this item?", onceDeleteYes: "Yes, delete", onceSum: "Net",
     termErr_invalid_bezeichnung: "Enter a description.", termErr_invalid_betrag: "Enter an amount other than zero (with a minus for a bill).",
-    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.",
+    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
@@ -244,7 +244,7 @@ const I18N = {
     onceHint: "Ein positiver Betrag ist eine Gutschrift (z. B. Wechselbonus), ein negativer eine Rechnung (z. B. Honorar für den Makler). Er zählt ab seinem Datum im Saldo und in den Gesamtkosten.",
     onceName: "Bezeichnung", onceAmount: "Betrag (+ Gutschrift, − Rechnung)", onceDate: "Datum", onceDelete: "Posten löschen", onceDeleteAsk: "Diesen Posten löschen?", onceDeleteYes: "Ja, löschen", onceSum: "Saldo",
     termErr_invalid_bezeichnung: "Trage eine Bezeichnung ein.", termErr_invalid_betrag: "Trage einen Betrag ungleich null ein (mit Minus für eine Rechnung).",
-    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.",
+    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
@@ -503,7 +503,11 @@ tr.sub td:first-child { padding-left: 32px; }
 .once-row .icon-btn { margin-left: 4px; flex: none; }
 .once-add { margin-top: 8px; }
 .chart { margin-bottom: 22px; }
-.seg { display: inline-flex; gap: 2px; padding: 3px; margin: 0 0 14px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
+.chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }
+.yr-pick { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.yr-pick select { font: inherit; font-size: 13px; padding: 6px 10px; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
+.yr-pick select option { background: #14171e; color: #f3f5f9; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; margin: 0; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
 .seg button { font: inherit; font-size: 13px; padding: 5px 12px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; }
 .seg button.on { background: var(--tile-line); color: var(--text); font-weight: 600; }
 .chart-body { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
@@ -2239,22 +2243,68 @@ class TariffyPanel extends HTMLElement {
   }
 
   /* Cost split: a ring with one slice per contract, switchable between what has been paid so far and a year */
-  _costChart(contracts) {
+  /* the cost of one calendar year: every term (earlier ones and the running one) counts for the days it has in that year */
+  _yearTerms(c) {
+    const today = new Date().toISOString().slice(0, 10);
+    const terms = (c.historie || []).map((t) => ({ from: t.beginn, to: t.ende, cost: isNum(t.kosten) ? t.kosten : t.abschlag_gezahlt }));
+    if (!c.archiviert && c.beginn) {
+      const end = c.ende && c.ende < today ? c.ende : today; // the running term counts up to today
+      terms.push({ from: c.beginn, to: end, cost: this._costSoFar(c) });
+    }
+    return terms.filter((t) => t.from && t.to && isNum(t.cost) && t.to >= t.from);
+  }
+
+  _costYears(contracts) {
+    const years = new Set();
+    for (const c of contracts) {
+      for (const t of this._yearTerms(c)) for (let y = Number(t.from.slice(0, 4)); y <= Number(t.to.slice(0, 4)); y += 1) years.add(y);
+    }
+    return [...years].sort((a, b) => b - a);
+  }
+
+  _yearCost(c, year) {
+    const day = (iso) => Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10))) / 86400000;
+    const start = Date.UTC(year, 0, 1) / 86400000;
+    const end = Date.UTC(year, 11, 31) / 86400000;
+    let sum = 0;
+    for (const t of this._yearTerms(c)) {
+      const from = day(t.from);
+      const to = day(t.to);
+      const overlap = Math.min(to, end) - Math.max(from, start) + 1;
+      if (overlap > 0) sum += t.cost * (overlap / (to - from + 1));
+    }
+    return sum;
+  }
+
+  _costChart(live) {
+    const years = this._costYears(this._contracts);
+    const year = years.includes(this._costYear) ? this._costYear : null;
+    const contracts = year === null ? live : this._contracts;
     const basis = this._costBasis || "sofar";
     const value = (c) => {
+      if (year !== null) return this._yearCost(c, year);
       const v = basis === "year" ? (isNum(c.abschlag_jahr) ? c.abschlag_jahr : isNum(c.abschlag) ? c.abschlag * 12 : null) : this._costSoFar(c);
       return isNum(v) && v > 0 ? v : 0;
     };
     const currency = contracts[0].currency || "EUR";
     const items = contracts.map((c, i) => ({ c, v: value(c), color: CHART_COLORS[i % CHART_COLORS.length] }))
-      .filter((it) => it.v > 0).sort((a, b) => b.v - a.v);
+      .filter((it) => it.v > 0.005).sort((a, b) => b.v - a.v);
     const total = items.reduce((s, it) => s + it.v, 0);
     const toggle = h("div", { class: "seg", role: "group" }, [["sofar", "chartSoFar"], ["year", "chartYear"]].map(([key, label]) => h("button", {
-      class: basis === key ? "on" : "", type: "button", "aria-pressed": String(basis === key), text: this._t(label),
-      onclick: () => { this._costBasis = key; this._render(); },
+      class: year === null && basis === key ? "on" : "", type: "button", "aria-pressed": String(year === null && basis === key), text: this._t(label),
+      onclick: () => { this._costBasis = key; this._costYear = null; this._render(); },
     })));
+    // the years with data: the cost of that calendar year (earlier terms count for their days in it)
+    const picker = years.length ? h("label", { class: "yr-pick" }, h("span", { text: this._t("chartYearLabel") }),
+      h("select", {
+        "aria-label": this._t("chartYearLabel"),
+        onchange: (ev) => { this._costYear = ev.target.value ? Number(ev.target.value) : null; this._render(); },
+      }, [h("option", { value: "", text: this._t("chartYearAll") })].concat(
+        years.map((y) => h("option", { value: String(y), text: String(y), selected: y === year ? "" : null }))))) : null;
     const card = h("section", { class: "chart" },
-      h("h3", { class: "group-title" }, h("span", { text: this._t("chartTitle") })), toggle);
+      h("h3", { class: "group-title" }, h("span", { text: this._t("chartTitle") })),
+      h("div", { class: "chart-ctl" }, toggle, picker),
+      year !== null ? h("p", { class: "hint", text: this._t("chartYearHint") }) : null);
     if (!total) {
       card.appendChild(h("div", { class: "hint", text: this._t("chartEmpty") }));
       return card;

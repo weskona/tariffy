@@ -1303,6 +1303,14 @@ for (const width of [1280, 900, 600, 390]) {
   const before = await text(".chart .cs-legend");
   await page.getByRole("button", { name: "Pro Jahr" }).click();
   check((await text(".chart .cs-legend")) !== before, "the basis can be switched to a year");
+  const options = await page.locator(".chart .yr-pick option").allInnerTexts();
+  check(options[0] === "Aktuell" && options.includes("2024") && options.includes("2025") && options.includes("2026"), `the years with data can be picked (${options})`);
+  await page.locator(".chart .yr-pick select").selectOption("2025");
+  const y25 = await text(".chart .cs-legend");
+  check(/Strom Haus\s*1\.166,20 €/.test(y25), `a past year shows that term's cost (${y25.slice(0, 120)})`);
+  check((await text(".chart")).includes("Kalenderjahr"), "the year view says how earlier terms are counted");
+  await page.locator(".chart").screenshot({ path: join(outDir, "cost-chart-year.png") });
+  await page.locator(".chart .yr-pick select").selectOption("");
   check((await text(".chart")).includes("Pauschalverträge") && (await text(".chart")).includes("Verbrauchsverträge"), "the split between consumption and flat-rate contracts is shown");
   await page.locator(".chart").screenshot({ path: join(outDir, "cost-chart.png") });
   await context.close();

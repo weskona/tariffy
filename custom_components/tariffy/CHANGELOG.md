@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.28.0-rc.5] - 2026-11-13
+
+Fünfter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Jahr in der Kostenaufteilung wählen.** Neben "Kosten bisher / Pro Jahr" hat die Grafik eine Jahresauswahl mit den Jahren, für die es Daten gibt (laufende und frühere Laufzeiten, auch archivierte Verträge). Ein Jahr zeigt die Kosten jedes Vertrags in diesem Kalenderjahr; eine Laufzeit über mehrere Jahre zählt anteilig für ihre Tage in jedem Jahr. Es ändert sich nur das Panel.
+
 ## [1.28.0-rc.4] - 2026-11-13
 
 Vierter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
