@@ -39,6 +39,7 @@ from .const import (
     CONF_ARCHIVIERT,
     CONF_GAS_EINHEIT,
     CONF_GRUNDPREIS,
+    CONF_EINMALPOSTEN,
     CONF_HISTORIE,
     CONF_JAHRESVERBRAUCH,
     CONF_KUENDIGUNG_BESTAETIGT,
@@ -199,6 +200,36 @@ def _minus_months(d: date, months: int) -> date:
 
 def _plus_months(d: date, months: int) -> date:
     return _minus_months(d, -months)
+
+
+def _einmal_summen(
+    data: dict[str, Any], beginn: date | None, heute: date
+) -> tuple[list[dict[str, Any]], float, float]:
+    """Einmalposten des Vertrags: (Liste, Summe bis heute ueber alle Laufzeiten, Summe bis
+    heute in der laufenden Laufzeit). Positiv = Gutschrift, negativ = Rechnung. Ein Posten
+    mit Datum in der Zukunft zaehlt erst ab diesem Tag; einer ohne Datum zaehlt sofort."""
+    posten: list[dict[str, Any]] = []
+    gesamt = 0.0
+    laufend = 0.0
+    for item in data.get(CONF_EINMALPOSTEN) or []:
+        betrag = _f(item.get("betrag")) if isinstance(item, dict) else None
+        if betrag is None:
+            continue
+        tag = _parse_date(item.get("datum"))
+        posten.append(
+            {
+                "bezeichnung": str(item.get("bezeichnung") or "")[:100],
+                "betrag": round(betrag, 2),
+                "datum": tag.isoformat() if tag else None,
+            }
+        )
+        if tag is not None and tag > heute:
+            continue
+        gesamt += betrag
+        if tag is None or beginn is None or tag >= beginn:
+            laufend += betrag
+    return posten, round(gesamt, 2), round(laufend, 2)
+
 
 
 def _abschlag_nach_zahlungen(
@@ -529,6 +560,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         kosten_bisher: float | None,
         abschlag_bisher: float | None,
         archiviert: bool,
+        einmal: float = 0.0,
     ) -> dict[str, Any]:
         """Kosten ueber alle Laufzeiten des Vertrags: die frueheren aus der Historie plus die
         laufende. Bei einem archivierten Vertrag steht die letzte Laufzeit schon in der Historie
@@ -558,6 +590,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 summe += laufende
             if beginn is not None:
                 beginne.append(beginn)
+        summe -= einmal  # Bonus (positiv) senkt, Rechnung (negativ) erhoeht die Kosten
         return {
             "kosten_gesamt": round(summe, 2) if (summe or vollstaendig) else None,
             "kosten_gesamt_vollstaendig": vollstaendig,
@@ -1311,6 +1344,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                                 2,
                             )
 
+        einmal_liste, einmal_gesamt, einmal_laufend = _einmal_summen(data, beginn, heute)
+
         # Tatsächliche Kosten bisher (auf Basis realer Messung)
         kosten_bisher: float | None = None
         guthaben_bisher: float | None = None
@@ -1503,7 +1538,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "prognose_real": prognose_real,
             "abschlag_anpassung_empfohlen": abschlag_anpassung_empfohlen,
             "kosten_bisher": kosten_bisher,
-            "guthaben_bisher": guthaben_bisher,
+            "guthaben_bisher": (
+                round(guthaben_bisher + einmal_laufend, 2) if guthaben_bisher is not None else None
+            ),
+            "einmalposten": einmal_liste,
+            "einmal_summe": einmal_gesamt,
             "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,
             "verbrauch_letzte_laufzeit_monate": verbrauch_letzte_laufzeit_monate,
             "empfohlener_abschlag": empfohlener_abschlag,
@@ -1522,7 +1561,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 ende is not None and ende < heute and not nxt and not archiviert
             ),
             "historie": list(data.get(CONF_HISTORIE) or []),
-            **self._gesamtkosten(data, beginn, kosten_bisher, abschlag_bisher_gezahlt_wert, archiviert),
+            **self._gesamtkosten(
+                data, beginn, kosten_bisher, abschlag_bisher_gezahlt_wert, archiviert, einmal_gesamt
+            ),
             # Pauschalvertrag mit Ende, nicht archiviert: laesst sich verlaengern (neuer Betrag, neues Ende)
             "verlaengerbar": bool(
                 sparte not in METERED_SPARTEN and ende is not None and not archiviert
