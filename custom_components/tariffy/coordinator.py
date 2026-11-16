@@ -725,6 +725,12 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_HISTORIE: historie[-HISTORIE_MAX:],
             CONF_SPARTE: self.entry.data.get(CONF_SPARTE),
             CONF_ERINNERUNG_MONATE: self.entry.data.get(CONF_ERINNERUNG_MONATE, "0"),
+            # Einmalposten gehoeren zum Vertrag (auch in die Gesamtkosten ueber alle Laufzeiten)
+            **(
+                {CONF_EINMALPOSTEN: self.entry.data[CONF_EINMALPOSTEN]}
+                if self.entry.data.get(CONF_EINMALPOSTEN)
+                else {}
+            ),
             # die Aussenzaehler bleiben angeschlossen; ihr Startwert gehoerte zum alten Vertrag
             **(
                 {
