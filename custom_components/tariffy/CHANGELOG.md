@@ -13,7 +13,7 @@ Zweite Beta von 1.30.0. Bitte melde Probleme mit dem Bug-Formular und nenne dies
 
 ### Fixed
 
-- **Außenzähler und Einmalposten ragten in den Vertragsdetails aus ihrer Spalte.** Eine lange Entity-ID eines Außenzählers (zum Beispiel `sensor.bewaesserung_back_gesamtverbrauch_m3`) schob die Werte aus dem Block heraus und über den Nachbarblock "Verbrauch". Name und Entity-ID eines Außenzählers brechen jetzt um, die Werte stehen darunter und der Stift sitzt rechts; auch eine lange Bezeichnung eines Einmalpostens bricht um. Es ändert sich nur das Panel.
+- **Außenzähler und Einmalposten ragten in den Vertragsdetails aus ihrer Spalte.** Eine lange Entity-ID eines Außenzählers (zum Beispiel `sensor.bewaesserung_back_gesamtverbrauch_m3`) schob die Werte aus dem Block heraus und über den Nachbarblock "Verbrauch". Name und Entity-ID eines Außenzählers brechen jetzt um, die Werte stehen darunter und der Stift sitzt rechts; auch eine lange Bezeichnung eines Einmalpostens bricht um. Der Block "Außenzähler" steht jetzt **unter den anderen Blöcken des Wasservertrags, über die ganze Breite**, mit den Zählern in mehreren Spalten nebeneinander, sodass bis zu zehn Zähler Platz haben. Es ändert sich nur das Panel.
 
 ## [1.30.0-beta.1] - 2026-11-16
 

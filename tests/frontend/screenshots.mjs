@@ -1471,9 +1471,8 @@ for (const width of [1280, 900, 600, 390]) {
     await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
     await page.evaluate(() => {
       const p = window.__panel;
-      p._contracts = p._contracts.map((c) => (c.title === "Wasser" ? { ...c, einmalposten: [{ bezeichnung: "Ein sehr langer Name eines Einmalpostens ohne Leerzeichen_und_Unterstriche", betrag: 12.5, datum: null }], aussenzaehler: [
-        { name: "Bewässerung (Back)", sensor: "sensor.bewaesserung_back_gesamtverbrauch_m3", verbrauch: 24.0, kosten: 66.96 },
-        { name: "Bewässerung (Front)", sensor: "sensor.bewaesserung_front_gesamtverbrauch_m3", verbrauch: 1.0, kosten: 2.79 }] } : c));
+      const meters = Array.from({ length: 10 }, (_, i) => ({ name: `Bewässerung ${i + 1}`, sensor: `sensor.bewaesserung_${i + 1}_gesamtverbrauch_m3`, verbrauch: 1.5 * (i + 1), kosten: 2.79 * (i + 1) }));
+      p._contracts = p._contracts.map((c) => (c.title === "Wasser" ? { ...c, einmalposten: [{ bezeichnung: "Ein sehr langer Name eines Einmalpostens ohne Leerzeichen_und_Unterstriche", betrag: 12.5, datum: null }], aussenzaehler: meters } : c));
       p._render();
     });
     await page.getByRole("tab", { name: "Verträge", exact: true }).click();
@@ -1491,6 +1490,23 @@ for (const width of [1280, 900, 600, 390]) {
       return [...new Set(out)];
     });
     check(stuck.length === 0, `the sections of a water contract keep their figures inside the column at ${width} px (${stuck.slice(0, 3)})`);
+    const layout = await page.evaluate(() => {
+      const d = [...window.__panel.shadowRoot.querySelectorAll("details")].find((x) => x.textContent.includes("Wasser"));
+      const sections = [...d.querySelectorAll(".sec")].map((el) => ({ title: el.querySelector("h4").textContent, r: el.getBoundingClientRect() }));
+      const outdoor = sections.find((x) => x.title === "Außenzähler");
+      const others = sections.filter((x) => x !== outdoor);
+      const detail = d.querySelector(".detail").getBoundingClientRect();
+      const rows = [...d.querySelectorAll(".aussen-row")].map((el) => el.getBoundingClientRect());
+      return {
+        belowOthers: others.every((x) => x.r.bottom <= outdoor.r.top + 1),
+        fullWidth: outdoor.r.width >= detail.width - 40,
+        meters: rows.length,
+        perRow: new Set(rows.map((r) => Math.round(r.top))).size,
+      };
+    });
+    check(layout.belowOthers && layout.fullWidth, `the outdoor meters stand below the other blocks over the whole width at ${width} px (${JSON.stringify(layout)})`);
+    check(layout.meters === 10 && (width < 500 ? layout.perRow === 10 : layout.perRow <= 4), `ten outdoor meters sit side by side where there is room (${layout.perRow} rows at ${width} px)`);
+    if (width === 1280) await page.locator("details", { hasText: "Wasser" }).first().screenshot({ path: join(outDir, "outdoor-meters-layout.png") });
     await context.close();
   }
 }

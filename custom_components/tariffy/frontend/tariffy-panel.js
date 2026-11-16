@@ -557,6 +557,9 @@ tr.sub td:first-child { padding-left: 32px; }
 .aussen-row .av { grid-column: 1; margin-top: 2px; font-variant-numeric: tabular-nums; }
 .aussen-row .icon-btn { grid-column: 2; grid-row: 1 / span 2; }
 .sec { min-width: 0; }
+.aussen-sec { grid-column: 1 / -1; }
+.aussen-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 18px; }
+.aussen-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); column-gap: 18px; margin-top: 4px; }
 .once-add { margin-top: 8px; }
 .chart { margin-bottom: 22px; }
 .chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }
@@ -2397,7 +2400,9 @@ class TariffyPanel extends HTMLElement {
       sum(this._t("wwUse"), amount(c.abwasserpflichtiger_verbrauch)),
       sum(this._t("wwCost"), this._money(c.abwasser_kosten, c.currency, { digits: 2 })),
     ] : [];
-    return h("div", { class: "sec" }, h("h4", { text: this._t("secAussen") }), rows, totals,
+    return h("div", { class: "sec aussen-sec" }, h("h4", { text: this._t("secAussen") }),
+      rows.length ? h("div", { class: "aussen-list" }, rows) : null,
+      totals.length ? h("div", { class: "aussen-totals" }, totals) : null,
       this._isAdmin ? h("div", { class: "once-add" }, h("button", {
         class: "btn", type: "button", onclick: () => this._openAussen(c, null),
       }, icon("plus"), this._t("aussenAdd"))) : null);
@@ -2922,7 +2927,6 @@ class TariffyPanel extends HTMLElement {
         row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),
       this._onceSection(c),
-      this._aussenSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),
@@ -2944,6 +2948,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("nextPrice"), isNum(nxt.arbeitspreis) ? this._price(nxt.arbeitspreis, c.currency, pu) : null),
         row(this._t("nextInstalment"), isNum(nxt.abschlag) ? `${money(nxt.abschlag)} ${this._t("perMonth")}` : null),
       ]) : null,
+      this._aussenSection(c), // over the whole width below the other blocks: up to ten meters fit side by side
     ];
 
     const flat = !METERED.has(c.sparte);
