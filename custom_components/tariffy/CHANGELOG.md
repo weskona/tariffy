@@ -7,193 +7,36 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
-## [1.29.0-beta.3] - 2026-11-16
+## [1.29.0] - 2026-11-16
 
-Dritte Beta von 1.29.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+Dieses Release fasst alles zusammen, was in den Betas `1.28.0-beta.1` bis `1.28.0-rc.9` und `1.29.0-beta.1` bis `1.29.0-beta.3` getestet wurde (es gibt keine stabile 1.28.0; die Nummerierung geht bei 1.29.0 weiter, weil GitHub Nummern über 9 falsch sortiert, siehe "Beta-Releases" in der Dokumentation). **Bestehende Verträge laufen ohne jede Änderung weiter.** Alles Neue ist freiwillig und steht in den Vertragsdaten; neue Sensoren gibt es nur dort, wo es unten steht. Einige Zahlen ändern sich bei bestehenden Verträgen, sie stehen unter "Changed" und "Fixed".
+
+### Added
+
+- **Vertragshistorie und Archiv.** Wenn der Folgevertrag übernimmt, wird die alte Laufzeit gesichert (Zeitraum, Anbieter, Tarif, Preise, Abschlag, Kosten, Verbrauch und Saldo zum Ende; bis zu 50 Laufzeiten). Der neue Tab **Historie** zeigt die Laufzeiten unter jedem Vertrag. Ein abgelaufener Vertrag ohne Folgevertrag trägt das Badge **Abgelaufen** und lässt sich im Tab "Verträge" **archivieren** (und zurückholen); es wird nichts gelöscht und nichts von allein archiviert.
+- **Alte Verträge von Hand eintragen** im Tab Historie (Administratoren): Verbrauch, Kosten, gezahlte Abschläge und Saldo werden aus den Langzeitstatistiken des Zählers automatisch ermittelt, und jeder Wert lässt sich selbst eintragen.
+- **Sicherung und Wiederherstellung.** Der neue Tab **Sicherung** lädt alle Verträge als Datei herunter und stellt Verträge aus so einer Datei wieder her (nur Verträge, die es noch nicht gibt; die Datei wird streng geprüft; sie enthält persönliche Daten). **Gelöschte Verträge bleiben 30 Tage erhalten** und lassen sich zurückholen.
+- **Der Name eines Vertrags lässt sich ändern**, beim Bearbeiten.
+- **Zahlweise und Jahreswerte bei Pauschalverträgen** (monatlich, vierteljährlich, halbjährlich, jährlich) und eine optionale **erste Abbuchung**. Intern bleibt der Betrag pro Monat die Basis, bestehende Verträge bleiben also genau wie sie sind.
+- **Pauschalverträge verlängern** (Versicherung, Internet, Mobilfunk, Streaming, Sonstiges) mit neuem Beginn, Ende und Betrag; die alte Laufzeit kommt in die Historie. Gedacht für einen Beitrag, der jedes Jahr steigt.
+- **Gesamtkosten über alle Laufzeiten** eines Vertrags (Kachel, Zeile, Details, Tab Historie).
+- **Einmalposten pro Vertrag** (Wechselbonus positiv, Maklerhonorar negativ): sie verändern den Saldo bisher und die Gesamtkosten.
+- **Kostenaufteilung im Tab "Kosten"**: ein Ringdiagramm je Sparte (oder je Vertrag), umschaltbar zwischen "Kosten bisher" und "Pro Jahr", mit Jahresauswahl und einem Balken für Verbrauchs- gegen Pauschalverträge.
+- **Kündigungsfrist und Mindestlaufzeit** pro Vertrag (freiwillig, in Monaten). Mit Kündigungsfrist zählt die Kündigungs-Erinnerung ab dem letzten Kündigungstag: Kündigungsfrist 3 Monate und Erinnerung "3 Monate vorher" heißt, die Meldung kommt 6 Monate vor dem Vertragsende. Ohne Kündigungsfrist ändert sich nichts.
+- **Mehr Angaben bei Versicherungen**: Art der Versicherung und, bei einer Kfz-Versicherung, Kennzeichen, Kilometerstand und erlaubte Kilometer. Das Formular fragt nur nach dem, was zur Art passt.
+- **Neue Sparte "Streaming"** für Abos (eine Pauschal-Sparte mit eigenem Symbol).
+- **Außenzähler für einen Wasservertrag** (Garten, Pool, Bewässerung): Wasser über so einen Zähler wird ohne Abwasser berechnet (abwasserpflichtiger Verbrauch = Hauptzähler − Außenzähler, optional eigener Preis). Kosten, Prognose und empfohlener Abschlag rechnen mit dem gewichteten Preis. Ein Vertrag **mit** Außenzähler bekommt vier zusätzliche Sensoren; **Verträge ohne Außenzähler bekommen keinen neuen Sensor und keine andere Zahl**.
+- Das Panel zeigt die Karten der Pauschalverträge auf breiten Bildschirmen vier nebeneinander.
 
 ### Changed
 
-- **Die Karten der Pauschalverträge nutzen auf breiten Bildschirmen vier Spalten.** Ab einer Panelbreite von 1500 px stehen die Karten der Pauschalverträge (Internet, Streaming, Versicherung, ...) vier statt drei nebeneinander; die Karten der Verbrauchsverträge behalten bis 1750 px drei Spalten, weil sie mehr Platz brauchen.
-
-## [1.29.0-beta.2] - 2026-11-16
-
-Zweite Beta von 1.29.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Außenzähler für einen Wasservertrag** (Garten, Pool, Bewässerung). Wasser, das über so einen Zähler läuft, fließt nicht in die Kanalisation und wird ohne Abwasser berechnet. Im Panel hat ein Wasservertrag in der Vertragsliste einen Block **Außenzähler** (Administratoren können bis zu zehn Zähler anlegen, bearbeiten und löschen): Name, der Verbrauchssensor in Home Assistant, ein optionaler Startwert (der Zählerstand am Vertragsbeginn, in der Einheit des Zählers) und ein optionaler eigener Preis je Einheit (sonst der Frischwasserpreis). Der Verbrauch eines Außenzählers ist im Hauptzähler enthalten: **abwasserpflichtiger Verbrauch = Hauptzähler − Außenzähler**. Die Kosten bisher, die Prognose und der empfohlene Abschlag werden mit dem gewichteten Preis des Hauptzählers gerechnet, so wie beim Zweizählertarif für Strom. Ein Zähler in Litern wird in die Einheit des Hauptzählers umgerechnet. Ein Tarifwechsel behält die Zähler (ohne ihren Startwert).
-- Für einen Vertrag **mit** Außenzähler gibt es vier zusätzliche Sensoren: **Gartenwasser (Verbrauch)**, **Gartenwasser (Kosten)**, **Abwasserpflichtiger Verbrauch** und **Abwasserkosten**; das Panel zeigt sie im selben Block. **Verträge ohne Außenzähler bekommen keinen neuen Sensor und keine andere Zahl.** Gewünscht in #73.
-
-## [1.29.0-beta.1] - 2026-11-16
-
-Erste Beta von 1.29.0 (die Release Candidates von 1.28.0 enden bei rc.9; die nächste Stable-Version enthält alles aus 1.28.x). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+- **Die "Kosten bisher" von Pauschalverträgen zählen die gebuchten Raten** statt eines Anteils der Tage: Jede Rate zählt am Tag der Zahlung, eine monatliche Rate ab dem ersten Tag ihres Monats (17,99 € im Monat seit dem 1. April zeigen am 13. November 143,92 €, acht Raten). Die Jahreswerte, der Abschlag und alles bei Verbrauchsverträgen bleiben unverändert.
 
 ### Fixed
 
-- **Ein Zähler, der in Wh oder MWh meldet, ergab einen 1000-fach zu hohen (oder zu niedrigen) Verbrauch.** Ein Tasmota-Lesekopf liefert den Zählerstand zum Beispiel in Wh; Tariffy hat die Zahlen als kWh genommen, deshalb waren Verbrauch, Prognose, Kosten und der empfohlene Abschlag weit daneben. Jetzt wird die Einheit des Verbrauchssensors gelesen und der **Verbrauch in kWh gerechnet**: Wh (÷ 1000) und MWh (× 1000); kWh und jede andere Einheit bleiben genau wie sie sind. Das gilt für den laufenden Vertrag, das zweite Register eines Zweizählertarifs, den beim Tarifwechsel eingefrorenen Verbrauch und die aus den Statistiken berechneten alten Laufzeiten. Ein von Hand eingetragener Startwert wird in der Einheit des Zählers gelesen, so wie der Sensor ihn zeigt. Die Verbrauchssensoren und das Panel nennen bei so einem Zähler kWh. Der Umweg über einen Template-Sensor ist nicht mehr nötig (und funktioniert weiter). Gemeldet in #74.
-
-## [1.28.0-rc.9] - 2026-11-13
-
-Neunter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Die Kostenaufteilung zählt Verträge gleicher Sparten zusammen.** Die Grafik zeigt jetzt eine Scheibe je Sparte (zum Beispiel alle Streaming-Abos zusammen, mit der Zahl der Verträge in Klammern); mit dem Umschalter "Je Vertrag" erscheint wieder jeder Vertrag einzeln.
-- **Neue Sparte "Streaming"** für Abos wie Musik, Video oder Hörbücher. Sie ist eine Pauschal-Sparte wie Internet und Mobilfunk (Zahlweise, erste Abbuchung, Verlängern, Historie, Gesamtkosten) und hat im Panel ein eigenes Symbol und eine eigene Farbe. Bestehende Verträge bleiben wie sie sind; um ein Abo von "Sonstiges" nach "Streaming" zu holen, bearbeitest du den Vertrag und änderst die Sparte.
-
-## [1.28.0-rc.8] - 2026-11-13
-
-Achter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- **Eine monatliche Rate zählt, sobald ihr Monat begonnen hat.** Bei einer ersten Abbuchung am 27. wurde die Rate des laufenden Monats erst ab dem 27. gezählt, die "Kosten bisher" eines Abos hinkten also fast den ganzen Monat eine Rate hinterher. Jetzt zählt die Rate eines Monats ab dem ersten Tag dieses Monats, an welchem Tag auch immer abgebucht wird. Das gilt für monatliche Zahlung; vierteljährliche, halbjährliche und jährliche Abbuchungen zählen weiter am Zahltag. Die angezeigte nächste Zahlung dazu bleibt unverändert.
-
-## [1.28.0-rc.7] - 2026-11-13
-
-Siebter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Fixed
-
-- **Die "Kosten bisher" eines monatlich bezahlten Pauschalvertrags zählten einen Anteil der Tage, nicht die gebuchten Raten.** Ein Abo mit 17,99 € im Monat, das am 1. April begann, zeigte am 13. November 133,57 € (7,42 Monate). Bis dahin sind aber acht Raten gebucht (1. April bis 1. November): **143,92 €**. Ein Pauschalvertrag (Internet, Mobilfunk, Versicherung, Abos, ...) zählt jetzt jede Rate am Tag der Zahlung, so wie es bei vierteljährlicher, halbjährlicher und jährlicher Zahlung schon war. Das ändert auch die "Kosten gesamt über alle Laufzeiten" und eine Laufzeit, die danach archiviert oder verlängert wird. Die Jahreswerte, der Abschlag und alles bei Verbrauchsverträgen bleiben unverändert.
-
-## [1.28.0-rc.6] - 2026-11-13
-
-Sechster Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Kündigungsfrist und Mindestlaufzeit pro Vertrag.** Zwei freiwillige Felder (in Monaten) im Vertragsformular, auch für bestehende Verträge: die **Kündigungsfrist** und die **Mindestlaufzeit**. Das Panel zeigt die Mindestlaufzeit mit dem Datum, bis zu dem der Vertrag mindestens läuft, die Kündigungsfrist und den letzten Kündigungstag ("Kündigen bis").
-- **Die Kündigungs-Erinnerung kann sich auf die Kündigungsfrist beziehen.** Ist eine Kündigungsfrist eingetragen, zählt die Erinnerung ab dem letzten Kündigungstag statt ab dem Vertragsende: Kündigungsfrist 3 Monate und Erinnerung "3 Monate vorher" heißt, die Meldung kommt 6 Monate vor dem Vertragsende und nennt den letzten Kündigungstag. **Ohne Kündigungsfrist ändert sich bei bestehenden Verträgen nichts.** Ein Tarifwechsel behält die Kündigungsfrist (die Erinnerung behält ihren Vorlauf), die Mindestlaufzeit wird nicht übernommen. Der Sensor "Kündigungs-Erinnerung" hat zwei zusätzliche Attribute (`kuendigungsfrist_monate`, `kuendigung_bis`); es gibt keine neuen Entitäten.
-
-## [1.28.0-rc.5] - 2026-11-13
-
-Fünfter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Jahr in der Kostenaufteilung wählen.** Neben "Kosten bisher / Pro Jahr" hat die Grafik eine Jahresauswahl mit den Jahren, für die es Daten gibt (laufende und frühere Laufzeiten, auch archivierte Verträge). Ein Jahr zeigt die Kosten jedes Vertrags in diesem Kalenderjahr; eine Laufzeit über mehrere Jahre zählt anteilig für ihre Tage in jedem Jahr. Es ändert sich nur das Panel.
-
-## [1.28.0-rc.4] - 2026-11-13
-
-Vierter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Einmalposten pro Vertrag** (Wechselbonus, Maklerhonorar, ...). Im Panel hat in der Vertragsliste jeder Vertrag einen Block "Einmalposten" (Administratoren können Posten anlegen, bearbeiten und löschen). Ein Posten hat Bezeichnung, Betrag und Datum: ein **positiver** Betrag ist eine Gutschrift (z. B. Wechselbonus), ein **negativer** eine Rechnung (z. B. die Rechnung eines Maklers, der sich um die Verträge kümmert). Posten zählen ab ihrem Datum: sie verändern den **Saldo bisher** und die **Gesamtkosten über alle Laufzeiten** (ein Bonus senkt die Kosten, eine Rechnung erhöht sie). Prognose und Warnung bei zu niedrigem Abschlag hängen weiter allein vom Verbrauch ab. Funktioniert bei jeder Art von Vertrag und wird mit dem Vertrag gespeichert (auch in der Sicherung). Das vorhandene Feld "Neukundenbonus" bleibt unverändert und wird weiter nur angezeigt.
-- **Kostenaufteilung im Tab "Kosten".** Ein Ringdiagramm zeigt den Anteil jedes Vertrags an den Kosten, umschaltbar zwischen "Kosten bisher" und "Pro Jahr", dazu ein Balken für die Aufteilung zwischen Verbrauchs- und Pauschalverträgen. Es ändert sich nur das Panel, es gibt keine neuen Entitäten.
-
-## [1.28.0-rc.3] - 2026-11-13
-
-Dritter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Changed
-
-- **Eine Versicherung fragt nur nach dem, was zu ihrer Art passt.** Das Formular einer Versicherung zeigte Kennzeichen und Kilometerfelder bei jeder Art von Versicherung (auch bei einer Hausratversicherung). Die Versicherung hat jetzt vor den Kosten einen eigenen Schritt "Art der Versicherung"; nur bei einer **Kfz-Versicherung** werden Kennzeichen, Kilometerstand bei Beginn und erlaubte Kilometer in einem weiteren Schritt abgefragt, alle anderen Arten gehen direkt weiter zu den Kosten. Das gilt beim Anlegen und beim Bearbeiten, im Panel und in Home Assistant. Die gespeicherten Werte und die Sensoren bleiben gleich; wechselt man die Art weg von "Auto (Kfz)", fallen die Kfz-Angaben weg.
-- Das Panel übernimmt von Home Assistant, ob ein Schritt der letzte ist, damit ein Schritt mitten in einem längeren Formular "Weiter" sagt und nicht "Speichern".
-
-## [1.28.0-rc.2] - 2026-11-13
-
-Zweiter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Fixed
-
-- **"Kosten bisher" war 0,00 €, wenn der Abschlag erst nach dem Anlegen eingetragen wurde.** Das Feld Abschlag steht beim Anlegen eines Vertrags auf 0; den echten Betrag später einzutragen, wurde als Preisänderung von 0 behandelt und zählte den alten Wert (0) für die ganze Laufzeit. Ein vorheriger Wert von 0 heißt jetzt "vorher gab es keinen Abschlag", und der Betrag gilt für die ganze Laufzeit. Bereits betroffene Verträge werden von selbst korrigiert, es muss nichts neu eingetragen werden.
-
-### Changed
-
-- **Die Kosten bisher von Pauschalverträgen mit Zahlung im Voraus (vierteljährlich, halbjährlich, jährlich) zählen die Abbuchungen.** Eine Versicherung, die kurz nach Beginn jährlich bezahlt wurde, zeigte bisher einen monatlichen Anteil; jetzt zeigt sie, was abgebucht wurde: den ganzen Beitrag nach der ersten Abbuchung, nach einem Jahr die zweite. Tariffy nimmt die erste Abbuchung am Vertragsbeginn an. Monatliche Verträge bleiben unverändert.
-
-### Added
-
-- **Erste Abbuchung am** (optional) im Kosten-Schritt von Pauschalverträgen und im Dialog zum Verlängern: der Tag, an dem der erste Betrag abgebucht wird; die weiteren folgen im Abstand der Zahlweise. Die Vertragsdetails zeigen die erste und die nächste Zahlung.
-
-## [1.28.0-rc.1] - 2026-11-13
-
-Erster Release Candidate von 1.28.0 (die Nummerierung geht mit `rc` weiter, weil GitHub `beta.10` unter `beta.2` einsortieren würde, siehe "Beta-Releases" in der Dokumentation). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Gesamtkosten über alle Laufzeiten eines Vertrags.** Ein Vertrag mit Historie (zum Beispiel einer, der jedes Jahr verlängert wird) zeigt die Kosten der früheren Laufzeiten plus der laufenden, mit dem Beginn der ersten Laufzeit und der Anzahl der Laufzeiten: als Kachel auf Pauschal-Karten, als Zeile auf Verbrauchs-Karten, in den Vertragsdetails und im Tab Historie. Für eine frühere Laufzeit zählen ihre Kosten, sonst die gezahlten Abschläge; hat eine Laufzeit beides nicht, steht die Summe als "mindestens". Ein archivierter Vertrag zählt seine letzte Laufzeit nicht doppelt. Gewünscht in #63. Neue Vertragsdaten `kosten_gesamt`, `kosten_gesamt_vollstaendig`, `laufzeiten_anzahl` und `seit` für das Panel; keine neuen Sensoren.
-
-## [1.28.0-beta.9] - 2026-11-12
-
-Neunte Beta zum Testen der Vertragshistorie, der Sicherung und der Versicherungsangaben. Das ist die letzte Nummer der Reihe `beta`, danach folgt `rc.1`. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Hinzugefügt
-
-- **Mehr Angaben bei Versicherungsverträgen.** Beim Anlegen oder Bearbeiten einer Versicherung kann man jetzt die **Art der Versicherung** (Auto, Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige) und, für eine Kfz-Versicherung, das **Kennzeichen**, den **Kilometerstand bei Vertragsbeginn** und die **erlaubten Kilometer pro Jahr** eintragen. Alle Felder sind optional und dokumentieren nur den Vertrag, es wird nichts daraus berechnet. Jedes Feld wird ein Sensor des Vertrags; das Seitenleisten-Panel zeigt die Art und die Kilometer in den Vertragsdetails. Das Kennzeichen wird wie die Kundennummer behandelt: Es wird nicht ans Panel gesendet und im Diagnose-Download geschwärzt. Gewünscht in #57.
-
-## [1.28.0-beta.8] - 2026-11-12
-
-Achte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Fixed
-
-- **Datumsfelder in den Dialogen des Panels ragten auf dem iPhone über den Dialog hinaus** (und waren leer zu niedrig gezeichnet), zum Beispiel "Vertragsbeginn" und "Vertragsende" beim Bearbeiten eines Vertrags. Die Felder bleiben jetzt in der Breite ihrer Spalte.
-
-## [1.28.0-beta.7] - 2026-11-12
-
-Siebte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Pauschalverträge verlängern.** Verträge ohne Verbrauch (Versicherung, Internet, Mobilfunk, Sonstiges) mit einem Vertragsende bekommen im Tab "Verträge" das Symbol "Vertrag verlängern" (nur Administratoren). Der Dialog schlägt als Beginn den Tag nach dem bisherigen Ende vor, als neues Ende ein Jahr später und den bisherigen Betrag und die Zahlweise, und zeigt, wie viel teurer oder günstiger der neue Betrag ist. Beim Verlängern wird die bisherige Laufzeit in der Historie gesichert, der Vertrag läuft mit neuem Beginn, Ende und Betrag weiter, und die Erinnerungen beginnen neu. Gedacht ist das für einen Beitrag, der jedes Jahr steigt, wie bei einer Kfz-Versicherung. Neuer Websocket-Befehl `tariffy/renew` (nur Administratoren) und das Vertragsdatum `verlaengerbar` für das Panel.
-
-## [1.28.0-beta.6] - 2026-11-12
-
-Sechste Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Zahlweise und Jahreswerte für Pauschalverträge** (Internet, Mobilfunk, Versicherung, Sonstiges). Der Kosten-Schritt hat ein neues Feld "Zahlweise" (monatlich, vierteljährlich, halbjährlich, jährlich), und der Betrag wird pro Zahlung eingegeben, ein Versicherungs-Jahresbeitrag also so, wie er abgerechnet wird. Intern rechnet die Integration weiter mit dem Betrag pro Monat (600 € im Jahr werden als 50 € im Monat gespeichert, `abschlag` behält seine Bedeutung), **bestehende Verträge bleiben deshalb genau wie sie sind** (monatlich). Eine Änderung nur der Zahlweise gilt nicht als Abschlagsänderung. Das Panel zeigt den Jahres-Abschlag ("480 € / Jahr") auf der Karte, in der Kostentabelle und in den Vertragsdetails, dazu die Jahreskosten (Abschlag und Grundpreis) und, wenn nicht monatlich gezahlt wird, den Betrag pro Zahlung. Keine neuen Sensoren: Die Werte sind nur Daten für das Panel.
-
-## [1.28.0-beta.5] - 2026-11-12
-
-Fünfte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Der Name eines Vertrags lässt sich ändern.** Der erste Schritt von "Vertrag bearbeiten" (im Panel und in Home Assistant unter "Neu konfigurieren") beginnt jetzt mit dem Feld "Name", gefüllt mit dem aktuellen Namen. Beim Speichern wird er übernommen: Name des Vertrags und seines Geräts ändern sich, die Sensoren, ihre Entity-IDs und alle Vertragsdaten bleiben. Ein leerer Name behält den alten. Bisher ließ sich der Name nur beim Anlegen des Vertrags setzen.
-
-## [1.28.0-beta.4] - 2026-11-12
-
-Vierte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Fixed
-
-- **Die Auswahlliste eines Dropdowns in den Dialogen des Panels war in manchen Browsern unlesbar** (weiße Liste mit heller Schrift, zum Beispiel bei "Kündigung erinnern" oder der Sparte im Dialog für einen neuen Vertrag). Die Einträge haben jetzt die dunklen Farben des Panels, und das ganze Panel meldet dem Browser, dass es dunkel ist, damit auch die Datumsauswahl und andere eingebaute Elemente passen.
-
-## [1.28.0-beta.3] - 2026-11-11
-
-Dritte Beta zum Testen der Vertragshistorie und der Sicherung. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Sicherung und Wiederherstellung.** Der neue Tab **Sicherung** des Seitenleisten-Panels (nur Administratoren) lädt alle Verträge als Datei herunter (Daten, Historie, Archiv, geplanter Folgevertrag, interner Zustand), stellt Verträge aus einer solchen Datei wieder her und holt gelöschte Verträge zurück. Beim Wiederherstellen siehst du zuerst, was passieren würde, und es werden nur Verträge angelegt, die es noch nicht gibt (gleicher Name und Sparte); vorhandene Verträge werden nie verändert. Die Datei wird streng geprüft, eine kaputte Datei legt nichts an. **Die Datei enthält persönliche Daten** (Kundennummer, Zählernummer, Marktlokations-ID, Benachrichtigungsziel); der Tab weist darauf hin. Neue Websocket-Befehle `tariffy/backup_export`, `tariffy/backup_preview`, `tariffy/backup_restore`, `tariffy/deleted_list`, `tariffy/deleted_restore` und `tariffy/deleted_discard` (nur Administratoren) und ein `import`-Schritt des Config-Flows, der einen Vertrag aus einer Sicherung anlegt.
-- **Gelöschte Verträge lassen sich zurückholen.** Wird ein Vertrag gelöscht (im Panel oder in Home Assistant), bleibt er 30 Tage lang (höchstens die letzten 20) in Home Assistants Speicher (`.storage/tariffy.deleted`) erhalten und lässt sich im Tab Sicherung wiederherstellen. "Jetzt vergessen" entfernt eine solche Sicherung sofort. Das Löschen scheitert daran nie.
-
-## [1.28.0-beta.2] - 2026-11-11
-
-Zweite Beta zum Testen der Vertragshistorie. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Alte Verträge von Hand hinzufügen.** In der Historie können Administratoren mit "Alten Vertrag hinzufügen" eine frühere Laufzeit eines Vertrags eintragen (zum Beispiel einen Vertrag von vor zwei Jahren) und sie mit dem Stift in der Zeile bearbeiten oder löschen. Beginn und Ende sind Pflicht; Anbieter, Tarif, Preis, Grundpreis und Abschlag sind optional. **Verbrauch, Kosten, gezahlte Abschläge und Saldo werden automatisch ermittelt**, soweit es geht: der Verbrauch aus den Langzeitstatistiken des Zählers des Vertrags, der Rest daraus und aus den Preisen (Gas mit Brennwert und Zustandszahl; bei Pauschalverträgen sind die Kosten die gezahlten Abschläge). Der Dialog zeigt die berechneten Werte und woher sie kommen, und jeder Wert lässt sich selbst eintragen und hat dann Vorrang. Neue Websocket-Befehle `tariffy/history_calc`, `tariffy/history_save` und `tariffy/history_delete` (nur Administratoren).
-
-### Changed
-
-- Die Historie speichert bis zu 50 Laufzeiten je Vertrag (vorher 20), weil Laufzeiten jetzt auch von Hand dazukommen können.
-
-## [1.28.0-beta.1] - 2026-11-11
-
-Beta-Version zum Testen der Vertragshistorie. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version. HACS bietet diese Version nur an, wenn "Beta-Versionen anzeigen" eingeschaltet ist.
-
-### Added
-
-- **Vertragshistorie.** Wenn der Folgevertrag am geplanten Datum übernimmt, wird die alte Laufzeit jetzt gesichert, bevor die Vertragsdaten ersetzt werden (Zeitraum, Anbieter, Tarif, Preise, Abschlag, Kosten bisher, Verbrauch und Saldo zum Ende; keine Kunden- oder Zählernummern, höchstens die letzten 20 Laufzeiten). Der neue Tab **Historie** des Seitenleisten-Panels zeigt sie unter dem jeweiligen Vertrag. Laufzeiten, die vor dieser Version endeten, gibt es nicht; die Historie beginnt mit dem nächsten Wechsel.
-- **Abgelaufene Verträge archivieren.** Ein Vertrag, dessen Ende vorbei ist und für den kein Folgevertrag geplant ist, trägt in der Übersicht das Badge **Abgelaufen**. Administratoren können ihn im Tab "Verträge" archivieren (mit Rückfrage). Ein archivierter Vertrag verschwindet aus Übersicht, Kosten, Vertragsliste und Summen und steht in der Historie; seine Erinnerungen und Warnungen sind aus. Es wird nichts gelöscht, alle Sensoren und ihre Statistik bleiben, und **Zurückholen** holt den Vertrag wieder zurück. Nichts wird von allein archiviert: Bestehende Installationen sehen genauso aus wie vorher, bis jemand einen Vertrag archiviert.
-- Beides liegt in internen Schlüsseln der Vertragsdaten (`_historie`, `_archiviert`): kein neuer Sensor, keine neue Entität. Beim Bearbeiten eines Vertrags bleiben sie erhalten.
+- **Ein Zähler, der in Wh oder MWh meldet, ergab einen 1000-fach zu hohen (oder zu niedrigen) Verbrauch.** Die Einheit des Verbrauchssensors wird jetzt gelesen und der Verbrauch in kWh gerechnet (Wh ÷ 1000, MWh × 1000); kWh und jede andere Einheit bleiben genau wie sie sind. Ein Template-Sensor als Umweg ist nicht mehr nötig. Gemeldet in #74.
+- **Die "Kosten bisher" waren 0,00 €, wenn der Abschlag erst nach dem Anlegen des Vertrags eingetragen wurde.** Betroffene Verträge werden von allein korrigiert.
+- Die Liste eines Auswahlfelds in den Dialogen des Panels war in manchen Browsern unlesbar, und Datumsfelder ragten auf dem iPhone aus dem Dialog.
 
 ## [1.27.3] - 2026-11-11
 

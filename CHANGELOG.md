@@ -7,193 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.29.0-beta.3] - 2026-11-16
+## [1.29.0] - 2026-11-16
 
-Third beta of 1.29.0. Please report problems with the bug report form and mention this exact version.
+This release brings together everything that was tested in the betas `1.28.0-beta.1` to `1.28.0-rc.9` and `1.29.0-beta.1` to `1.29.0-beta.3` (there is no stable 1.28.0; the numbering continued at 1.29.0 because GitHub lists numbers above 9 in the wrong order, see "Beta releases" in the documentation). **Existing contracts keep working without any change.** Everything new is optional and stored in the contract data; new sensors exist only where stated below. A few numbers change for existing contracts, they are listed under "Changed" and "Fixed".
+
+### Added
+
+- **Contract history and archive.** When the next contract takes over, the old term is saved (term, provider, tariff, prices, instalment, cost, consumption and balance at the end; up to 50 terms). The new **History** tab shows the terms under each contract. An expired contract without a next contract is marked **Expired** and can be **archived** (and restored) in the "Contracts" tab; nothing is deleted and nothing is archived automatically.
+- **Add old contracts by hand** in the History tab (administrators): consumption, cost, instalments paid and balance are worked out automatically from the long-term statistics of the meter, and every value can be typed in.
+- **Backup and restore.** The new **Backup** tab downloads all contracts as a file and restores contracts from such a file (only contracts that do not exist yet; the file is checked strictly; it contains personal data). **Deleted contracts are kept for 30 days** and can be brought back.
+- **The name of a contract can be changed** when editing it.
+- **Payment interval and yearly values for flat-rate contracts** (monthly, quarterly, half-yearly, yearly) and an optional **date of the first debit**. Internally the amount per month stays the basis, so existing contracts stay exactly as they are.
+- **Renew flat-rate contracts** (insurance, internet, mobile, streaming, other) with a new start, end and amount; the old term goes to the history. Meant for a premium that rises every year.
+- **Total cost over all terms** of a contract (tile, line, details, History tab).
+- **One-time items per contract** (bonus for switching positive, broker's fee negative): they change the balance so far and the total cost.
+- **Cost split in the "Costs" tab**: a ring chart per category (or per contract), switchable between "Cost so far" and "Per year", with a year selection and a bar for consumption against flat-rate contracts.
+- **Notice period and minimum term** per contract (optional, in months). With a notice period the cancellation reminder counts from the last day to cancel: notice period 3 months and reminder "3 months before" means the message comes 6 months before the contract end. Without a notice period nothing changes.
+- **More details for insurance contracts**: type of insurance and, for a car insurance, licence plate, odometer and allowed kilometres. The form asks only for what fits the type.
+- **New category "Streaming"** for subscriptions (a flat-rate category with its own icon).
+- **Outdoor meters for a water contract** (garden, pool, irrigation): water through such a meter is not charged wastewater (wastewater-liable consumption = main meter − outdoor meters, optional own price). The cost, the forecast and the recommended instalment use the weighted price. A contract **with** an outdoor meter gets four more sensors; **contracts without one get no new sensor and no other number**.
+- The sidebar panel shows the flat-rate cards four per row on wide screens.
 
 ### Changed
 
-- **The flat-rate contract cards use four columns on wide screens.** From a panel width of 1500 px the flat-rate cards (internet, streaming, insurance, ...) are shown four in a row instead of three; the consumption cards keep three columns up to 1750 px, because they need more room.
-
-## [1.29.0-beta.2] - 2026-11-16
-
-Second beta of 1.29.0. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **Outdoor meters for a water contract** (garden, pool, irrigation). Water taken through such a meter does not go into the sewer and is not charged wastewater. In the panel, in the list of contracts, a water contract has a block **Outdoor meters** (administrators can add, edit and delete up to ten meters): name, the consumption sensor in Home Assistant, an optional start value (the reading of the meter at the start of the contract, in the unit of the meter) and an optional price of its own per unit (otherwise the fresh-water price). The consumption of an outdoor meter is part of the main meter: **wastewater-liable consumption = main meter − outdoor meters**. The cost so far, the forecast and the recommended instalment are calculated with the weighted price of the main meter, the same way as for a dual-tariff electricity meter. A meter in litres is converted to the unit of the main meter. A tariff switch keeps the meters (without their start value).
-- For a contract **with** an outdoor meter there are four more sensors: **Outdoor water (consumption)**, **Outdoor water (cost)**, **Wastewater-liable consumption** and **Wastewater cost**; the panel shows them in the same block. **Contracts without an outdoor meter get no new sensor and no other number.** Requested in #73.
-
-## [1.29.0-beta.1] - 2026-11-16
-
-First beta of 1.29.0 (the release candidates of 1.28.0 ended at rc.9; the next stable version will contain everything from 1.28.x). Please report problems with the bug report form and mention this exact version.
+- **"Cost so far" of flat-rate contracts counts the rates booked** instead of a share of the days: every rate counts on its payment day, a monthly rate from the first day of its month (17.99 € a month since 1 April shows 143.92 € on 13 November, eight rates). The yearly values, the instalment and everything about consumption contracts are unchanged.
 
 ### Fixed
 
-- **A meter that reports in Wh or MWh gave a consumption that was 1000 times too high** (or too low). A Tasmota reading head, for example, delivers the meter reading in Wh; Tariffy took the numbers as kWh, so consumption, forecast, cost and the recommended instalment were far off. The unit of the consumption sensor is now read and the **consumption is calculated in kWh**: Wh (÷ 1000) and MWh (× 1000); kWh and every other unit stay exactly as they are. This applies to the running contract, the second register of a dual-tariff meter, the consumption frozen at a tariff switch and the old terms worked out from the statistics. A manually entered start value is read in the unit of the meter, as the sensor shows it. The consumption sensors and the panel name kWh for such a meter. A workaround with a template sensor is no longer needed (and keeps working). Reported in #74.
-
-## [1.28.0-rc.9] - 2026-11-13
-
-Ninth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **The cost split adds up contracts of the same category.** The chart now shows one slice per category (for example all streaming subscriptions together, with the number of contracts in brackets); the switch "By contract" shows every contract on its own again.
-- **New category "Streaming"** for subscriptions such as music, video or audio books. It is a flat-rate category like internet and mobile (payment interval, first debit, renewing, history, total cost), with its own icon and colour in the panel. Existing contracts stay as they are; to move a subscription from "Other" to "Streaming", edit the contract and change the category.
-
-## [1.28.0-rc.8] - 2026-11-13
-
-Eighth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- **A monthly rate counts as soon as its month has begun.** With a first debit on the 27th, the rate of the 27th of the current month was only counted from the 27th on, so the "cost so far" of a subscription was one rate behind for most of the month. Now the rate of a month counts from the first day of that month, whatever the day of the debit. This applies to monthly payment; quarterly, half-yearly and yearly debits still count on their payment day. The next payment shown for those is unchanged.
-
-## [1.28.0-rc.7] - 2026-11-13
-
-Seventh release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
-
-### Fixed
-
-- **"Cost so far" of a flat-rate contract paid monthly counted a share of the days, not the rates booked.** A subscription of 17.99 € a month that started on 1 April showed 133.57 € on 13 November (7.42 months). By then eight rates have been booked (1 April to 1 November): **143.92 €**. A flat-rate contract (internet, mobile, insurance, subscriptions, ...) now counts every rate on the day of its payment, the same way contracts with quarterly, half-yearly or yearly payment already did. This also changes the "total cost over all terms" and a term that is archived or renewed afterwards. The yearly values, the instalment and everything about consumption contracts are unchanged.
-
-## [1.28.0-rc.6] - 2026-11-13
-
-Sixth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **Notice period and minimum term per contract.** Two optional fields (in months) in the contract form, also for existing contracts: the **notice period** and the **minimum term**. The panel shows the minimum term with the date until which the contract runs at least, the notice period, and the last day to cancel ("Cancel by").
-- **The cancellation reminder can refer to the notice period.** If a notice period is entered, the reminder counts from the last day to cancel, not from the contract end: notice period 3 months and reminder "3 months before" means the message comes 6 months before the contract end, and it names the last day to cancel. **Without a notice period nothing changes** for existing contracts. A tariff switch keeps the notice period (the reminder keeps its lead), the minimum term is not carried over. The "Cancellation reminder" sensor gets two more attributes (`kuendigungsfrist_monate`, `kuendigung_bis`); there are no new entities.
-
-## [1.28.0-rc.5] - 2026-11-13
-
-Fifth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **Pick a year in the cost split.** Next to "Cost so far / Per year" the chart has a year selection with the years for which there is data (running and earlier terms, archived contracts included). A year shows each contract's cost in that calendar year; a term that spans several years counts for its days in each of them. Only the panel changes.
-
-## [1.28.0-rc.4] - 2026-11-13
-
-Fourth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **One-time items per contract** (bonus for switching, broker's fee, ...). In the panel, in the list of contracts, every contract has a block "One-time items" (administrators can add, edit and delete items). An item has a description, an amount and a date: a **positive** amount is a credit (e.g. a switching bonus), a **negative** one a bill (e.g. the invoice of a broker looking after the contracts). Items count from their date: they change the **balance so far** and the **total cost over all terms** (a bonus lowers the cost, a bill raises it). The forecast and the low-instalment warning still depend on the consumption only. Works for every kind of contract and is saved with the contract (also in the backup). The existing field "New customer bonus" is unchanged and still only displayed.
-- **Cost split in the "Costs" tab.** A ring chart shows each contract's share of the cost, switchable between "Cost so far" and "Per year", with a bar for the split between consumption and flat-rate contracts. Only the panel changes, there are no new entities.
-
-## [1.28.0-rc.3] - 2026-11-13
-
-Third release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
-
-### Changed
-
-- **An insurance only asks for what fits its type.** The form for an insurance used to show the licence plate and the kilometre fields for every kind of insurance (also for a household contents insurance). The insurance now has its own step "Type of insurance" in front of the costs; only a **car insurance** is asked for licence plate, odometer at the start and allowed kilometres in a further step, all other types go straight on to the costs. This applies to creating and to editing a contract, in the panel and in Home Assistant. The stored values and the sensors are unchanged; changing the type away from "Car" removes the car details.
-- The panel takes from Home Assistant whether a step is the last one, so a step in the middle of a longer form says "Continue" and not "Save".
-
-## [1.28.0-rc.2] - 2026-11-13
-
-Second release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.
-
-### Fixed
-
-- **"Cost so far" was 0.00 € when the instalment was filled in after the contract was created.** The instalment field starts with 0 when a contract is created; filling in the real amount later was treated as a price change from 0 and counted the old value (0) for the whole term. A previous value of 0 now means "there was no instalment before", and the amount counts for the whole term. Contracts that were already affected are corrected on their own, nothing has to be entered again.
-
-### Changed
-
-- **Cost so far for flat-rate contracts that are paid in advance (quarterly, half-yearly, yearly) counts the debits.** An insurance paid yearly shortly after its start used to show a monthly share; now it shows what was debited: the whole premium after the first debit, the second one after a year. Tariffy assumes the first debit at the contract start. Monthly contracts are unchanged.
-
-### Added
-
-- **Date of the first debit** (optional) in the cost step of flat-rate contracts and in the renew dialog: the day the first amount is debited; the following debits come at the interval. The contract details show the first and the next payment.
-
-## [1.28.0-rc.1] - 2026-11-13
-
-First release candidate of 1.28.0 (the numbering continues with `rc` because GitHub would list `beta.10` below `beta.2`, see "Beta releases" in the documentation). Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **Total cost over all terms of a contract.** A contract that has a history (for example one that is renewed every year) shows the total cost of the earlier terms plus the running one, with the start of the first term and the number of terms: as a tile on flat-rate cards, as a line on metered cards, in the contract details and in the History tab. For an earlier term its cost counts, otherwise the instalments paid; if a term has neither, the sum is shown as "at least". An archived contract does not count its last term twice. Requested in #63. New contract data `kosten_gesamt`, `kosten_gesamt_vollstaendig`, `laufzeiten_anzahl` and `seit` for the panel; no new sensors.
-
-## [1.28.0-beta.9] - 2026-11-12
-
-Ninth beta for testing the contract history, the backup and the insurance details. This is the last number of the `beta` series, the next one is `rc.1`. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **More details for insurance contracts.** When you create or edit an insurance contract you can now enter the **type of insurance** (car, building / house, household contents, liability, health, life, legal protection, accident, other) and, for a car insurance, the **licence plate**, the **odometer at contract start** and the **allowed kilometres per year**. All fields are optional and only document the contract, nothing is calculated from them. Each one becomes a sensor of the contract; the side panel shows the type and the kilometres in the contract details. The licence plate is treated like the customer number: it is not sent to the side panel and is masked in the diagnostics download. Requested in #57.
-
-## [1.28.0-beta.8] - 2026-11-12
-
-Eighth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
-
-### Fixed
-
-- **Date fields in the panel's dialogs stuck out of the dialog on an iPhone** (and were drawn too low while empty), for example "Contract start" and "Contract end" when editing a contract. The fields now keep to the width of their column.
-
-## [1.28.0-beta.7] - 2026-11-12
-
-Seventh beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **Renew flat-rate contracts.** Contracts without consumption (insurance, internet, mobile, other) that have a contract end get the icon "Renew contract" in the "Contracts" tab (administrators only). The dialog suggests the start the day after the current end, a new end a year later and the current amount and interval, and shows how much dearer or cheaper the new amount is. Renewing saves the current term in the history, lets the contract run on with the new start, end and amount, and starts the reminders over. This is meant for a premium that rises every year, like a car insurance. New websocket command `tariffy/renew` (administrators only) and the contract data `verlaengerbar` for the panel.
-
-## [1.28.0-beta.6] - 2026-11-12
-
-Sixth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **Payment interval and yearly values for flat-rate contracts** (internet, mobile, insurance, other). The cost step has a new field "Payment interval" (monthly, quarterly, half-yearly, yearly), and the amount is entered per payment, so a yearly insurance premium can be entered as it is billed. Internally the integration still works with the amount per month (600 € a year is stored as 50 € a month, `abschlag` keeps its meaning), so **existing contracts stay exactly as they are** (monthly). Changing only the interval is not an instalment change. The panel shows the yearly instalment ("480 € / year") on the card, in the cost table and in the contract details, together with the yearly cost (instalment and base price) and the amount per payment when it is not monthly. No new sensors: the values are data for the panel only.
-
-## [1.28.0-beta.5] - 2026-11-12
-
-Fifth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **The name of a contract can be changed.** The first step of "Edit contract" (in the panel and in Home Assistant under "Reconfigure") now starts with the field "Name", filled in with the current name. Saving applies it: the name of the contract and of its device change, while the sensors, their entity IDs and all contract data stay as they are. An empty name keeps the old one. Until now the name could only be set when the contract was created.
-
-## [1.28.0-beta.4] - 2026-11-12
-
-Fourth beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
-
-### Fixed
-
-- **The list of a drop-down in the panel's dialogs was unreadable in some browsers** (white list with light text, for example "Cancellation reminder" or the kind of contract in the dialog for a new contract). The options now have the dark colours of the panel, and the whole panel tells the browser that it is dark, so the date picker and other native controls follow.
-
-## [1.28.0-beta.3] - 2026-11-11
-
-Third beta for testing the contract history and the backup. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **Backup and restore.** The new **Backup** tab of the sidebar panel (administrators only) downloads all contracts as a file (data, history, archive, planned next contract, internal state), restores contracts from such a file and brings back deleted contracts. Restoring shows what would happen first and then creates only the contracts that do not exist yet (same name and kind); existing contracts are never changed. The file is checked strictly, and a broken file creates nothing. **The file contains personal data** (customer number, meter number, market location ID, notification target); the tab says so. New websocket commands `tariffy/backup_export`, `tariffy/backup_preview`, `tariffy/backup_restore`, `tariffy/deleted_list`, `tariffy/deleted_restore` and `tariffy/deleted_discard` (administrators only) and an `import` step of the config flow that creates a contract from a backup.
-- **Deleted contracts can be brought back.** When a contract is deleted (in the panel or in Home Assistant), it is kept for 30 days (at most the last 20) in Home Assistant's storage (`.storage/tariffy.deleted`) and can be restored in the Backup tab. "Forget now" removes such a backup at once. Deleting never fails because of this.
-
-## [1.28.0-beta.2] - 2026-11-11
-
-Second beta for testing the contract history. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **Add old contracts by hand.** In the History tab, administrators can add an earlier term of a contract (for example a contract from two years ago) with "Add an old contract" and edit or delete it with the pencil in its row. Start and end are required; provider, tariff, price, base price and instalment are optional. **Consumption, cost, instalments paid and balance are worked out automatically** where possible: the consumption from the long-term statistics of the contract's meter, the rest from it and the prices (gas with calorific value and state number; for flat-rate contracts the cost is what was paid). The dialog shows the calculated values and where they come from, and every value can be typed in by hand, which takes precedence. New websocket commands `tariffy/history_calc`, `tariffy/history_save` and `tariffy/history_delete` (administrators only).
-
-### Changed
-
-- The history keeps up to 50 terms per contract (was 20), because terms can now be added by hand.
-
-## [1.28.0-beta.1] - 2026-11-11
-
-Beta release for testing the contract history. Please report problems with the bug report form and mention this exact version. HACS offers this version only if "Show beta versions" is enabled.
-
-### Added
-
-- **Contract history.** When the next contract takes over on its planned date, the old term is now saved before the contract data is replaced (term, provider, tariff, prices, instalment, cost so far, consumption and balance at the end; no customer or meter numbers, at most the last 20 terms). The new **History** tab of the sidebar panel shows them under each contract. Terms that ended before this version are not available; the history starts with the next switch.
-- **Archive expired contracts.** A contract whose end has passed and that has no next contract is marked **Expired** in the overview. Administrators can archive it in the "Contracts" tab (asks first). An archived contract leaves the overview, the costs, the contract list and the totals and appears in the History tab; its reminders and warnings are switched off. Nothing is deleted, all sensors and their statistics stay, and **Restore** brings the contract back. Nothing is archived automatically, so existing installations look exactly as before until someone archives a contract.
-- Both live in internal keys of the contract data (`_historie`, `_archiviert`): no new sensor and no new entity. They survive editing a contract.
+- **A meter that reports in Wh or MWh gave a consumption that was 1000 times too high** (or too low). The unit of the consumption sensor is now read and the consumption is calculated in kWh (Wh ÷ 1000, MWh × 1000); kWh and every other unit stay exactly as they are. A template sensor as a workaround is no longer needed. Reported in #74.
+- **"Cost so far" was 0.00 € when the instalment was filled in after the contract was created.** Contracts that were affected are corrected on their own.
+- The list of a drop-down in the panel's dialogs was unreadable in some browsers, and date fields stuck out of the dialog on an iPhone.
 
 ## [1.27.3] - 2026-11-11
 
