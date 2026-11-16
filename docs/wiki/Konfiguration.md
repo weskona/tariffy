@@ -5,7 +5,7 @@
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
 | Bezeichnung | ✅ | Anzeigename (z. B. „Strom Haus") |
-| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Sonstiges |
+| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Kredit / Finanzierung, Versicherung, Sonstiges |
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
@@ -74,13 +74,13 @@ Bei einem **Wasservertrag** können im Tab **Verträge** des Panels (Block **Au�
 
 ## Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Streaming, Versicherung, …)
 
-**Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Bei nicht monatlicher Zahlweise zählen die **Abbuchungen** zu den Kosten bisher; die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.
+**Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Zu den Kosten bisher zählen die **gebuchten Raten** (bei monatlicher Zahlung eine Rate ab dem ersten Tag ihres Monats); die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.
 
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
 | Zahlweise | ✅ | monatlich, vierteljährlich, halbjährlich oder jährlich |
 | Betrag pro Zahlung | ✅ | € pro Zahlung in der gewählten Zahlweise (zum Beispiel der Jahresbeitrag) |
-| Erste Abbuchung am | – | Nur bei nicht monatlicher Zahlweise; leer = Vertragsbeginn |
+| Erste Abbuchung am | – | Leer = Vertragsbeginn |
 | Grundpreis | – | €/Monat (falls separat ausgewiesen) |
 
 **Versicherungen** haben vor den Kosten einen eigenen Schritt **Art der Versicherung** (Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige). **Nur bei einer Kfz-Versicherung** folgt danach ein Schritt mit Angaben zum Auto; alle anderen Arten gehen gleich weiter zu den Kosten. Alle Versicherungsangaben sind optional und dienen der Dokumentation, es wird nichts berechnet.
@@ -90,3 +90,24 @@ Bei einem **Wasservertrag** können im Tab **Verträge** des Panels (Block **Au�
 | Kennzeichen | – | Wie die Kundennummer persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
 | Kilometerstand bei Vertragsbeginn | – | in km |
 | Erlaubte Kilometer pro Jahr | – | in km |
+
+## Kredit / Finanzierung
+
+Die Sparte **Kredit / Finanzierung** ist für Annuitätendarlehen (Baufinanzierung), Ratenkredite und Autofinanzierungen. Sie läuft **getrennt von den Verträgen**: Der Kredit hat im Panel eine eigene Gruppe und zählt nicht in die Summen der Verträge (Abschläge pro Monat, Kosten bisher, Kostenaufteilung). Nach dem allgemeinen Schritt folgt ein Schritt mit den Kreditdaten:
+
+| Feld | Pflicht | Beschreibung |
+|------|---------|-------------|
+| Kreditsumme | ✅ | Der geliehene Betrag in € |
+| Sollzins | – | % pro Jahr (nominal). Mit ihm rechnen die Banken die Rate. |
+| Effektiver Jahreszins | – | %; zur Information und als Ersatz, wenn es keinen Sollzins gibt. **Einer der beiden Zinssätze ist nötig.** |
+| Laufzeit | ✅ | Monate ab Vertragsbeginn. Das Vertragsende ergibt sich daraus. |
+| Zahlweise | ✅ | monatlich, vierteljährlich, halbjährlich oder jährlich |
+| Rate je Zahlung | – | Die Rate aus deinem Vertrag. **Leer = Tariffy rechnet die Annuität aus.** Passt die Rate nicht zum Zins (mehr als 1 % Abweichung), zeigt Tariffy die berechnete Rate und weist darauf hin. |
+| Schlussrate / Restwert | – | Ein Betrag, der am Ende noch offen ist und mit der letzten Rate gezahlt wird (Autofinanzierung) |
+| Datum der ersten Rate | – | Leer = ein Zahlungsintervall nach dem Beginn (bei monatlicher Zahlung: Ende des ersten Monats) |
+
+**Berechnung:** Jede Rate besteht aus Zinsen auf die Restschuld und Tilgung; der Zinsanteil sinkt von Rate zu Rate. Der Zins je Zahlung ist der Sollzins geteilt durch die Zahlungen pro Jahr, ohne Sollzins wird er aus dem effektiven Jahreszins abgeleitet. Eine Rate zählt ab ihrem Datum. **Nicht enthalten:** Sondertilgungen und ein wechselnder Zins innerhalb der Laufzeit.
+
+**Angezeigt** werden die **Restschuld**, **Gezahlt bisher** (Zinsen und Tilgung), die **Restsumme** (noch zu zahlen bis zum Ende), Zinsen bisher und über die Laufzeit, die gezahlten Raten, die nächste Rate mit der Aufteilung in Zins und Tilgung und der Fortschritt der Tilgung. Für jeden Kredit gibt es vier Sensoren: **Restschuld**, **Gezahlt bisher**, **Restsumme** und **Zinsen bisher**.
+
+**Anschlussfinanzierung:** Im Tab **Verträge** hat der Kredit das Symbol **Vertrag verlängern**. Der Dialog schlägt die Restschuld als neue Summe vor, dazu Zins und Laufzeit; die bisherige Laufzeit kommt in die Historie. Ein Kredit hat kein Symbol für einen Folgevertrag.

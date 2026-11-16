@@ -53,6 +53,7 @@ from .const import (
     WASSER_SPARTE,
     SPARTE_ELECTRICITY_HT_NT,
     SPARTE_INSURANCE,
+    SPARTE_LOAN,
     VERSICHERUNGSARTEN,
     CONF_ARBEITSPREIS_NT,
     CONF_ZAEHLERNUMMER_NT,
@@ -143,6 +144,7 @@ class VertragSensorDescription(SensorEntityDescription):
     ht_nt_only: bool = False
     versicherung_only: bool = False
     aussen_only: bool = False
+    loan_only: bool = False
     currency_icon: bool = False
 
 
@@ -377,6 +379,48 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get("abwasser_kosten"),
     ),
     VertragSensorDescription(
+        key="kredit_restschuld",
+        translation_key="kredit_restschuld",
+        icon="mdi:bank",
+        loan_only=True,
+        value_fn=lambda d: d.get("kredit_restschuld"),
+        attr_fn=lambda d: {
+            "tilgung_prozent": d.get("kredit_tilgung_prozent"),
+            "rate": d.get("kredit_rate"),
+            "naechste_zahlung": _fmt_date(d.get("kredit_naechste_zahlung")),
+            "zins_anteil": d.get("kredit_zins_anteil"),
+            "tilgung_anteil": d.get("kredit_tilgung_anteil"),
+        },
+    ),
+    VertragSensorDescription(
+        key="kredit_gezahlt",
+        translation_key="kredit_gezahlt",
+        icon="mdi:cash-check",
+        loan_only=True,
+        value_fn=lambda d: d.get("kredit_gezahlt"),
+        attr_fn=lambda d: {
+            "zinsen": d.get("kredit_zinsen_bisher"),
+            "tilgung": d.get("kredit_tilgung_bisher"),
+            "zahlungen": d.get("kredit_zahlungen_geleistet"),
+        },
+    ),
+    VertragSensorDescription(
+        key="kredit_restsumme",
+        translation_key="kredit_restsumme",
+        icon="mdi:cash-clock",
+        loan_only=True,
+        value_fn=lambda d: d.get("kredit_restsumme"),
+        attr_fn=lambda d: {"zahlungen_offen": (d.get("kredit_zahlungen_gesamt") or 0) - (d.get("kredit_zahlungen_geleistet") or 0)},
+    ),
+    VertragSensorDescription(
+        key="kredit_zinsen_bisher",
+        translation_key="kredit_zinsen_bisher",
+        icon="mdi:percent",
+        loan_only=True,
+        value_fn=lambda d: d.get("kredit_zinsen_bisher"),
+        attr_fn=lambda d: {"zinsen_gesamt": d.get("kredit_zinsen_gesamt")},
+    ),
+    VertragSensorDescription(
         key="einspeiseverguetung",
         translation_key="einspeiseverguetung",
         icon="mdi:transmission-tower-export",
@@ -584,6 +628,7 @@ async def async_setup_entry(
     hat_tag_nacht = bool(coordinator.data.get("hat_tag_nacht"))
     hat_tiered = bool(coordinator.data.get("ist_tiered"))
     hat_aussen = bool(coordinator.data.get("aussenzaehler"))
+    ist_kredit = sparte == SPARTE_LOAN
 
     def _passend(desc: VertragSensorDescription) -> bool:
         if desc.energie_only and not ist_energie:
@@ -603,6 +648,8 @@ async def async_setup_entry(
         if desc.versicherung_only and not ist_versicherung:
             return False
         if desc.aussen_only and not hat_aussen:
+            return False
+        if desc.loan_only and not ist_kredit:
             return False
         return True
 
@@ -647,7 +694,7 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
         elif key == "jahreskosten":
             self._attr_native_unit_of_measurement = currency
-        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher", "garten_kosten", "abwasser_kosten"):
+        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher", "garten_kosten", "abwasser_kosten", "kredit_restschuld", "kredit_gezahlt", "kredit_restsumme", "kredit_zinsen_bisher"):
             self._attr_native_unit_of_measurement = currency
         elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit", "garten_verbrauch", "abwasserpflichtiger_verbrauch"):
             if sparte in (GAS_SPARTE, WASSER_SPARTE):

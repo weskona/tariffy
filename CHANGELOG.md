@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.30.0-beta.1] - 2026-11-16
+
+First beta of 1.30.0. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **New category "Loan / financing"** (requested in #61) for annuity loans, instalment loans and car financing. A loan is kept **apart from the contracts**: it has a group of its own in the panel (overview, costs, contracts) and does not count in the totals of the contracts. In the form you enter the loan amount, the **nominal interest rate** and/or the **effective annual rate**, the term in months, the payment interval (monthly to yearly) and, optionally, the **rate** (empty = Tariffy calculates the annuity; a rate that does not fit the interest is reported), a **final payment / residual value** and the **date of the first payment** (empty = one interval after the start, a monthly loan: the end of the first month).
+- Tariffy works out the **repayment plan**: the **remaining debt**, **paid so far** (interest and principal), the **remaining payments** until the end, interest so far and over the whole term, the payments made, the next rate split into interest and principal and the progress of the repayment. A loan has four sensors (**Remaining debt**, **Paid so far**, **Remaining payments**, **Interest paid so far**); other contracts get none.
+- **Follow-up financing** with the existing "Renew contract" icon: the remaining debt is suggested as the new amount, with a new interest rate and term; the current term goes to the history. Not included in this version: special repayments and an interest rate that changes during the term.
+
 ## [1.29.1] - 2026-11-16
 
 ### Fixed

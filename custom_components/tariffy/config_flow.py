@@ -19,6 +19,13 @@ from homeassistant.util import dt as dt_util
 from .backup import BackupError, sanitize_contract
 from .const import (
     CONF_ABSCHLAG,
+    CONF_EFFEKTIVZINS,
+    CONF_KREDIT_RATE,
+    CONF_KREDIT_SUMME,
+    CONF_LAUFZEIT_MONATE,
+    CONF_SCHLUSSRATE,
+    CONF_SOLLZINS,
+    SPARTE_LOAN,
     CONF_AUSSENZAEHLER,
     CONF_EINMALPOSTEN,
     CONF_ABSCHLAG_AB_DATUM,
@@ -664,6 +671,51 @@ def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
     )
 
 
+def _prozent() -> selector.NumberSelector:
+    return selector.NumberSelector(
+        selector.NumberSelectorConfig(min=0, max=100, step="any", mode=selector.NumberSelectorMode.BOX)
+    )
+
+
+def _kredit_schema(d: dict[str, Any]) -> vol.Schema:
+    """Kredit / Finanzierung: Summe, Zinsen, Laufzeit und Zahlweise; die Rate ist freiwillig
+    (ohne sie rechnet die Integration die Annuitaet aus)."""
+    zahlweise = _zahlweise_von(d)
+    return vol.Schema(
+        {
+            vol.Required(CONF_KREDIT_SUMME, default=d.get(CONF_KREDIT_SUMME) or 0.0): _preis(0.01),
+            _opt(CONF_SOLLZINS, d.get(CONF_SOLLZINS)): _prozent(),
+            _opt(CONF_EFFEKTIVZINS, d.get(CONF_EFFEKTIVZINS)): _prozent(),
+            vol.Required(CONF_LAUFZEIT_MONATE, default=d.get(CONF_LAUFZEIT_MONATE) or 12): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=600, step=1, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required(CONF_ZAHLWEISE, default=zahlweise): _select(
+                list(ZAHLWEISE_MONATE), translation_key="zahlweise"
+            ),
+            _opt(CONF_KREDIT_RATE, d.get(CONF_KREDIT_RATE)): _preis(0.01),
+            _opt(CONF_SCHLUSSRATE, d.get(CONF_SCHLUSSRATE)): _preis(0.01),
+            _opt(CONF_ERSTE_ZAHLUNG, d.get(CONF_ERSTE_ZAHLUNG)): selector.DateSelector(),
+        }
+    )
+
+
+def _kredit_fehler(user_input: dict[str, Any]) -> dict[str, str]:
+    """Angaben, mit denen sich kein Tilgungsplan rechnen laesst."""
+    fehler: dict[str, str] = {}
+    if float(user_input.get(CONF_KREDIT_SUMME) or 0) <= 0:
+        fehler[CONF_KREDIT_SUMME] = "kredit_summe"
+    if user_input.get(CONF_SOLLZINS) is None and user_input.get(CONF_EFFEKTIVZINS) is None:
+        fehler["base"] = "kredit_zins"
+    return fehler
+
+
+def _kredit_daten(user_input: dict[str, Any]) -> dict[str, Any]:
+    daten = dict(user_input)
+    if daten.get(CONF_LAUFZEIT_MONATE) is not None:
+        daten[CONF_LAUFZEIT_MONATE] = max(1, int(float(daten[CONF_LAUFZEIT_MONATE])))
+    return daten
+
+
 def _pauschal_monatlich(user_input: dict[str, Any]) -> dict[str, Any]:
     """Rechnet den Betrag pro Zahlung in den Monatsbetrag um, den die Integration speichert."""
     daten = dict(user_input)
@@ -820,6 +872,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_energie()
             if user_input[CONF_SPARTE] == SPARTE_INSURANCE:
                 return await self.async_step_versicherung()
+            if user_input[CONF_SPARTE] == SPARTE_LOAN:
+                return await self.async_step_kredit()
             return await self.async_step_pauschal()
         return self.async_show_form(
             step_id="user", data_schema=_common_schema(self.hass, {}, mit_name=True)
@@ -863,6 +917,19 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             data = {**self._data, **_pauschal_monatlich(user_input)}
             return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(step_id="pauschal", data_schema=_pauschal_schema({}))
+
+    async def async_step_kredit(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            errors = _kredit_fehler(user_input)
+            if not errors:
+                data = {**self._data, **_kredit_daten(user_input)}
+                return self.async_create_entry(title=self._entry_title, data=data)
+        return self.async_show_form(
+            step_id="kredit", data_schema=_kredit_schema(dict(user_input or {})), errors=errors
+        )
 
     async def async_step_versicherung(
         self, user_input: dict[str, Any] | None = None
@@ -932,6 +999,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_reconfigure_energie()
             if user_input[CONF_SPARTE] == SPARTE_INSURANCE:
                 return await self.async_step_reconfigure_versicherung()
+            if user_input[CONF_SPARTE] == SPARTE_LOAN:
+                return await self.async_step_reconfigure_kredit()
             return await self.async_step_reconfigure_pauschal()
         return self.async_show_form(
             step_id="reconfigure",
@@ -986,6 +1055,24 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             )
         return self.async_show_form(
             step_id="reconfigure_pauschal", data_schema=_pauschal_schema(dict(entry.data))
+        )
+
+    async def async_step_reconfigure_kredit(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            errors = _kredit_fehler(user_input)
+            if not errors:
+                neu = _keep_internal_state(entry.data, {**self._data, **_kredit_daten(user_input)})
+                return self.async_update_reload_and_abort(
+                    entry, title=self._entry_title or entry.title, data=neu
+                )
+        return self.async_show_form(
+            step_id="reconfigure_kredit",
+            data_schema=_kredit_schema(dict(user_input or entry.data)),
+            errors=errors,
         )
 
     async def async_step_reconfigure_versicherung(

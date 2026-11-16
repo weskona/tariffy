@@ -7,6 +7,16 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.30.0-beta.1] - 2026-11-16
+
+Erste Beta von 1.30.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Neue Sparte "Kredit / Finanzierung"** (gewünscht in #61) für Annuitätendarlehen, Ratenkredite und Autofinanzierungen. Ein Kredit läuft **getrennt von den Verträgen**: Er hat im Panel eine eigene Gruppe (Übersicht, Kosten, Verträge) und zählt nicht in die Summen der Verträge. Im Formular trägst du die Kreditsumme, den **Sollzins** und/oder den **effektiven Jahreszins**, die Laufzeit in Monaten, die Zahlweise (monatlich bis jährlich) und freiwillig die **Rate** (leer = Tariffy rechnet die Annuität aus; eine Rate, die nicht zum Zins passt, wird gemeldet), eine **Schlussrate / einen Restwert** und das **Datum der ersten Rate** ein (leer = ein Zahlungsintervall nach dem Beginn, bei monatlicher Zahlung: Ende des ersten Monats).
+- Tariffy rechnet den **Tilgungsplan**: die **Restschuld**, **Gezahlt bisher** (Zinsen und Tilgung), die **Restsumme** bis zum Ende, Zinsen bisher und über die ganze Laufzeit, die gezahlten Raten, die nächste Rate mit der Aufteilung in Zins und Tilgung und den Fortschritt der Tilgung. Ein Kredit hat vier Sensoren (**Restschuld**, **Gezahlt bisher**, **Restsumme**, **Zinsen bisher**); andere Verträge bekommen keine.
+- **Anschlussfinanzierung** mit dem vorhandenen Symbol "Vertrag verlängern": Die Restschuld wird als neue Summe vorgeschlagen, dazu neuer Zins und neue Laufzeit; die bisherige Laufzeit kommt in die Historie. Nicht enthalten in dieser Version: Sondertilgungen und ein wechselnder Zins innerhalb der Laufzeit.
+
 ## [1.29.1] - 2026-11-16
 
 ### Fixed

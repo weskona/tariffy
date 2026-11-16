@@ -2,7 +2,7 @@
 
 ## Features
 
-- **Categories:** Electricity, Gas, Water, Internet, Mobile, Streaming, Insurance, Other
+- **Categories:** Electricity, Gas, Water, Internet, Mobile, Streaming, Loan, Insurance, Other
 - **Real consumption tracking** – connect any HA sensor as your meter; Tariffy reads the meter value at contract start from Long-Term Statistics and calculates consumption since contract start and projected annual usage
 - **Real billing forecast** – forecast based on actual measured consumption (credit or surcharge)
 - **Last contract period consumption** – frozen at tariff switch; used to calculate the recommended monthly payment for the new period
@@ -250,6 +250,27 @@ A **water contract** can have up to ten outdoor meters, entered in the **Contrac
 - Outdoor water costs the fresh-water price (or the price of its own), the rest fresh water plus wastewater. The cost so far, the forecast and the recommended instalment use the **weighted price** of the main meter, like a dual-tariff meter.
 - A meter in litres is converted to the unit of the main meter.
 - A contract with an outdoor meter gets four more sensors: **Outdoor water (consumption)**, **Outdoor water (cost)**, **Wastewater-liable consumption**, **Wastewater cost**. The total cost is in the cost sensors as always. Without an outdoor meter nothing changes.
+
+## Loan / financing
+
+The category **Loan / financing** is for annuity loans (mortgages), instalment loans and car financing. It is kept **apart from the contracts**: the loan has a group of its own in the panel and does not count in the totals of the contracts (instalments per month, cost so far, cost split). After the general step comes a step with the loan data:
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| Loan amount | ✅ | The amount borrowed, in € |
+| Nominal interest rate | – | % a year. The banks calculate the rate with this one. |
+| Effective annual interest rate | – | %; for information and as a fallback if there is no nominal rate. **One of the two rates is needed.** |
+| Term | ✅ | Months from the start of the contract. The contract end follows from it. |
+| Payment interval | ✅ | monthly, quarterly, half-yearly or yearly |
+| Rate per payment | – | The rate from your contract. **Empty = Tariffy calculates the annuity.** If the rate does not fit the interest (more than 1 % apart), Tariffy shows the calculated rate and says so. |
+| Final payment / residual value | – | An amount still open at the end and paid with the last rate (car financing) |
+| Date of the first payment | – | Empty = one payment interval after the start (a monthly loan: the end of the first month) |
+
+**Calculation:** every rate consists of interest on the remaining debt and principal; the interest share falls from rate to rate. The interest per payment is the nominal rate divided by the payments per year; without a nominal rate it is derived from the effective annual rate. A rate counts from its date. **Not included:** special repayments and an interest rate that changes during the term.
+
+**Shown** are the **remaining debt**, **paid so far** (interest and principal), the **remaining payments** (still to pay until the end), interest so far and over the term, the payments made, the next rate split into interest and principal and the progress of the repayment. Every loan has four sensors: **Remaining debt**, **Paid so far**, **Remaining payments** and **Interest paid so far**.
+
+**Follow-up financing:** in the **Contracts** tab the loan has the icon **Renew contract**. The dialog suggests the remaining debt as the new amount, plus interest and term; the current term goes to the history. A loan has no icon for a next contract.
 
 ## One-time items (bonus and bill)
 

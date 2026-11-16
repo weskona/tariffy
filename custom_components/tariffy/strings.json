@@ -534,6 +534,54 @@
           "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
           "preisgarantie": "Date until which the unit price is guaranteed"
         }
+      },
+      "kredit": {
+        "title": "Loan / financing",
+        "description": "Enter the loan the way the contract states it. The rate is optional: without it the integration calculates the annuity from the interest, the term and the final payment. The loan is kept apart from your contracts and does not count in their totals.",
+        "data": {
+          "kredit_summe": "Loan amount (€)",
+          "sollzins": "Nominal interest rate (% a year)",
+          "effektivzins": "Effective annual interest rate (%)",
+          "laufzeit_monate": "Term (months)",
+          "zahlweise": "Payment interval",
+          "kredit_rate": "Rate per payment (€)",
+          "schlussrate": "Final payment / residual value (€)",
+          "erste_zahlung": "Date of the first payment"
+        },
+        "data_description": {
+          "kredit_summe": "The amount borrowed, as stated in the contract",
+          "sollzins": "The banks calculate the rate with this one. If you leave it empty, the effective rate is used.",
+          "effektivzins": "Optional, for information and as a fallback if there is no nominal rate",
+          "laufzeit_monate": "Number of months from the start of the contract to its end",
+          "zahlweise": "How often a rate is paid",
+          "kredit_rate": "Optional. The rate from your contract; empty = calculated. A rate that does not fit the interest is reported.",
+          "schlussrate": "Optional: an amount that is still open at the end and paid with the last rate (car financing, residual value)",
+          "erste_zahlung": "Empty = one interval after the start of the contract (a monthly loan: the end of the first month). The following payments follow at the interval."
+        }
+      },
+      "reconfigure_kredit": {
+        "title": "Loan / financing",
+        "description": "Enter the loan the way the contract states it. The rate is optional: without it the integration calculates the annuity from the interest, the term and the final payment. The loan is kept apart from your contracts and does not count in their totals.",
+        "data": {
+          "kredit_summe": "Loan amount (€)",
+          "sollzins": "Nominal interest rate (% a year)",
+          "effektivzins": "Effective annual interest rate (%)",
+          "laufzeit_monate": "Term (months)",
+          "zahlweise": "Payment interval",
+          "kredit_rate": "Rate per payment (€)",
+          "schlussrate": "Final payment / residual value (€)",
+          "erste_zahlung": "Date of the first payment"
+        },
+        "data_description": {
+          "kredit_summe": "The amount borrowed, as stated in the contract",
+          "sollzins": "The banks calculate the rate with this one. If you leave it empty, the effective rate is used.",
+          "effektivzins": "Optional, for information and as a fallback if there is no nominal rate",
+          "laufzeit_monate": "Number of months from the start of the contract to its end",
+          "zahlweise": "How often a rate is paid",
+          "kredit_rate": "Optional. The rate from your contract; empty = calculated. A rate that does not fit the interest is reported.",
+          "schlussrate": "Optional: an amount that is still open at the end and paid with the last rate (car financing, residual value)",
+          "erste_zahlung": "Empty = one interval after the start of the contract (a monthly loan: the end of the first month). The following payments follow at the interval."
+        }
       }
     },
     "abort": {
@@ -541,7 +589,9 @@
       "invalid_backup": "The backup is not valid."
     },
     "error": {
-      "invalid_number": "Not a valid number. Use a dot or comma as the decimal separator (e.g. 11.2 or 11,2)."
+      "invalid_number": "Not a valid number. Use a dot or comma as the decimal separator (e.g. 11.2 or 11,2).",
+      "kredit_summe": "Enter a loan amount above zero.",
+      "kredit_zins": "Enter the nominal or the effective interest rate."
     }
   },
   "options": {
@@ -585,7 +635,8 @@
         "streaming": "Streaming",
         "insurance": "Insurance",
         "other": "Other",
-        "electricity_ht_nt": "Electricity (dual tariff, HT/NT)"
+        "electricity_ht_nt": "Electricity (dual tariff, HT/NT)",
+        "loan": "Loan / financing"
       }
     },
     "erinnerung": {
@@ -761,6 +812,18 @@
       },
       "km_pro_jahr": {
         "name": "Allowed kilometres per year"
+      },
+      "kredit_restschuld": {
+        "name": "Remaining debt"
+      },
+      "kredit_gezahlt": {
+        "name": "Paid so far"
+      },
+      "kredit_restsumme": {
+        "name": "Remaining payments"
+      },
+      "kredit_zinsen_bisher": {
+        "name": "Interest paid so far"
       }
     },
     "button": {
