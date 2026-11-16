@@ -19,6 +19,8 @@ from homeassistant.util import dt as dt_util
 from .backup import BackupError, sanitize_contract
 from .const import (
     CONF_ABSCHLAG,
+    CONF_AUSSENZAEHLER,
+    CONF_EINMALPOSTEN,
     CONF_ABSCHLAG_AB_DATUM,
     CONF_ABSCHLAG_VORHERIGER_WERT,
     CONF_ABSCHLAG_WARNUNG,
@@ -222,6 +224,8 @@ _INTERNER_ZUSTAND = (
     CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
     CONF_HISTORIE,
     CONF_ARCHIVIERT,
+    CONF_EINMALPOSTEN,
+    CONF_AUSSENZAEHLER,
 )
 
 

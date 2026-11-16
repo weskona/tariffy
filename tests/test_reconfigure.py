@@ -159,3 +159,12 @@ async def test_a_cleared_optional_field_is_removed(frontend_env, contract, hass)
     assert result["reason"] == "reconfigure_successful"
     await hass.async_block_till_done()
     assert "kundennummer" not in entry.data
+
+
+async def test_one_time_items_and_outdoor_meters_survive_editing_a_contract(frontend_env, contract, hass):  # noqa: F811
+    posten = [{"bezeichnung": "Wechselbonus", "betrag": 80.0, "datum": "2026-02-01"}]
+    zaehler = [{"name": "Garten", "sensor": "sensor.garten"}]
+    entry, _ = await _contract(contract, _einmalposten=posten, _aussenzaehler=zaehler)
+    data = await _reconfigure(hass, entry)
+    assert data["_einmalposten"] == posten
+    assert data["_aussenzaehler"] == zaehler
