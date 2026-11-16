@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.0-beta.2] - 2026-11-16
+
+Second beta of 1.29.0. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **Outdoor meters for a water contract** (garden, pool, irrigation). Water taken through such a meter does not go into the sewer and is not charged wastewater. In the panel, in the list of contracts, a water contract has a block **Outdoor meters** (administrators can add, edit and delete up to ten meters): name, the consumption sensor in Home Assistant, an optional start value (the reading of the meter at the start of the contract, in the unit of the meter) and an optional price of its own per unit (otherwise the fresh-water price). The consumption of an outdoor meter is part of the main meter: **wastewater-liable consumption = main meter − outdoor meters**. The cost so far, the forecast and the recommended instalment are calculated with the weighted price of the main meter, the same way as for a dual-tariff electricity meter. A meter in litres is converted to the unit of the main meter. A tariff switch keeps the meters (without their start value).
+- For a contract **with** an outdoor meter there are four more sensors: **Outdoor water (consumption)**, **Outdoor water (cost)**, **Wastewater-liable consumption** and **Wastewater cost**; the panel shows them in the same block. **Contracts without an outdoor meter get no new sensor and no other number.** Requested in #73.
+
 ## [1.29.0-beta.1] - 2026-11-16
 
 First beta of 1.29.0 (the release candidates of 1.28.0 ended at rc.9; the next stable version will contain everything from 1.28.x). Please report problems with the bug report form and mention this exact version.

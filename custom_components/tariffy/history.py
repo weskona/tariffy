@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 import math
+import re
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -25,7 +26,9 @@ from .const import (
     CONF_ABSCHLAG,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
+    AUSSENZAEHLER_MAX,
     CONF_ARCHIVIERT,
+    CONF_AUSSENZAEHLER,
     CONF_BEGINN,
     CONF_BRENNWERT,
     CONF_EINMALPOSTEN,
@@ -43,6 +46,7 @@ from .const import (
     GAS_SPARTE,
     HISTORIE_MAX,
     METERED_SPARTEN,
+    WASSER_SPARTE,
     ZAHLWEISE_MONATE,
 )
 
@@ -348,3 +352,64 @@ def delete_einmal(hass: HomeAssistant, entry: ConfigEntry, index: int) -> None:
     else:
         data.pop(CONF_EINMALPOSTEN, None)
     hass.config_entries.async_update_entry(entry, data=data)
+
+
+# ------------------------------------------------------- Aussenzaehler (Wasser)
+_ENTITY_ID = re.compile(r"^[a-z0-9_]+\.[a-z0-9_]+$")
+
+
+def _aussenzaehler(values: dict[str, Any], haupt: str | None) -> dict[str, Any]:
+    name = str(values.get("name") or "").strip()[:100]
+    if not name:
+        raise HistoryError("invalid_name")
+    sensor = str(values.get("sensor") or "").strip().lower()
+    if not _ENTITY_ID.match(sensor) or len(sensor) > 255:
+        raise HistoryError("invalid_sensor")
+    if sensor == haupt:
+        raise HistoryError("same_sensor")
+    eintrag: dict[str, Any] = {"name": name, "sensor": sensor}
+    start = _number(values.get("start_wert"), "start_wert")
+    if start is not None:
+        eintrag["start_wert"] = start
+    preis = _number(values.get("preis"), "preis")
+    if preis is not None:
+        eintrag["preis"] = preis
+    return eintrag
+
+
+def save_aussenzaehler(
+    hass: HomeAssistant, entry: ConfigEntry, values: dict[str, Any], index: int | None = None
+) -> bool:
+    """Legt einen Aussenzaehler an oder ersetzt den mit `index`. Nur fuer Wasservertraege.
+    Gibt zurueck, ob sich dadurch aendert, ob der Vertrag Aussenzaehler hat (dann muss er neu laden,
+    damit die zusaetzlichen Sensoren entstehen)."""
+    if entry.data.get(CONF_SPARTE) != WASSER_SPARTE:
+        raise HistoryError("not_available")
+    eintrag = _aussenzaehler(values, entry.data.get(CONF_VERBRAUCH_SENSOR))
+    liste = list(entry.data.get(CONF_AUSSENZAEHLER) or [])
+    war_leer = not liste
+    if index is not None:
+        if not 0 <= index < len(liste):
+            raise HistoryError("not_found")
+        liste[index] = eintrag
+    else:
+        if len(liste) >= AUSSENZAEHLER_MAX:
+            raise HistoryError("too_many")
+        liste.append(eintrag)
+    hass.config_entries.async_update_entry(entry, data={**entry.data, CONF_AUSSENZAEHLER: liste})
+    return war_leer
+
+
+def delete_aussenzaehler(hass: HomeAssistant, entry: ConfigEntry, index: int) -> bool:
+    """Loescht einen Aussenzaehler; gibt zurueck, ob es der letzte war."""
+    liste = list(entry.data.get(CONF_AUSSENZAEHLER) or [])
+    if not 0 <= index < len(liste):
+        raise HistoryError("not_found")
+    del liste[index]
+    data = dict(entry.data)
+    if liste:
+        data[CONF_AUSSENZAEHLER] = liste
+    else:
+        data.pop(CONF_AUSSENZAEHLER, None)
+    hass.config_entries.async_update_entry(entry, data=data)
+    return not liste

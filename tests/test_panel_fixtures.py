@@ -76,8 +76,12 @@ CONTRACTS = [
             "abwasser_typ": "percentage", "arbeitspreis_abwasser": 90.0,
             "beginn": "2026-01-01", "ende": "2026-12-31", "erinnerung_monate": "0",
             "wasser_einheit": "m³", "verbrauch_sensor": "sensor.wasser",
+            "_aussenzaehler": [{"name": "Garten", "sensor": "sensor.wasser_garten"}],
         },
-        {"sensor.wasser": ((141.0, 141.0), (100.0, 100.0), "m³")},
+        {
+            "sensor.wasser": ((141.0, 141.0), (100.0, 100.0), "m³"),
+            "sensor.wasser_garten": ((12.0, 12.0), (0.0, 0.0), "m³"),
+        },
         {},
     ),
     (

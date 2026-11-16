@@ -142,6 +142,7 @@ class VertragSensorDescription(SensorEntityDescription):
     tiered_only: bool = False
     ht_nt_only: bool = False
     versicherung_only: bool = False
+    aussen_only: bool = False
     currency_icon: bool = False
 
 
@@ -340,6 +341,40 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         wasser_only=True,
         value_fn=lambda d: d.get("arbeitspreis_gesamt_wasser"),
+    ),
+    VertragSensorDescription(
+        key="garten_verbrauch",
+        translation_key="garten_verbrauch",
+        icon="mdi:sprinkler",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        wasser_only=True,
+        aussen_only=True,
+        value_fn=lambda d: d.get("garten_verbrauch"),
+    ),
+    VertragSensorDescription(
+        key="garten_kosten",
+        translation_key="garten_kosten",
+        icon="mdi:cash-multiple",
+        wasser_only=True,
+        aussen_only=True,
+        value_fn=lambda d: d.get("garten_kosten"),
+    ),
+    VertragSensorDescription(
+        key="abwasserpflichtiger_verbrauch",
+        translation_key="abwasserpflichtiger_verbrauch",
+        icon="mdi:water-minus",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        wasser_only=True,
+        aussen_only=True,
+        value_fn=lambda d: d.get("abwasserpflichtiger_verbrauch"),
+    ),
+    VertragSensorDescription(
+        key="abwasser_kosten",
+        translation_key="abwasser_kosten",
+        icon="mdi:cash-multiple",
+        wasser_only=True,
+        aussen_only=True,
+        value_fn=lambda d: d.get("abwasser_kosten"),
     ),
     VertragSensorDescription(
         key="einspeiseverguetung",
@@ -548,6 +583,7 @@ async def async_setup_entry(
     ist_versicherung = sparte == SPARTE_INSURANCE
     hat_tag_nacht = bool(coordinator.data.get("hat_tag_nacht"))
     hat_tiered = bool(coordinator.data.get("ist_tiered"))
+    hat_aussen = bool(coordinator.data.get("aussenzaehler"))
 
     def _passend(desc: VertragSensorDescription) -> bool:
         if desc.energie_only and not ist_energie:
@@ -565,6 +601,8 @@ async def async_setup_entry(
         if desc.ht_nt_only and not ist_ht_nt:
             return False
         if desc.versicherung_only and not ist_versicherung:
+            return False
+        if desc.aussen_only and not hat_aussen:
             return False
         return True
 
@@ -609,9 +647,9 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
         elif key == "jahreskosten":
             self._attr_native_unit_of_measurement = currency
-        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher"):
+        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher", "garten_kosten", "abwasser_kosten"):
             self._attr_native_unit_of_measurement = currency
-        elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit"):
+        elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit", "garten_verbrauch", "abwasserpflichtiger_verbrauch"):
             if sparte in (GAS_SPARTE, WASSER_SPARTE):
                 # verbrauch_bisher/hochgerechnet sind der ROHE Delta-Wert des
                 # verbrauch_sensor, in dessen tatsaechlicher Einheit (meist m³

@@ -62,6 +62,16 @@ Wie Strom, zusätzlich:
 | Abwassergebühr | – | Betrag je nach gewähltem Typ |
 | Zählernummer | – | Für Dokumentation |
 
+### Außenzähler (Garten, Pool, Bewässerung)
+
+Bei einem **Wasservertrag** können im Tab **Verträge** des Panels (Block **Außenzähler**, nur Administratoren) bis zu zehn Außenzähler eingetragen werden. Wasser, das darüber läuft, fließt nicht in die Kanalisation. Je Zähler: **Name**, **Verbrauchssensor**, optional ein **Startwert** (Zählerstand am Vertragsbeginn, in der Einheit des Zählers) und optional ein **eigener Preis je Einheit** (sonst der Frischwasserpreis). Der Außenzähler gilt als Unterzähler, sein Verbrauch ist im Hauptzähler enthalten:
+
+- **Abwasserpflichtiger Verbrauch = Hauptzähler − Summe der Außenzähler** (nie unter 0).
+- Das Gartenwasser kostet Frischwasserpreis (oder den eigenen Preis), das übrige Wasser Frischwasser plus Abwasser. Die Kosten bisher, die Prognose und der empfohlene Abschlag rechnen mit dem daraus **gewichteten Preis** des Hauptzählers, wie beim Zweizählertarif.
+- Ein Zähler in Litern wird in die Einheit des Hauptzählers umgerechnet.
+- Für einen Vertrag mit Außenzähler gibt es vier zusätzliche Sensoren: **Gartenwasser (Verbrauch)**, **Gartenwasser (Kosten)**, **Abwasserpflichtiger Verbrauch**, **Abwasserkosten**. Die Gesamtkosten stehen wie immer in den Kosten-Sensoren. Ohne Außenzähler ändert sich nichts.
+
+
 ## Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Streaming, Versicherung, …)
 
 **Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Bei nicht monatlicher Zahlweise zählen die **Abbuchungen** zu den Kosten bisher; die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.

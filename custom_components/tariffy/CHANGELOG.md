@@ -7,6 +7,15 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.29.0-beta.2] - 2026-11-16
+
+Zweite Beta von 1.29.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Außenzähler für einen Wasservertrag** (Garten, Pool, Bewässerung). Wasser, das über so einen Zähler läuft, fließt nicht in die Kanalisation und wird ohne Abwasser berechnet. Im Panel hat ein Wasservertrag in der Vertragsliste einen Block **Außenzähler** (Administratoren können bis zu zehn Zähler anlegen, bearbeiten und löschen): Name, der Verbrauchssensor in Home Assistant, ein optionaler Startwert (der Zählerstand am Vertragsbeginn, in der Einheit des Zählers) und ein optionaler eigener Preis je Einheit (sonst der Frischwasserpreis). Der Verbrauch eines Außenzählers ist im Hauptzähler enthalten: **abwasserpflichtiger Verbrauch = Hauptzähler − Außenzähler**. Die Kosten bisher, die Prognose und der empfohlene Abschlag werden mit dem gewichteten Preis des Hauptzählers gerechnet, so wie beim Zweizählertarif für Strom. Ein Zähler in Litern wird in die Einheit des Hauptzählers umgerechnet. Ein Tarifwechsel behält die Zähler (ohne ihren Startwert).
+- Für einen Vertrag **mit** Außenzähler gibt es vier zusätzliche Sensoren: **Gartenwasser (Verbrauch)**, **Gartenwasser (Kosten)**, **Abwasserpflichtiger Verbrauch** und **Abwasserkosten**; das Panel zeigt sie im selben Block. **Verträge ohne Außenzähler bekommen keinen neuen Sensor und keine andere Zahl.** Gewünscht in #73.
+
 ## [1.29.0-beta.1] - 2026-11-16
 
 Erste Beta von 1.29.0 (die Release Candidates von 1.28.0 enden bei rc.9; die nächste Stable-Version enthält alles aus 1.28.x). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

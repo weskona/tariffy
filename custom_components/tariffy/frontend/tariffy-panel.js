@@ -111,7 +111,13 @@ const I18N = {
     onceName: "Description", onceAmount: "Amount (+ credit, − bill)", onceDate: "Date", onceDelete: "Delete item", onceDeleteAsk: "Delete this item?", onceDeleteYes: "Yes, delete", onceSum: "Net",
     termErr_invalid_bezeichnung: "Enter a description.", termErr_invalid_betrag: "Enter an amount other than zero (with a minus for a bill).",
     minTerm: "Minimum term", noticePeriod: "Notice period", cancelBy: "Cancel by", untilDate: "until {d}",
-    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.", chartBySparte: "By category", chartByContract: "By contract", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
+    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.", secAussen: "Outdoor meters", aussenAdd: "Add outdoor meter", aussenEdit: "Edit outdoor meter", aussenTitleAdd: "Add an outdoor meter", aussenTitleEdit: "Edit outdoor meter",
+    aussenHint: "Water that does not go into the sewer (garden, pool, irrigation). Its consumption is part of the main meter and is charged without wastewater.",
+    aussenName: "Name", aussenSensor: "Consumption sensor", aussenStart: "Start value (optional)", aussenPrice: "Own price per unit (optional)",
+    aussenDelete: "Delete meter", aussenDeleteAsk: "Delete this outdoor meter?", aussenTooMany: "There are too many outdoor meters (10).",
+    gardenUse: "Outdoor water", gardenCost: "Outdoor water cost", wwUse: "Wastewater-liable consumption", wwCost: "Wastewater cost",
+    termErr_invalid_name: "Enter a name.", termErr_invalid_sensor: "Enter the entity id of a sensor (for example sensor.garden_water).", termErr_same_sensor: "This is the main meter of the contract.",
+    chartBySparte: "By category", chartByContract: "By contract", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
@@ -246,7 +252,13 @@ const I18N = {
     onceName: "Bezeichnung", onceAmount: "Betrag (+ Gutschrift, − Rechnung)", onceDate: "Datum", onceDelete: "Posten löschen", onceDeleteAsk: "Diesen Posten löschen?", onceDeleteYes: "Ja, löschen", onceSum: "Saldo",
     termErr_invalid_bezeichnung: "Trage eine Bezeichnung ein.", termErr_invalid_betrag: "Trage einen Betrag ungleich null ein (mit Minus für eine Rechnung).",
     minTerm: "Mindestlaufzeit", noticePeriod: "Kündigungsfrist", cancelBy: "Kündigen bis", untilDate: "bis {d}",
-    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.", chartBySparte: "Je Sparte", chartByContract: "Je Vertrag", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
+    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.", secAussen: "Außenzähler", aussenAdd: "Außenzähler hinzufügen", aussenEdit: "Außenzähler bearbeiten", aussenTitleAdd: "Außenzähler hinzufügen", aussenTitleEdit: "Außenzähler bearbeiten",
+    aussenHint: "Wasser, das nicht in die Kanalisation fließt (Garten, Pool, Bewässerung). Sein Verbrauch ist im Hauptzähler enthalten und wird ohne Abwasser berechnet.",
+    aussenName: "Name", aussenSensor: "Verbrauchssensor", aussenStart: "Startwert (optional)", aussenPrice: "Eigener Preis je Einheit (optional)",
+    aussenDelete: "Zähler löschen", aussenDeleteAsk: "Diesen Außenzähler löschen?", aussenTooMany: "Es gibt zu viele Außenzähler (10).",
+    gardenUse: "Gartenwasser", gardenCost: "Gartenwasser-Kosten", wwUse: "Abwasserpflichtiger Verbrauch", wwCost: "Abwasserkosten",
+    termErr_invalid_name: "Trage einen Namen ein.", termErr_invalid_sensor: "Trage die Entity-ID eines Sensors ein (zum Beispiel sensor.garten_wasser).", termErr_same_sensor: "Das ist der Hauptzähler des Vertrags.",
+    chartBySparte: "Je Sparte", chartByContract: "Je Vertrag", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
@@ -1602,6 +1614,7 @@ class TariffyPanel extends HTMLElement {
     if (dlg.mode === "term") { this._renderTermDialog(); return; }
     if (dlg.mode === "renew") { this._renderRenewDialog(); return; }
     if (dlg.mode === "once") { this._renderOnceDialog(); return; }
+    if (dlg.mode === "aussen") { this._renderAussenDialog(); return; }
     const busy = dlg.stage === "saving";
     const body = [h("h2", { id: "dlg-title", text: this._t({ edit: "dlgTitleEdit", create: "dlgTitleCreate", next: "dlgTitle" }[dlg.mode], { name: dlg.name }) })];
     const buttons = [];
@@ -2056,6 +2069,129 @@ class TariffyPanel extends HTMLElement {
       this._isAdmin ? h("div", { class: "once-add" }, h("button", {
         class: "btn", type: "button", onclick: () => this._openOnce(c, null),
       }, icon("plus"), this._t("onceAdd"))) : null);
+  }
+
+  /* ----- outdoor meters of a water contract (garden, pool, ...): not charged wastewater, administrators only ----- */
+  _openAussen(c, index) {
+    this._closeFlow();
+    const spec = (name, kind, label, extra = {}) => ({
+      name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const item = index === null ? {} : (c.aussenzaehler || [])[index] || {};
+    this._dlg = {
+      mode: "aussen", stage: "form", id: c.entry_id, name: c.title, index, flowId: null, localize: () => "", asking: null,
+      fields: [
+        spec("name", "text", this._t("aussenName"), { required: true }),
+        spec("sensor", "entity", this._t("aussenSensor"), { required: true, domains: ["sensor"] }),
+        spec("start_wert", "number", this._t("aussenStart"), { min: 0 }),
+        spec("preis", "number", this._t("aussenPrice"), { min: 0 }),
+      ],
+      values: {
+        name: item.name || "", sensor: item.sensor || "",
+        start_wert: isNum(item.start_wert) ? String(item.start_wert) : "", preis: isNum(item.preis) ? String(item.preis) : "",
+      },
+      fieldErrors: {}, message: null,
+    };
+    this._renderAussenDialog();
+  }
+
+  async _saveAussen() {
+    const dlg = this._dlg;
+    const { values, errors } = this._collectFlow(dlg);
+    dlg.fieldErrors = errors;
+    dlg.message = null;
+    if (Object.keys(errors).length) { this._renderAussenDialog(); return; }
+    await this._callAussen(dlg, { type: "tariffy/aussen_save", entry_id: dlg.id, values, ...(dlg.index === null ? {} : { index: dlg.index }) });
+  }
+
+  async _deleteAussen() {
+    const dlg = this._dlg;
+    await this._callAussen(dlg, { type: "tariffy/aussen_delete", entry_id: dlg.id, index: dlg.index });
+  }
+
+  async _callAussen(dlg, message) {
+    dlg.stage = "saving";
+    this._renderAussenDialog();
+    try {
+      await this._hass.callWS(message);
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.asking = null;
+      const code = String((err && (err.code || (err.body && err.body.code))) || "");
+      dlg.message = code === "too_many" ? this._t("aussenTooMany") : this._termError(err);
+      this._renderAussenDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderAussenDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t(dlg.index === null ? "aussenTitleAdd" : "aussenTitleEdit") }),
+      h("p", { class: "hint", text: dlg.name }),
+      h("p", { class: "hint", text: this._t("aussenHint") }),
+      h("div", { class: "fields" }, dlg.fields.map((f) => {
+        const error = dlg.fieldErrors[f.name];
+        return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+          h("span", { class: "lbl", text: f.label }), this._fieldInput(dlg, f),
+          error ? h("div", { class: "ferr", text: error }) : null);
+      })),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    const buttons = [];
+    if (dlg.asking === "delete") {
+      buttons.push(h("div", { class: "ask" },
+        h("span", { text: this._t("aussenDeleteAsk") }),
+        h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("onceDeleteYes"), onclick: () => this._deleteAussen() }),
+        h("button", { class: "btn", type: "button", text: this._t("actCancel"), onclick: () => { dlg.asking = null; this._renderAussenDialog(); } })));
+    } else {
+      buttons.push(h("button", { class: "btn go", type: "button", disabled: busy ? "" : null,
+        text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveAussen() }));
+      buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() }));
+      if (dlg.index !== null) {
+        buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("aussenDelete"),
+          onclick: () => { dlg.asking = "delete"; this._renderAussenDialog(); } }));
+      }
+    }
+    body.push(h("div", { class: "actions" }, buttons));
+    this._mountDialog(dlg, body, busy);
+    if (!dlg.focused) {
+      dlg.focused = true;
+      const first = this._dlgEl.querySelector("input, select");
+      if (first) first.focus();
+    }
+  }
+
+  /* the "outdoor meters" block of a water contract */
+  _aussenSection(c) {
+    if (c.sparte !== "water") return null;
+    const items = c.aussenzaehler || [];
+    if (!items.length && !this._isAdmin) return null;
+    const unit = this._unit(c);
+    const amount = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : "–");
+    const rows = items.map((item, index) => h("div", { class: "row once-row" },
+      h("span", {}, item.name, h("span", { class: "t2", text: item.sensor })),
+      h("span", { text: isNum(item.verbrauch) ? `${amount(item.verbrauch)}${isNum(item.kosten) ? ` · ${this._money(item.kosten, c.currency, { digits: 2 })}` : ""}` : "–" }),
+      this._isAdmin ? h("button", {
+        class: "icon-btn", type: "button", title: this._t("aussenEdit"), "aria-label": this._t("aussenEdit"),
+        onclick: () => this._openAussen(c, index),
+      }, icon("edit")) : null));
+    const sum = (label, value) => h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value }));
+    const totals = isNum(c.garten_verbrauch) ? [
+      sum(this._t("gardenUse"), amount(c.garten_verbrauch)),
+      sum(this._t("gardenCost"), this._money(c.garten_kosten, c.currency, { digits: 2 })),
+      sum(this._t("wwUse"), amount(c.abwasserpflichtiger_verbrauch)),
+      sum(this._t("wwCost"), this._money(c.abwasser_kosten, c.currency, { digits: 2 })),
+    ] : [];
+    return h("div", { class: "sec" }, h("h4", { text: this._t("secAussen") }), rows, totals,
+      this._isAdmin ? h("div", { class: "once-add" }, h("button", {
+        class: "btn", type: "button", onclick: () => this._openAussen(c, null),
+      }, icon("plus"), this._t("aussenAdd"))) : null);
   }
 
   /* ----- old contracts: a term entered by hand (administrators only) ----- */
@@ -2573,6 +2709,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),
       this._onceSection(c),
+      this._aussenSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),

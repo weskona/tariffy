@@ -714,8 +714,8 @@ for (const width of [1280, 900, 600, 390]) {
   check(tiles[0].text.includes("322,98 €") && tiles[0].text.includes("≈ 3.876 € / Jahr"), "instalments per month and per year");
   check(tiles[0].text.includes("Verbrauch 263,00 €") && tiles[0].text.includes("Pauschal 59,98 €"), "split into metered and flat-rate contracts");
   check(tiles[0].segments.length === 2 && Math.abs(tiles[0].segments[0] - 81.4) < 0.3 && Math.abs(tiles[0].segments[1] - 18.6) < 0.3, `the bar is proportional (${tiles[0].segments})`);
-  check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.812,30 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
-  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo heute") && tiles[1].rows[0].includes("+46,44 €"), `balance so far (${tiles[1].rows})`);
+  check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.791,24 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
+  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo heute") && tiles[1].rows[0].includes("+67,50 €"), `balance so far (${tiles[1].rows})`);
   check(tiles[2].rows.length === 4 && tiles[2].rows[0].startsWith("Strom Haus") && tiles[2].rows[3].startsWith("Gas Heizung"), `forecast per contract, worst first (${tiles[2].rows})`);
   check(tiles[3].text.toLowerCase().includes("nächste termine") && tiles[3].rows.length === 2, `the next dates (${tiles[3].rows.length} more rows)`);
   const dateRows = tiles[3].rows.map((r) => r.match(/^(\d\d)\.(\d\d)\.(\d{4})/)).filter(Boolean).map((m) => `${m[3]}${m[2]}${m[1]}`);
@@ -1361,6 +1361,41 @@ for (const width of [1280, 900, 600, 390]) {
   });
   await page.getByRole("tab", { name: "Verträge", exact: true }).click();
   check((await page.locator("details:has-text('Musik') .badge.streaming svg").count()) === 1, "a streaming contract has its own badge and icon");
+  await context.close();
+}
+
+{ // outdoor meters of a water contract
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`aussen: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Wasser" }).first().locator("summary").click();
+  const wasser = (await page.locator("details:has-text('Wasser')").first().innerText()).replace(/\u00a0/g, " ");
+  check(/Garten\s*sensor\.wasser_garten/.test(wasser) && /Gartenwasser\s*12,0 m³/.test(wasser) && /Abwasserpflichtiger Verbrauch\s*29,0 m³/.test(wasser),
+    `the water contract lists the outdoor meter and the split (${wasser.split("\n").filter((l) => /Garten|Abwasser/.test(l)).join(" | ")})`);
+  check(!(await page.locator("details:has-text('Gas Heizung')").first().innerText()).includes("Außenzähler"), "other contracts have no outdoor meters");
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  await page.locator("details", { hasText: "Wasser" }).first().getByRole("button", { name: "Außenzähler hinzufügen" }).click();
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  check((await page.locator(".dialog").innerText()).includes("Pflichtfeld") && !(await calls(page)).some((c) => c.type === "tariffy/aussen_save"), "name and sensor are required");
+  await field("name").fill("Pool");
+  await field("sensor").fill("sensor.pool");
+  await field("preis").fill("1,5");
+  await dialog(page).screenshot({ path: join(outDir, "aussen-dialog.png") });
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const sent = (await calls(page)).find((c) => c.type === "tariffy/aussen_save");
+  check(sent && sent.values.name === "Pool" && sent.values.sensor === "sensor.pool" && sent.values.preis === 1.5 && !("index" in sent), `the meter is sent (${JSON.stringify(sent)})`);
+  await page.locator("details", { hasText: "Wasser" }).first().getByRole("button", { name: "Außenzähler bearbeiten" }).first().click();
+  check((await field("name").inputValue()) === "Garten" && (await field("sensor").inputValue()) === "sensor.wasser_garten", "editing fills the meter in");
+  await page.getByRole("button", { name: "Zähler löschen" }).click();
+  await page.getByRole("button", { name: "Ja, löschen" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const gone = (await calls(page)).find((c) => c.type === "tariffy/aussen_delete");
+  check(gone && gone.index === 0, "a meter can be deleted");
   await context.close();
 }
 

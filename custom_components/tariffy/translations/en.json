@@ -664,6 +664,18 @@
       "naechster_wechsel": {
         "name": "Next switch"
       },
+      "garten_verbrauch": {
+        "name": "Outdoor water (consumption)"
+      },
+      "garten_kosten": {
+        "name": "Outdoor water (cost)"
+      },
+      "abwasserpflichtiger_verbrauch": {
+        "name": "Wastewater-liable consumption"
+      },
+      "abwasser_kosten": {
+        "name": "Wastewater cost"
+      },
       "kuendigung_erinnerung": {
         "name": "Cancellation reminder"
       },
