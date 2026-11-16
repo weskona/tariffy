@@ -16,6 +16,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
 from homeassistant.util import dt as dt_util
 
+from .backup import BackupError, sanitize_contract
 from .const import (
     CONF_ABSCHLAG,
     CONF_ABSCHLAG_AB_DATUM,
@@ -32,12 +33,19 @@ from .const import (
     CONF_BRENNWERT,
     CONF_ENDE,
     CONF_ERINNERUNG_MONATE,
+    CONF_KUENDIGUNGSFRIST,
+    CONF_MINDESTLAUFZEIT,
     CONF_KUENDIGUNG_BESTAETIGT,
     CONF_NOTIFY_GESENDET,
     CONF_VERBRAUCH_LETZTE_LAUFZEIT,
     CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
+    CONF_HISTORIE,
+    CONF_ARCHIVIERT,
     CONF_GRUNDPREIS,
     CONF_JAHRESVERBRAUCH,
+    CONF_KENNZEICHEN,
+    CONF_KM_PRO_JAHR,
+    CONF_KM_START,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_TARGET,
@@ -45,7 +53,10 @@ from .const import (
     CONF_PREISGARANTIE,
     CONF_SPARTE,
     CONF_TARIF,
+    CONF_VERSICHERUNGSART,
     CONF_ZAEHLERNUMMER,
+    CONF_ERSTE_ZAHLUNG,
+    CONF_ZAHLWEISE,
     CONF_ZUSTANDSZAHL,
     CONF_ABWASSER_TYP,
     ABWASSER_TYPEN,
@@ -74,20 +85,25 @@ from .const import (
     CONF_WASSER_EINHEIT,
     DOMAIN,
     ENERGIE_SPARTEN,
+    DEFAULT_ZAHLWEISE,
     ERINNERUNG_OPTIONS,
     GAS_EINHEITEN,
     GAS_SPARTE,
     NEXT_PREFIX,
     SPARTEN,
+    VERSICHERUNGSART_KFZ,
+    VERSICHERUNGSARTEN,
     VERBRAUCH_EINHEIT,
     VERBRAUCH_M3_EINHEIT,
     WASSER_EINHEITEN,
     WASSER_SPARTE,
     SPARTE_ELECTRICITY_HT_NT,
+    SPARTE_INSURANCE,
     CONF_ARBEITSPREIS_NT,
     CONF_VERBRAUCH_SENSOR_NT,
     CONF_VERBRAUCH_START_WERT_NT,
     CONF_ZAEHLERNUMMER_NT,
+    ZAHLWEISE_MONATE,
 )
 
 
@@ -156,6 +172,9 @@ def _stamp_abschlag_change(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str
     bereits_heute_gestempelt = alt.get(CONF_ABSCHLAG_AB_DATUM) == heute
     if (
         alter_abschlag is not None
+        # War vorher kein Abschlag eingetragen (0 ist der Vorgabewert beim Anlegen), ist das Eintragen
+        # keine Preisaenderung: der Betrag gilt dann fuer die ganze Laufzeit.
+        and float(alter_abschlag) > 0
         and neuer_abschlag is not None
         and round(float(alter_abschlag), 2) != round(float(neuer_abschlag), 2)
         and not bereits_heute_gestempelt
@@ -201,6 +220,8 @@ _INTERNER_ZUSTAND = (
     CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET,
     CONF_VERBRAUCH_LETZTE_LAUFZEIT,
     CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
+    CONF_HISTORIE,
+    CONF_ARCHIVIERT,
 )
 
 
@@ -214,12 +235,23 @@ def _keep_internal_state(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str, 
     for key in _INTERNER_ZUSTAND:
         if key in alt and key not in ergebnis:
             ergebnis[key] = alt[key]
-    if alt.get(CONF_ENDE) != ergebnis.get(CONF_ENDE) or str(
-        alt.get(CONF_ERINNERUNG_MONATE, "")
-    ) != str(ergebnis.get(CONF_ERINNERUNG_MONATE, "")):
+    def _monate(daten: dict[str, Any], key: str) -> str:
+        return str(int(_parse_dezimal(daten.get(key)) or 0))
+
+    if (
+        alt.get(CONF_ENDE) != ergebnis.get(CONF_ENDE)
+        or str(alt.get(CONF_ERINNERUNG_MONATE, "")) != str(ergebnis.get(CONF_ERINNERUNG_MONATE, ""))
+        or _monate(alt, CONF_KUENDIGUNGSFRIST) != _monate(ergebnis, CONF_KUENDIGUNGSFRIST)
+    ):
         ergebnis.pop(CONF_KUENDIGUNG_BESTAETIGT, None)
         ergebnis.pop(CONF_NOTIFY_GESENDET, None)
     return ergebnis
+
+
+def _monate_feld() -> selector.NumberSelector:
+    return selector.NumberSelector(
+        selector.NumberSelectorConfig(min=0, max=120, step=1, mode=selector.NumberSelectorMode.BOX)
+    )
 
 
 def _dezimal_feld() -> selector.TextSelector:
@@ -400,14 +432,21 @@ def _tag_nacht_fields(d: dict, enabled: bool = True) -> dict:
 
 # ------------------------------------------------------------------- schemas
 def _common_schema(
-    hass: HomeAssistant, d: dict[str, Any], *, mit_name: bool
+    hass: HomeAssistant,
+    d: dict[str, Any],
+    *,
+    mit_name: bool,
+    name: str | None = None,
 ) -> vol.Schema:
-    """Schritt 1: für alle Sparten gleich."""
+    """Schritt 1: für alle Sparten gleich. `name` ist der bisherige Name beim Bearbeiten."""
     fields: dict[Any, Any] = {}
     if mit_name:
         # FIX: vol.Required mit leerem String-Default → vol.Optional ohne Default
         # verhindert den 400-Fehler beim Laden des Config-Flows
-        fields[vol.Required("name")] = selector.TextSelector()
+        if name:
+            fields[vol.Required("name", default=name)] = selector.TextSelector()
+        else:
+            fields[vol.Required("name")] = selector.TextSelector()
     fields[vol.Required(CONF_SPARTE, default=d.get(CONF_SPARTE, "electricity"))] = _select(
         SPARTEN, translation_key="sparte"
     )
@@ -420,6 +459,8 @@ def _common_schema(
     fields[_opt(CONF_TARIF, d.get(CONF_TARIF))] = selector.TextSelector()
     fields[_opt(CONF_BEGINN, d.get(CONF_BEGINN))] = selector.DateSelector()
     fields[_opt(CONF_ENDE, d.get(CONF_ENDE))] = selector.DateSelector()
+    fields[_opt(CONF_MINDESTLAUFZEIT, d.get(CONF_MINDESTLAUFZEIT))] = _monate_feld()
+    fields[_opt(CONF_KUENDIGUNGSFRIST, d.get(CONF_KUENDIGUNGSFRIST))] = _monate_feld()
     fields[
         vol.Required(
             CONF_ERINNERUNG_MONATE, default=d.get(CONF_ERINNERUNG_MONATE, "3")
@@ -566,16 +607,67 @@ def _gas_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
     )
 
 
-def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
-    """Schritt 2 für Pauschalverträge (Internet, Mobilfunk, …)."""
+def _zahlweise_von(d: dict[str, Any]) -> str:
+    zahlweise = d.get(CONF_ZAHLWEISE)
+    return zahlweise if zahlweise in ZAHLWEISE_MONATE else DEFAULT_ZAHLWEISE
+
+
+def _versicherungsart_schema(d: dict[str, Any]) -> vol.Schema:
+    """Eigener Schritt einer Versicherung: was sie versichert (optional, nur zur Dokumentation)."""
     return vol.Schema(
         {
-            vol.Required(
-                CONF_ABSCHLAG, default=d.get(CONF_ABSCHLAG, 0.0)
-            ): _preis(0.01),
+            _opt(CONF_VERSICHERUNGSART, d.get(CONF_VERSICHERUNGSART)): _select(
+                VERSICHERUNGSARTEN, translation_key=CONF_VERSICHERUNGSART
+            ),
+        }
+    )
+
+
+def _kfz_schema(d: dict[str, Any]) -> vol.Schema:
+    """Schritt nur fuer eine Kfz-Versicherung: Kennzeichen, Kilometerstand bei Vertragsbeginn und
+    Kilometer pro Jahr. Alles optional und nur zur Dokumentation."""
+    km = selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            min=0, step=1, mode=selector.NumberSelectorMode.BOX, unit_of_measurement="km"
+        )
+    )
+    return vol.Schema(
+        {
+            _opt(CONF_KENNZEICHEN, d.get(CONF_KENNZEICHEN)): selector.TextSelector(),
+            _opt(CONF_KM_START, d.get(CONF_KM_START)): km,
+            _opt(CONF_KM_PRO_JAHR, d.get(CONF_KM_PRO_JAHR)): km,
+        }
+    )
+
+
+def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
+    """Kosten-Schritt für Pauschalverträge (Internet, Mobilfunk, Versicherung, …); bei einer
+    Versicherung kommen die Versicherungsangaben in eigenen Schritten davor.
+
+    Der Betrag wird pro Zahlung eingegeben (monatlich, vierteljährlich, halbjährlich,
+    jährlich); gespeichert wird weiter der Betrag pro Monat (siehe _pauschal_monatlich)."""
+    zahlweise = _zahlweise_von(d)
+    betrag = round(float(d.get(CONF_ABSCHLAG) or 0.0) * ZAHLWEISE_MONATE[zahlweise], 2)
+    return vol.Schema(
+        {
+            vol.Required(CONF_ZAHLWEISE, default=zahlweise): _select(
+                list(ZAHLWEISE_MONATE), translation_key="zahlweise"
+            ),
+            vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
+            _opt(CONF_ERSTE_ZAHLUNG, d.get(CONF_ERSTE_ZAHLUNG)): selector.DateSelector(),
             _opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS)): _preis(0.01),
         }
     )
+
+
+def _pauschal_monatlich(user_input: dict[str, Any]) -> dict[str, Any]:
+    """Rechnet den Betrag pro Zahlung in den Monatsbetrag um, den die Integration speichert."""
+    daten = dict(user_input)
+    zahlweise = _zahlweise_von(daten)
+    daten[CONF_ZAHLWEISE] = zahlweise
+    if daten.get(CONF_ABSCHLAG) is not None:
+        daten[CONF_ABSCHLAG] = round(float(daten[CONF_ABSCHLAG]) / ZAHLWEISE_MONATE[zahlweise], 6)
+    return daten
 
 
 def _wasser_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
@@ -722,9 +814,21 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_energie_ht_nt()
             if user_input[CONF_SPARTE] in ENERGIE_SPARTEN:
                 return await self.async_step_energie()
+            if user_input[CONF_SPARTE] == SPARTE_INSURANCE:
+                return await self.async_step_versicherung()
             return await self.async_step_pauschal()
         return self.async_show_form(
             step_id="user", data_schema=_common_schema(self.hass, {}, mit_name=True)
+        )
+
+    async def async_step_import(self, import_data: dict[str, Any]) -> ConfigFlowResult:
+        """Legt einen Vertrag aus einer Sicherung an (Name, Daten, Folgevertrag)."""
+        try:
+            contract = sanitize_contract(import_data)
+        except BackupError:
+            return self.async_abort(reason="invalid_backup")
+        return self.async_create_entry(
+            title=contract["title"], data=contract["data"], options=contract["options"]
         )
 
     async def async_step_energie(
@@ -752,10 +856,31 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         if user_input is not None:
-            data = {**self._data, **user_input}
+            data = {**self._data, **_pauschal_monatlich(user_input)}
             return self.async_create_entry(title=self._entry_title, data=data)
+        return self.async_show_form(step_id="pauschal", data_schema=_pauschal_schema({}))
+
+    async def async_step_versicherung(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Was versichert der Vertrag? Nur eine Kfz-Versicherung fragt danach weiter."""
+        if user_input is not None:
+            self._data.update(user_input)
+            if user_input.get(CONF_VERSICHERUNGSART) == VERSICHERUNGSART_KFZ:
+                return await self.async_step_versicherung_kfz()
+            return await self.async_step_pauschal()
         return self.async_show_form(
-            step_id="pauschal", data_schema=_pauschal_schema({})
+            step_id="versicherung", data_schema=_versicherungsart_schema({}), last_step=False
+        )
+
+    async def async_step_versicherung_kfz(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_pauschal()
+        return self.async_show_form(
+            step_id="versicherung_kfz", data_schema=_kfz_schema({}), last_step=False
         )
 
     async def async_step_gas(
@@ -791,6 +916,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         entry = self._get_reconfigure_entry()
         if user_input is not None:
             self._data = dict(user_input)
+            # der Name ist der Titel des Vertrags, kein Vertragsdatum; leer = bleibt wie er ist
+            self._entry_title = str(self._data.pop("name", "") or "").strip() or entry.title
             if user_input[CONF_SPARTE] == GAS_SPARTE:
                 return await self.async_step_reconfigure_gas()
             if user_input[CONF_SPARTE] == WASSER_SPARTE:
@@ -799,10 +926,12 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_reconfigure_energie_ht_nt()
             if user_input[CONF_SPARTE] in ENERGIE_SPARTEN:
                 return await self.async_step_reconfigure_energie()
+            if user_input[CONF_SPARTE] == SPARTE_INSURANCE:
+                return await self.async_step_reconfigure_versicherung()
             return await self.async_step_reconfigure_pauschal()
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=_common_schema(self.hass, dict(entry.data), mit_name=False),
+            data_schema=_common_schema(self.hass, dict(entry.data), mit_name=True, name=entry.title),
         )
 
     async def async_step_reconfigure_energie(
@@ -813,7 +942,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-            return self.async_update_reload_and_abort(entry, data=neu)
+            return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_energie",
             data_schema=_energie_schema(dict(entry.data), _country_features(self.hass)),
@@ -827,7 +958,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-            return self.async_update_reload_and_abort(entry, data=neu)
+            return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_energie_ht_nt",
             data_schema=_energie_ht_nt_schema(dict(entry.data), _country_features(self.hass)),
@@ -839,12 +972,44 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         entry = self._get_reconfigure_entry()
         if user_input is not None:
             neu = _keep_internal_state(
-                entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
+                entry.data,
+                _stamp_abschlag_change(
+                    entry.data, {**self._data, **_pauschal_monatlich(user_input)}
+                ),
             )
-            return self.async_update_reload_and_abort(entry, data=neu)
+            return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
-            step_id="reconfigure_pauschal",
-            data_schema=_pauschal_schema(dict(entry.data)),
+            step_id="reconfigure_pauschal", data_schema=_pauschal_schema(dict(entry.data))
+        )
+
+    async def async_step_reconfigure_versicherung(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            self._data.update(user_input)
+            if user_input.get(CONF_VERSICHERUNGSART) == VERSICHERUNGSART_KFZ:
+                return await self.async_step_reconfigure_versicherung_kfz()
+            return await self.async_step_reconfigure_pauschal()
+        return self.async_show_form(
+            step_id="reconfigure_versicherung",
+            data_schema=_versicherungsart_schema(dict(entry.data)),
+            last_step=False,
+        )
+
+    async def async_step_reconfigure_versicherung_kfz(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_reconfigure_pauschal()
+        return self.async_show_form(
+            step_id="reconfigure_versicherung_kfz",
+            data_schema=_kfz_schema(dict(entry.data)),
+            last_step=False,
         )
 
     async def async_step_reconfigure_gas(
@@ -858,7 +1023,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-                return self.async_update_reload_and_abort(entry, data=neu)
+                return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_gas",
             data_schema=_gas_schema(user_input or dict(entry.data), _country_features(self.hass)),
@@ -873,7 +1040,9 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
-            return self.async_update_reload_and_abort(entry, data=neu)
+            return self.async_update_reload_and_abort(
+                entry, title=self._entry_title or entry.title, data=neu
+            )
         return self.async_show_form(
             step_id="reconfigure_wasser",
             data_schema=_wasser_schema(dict(entry.data), _country_features(self.hass)),

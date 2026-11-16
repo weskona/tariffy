@@ -27,6 +27,8 @@ Wenn Vertragsende gesetzt und der Erinnerungszeitraum erreicht ist:
 2. Einmalige **Push-Benachrichtigung** via konfiguriertem notify-Dienst
 3. Button **„Kündigung bestätigen"** zum Quittieren
 
+**Mit Kündigungsfrist:** Trägst du beim Vertrag eine **Kündigungsfrist** (in Monaten) ein, bezieht sich die Erinnerung auf den **letzten Kündigungstag** (Vertragsende minus Frist) statt auf das Vertragsende. Beispiel: Vertragsende 31.12., Kündigungsfrist 3 Monate, Erinnerung „3 Monate vorher": Die Kündigung muss bis 30.09. vorliegen, die Meldung kommt am 30.06., also 6 Monate vor dem Vertragsende. Die Meldung nennt den letzten Kündigungstag. Ohne Kündigungsfrist ändert sich nichts. Die **Mindestlaufzeit** (in Monaten) zeigt das Panel als „bis <Beginn + Mindestlaufzeit>"; sie beeinflusst keine Erinnerung. Beide Felder sind freiwillig; der Sensor „Kündigungs-Erinnerung" hat dazu die Attribute `kuendigungsfrist_monate` und `kuendigung_bis`. Bei einem Tarifwechsel bleibt die Kündigungsfrist erhalten, die Mindestlaufzeit nicht.
+
 
 ## Abschlag-Warnung (optional)
 

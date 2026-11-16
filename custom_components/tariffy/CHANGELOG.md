@@ -7,6 +7,37 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.29.0] - 2026-11-16
+
+Dieses Release fasst alles zusammen, was in den Betas `1.28.0-beta.1` bis `1.28.0-rc.9` und `1.29.0-beta.1` bis `1.29.0-beta.3` getestet wurde (es gibt keine stabile 1.28.0; die Nummerierung geht bei 1.29.0 weiter, weil GitHub Nummern über 9 falsch sortiert, siehe "Beta-Releases" in der Dokumentation). **Bestehende Verträge laufen ohne jede Änderung weiter.** Alles Neue ist freiwillig und steht in den Vertragsdaten; neue Sensoren gibt es nur dort, wo es unten steht. Einige Zahlen ändern sich bei bestehenden Verträgen, sie stehen unter "Changed" und "Fixed".
+
+### Added
+
+- **Vertragshistorie und Archiv.** Wenn der Folgevertrag übernimmt, wird die alte Laufzeit gesichert (Zeitraum, Anbieter, Tarif, Preise, Abschlag, Kosten, Verbrauch und Saldo zum Ende; bis zu 50 Laufzeiten). Der neue Tab **Historie** zeigt die Laufzeiten unter jedem Vertrag. Ein abgelaufener Vertrag ohne Folgevertrag trägt das Badge **Abgelaufen** und lässt sich im Tab "Verträge" **archivieren** (und zurückholen); es wird nichts gelöscht und nichts von allein archiviert.
+- **Alte Verträge von Hand eintragen** im Tab Historie (Administratoren): Verbrauch, Kosten, gezahlte Abschläge und Saldo werden aus den Langzeitstatistiken des Zählers automatisch ermittelt, und jeder Wert lässt sich selbst eintragen.
+- **Sicherung und Wiederherstellung.** Der neue Tab **Sicherung** lädt alle Verträge als Datei herunter und stellt Verträge aus so einer Datei wieder her (nur Verträge, die es noch nicht gibt; die Datei wird streng geprüft; sie enthält persönliche Daten). **Gelöschte Verträge bleiben 30 Tage erhalten** und lassen sich zurückholen.
+- **Der Name eines Vertrags lässt sich ändern**, beim Bearbeiten.
+- **Zahlweise und Jahreswerte bei Pauschalverträgen** (monatlich, vierteljährlich, halbjährlich, jährlich) und eine optionale **erste Abbuchung**. Intern bleibt der Betrag pro Monat die Basis, bestehende Verträge bleiben also genau wie sie sind.
+- **Pauschalverträge verlängern** (Versicherung, Internet, Mobilfunk, Streaming, Sonstiges) mit neuem Beginn, Ende und Betrag; die alte Laufzeit kommt in die Historie. Gedacht für einen Beitrag, der jedes Jahr steigt.
+- **Gesamtkosten über alle Laufzeiten** eines Vertrags (Kachel, Zeile, Details, Tab Historie).
+- **Einmalposten pro Vertrag** (Wechselbonus positiv, Maklerhonorar negativ): sie verändern den Saldo bisher und die Gesamtkosten.
+- **Kostenaufteilung im Tab "Kosten"**: ein Ringdiagramm je Sparte (oder je Vertrag), umschaltbar zwischen "Kosten bisher" und "Pro Jahr", mit Jahresauswahl und einem Balken für Verbrauchs- gegen Pauschalverträge.
+- **Kündigungsfrist und Mindestlaufzeit** pro Vertrag (freiwillig, in Monaten). Mit Kündigungsfrist zählt die Kündigungs-Erinnerung ab dem letzten Kündigungstag: Kündigungsfrist 3 Monate und Erinnerung "3 Monate vorher" heißt, die Meldung kommt 6 Monate vor dem Vertragsende. Ohne Kündigungsfrist ändert sich nichts.
+- **Mehr Angaben bei Versicherungen**: Art der Versicherung und, bei einer Kfz-Versicherung, Kennzeichen, Kilometerstand und erlaubte Kilometer. Das Formular fragt nur nach dem, was zur Art passt.
+- **Neue Sparte "Streaming"** für Abos (eine Pauschal-Sparte mit eigenem Symbol).
+- **Außenzähler für einen Wasservertrag** (Garten, Pool, Bewässerung): Wasser über so einen Zähler wird ohne Abwasser berechnet (abwasserpflichtiger Verbrauch = Hauptzähler − Außenzähler, optional eigener Preis). Kosten, Prognose und empfohlener Abschlag rechnen mit dem gewichteten Preis. Ein Vertrag **mit** Außenzähler bekommt vier zusätzliche Sensoren; **Verträge ohne Außenzähler bekommen keinen neuen Sensor und keine andere Zahl**.
+- Das Panel zeigt die Karten der Pauschalverträge auf breiten Bildschirmen vier nebeneinander.
+
+### Changed
+
+- **Die "Kosten bisher" von Pauschalverträgen zählen die gebuchten Raten** statt eines Anteils der Tage: Jede Rate zählt am Tag der Zahlung, eine monatliche Rate ab dem ersten Tag ihres Monats (17,99 € im Monat seit dem 1. April zeigen am 13. November 143,92 €, acht Raten). Die Jahreswerte, der Abschlag und alles bei Verbrauchsverträgen bleiben unverändert.
+
+### Fixed
+
+- **Ein Zähler, der in Wh oder MWh meldet, ergab einen 1000-fach zu hohen (oder zu niedrigen) Verbrauch.** Die Einheit des Verbrauchssensors wird jetzt gelesen und der Verbrauch in kWh gerechnet (Wh ÷ 1000, MWh × 1000); kWh und jede andere Einheit bleiben genau wie sie sind. Ein Template-Sensor als Umweg ist nicht mehr nötig. Gemeldet in #74.
+- **Die "Kosten bisher" waren 0,00 €, wenn der Abschlag erst nach dem Anlegen des Vertrags eingetragen wurde.** Betroffene Verträge werden von allein korrigiert.
+- Die Liste eines Auswahlfelds in den Dialogen des Panels war in manchen Browsern unlesbar, und Datumsfelder ragten auf dem iPhone aus dem Dialog.
+
 ## [1.27.3] - 2026-11-11
 
 ### Behoben

@@ -35,6 +35,41 @@
     user: { is_admin: params.get("admin") !== "0" },
     callWS: async (message) => {
       window.__calls.push(message);
+      if (message.type === "tariffy/history_calc") { // like the backend: typed values stay, empty ones are worked out
+        const v = message.values;
+        const round = (x) => Math.round(x * 100) / 100;
+        const verbrauch = v.verbrauch !== undefined ? v.verbrauch : 3200;
+        const paid = v.abschlag_gezahlt !== undefined ? v.abschlag_gezahlt : (v.abschlag !== undefined ? round(v.abschlag * 11.99) : null);
+        const kosten = v.kosten !== undefined ? v.kosten
+          : (v.arbeitspreis !== undefined ? round(verbrauch * v.arbeitspreis + (v.grundpreis || 0) * 11.99) : null);
+        const saldo = v.saldo !== undefined ? v.saldo : (kosten !== null && paid !== null ? round(paid - kosten) : null);
+        return { values: { verbrauch, kosten, abschlag_gezahlt: paid, saldo },
+          source: v.verbrauch !== undefined ? "manual" : "statistics", sensors: ["sensor.strom_haus"], months: 11.99 };
+      }
+      if (message.type === "tariffy/backup_export") {
+        return { backup: { tariffy_backup: 1, created: "2026-07-12T12:00:00+02:00", version: "1.28.0",
+          contracts: [{ title: "Strom Haus", data: { sparte: "electricity", anbieter: "Stadtwerke Nord" }, options: {} }] } };
+      }
+      if (message.type === "tariffy/backup_preview") { // the first contract is missing, the others exist
+        return { contracts: message.backup.contracts.map((c, i) => ({ title: c.title, sparte: c.data.sparte, action: i === 0 ? "create" : "skip" })) };
+      }
+      if (message.type === "tariffy/backup_restore") {
+        if (params.get("bkerr") === "1") throw Object.assign(new Error("restore_failed"), { code: "restore_failed" });
+        const titles = message.backup.contracts.map((c) => c.title);
+        return { created: titles.slice(0, 1), skipped: titles.slice(1) };
+      }
+      if (message.type === "tariffy/deleted_list") {
+        return { deleted: [{ id: "d1", title: "Strom 2023", sparte: "electricity", deleted: "2026-07-01" }] };
+      }
+      if (message.type === "tariffy/deleted_restore") return { title: "Strom 2023" };
+      if (message.type === "tariffy/deleted_discard") return { ok: true };
+      if (message.type === "tariffy/renew") {
+        if (params.get("renewerr") === "1") throw Object.assign(new Error("invalid_abschlag"), { code: "invalid_abschlag" });
+        return { ok: true };
+      }
+      if (params.get("histerr") === "1" && message.type === "tariffy/history_save") {
+        throw Object.assign(new Error("invalid_dates"), { code: "invalid_dates" });
+      }
       if (message.action === "confirm_cancellation" && notFound > 0) {
         notFound -= 1;
         throw Object.assign(new Error("Contract not found or not loaded"), { code: "not_found" });

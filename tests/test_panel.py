@@ -261,6 +261,51 @@ class TestActions:
         assert reply["error"]["code"] == "not_available"
         assert entry.data["anbieter"] == "Stadtwerke"  # nothing changed
 
+    async def test_archive_and_restore_an_expired_contract(self, frontend_env, contract, hass, hass_ws_client):
+        client = await hass_ws_client()
+        entry, data = await contract.setup(STROM, **{**GOLDEN, "today": "2027-02-01"})
+        assert data["archivierbar"] is True
+
+        reply = await _action(client, entry.entry_id, "archive_contract")
+        assert reply["success"] is True
+        await hass.async_block_till_done()
+        assert entry.data["_archiviert"] == "2027-02-01"
+        assert entry.data["anbieter"] == "Stadtwerke"  # nothing else changed
+        (term,) = entry.data["_historie"]  # the last term is kept in the history
+        assert term["archiviert"] is True and term["ende"] == "2026-12-31"
+        assert entry.runtime_data.data["archiviert"] is True
+        assert entry.runtime_data.data["archivierbar"] is False
+        assert panel.contract_payload(hass, entry)["archiviert"] is True
+
+        again = await _action(client, entry.entry_id, "archive_contract")
+        assert again["error"]["code"] == "not_available"
+
+        reply = await _action(client, entry.entry_id, "restore_contract")
+        assert reply["success"] is True
+        await hass.async_block_till_done()
+        assert "_archiviert" not in entry.data
+        assert "_historie" not in entry.data  # the entry the archiving made is gone again
+        assert entry.runtime_data.data["archiviert"] is False
+        assert entry.runtime_data.data["archivierbar"] is True
+
+    @pytest.mark.parametrize("action", ["archive_contract", "restore_contract"])
+    async def test_archive_actions_are_refused_when_not_possible(self, frontend_env, contract, hass_ws_client, action):
+        client = await hass_ws_client()
+        entry, _ = await contract.setup(STROM, **GOLDEN)  # still running, not archived
+        reply = await _action(client, entry.entry_id, action)
+        assert reply["success"] is False
+        assert reply["error"]["code"] == "not_available"
+        assert "_archiviert" not in entry.data
+
+    async def test_non_admin_cannot_archive(
+        self, frontend_env, contract, hass, hass_ws_client, hass_read_only_access_token
+    ):
+        client = await hass_ws_client(hass, hass_read_only_access_token)
+        entry, _ = await contract.setup(STROM, **{**GOLDEN, "today": "2027-02-01"})
+        reply = await _action(client, entry.entry_id, "archive_contract")
+        assert reply["error"]["code"] == "unauthorized"
+        assert "_archiviert" not in entry.data
+
     async def test_unknown_contract(self, frontend_env, contract, hass_ws_client):
         client = await hass_ws_client()
         await contract.setup(STROM, **GOLDEN)

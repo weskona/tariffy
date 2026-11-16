@@ -37,7 +37,7 @@ On a phone the cards turn into expandable rows:
 
 ### Features
 
-- **Categories:** Electricity, Gas, Water, Internet, Mobile, Insurance, Other
+- **Categories:** Electricity, Gas, Water, Internet, Mobile, Streaming, Insurance, Other
 - **Real consumption tracking** – connect any HA sensor as your meter; Tariffy reads the meter value at contract start from Long-Term Statistics and calculates consumption since contract start and projected annual usage
 - **Real billing forecast** – forecast based on actual measured consumption (credit or surcharge)
 - **Last contract period consumption** – frozen at tariff switch; used to calculate the recommended monthly payment for the new period
@@ -75,7 +75,7 @@ On a phone the cards turn into expandable rows:
 | Refund/balance due (so far) | € | Energy | Instalments paid so far − Cost (so far), as of today (no projection). Icon shows 👍/👎 depending on sign |
 | Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
 | Annual consumption (kWh) | kWh | Gas | Manually entered annual estimate, converted via calorific value & state number |
-| Consumption (so far) | unit of the consumption sensor (usually m³) | Energy+Water | Measured consumption since contract start — raw meter delta, **not** automatically converted to kWh |
+| Consumption (so far) | unit of the consumption sensor (usually m³) | Energy+Water | Measured consumption since contract start — raw meter delta in the unit of the sensor (a meter reporting **Wh or MWh is calculated in kWh**); gas/water are **not** converted to kWh here |
 | Consumption (contract term projected) | unit of the consumption sensor | Energy+Water | Current consumption extrapolated to the full contract term (not a fixed calendar year) |
 | Consumption (last period) | unit of the consumption sensor | Energy | Frozen at tariff switch — basis for recommended payment |
 | Consumption, high/low tariff (so far) | kWh | Electricity (dual meter) | Measured consumption of each register since contract start |
@@ -208,6 +208,8 @@ When contract end is set and the reminder period is reached:
 2. One-time **push notification** via the configured notify service
 3. **"Confirm cancellation"** button to acknowledge
 
+**With a notice period:** If you enter a **notice period** (in months) for the contract, the reminder refers to the **last day to cancel** (contract end minus notice period) instead of the contract end. Example: contract end 31 Dec, notice period 3 months, reminder "3 months before": the cancellation has to be received by 30 Sep, and the message comes on 30 Jun, 6 months before the contract end. The message names the last day to cancel. Without a notice period nothing changes. The panel shows the **minimum term** (in months) as "until <start + minimum term>"; it does not affect any reminder. Both fields are optional; the "Cancellation reminder" sensor gets the attributes `kuendigungsfrist_monate` and `kuendigung_bis`. A tariff switch keeps the notice period, not the minimum term.
+
 ---
 
 ### Low-instalment warning (optional)
@@ -271,7 +273,7 @@ Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
 
 ### Features
 
-- **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges
+- **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Sonstiges
 - **Echte Verbrauchsmessung** – beliebigen HA-Sensor als Zähler einbinden; Tariffy liest den Stand zum Vertragsbeginn aus den Long-Term Statistics und berechnet Verbrauch seit Vertragsbeginn sowie hochgerechneten Jahresverbrauch
 - **Abrechnungsprognose (real)** – Prognose basierend auf dem tatsächlich gemessenen Verbrauch (Guthaben oder Nachzahlung)
 - **Verbrauch letzte Vertragslaufzeit** – wird beim Tarifwechsel eingefroren; Basis für den empfohlenen Abschlag
@@ -297,13 +299,15 @@ Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
 | Bezeichnung | ✅ | Anzeigename (z. B. „Strom Haus") |
-| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges |
+| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Sonstiges |
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
 | Vertragsbeginn | – | Startdatum des Vertrags |
 | Vertragsende | – | Enddatum / Laufzeit bis |
-| Kündigung erinnern | ✅ | 0–4 Monate vorher (0 = deaktiviert) |
+| Mindestlaufzeit (Monate) | – | Das Panel zeigt, bis wann der Vertrag mindestens läuft |
+| Kündigungsfrist (Monate) | – | Wenn eingetragen, bezieht sich die Erinnerung auf den letzten Kündigungstag |
+| Kündigung erinnern | ✅ | 0–4 Monate vorher (0 = deaktiviert); vor Vertragsende, mit Kündigungsfrist vor Ablauf der Frist |
 | Benachrichtigungs-Ziel | – | notify-Dienst (z. B. `mobile_app_iphone`) |
 
 #### Schritt 2a – Strom-Details
@@ -350,14 +354,27 @@ Wie Strom, zusätzlich:
 | Verbrauchssensor | – | HA-Sensor des Wasserzählers |
 | Abwasser-Typ | ✅ | Festpreis/Einheit, % des Frischwassers oder Monatspauschale |
 | Abwassergebühr | – | Betrag je nach gewähltem Typ |
+| Außenzähler | – | Im Panel (Block „Außenzähler“): Garten/Pool ohne Abwasser, siehe Wiki |
 | Zählernummer | – | Für Dokumentation |
 
-#### Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Versicherung, …)
+#### Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Streaming, Versicherung, …)
+
+**Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Bei nicht monatlicher Zahlweise zählen die **Abbuchungen** zu den Kosten bisher; die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.
 
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
-| Monatlicher Abschlag | ✅ | €/Monat |
+| Zahlweise | ✅ | monatlich, vierteljährlich, halbjährlich oder jährlich |
+| Betrag pro Zahlung | ✅ | € pro Zahlung in der gewählten Zahlweise (zum Beispiel der Jahresbeitrag) |
+| Erste Abbuchung am | – | Nur bei nicht monatlicher Zahlweise; leer = Vertragsbeginn |
 | Grundpreis | – | €/Monat (falls separat ausgewiesen) |
+
+**Versicherungen** haben vor den Kosten einen eigenen Schritt **Art der Versicherung** (Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige). **Nur bei einer Kfz-Versicherung** folgt danach ein Schritt mit Angaben zum Auto; alle anderen Arten gehen gleich weiter zu den Kosten. Alle Versicherungsangaben sind optional und dienen der Dokumentation, es wird nichts berechnet.
+
+| Feld (nur Kfz) | Pflicht | Beschreibung |
+|------|---------|-------------|
+| Kennzeichen | – | Wie die Kundennummer persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
+| Kilometerstand bei Vertragsbeginn | – | in km |
+| Erlaubte Kilometer pro Jahr | – | in km |
 
 ---
 
@@ -503,6 +520,8 @@ Wenn Vertragsende gesetzt und der Erinnerungszeitraum erreicht ist:
 1. **Dauerbenachrichtigung** im HA-Benachrichtigungscenter
 2. Einmalige **Push-Benachrichtigung** via konfiguriertem notify-Dienst
 3. Button **„Kündigung bestätigen"** zum Quittieren
+
+**Mit Kündigungsfrist:** Trägst du beim Vertrag eine **Kündigungsfrist** (in Monaten) ein, bezieht sich die Erinnerung auf den **letzten Kündigungstag** (Vertragsende minus Frist) statt auf das Vertragsende. Beispiel: Vertragsende 31.12., Kündigungsfrist 3 Monate, Erinnerung „3 Monate vorher": Die Kündigung muss bis 30.09. vorliegen, die Meldung kommt am 30.06., also 6 Monate vor dem Vertragsende. Die Meldung nennt den letzten Kündigungstag. Ohne Kündigungsfrist ändert sich nichts. Die **Mindestlaufzeit** (in Monaten) zeigt das Panel als „bis <Beginn + Mindestlaufzeit>"; sie beeinflusst keine Erinnerung. Beide Felder sind freiwillig; der Sensor „Kündigungs-Erinnerung" hat dazu die Attribute `kuendigungsfrist_monate` und `kuendigung_bis`. Bei einem Tarifwechsel bleibt die Kündigungsfrist erhalten, die Mindestlaufzeit nicht.
 
 ---
 

@@ -12,6 +12,8 @@
           "tarif": "Tariff name",
           "beginn": "Contract start",
           "ende": "Contract end / valid until",
+          "mindestlaufzeit": "Minimum term (months)",
+          "kuendigungsfrist": "Notice period (months)",
           "erinnerung_monate": "Cancellation reminder",
           "notify_target": "Notification target (notify service)"
         },
@@ -22,7 +24,9 @@
           "tarif": "Tariff name, e.g. 'Eco Power Plus'",
           "beginn": "Date from which the contract is valid",
           "ende": "Last day of the contract term",
-          "erinnerung_monate": "How many months before contract end to show a cancellation reminder",
+          "mindestlaufzeit": "Optional. The panel shows until when the contract runs at least (start + minimum term).",
+          "kuendigungsfrist": "Optional. Months before contract end by which the cancellation must be received. If set, the reminder refers to this deadline instead of the contract end.",
+          "erinnerung_monate": "How many months before the cancellation deadline to show a reminder (before contract end, if no notice period is entered)",
           "notify_target": "Home Assistant notification service for the cancellation reminder"
         }
       },
@@ -30,22 +34,28 @@
         "title": "Edit contract",
         "description": "General contract data.",
         "data": {
+          "name": "Name",
           "sparte": "Category",
           "anbieter": "Provider",
           "kundennummer": "Customer number",
           "tarif": "Tariff name",
           "beginn": "Contract start",
           "ende": "Contract end / valid until",
+          "mindestlaufzeit": "Minimum term (months)",
+          "kuendigungsfrist": "Notice period (months)",
           "erinnerung_monate": "Cancellation reminder",
           "notify_target": "Notification target (notify service)"
         },
         "data_description": {
+          "name": "Name of the contract: shown in the panel and used as the name of its device",
           "anbieter": "Name of the energy provider or supplier",
           "kundennummer": "Your customer number from the provider's documents",
           "tarif": "Tariff name, e.g. 'Eco Power Plus'",
           "beginn": "Date from which the contract is valid",
           "ende": "Last day of the contract term",
-          "erinnerung_monate": "How many months before contract end to show a cancellation reminder",
+          "mindestlaufzeit": "Optional. The panel shows until when the contract runs at least (start + minimum term).",
+          "kuendigungsfrist": "Optional. Months before contract end by which the cancellation must be received. If set, the reminder refers to this deadline instead of the contract end.",
+          "erinnerung_monate": "How many months before the cancellation deadline to show a reminder (before contract end, if no notice period is entered)",
           "notify_target": "Home Assistant notification service for the cancellation reminder"
         }
       },
@@ -255,26 +265,82 @@
       },
       "pauschal": {
         "title": "Cost",
-        "description": "Monthly cost of the contract.",
+        "description": "Cost of the contract. Enter what one payment is and how often you pay; the integration works with the monthly amount.",
         "data": {
-          "abschlag": "Monthly instalment (€/month)",
+          "zahlweise": "Payment interval",
+          "abschlag": "Amount per payment (€)",
+          "erste_zahlung": "Date of the first debit",
           "grundpreis": "Base price (€/month)"
         },
         "data_description": {
-          "abschlag": "Monthly flat rate for this contract",
+          "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
+          "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
+          "erste_zahlung": "Only for quarterly, half-yearly or yearly payment: the day the first amount is debited. Empty = the contract start. The following debits follow at the interval.",
           "grundpreis": "Optional base charge if billed separately from the instalment"
+        }
+      },
+      "versicherung": {
+        "title": "Insurance",
+        "description": "What does the insurance cover? Only a car insurance asks for more details.",
+        "data": {
+          "versicherungsart": "Type of insurance"
+        },
+        "data_description": {
+          "versicherungsart": "Optional: what the insurance covers"
+        }
+      },
+      "versicherung_kfz": {
+        "title": "Car insurance",
+        "description": "Details of the car insurance. All optional, they only document the contract.",
+        "data": {
+          "kennzeichen": "Licence plate",
+          "km_start": "Odometer at contract start (km)",
+          "km_pro_jahr": "Allowed kilometres per year (km)"
+        },
+        "data_description": {
+          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "km_start": "Odometer reading at the start of the contract",
+          "km_pro_jahr": "Kilometres per year agreed in the contract"
         }
       },
       "reconfigure_pauschal": {
         "title": "Cost",
-        "description": "Monthly cost of the contract.",
+        "description": "Cost of the contract. Enter what one payment is and how often you pay; the integration works with the monthly amount.",
         "data": {
-          "abschlag": "Monthly instalment (€/month)",
+          "zahlweise": "Payment interval",
+          "abschlag": "Amount per payment (€)",
+          "erste_zahlung": "Date of the first debit",
           "grundpreis": "Base price (€/month)"
         },
         "data_description": {
-          "abschlag": "Monthly flat rate for this contract",
+          "zahlweise": "How often the amount is paid (insurances are often paid yearly)",
+          "abschlag": "The amount of one payment in the interval above (for example the yearly premium)",
+          "erste_zahlung": "Only for quarterly, half-yearly or yearly payment: the day the first amount is debited. Empty = the contract start. The following debits follow at the interval.",
           "grundpreis": "Optional base charge if billed separately from the instalment"
+        }
+      },
+      "reconfigure_versicherung": {
+        "title": "Insurance",
+        "description": "What does the insurance cover? Only a car insurance asks for more details.",
+        "data": {
+          "versicherungsart": "Type of insurance"
+        },
+        "data_description": {
+          "versicherungsart": "Optional: what the insurance covers"
+        }
+      },
+      "reconfigure_versicherung_kfz": {
+        "title": "Car insurance",
+        "description": "Details of the car insurance. All optional, they only document the contract.",
+        "data": {
+          "kennzeichen": "Licence plate",
+          "km_start": "Odometer at contract start (km)",
+          "km_pro_jahr": "Allowed kilometres per year (km)"
+        },
+        "data_description": {
+          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "km_start": "Odometer reading at the start of the contract",
+          "km_pro_jahr": "Kilometres per year agreed in the contract"
         }
       },
       "wasser": {
@@ -471,7 +537,8 @@
       }
     },
     "abort": {
-      "reconfigure_successful": "Contract updated."
+      "reconfigure_successful": "Contract updated.",
+      "invalid_backup": "The backup is not valid."
     },
     "error": {
       "invalid_number": "Not a valid number. Use a dot or comma as the decimal separator (e.g. 11.2 or 11,2)."
@@ -515,6 +582,7 @@
         "water": "Water",
         "internet": "Internet",
         "mobile": "Mobile",
+        "streaming": "Streaming",
         "insurance": "Insurance",
         "other": "Other",
         "electricity_ht_nt": "Electricity (dual tariff, HT/NT)"
@@ -534,6 +602,27 @@
         "price_per_unit": "Fixed price per unit (e.g. DE, AT, CH)",
         "percentage": "Percentage of fresh water price (e.g. US, UK, AU)",
         "flat_rate": "Flat monthly rate (e.g. FR, BE)"
+      }
+    },
+    "zahlweise": {
+      "options": {
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "halfyearly": "Half-yearly",
+        "yearly": "Yearly"
+      }
+    },
+    "versicherungsart": {
+      "options": {
+        "car": "Car",
+        "house": "Building / house",
+        "household": "Household contents",
+        "liability": "Liability",
+        "health": "Health",
+        "life": "Life",
+        "legal": "Legal protection",
+        "accident": "Accident",
+        "other": "Other"
       }
     }
   },
@@ -574,6 +663,18 @@
       },
       "naechster_wechsel": {
         "name": "Next switch"
+      },
+      "garten_verbrauch": {
+        "name": "Outdoor water (consumption)"
+      },
+      "garten_kosten": {
+        "name": "Outdoor water (cost)"
+      },
+      "abwasserpflichtiger_verbrauch": {
+        "name": "Wastewater-liable consumption"
+      },
+      "abwasser_kosten": {
+        "name": "Wastewater cost"
       },
       "kuendigung_erinnerung": {
         "name": "Cancellation reminder"
@@ -637,6 +738,29 @@
       },
       "kosten_nt_bisher": {
         "name": "Cost, low tariff (so far)"
+      },
+      "versicherungsart": {
+        "name": "Type of insurance",
+        "state": {
+          "car": "Car",
+          "house": "Building / house",
+          "household": "Household contents",
+          "liability": "Liability",
+          "health": "Health",
+          "life": "Life",
+          "legal": "Legal protection",
+          "accident": "Accident",
+          "other": "Other"
+        }
+      },
+      "kennzeichen": {
+        "name": "Licence plate"
+      },
+      "km_start": {
+        "name": "Odometer at contract start"
+      },
+      "km_pro_jahr": {
+        "name": "Allowed kilometres per year"
       }
     },
     "button": {

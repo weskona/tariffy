@@ -31,7 +31,7 @@ const shots = [
   { name: "desktop", viewport: { width: 1280, height: 900 }, scale: 1, narrow: false },
   { name: "mobile", viewport: { width: 390, height: 844 }, scale: 2, narrow: true },
 ];
-const tabs = [["overview", 0], ["costs", 1], ["contracts", 2]];
+const tabs = [["overview", 0], ["costs", 1], ["contracts", 2], ["history", 3], ["backup", 4]];
 const errors = [];
 
 for (const shot of shots) {
@@ -302,6 +302,14 @@ const configFlow = "config/config_entries/flow";
   check(JSON.stringify((await api(page))[0]) === JSON.stringify({ method: "POST", path: configFlow, body: { handler: "tariffy", entry_id: "contract-1" } }),
     "editing starts the reconfigure flow of the contract");
   check((await page.locator(".dialog [name=sparte] option:checked").innerText()) === "Strom", "the sparte drop-down shows translated names");
+  check((await page.locator(".dialog [name=name]").inputValue()) === "Strom Haus", "the name of the contract can be changed: it is the first field and filled in");
+  const dateStyle = await page.locator(".dialog [name=beginn]").evaluate((el) => {
+    const style = getComputedStyle(el);
+    return { appearance: style.appearance, minWidth: style.minWidth, label: getComputedStyle(el.closest("label")).minWidth };
+  });
+  check(dateStyle.appearance === "none" && dateStyle.minWidth === "0px" && dateStyle.label === "0px",
+    `a date field cannot be wider than its column (${JSON.stringify(dateStyle)})`);
+  check((await page.locator(".dialog .lbl").first().innerText()) === "Name", "and labelled");
   check((await page.locator(".dialog [name=anbieter]").inputValue()) === "Stadtwerke Nord", "stored provider is filled in");
   check((await page.locator(".dialog [name=erinnerung_monate] option:checked").innerText()) === "3 Monate vorher", "the reminder lead time is readable, not a bare number");
   check((await page.locator(".dialog [name=ende]").inputValue()) === "2026-12-31", "stored end date is filled in");
@@ -379,6 +387,24 @@ const configFlow = "config/config_entries/flow";
 
 // ---- create and delete contracts ----
 const entryApi = "config/config_entries/entry";
+
+{ // an insurance asks what it covers first: a step that is not the last one says "Weiter", never "Speichern"
+  const { context, page } = await openPage(browser, "lang=de");
+  await page.getByRole("tab", { name: "Verträge" }).click();
+  await page.getByRole("button", { name: "Neuer Vertrag" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=name]"));
+  await page.locator(".dialog [name=name]").fill("Kfz Allianz");
+  await page.locator(".dialog [name=sparte]").selectOption("insurance");
+  await page.locator(".dialog [name=anbieter]").fill("Allianz");
+  await dialog(page).getByRole("button", { name: "Weiter" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog [name=versicherungsart]"));
+  const text = (await dialog(page).innerText()).replace(/\u00a0/g, " ");
+  check((await page.locator(".dialog [name=versicherungsart]").count()) === 1 && (await page.locator(".dialog .fld").count()) === 1, "the insurance step asks only for the type");
+  check((await dialog(page).getByRole("button", { name: "Weiter" }).count()) === 1 && (await dialog(page).getByRole("button", { name: "Speichern" }).count()) === 0,
+    "a step that is not the last one offers Weiter, not Speichern");
+  check(!text.includes("Kennzeichen"), "no licence plate field before a car insurance is chosen");
+  await context.close();
+}
 
 { // a new contract: the integration's setup flow, name and sparte first
   const { context, page } = await openPage(browser, "lang=de");
@@ -622,8 +648,9 @@ for (const width of [1280, 900, 600, 390]) {
   const internet = await cells("Internet");
   const expected = await page.evaluate(() => window.__panel._contracts.find((c) => c.title === "Internet").abschlag_bisher_gezahlt);
   check(expected > 300, `the backend delivers the instalments due so far (${expected})`);
-  check(internet[1].includes("373"), `Internet: the cost so far is filled in (${internet[1]})`);
-  check(internet[2] === "80 Tage" && internet[3] === "30.09.2026" && internet[4] === "39,99 €", `Internet: remaining term, end and instalment (${internet})`);
+  check(internet[1].includes("399"), `Internet: the cost so far is filled in (${internet[1]})`);
+  check(internet[2] === "80 Tage" && internet[3] === "30.09.2026" && internet[4].startsWith("39,99 €"), `Internet: remaining term, end and instalment (${internet})`);
+  check(internet[4].includes("480 € / Jahr"), "Internet: the yearly instalment stands under the monthly one");
   // both tables share one column grid: cost so far and instalment sit exactly below each other
   const edges = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group table")].map((t) => [...t.querySelectorAll("th")].map((th) => Math.round(th.getBoundingClientRect().right))));
   check(edges.length === 2 && edges[0][1] === edges[1][1] && edges[0][4] === edges[1][4] && edges[0].length === edges[1].length,
@@ -687,8 +714,8 @@ for (const width of [1280, 900, 600, 390]) {
   check(tiles[0].text.includes("322,98 €") && tiles[0].text.includes("≈ 3.876 € / Jahr"), "instalments per month and per year");
   check(tiles[0].text.includes("Verbrauch 263,00 €") && tiles[0].text.includes("Pauschal 59,98 €"), "split into metered and flat-rate contracts");
   check(tiles[0].segments.length === 2 && Math.abs(tiles[0].segments[0] - 81.4) < 0.3 && Math.abs(tiles[0].segments[1] - 18.6) < 0.3, `the bar is proportional (${tiles[0].segments})`);
-  check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.772,18 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
-  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo heute") && tiles[1].rows[0].includes("−8,56 €"), `balance so far (${tiles[1].rows})`);
+  check(tiles[1].text.toLowerCase().includes("kosten bisher") && tiles[1].text.includes("2.791,24 €") && tiles[1].text.includes("Fällige Abschläge bisher"), "cost so far with the instalments due");
+  check(tiles[1].rows.length === 1 && tiles[1].rows[0].includes("Saldo heute") && tiles[1].rows[0].includes("+67,50 €"), `balance so far (${tiles[1].rows})`);
   check(tiles[2].rows.length === 4 && tiles[2].rows[0].startsWith("Strom Haus") && tiles[2].rows[3].startsWith("Gas Heizung"), `forecast per contract, worst first (${tiles[2].rows})`);
   check(tiles[3].text.toLowerCase().includes("nächste termine") && tiles[3].rows.length === 2, `the next dates (${tiles[3].rows.length} more rows)`);
   const dateRows = tiles[3].rows.map((r) => r.match(/^(\d\d)\.(\d\d)\.(\d{4})/)).filter(Boolean).map((m) => `${m[3]}${m[2]}${m[1]}`);
@@ -780,6 +807,608 @@ for (const width of [1280, 900, 600, 390]) {
   check(!(await acks.first().isVisible()), "phone: buttons stay hidden until the row is expanded");
   await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
   check(await page.locator("details", { hasText: "Internet" }).first().getByRole("button", { name: "Kündigung bestätigen" }).isVisible(), "phone: button visible after expanding");
+  await context.close();
+}
+
+{ // history and archive: archived contracts only show in the History tab, expired ones can be archived
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`history: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const wrapText = () => page.evaluate(() => window.__panel.shadowRoot.querySelector(".wrap").innerText.replace(/\u00a0/g, " "));
+  const tab = (name) => page.getByRole("tab", { name, exact: true }).click();
+
+  check((await page.locator("section.card").count()) === 6 && !(await wrapText()).includes("Altvertrag"), "an archived contract is not on the overview");
+  await tab("Kosten");
+  check(!(await wrapText()).includes("Altvertrag"), "an archived contract is not in the costs");
+  await tab("Verträge");
+  check((await page.locator("details").count()) === 6 && !(await wrapText()).includes("Altvertrag"), "an archived contract is not in the contract list");
+
+  await tab("Historie");
+  const history = await wrapText();
+  check(/archivierte verträge/i.test(history) && history.includes("Strom Altvertrag"), "the History tab lists the archived contract");
+  check(/frühere laufzeiten/i.test(history), "and the earlier terms of the other contracts");
+  check((await page.locator(".hist[data-id=contract-1] tbody tr").count()) === 2, "Strom Haus shows its two earlier terms");
+  check((await page.locator(".hist[data-id=contract-1] tbody tr").first().innerText()).replace(/\u00a0/g, " ").includes("01.01.2025 – 31.12.2025"), "the newest term comes first");
+  check((await page.locator(".hist[data-id=contract-7] tbody tr").count()) === 2, "the archived contract shows its terms");
+  check(history.includes("Archiviert"), "the archived contract is marked");
+  check(!history.includes("Warnung bestätigen") && !history.includes("Kündigung bestätigen"), "the History tab offers no acknowledgements, only archive and restore");
+  await page.screenshot({ path: join(outDir, "desktop-history-actions.png"), fullPage: true });
+
+  // restore asks first
+  const before = (await calls(page)).length;
+  await page.getByRole("button", { name: "Zurückholen" }).click();
+  check((await page.locator(".hist .ask").count()) === 1 && (await calls(page)).length === before, "restoring asks first");
+  await page.getByRole("button", { name: "Abbrechen" }).click();
+  check((await calls(page)).length === before, "cancelling does nothing");
+  await page.getByRole("button", { name: "Zurückholen" }).click();
+  await page.getByRole("button", { name: "Ja, zurückholen" }).click();
+  check((await calls(page)).some((c) => c.entry_id === "contract-7" && c.action === "restore_contract"), "restore is sent for the archived contract");
+
+  // an expired contract can be archived (in the Contracts tab, after asking)
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet" ? { ...c, archivierbar: true } : c));
+    panel._tab = "overview";
+    panel._render();
+  });
+  const internet = (await card(page, "Internet").innerText()).replace(/\u00a0/g, " ");
+  check(/abgelaufen/i.test(internet) && internet.includes("Im Tab Verträge kannst du ihn archivieren"), "an expired contract is marked and says where to archive it");
+  check((await page.getByRole("button", { name: "Archivieren" }).count()) === 0, "the overview has no archive button");
+  await tab("Verträge");
+  await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
+  await page.getByRole("button", { name: "Archivieren" }).click();
+  check((await page.locator("details .ask").count()) === 1, "archiving asks first");
+  await page.getByRole("button", { name: "Ja, archivieren" }).click();
+  check((await calls(page)).some((c) => c.entry_id === "contract-5" && c.action === "archive_contract"), "archive is sent for the expired contract");
+
+  // everything archived: the other tabs say so instead of breaking
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => ({ ...c, archiviert: true }));
+    panel._tab = "overview";
+    panel._render();
+  });
+  check((await wrapText()).includes("Alle Verträge sind archiviert"), "all archived: the overview says so");
+  await tab("Kosten");
+  check((await wrapText()).includes("Alle Verträge sind archiviert"), "all archived: the costs say so");
+  await tab("Historie");
+  check((await page.locator(".hist").count()) >= 1, "all archived: the History tab still works");
+  await context.close();
+}
+
+{ // history for everyone who can see the panel, but only administrators get buttons
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`history/non-admin: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&admin=0`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Historie", exact: true }).click();
+  check((await page.locator(".hist").count()) >= 2 && (await page.locator(".hist .btn").count()) === 0, "non-administrators see the history without buttons");
+  check((await page.getByRole("button", { name: /Alten Vertrag hinzufügen|Laufzeit bearbeiten/ }).count()) === 0, "and without the buttons for old contracts");
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  check((await page.getByRole("button", { name: "Vertrag verlängern" }).count()) === 0, "non-administrators have no renew icon");
+  await context.close();
+}
+
+{ // an empty history says what it is for
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`history/empty: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.filter((c) => !c.archiviert).map((c) => ({ ...c, historie: [] }));
+    panel._tab = "history";
+    panel._render();
+  });
+  const text = await page.evaluate(() => window.__panel.shadowRoot.querySelector(".wrap").innerText);
+  check(text.includes("Noch keine Historie") && text.includes("früheren Laufzeiten"), "an empty history explains itself");
+  await context.close();
+}
+
+{ // old contracts: a term entered by hand, worked out automatically where possible
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`term: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Historie", exact: true }).click();
+  const dialogText = async () => (await page.locator(".dialog").innerText()).replace(/\u00a0/g, " ");
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  const enter = async (name, value) => { await field(name).fill(value); await field(name).blur(); };
+  const termCalls = async () => (await calls(page)).filter((c) => String(c.type).startsWith("tariffy/history_") && c.type !== "tariffy/history_calc");
+
+  await page.getByRole("button", { name: "Alten Vertrag hinzufügen" }).click();
+  check((await dialogText()).includes("Alten Vertrag hinzufügen"), "the dialog for an old contract opens");
+  check((await field("entry_id").inputValue()) === "contract-1", "the first contract is preselected");
+  // the list of a drop-down must be readable in the dark layout: dark background, light text (not the browser's white list)
+  const option = await field("entry_id").locator("option").first().evaluate((el) => {
+    const style = getComputedStyle(el);
+    return { background: style.backgroundColor, color: style.color, scheme: getComputedStyle(el.parentElement).colorScheme };
+  });
+  check(option.background === "rgb(26, 29, 37)" && option.color === "rgb(243, 245, 249)" && option.scheme === "dark",
+    `the options of a drop-down have dark colours (${JSON.stringify(option)})`);
+
+  // nothing can be worked out without the term
+  await page.getByRole("button", { name: "Speichern" }).click();
+  check((await dialogText()).includes("Pflichtfeld") && (await termCalls()).length === 0, "start and end are required, nothing is sent");
+
+  await enter("beginn", "2024-01-01");
+  await enter("ende", "2024-12-31");
+  check((await field("verbrauch").getAttribute("placeholder")) === "3.200,00", `the consumption is worked out from the statistics (${await field("verbrauch").getAttribute("placeholder")})`);
+  check((await dialogText()).includes("Automatisch aus den Statistiken von sensor.strom_haus"), "and the dialog says where it comes from");
+  check((await field("kosten").getAttribute("placeholder")) === "", "the cost needs prices first");
+
+  await enter("arbeitspreis", "0,30");
+  await enter("grundpreis", "10");
+  await enter("abschlag", "90");
+  check((await field("kosten").getAttribute("placeholder")) === "1.079,90", `the cost follows from the prices (${await field("kosten").getAttribute("placeholder")})`);
+  check((await field("abschlag_gezahlt").getAttribute("placeholder")) === "1.079,10", "and the instalments paid from the instalment");
+  check((await field("saldo").getAttribute("placeholder")) === "−0,80" || (await field("saldo").getAttribute("placeholder")) === "-0,80", "and the balance from both");
+
+  // a value typed by hand wins and the rest follows from it
+  await enter("verbrauch", "3000");
+  check((await dialogText()).includes("Von dir eingetragen"), "a typed value is marked as the user's own");
+  check((await field("kosten").getAttribute("placeholder")) === "1.019,90", `the cost follows the typed consumption (${await field("kosten").getAttribute("placeholder")})`);
+  await dialog(page).screenshot({ path: join(outDir, "term-dialog.png") });
+
+  await page.getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const saved = (await termCalls()).at(-1);
+  check(saved.type === "tariffy/history_save" && saved.entry_id === "contract-1" && saved.index === undefined, "a new term is saved for the contract");
+  check(JSON.stringify(saved.values) === JSON.stringify({ beginn: "2024-01-01", ende: "2024-12-31", arbeitspreis: 0.3, grundpreis: 10, abschlag: 90, verbrauch: 3000 }),
+    `only what was entered is sent, the rest is left to the backend (${JSON.stringify(saved.values)})`);
+
+  // editing: the newest term is the first row; the stored list is oldest first, so it is index 1
+  await page.locator(".hist[data-id=contract-1] tbody tr").first().getByRole("button", { name: "Laufzeit bearbeiten" }).click();
+  check((await dialogText()).includes("Laufzeit bearbeiten") && (await field("beginn").inputValue()) === "2025-01-01", "editing opens the term with its values");
+  check(await field("entry_id").isDisabled(), "a term stays with its contract");
+  await enter("tarif", "Neu");
+  await page.getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const edited = (await termCalls()).at(-1);
+  check(edited.type === "tariffy/history_save" && edited.index === 1 && edited.values.tarif === "Neu", "an edited term is saved at its position");
+
+  // deleting asks first
+  await page.locator(".hist[data-id=contract-1] tbody tr").first().getByRole("button", { name: "Laufzeit bearbeiten" }).click();
+  const before = (await termCalls()).length;
+  await page.getByRole("button", { name: "Laufzeit löschen" }).click();
+  check((await dialogText()).includes("Diese Laufzeit aus der Historie löschen?") && (await termCalls()).length === before, "deleting a term asks first");
+  await page.getByRole("button", { name: "Ja, löschen" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const deleted = (await termCalls()).at(-1);
+  check(deleted.type === "tariffy/history_delete" && deleted.entry_id === "contract-1" && deleted.index === 1, "the term is deleted");
+
+  // escape closes the dialog without saving
+  await page.getByRole("button", { name: "Alten Vertrag hinzufügen" }).click();
+  const callsBefore = (await termCalls()).length;
+  await page.keyboard.press("Escape");
+  check((await page.locator(".dialog").count()) === 0 && (await termCalls()).length === callsBefore, "escape closes the dialog and sends nothing");
+  await context.close();
+}
+
+{ // a refused term shows why and keeps the dialog open
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`term/error: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&histerr=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Historie", exact: true }).click();
+  await page.getByRole("button", { name: "Alten Vertrag hinzufügen" }).click();
+  await page.locator(".dialog [name=beginn]").fill("2024-12-31");
+  await page.locator(".dialog [name=ende]").fill("2024-01-01");
+  await page.getByRole("button", { name: "Speichern" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog .err"));
+  check((await page.locator(".dialog .err").innerText()).includes("Das Ende darf nicht vor dem Beginn liegen."), "the reason is shown");
+  check(await page.getByRole("button", { name: "Speichern" }).isEnabled(), "and the dialog can be corrected and saved again");
+  await context.close();
+}
+
+{ // backup: export, restore from a file, deleted contracts
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1, acceptDownloads: true });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`backup: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const wrapText = () => page.evaluate(() => window.__panel.shadowRoot.querySelector(".wrap").innerText.replace(/\u00a0/g, " "));
+  const bkCalls = async () => (await calls(page)).filter((c) => /backup_|deleted_/.test(String(c.type)) && c.type !== "tariffy/deleted_list" && c.type !== "tariffy/backup_preview");
+  await page.getByRole("tab", { name: "Sicherung", exact: true }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk-row"));
+  let text = await wrapText();
+  check(/sicherung erstellen/i.test(text) && text.includes("persönliche Daten"), "the backup tab explains that the file has personal data");
+  check(text.includes("Strom 2023") && text.includes("gelöscht am 01.07.2026"), "a deleted contract is listed with its date");
+
+  // export: a file download with all contracts
+  const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Sicherung herunterladen" }).click()]);
+  check(/^tariffy-backup-\d{4}-\d{2}-\d{2}\.json$/.test(download.suggestedFilename()), `the file has a dated name (${download.suggestedFilename()})`);
+  const { readFile } = await import("node:fs/promises");
+  const saved = JSON.parse(await readFile(await download.path(), "utf8"));
+  check(saved.tariffy_backup === 1 && saved.contracts.length === 1, "the downloaded file is the backup");
+  check((await wrapText()).includes("Sicherung heruntergeladen: 1 Verträge."), "and the panel says so");
+  const exported = (await bkCalls()).length; // the export itself is a call; what follows must not add any until confirmed
+
+  // restore: a preview first, then asking, then only the missing contracts are created
+  const file = { tariffy_backup: 1, contracts: [
+    { title: "Strom Alt", data: { sparte: "electricity" }, options: {} }, { title: "Gas Alt", data: { sparte: "gas" }, options: {} } ] };
+  await page.locator(".bk .file").setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk table"));
+  text = await wrapText();
+  check(text.includes("Strom Alt") && text.includes("wird angelegt") && text.includes("übersprungen: gibt es schon"), "the preview says what is created and what is skipped");
+  check((await bkCalls()).length === exported, "a preview creates nothing");
+  await page.getByRole("button", { name: "Wiederherstellen (1)" }).click();
+  check((await page.locator(".bk .ask").count()) === 1 && (await bkCalls()).length === exported, "restoring asks first");
+  await page.getByRole("button", { name: "Abbrechen" }).click();
+  check((await bkCalls()).length === exported, "cancelling does nothing");
+  await page.getByRole("button", { name: "Wiederherstellen (1)" }).click();
+  await page.getByRole("button", { name: "Ja, wiederherstellen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk-msg"));
+  const restoreCall = (await bkCalls()).at(-1);
+  check(restoreCall.type === "tariffy/backup_restore" && restoreCall.backup.contracts.length === 2, "the whole file is sent for restoring");
+  check((await wrapText()).includes("Wiederhergestellt: 1 angelegt, 1 übersprungen."), "the result is shown");
+  check((await page.locator(".bk table").count()) === 0, "and the preview is gone");
+
+  // a file that is not a backup
+  await page.locator(".bk .file").setInputFiles({ name: "x.json", mimeType: "application/json", buffer: Buffer.from("das ist kein json") });
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
+  check((await page.locator(".err").innerText()).includes("keine gültige Tariffy-Sicherung"), "a file that is no backup is refused with a reason");
+
+  // forgetting a deleted contract asks first, too
+  const beforeDiscard = (await bkCalls()).length;
+  await page.getByRole("button", { name: "Jetzt vergessen" }).click();
+  check((await page.locator(".bk-row .ask").count()) === 1 && (await bkCalls()).length === beforeDiscard, "forgetting a deleted contract asks first");
+  await page.getByRole("button", { name: "Ja, vergessen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk-msg")?.innerText.includes("vergessen"));
+  const discarded = (await bkCalls()).at(-1);
+  check(discarded.type === "tariffy/deleted_discard" && discarded.item_id === "d1", "it is forgotten for good");
+
+  // deleted contracts: asks first
+  const before = (await bkCalls()).length;
+  await page.getByRole("button", { name: "Zurückholen" }).click();
+  check((await page.locator(".bk-row .ask").count()) === 1 && (await bkCalls()).length === before, "bringing a contract back asks first");
+  await page.getByRole("button", { name: "Ja, zurückholen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk-msg"));
+  const restoreOne = (await bkCalls()).at(-1);
+  check(restoreOne.type === "tariffy/deleted_restore" && restoreOne.item_id === "d1", "the deleted contract is brought back");
+  check((await wrapText()).includes("„Strom 2023“ ist wieder da."), "and the panel says so");
+  await page.screenshot({ path: join(outDir, "desktop-backup-actions.png"), fullPage: true });
+  await context.close();
+}
+
+{ // the backup tab belongs to administrators
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`backup/non-admin: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.addInitScript(() => window.localStorage.setItem("tariffy-panel-tab", "backup"));
+  await page.goto(`${base}?lang=de&admin=0`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".tabs"));
+  check((await page.getByRole("tab", { name: "Sicherung", exact: true }).count()) === 0, "non-administrators have no backup tab");
+  check((await page.locator(".bk").count()) === 0 && (await page.locator(".card").count()) > 0, "and a saved backup tab does not trap them: they get the overview");
+  await context.close();
+}
+
+{ // a refused restore says why
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`backup/error: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&bkerr=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Sicherung", exact: true }).click();
+  const file = { tariffy_backup: 1, contracts: [{ title: "Strom Alt", data: { sparte: "electricity" }, options: {} }] };
+  await page.locator(".bk .file").setInputFiles({ name: "backup.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(file)) });
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".bk table"));
+  await page.getByRole("button", { name: "Wiederherstellen (1)" }).click();
+  await page.getByRole("button", { name: "Ja, wiederherstellen" }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".err"));
+  check((await page.locator(".err").innerText()).includes("Das Wiederherstellen ist fehlgeschlagen."), "a failed restore shows its reason");
+  await context.close();
+}
+
+{ // flat-rate contracts show yearly values; the payment interval shows when it is not monthly
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`yearly: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const text = async (sel) => (await page.locator(sel).first().innerText()).replace(/\u00a0/g, " ");
+  const internet = await text("section.card:has-text('Internet')");
+  check(internet.includes("480 € / Jahr") && !internet.includes("jährlich"), `a monthly flat-rate card shows the yearly instalment (${internet.replace(/\n/g, " | ")})`);
+
+  // a yearly premium: 600 a year is 50 a month
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet"
+      ? { ...c, abschlag: 50, zahlweise: "yearly", abschlag_je_zahlung: 600, abschlag_jahr: 600, kosten_jahr: 600,
+        erste_zahlung: "2026-05-05", naechste_zahlung: "2027-05-05" } : c));
+    panel._render();
+  });
+  const yearly = await text("section.card:has-text('Internet')");
+  check(yearly.includes("600,00 € jährlich"), `the card says how it is paid (${yearly.replace(/\n/g, " | ")})`);
+  check(!yearly.includes("600 € / Jahr"), "and does not repeat the yearly figure");
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
+  const details = await text("details:has-text('Internet')");
+  check(details.includes("Abschlag / Jahr") && details.includes("Kosten / Jahr") && details.includes("Zahlung"), "the details show the yearly instalment, the yearly cost and the payment");
+  check(/Zahlung\s*600,00 € jährlich/.test(details), `the payment row says the amount and the interval (${details.replace(/\n/g, " | ")})`);
+  check(/Erste Abbuchung\s*05\.05\.2026/.test(details) && /Nächste Zahlung\s*05\.05\.2027/.test(details), "the first and the next debit are shown");
+  await page.getByRole("tab", { name: "Kosten", exact: true }).click();
+  check((await text("tr:has-text('Internet')")).includes("600 € / Jahr"), "the cost table shows the yearly instalment");
+
+  // the base price counts for the yearly cost, not for the yearly instalment
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Mobilfunk" ? { ...c, grundpreis: 5, kosten_jahr: 299.88 } : c));
+    panel._tab = "contracts";
+    panel._render();
+  });
+  await page.locator("details", { hasText: "Mobilfunk" }).first().locator("summary").click();
+  const mobile = await text("details:has-text('Mobilfunk')");
+  check(/Abschlag \/ Jahr\s*239,88 €/.test(mobile) && /Kosten \/ Jahr\s*299,88 €/.test(mobile), `yearly cost includes the base price, the yearly instalment does not (${mobile.replace(/\n/g, " | ")})`);
+  await context.close();
+}
+
+{ // renewing a flat-rate contract: new start, end and amount
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`renew: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  const renewButtons = page.getByRole("button", { name: "Vertrag verlängern" });
+  check((await renewButtons.count()) === 2, `only the flat-rate contracts with an end can be renewed (${await renewButtons.count()})`);
+  check((await page.locator("details", { hasText: "Strom Haus" }).first().getByRole("button", { name: "Vertrag verlängern" }).count()) === 0, "a metered contract has no renew icon");
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  const dialogText = async () => (await page.locator(".dialog").innerText()).replace(/\u00a0/g, " ");
+
+  await page.locator("details", { hasText: "Internet" }).first().getByRole("button", { name: "Vertrag verlängern" }).click();
+  check((await dialogText()).includes("Die bisherige Laufzeit kommt in die Historie"), "the dialog says that the old term goes to the history");
+  check((await field("beginn").inputValue()) === "2026-10-01" && (await field("ende").inputValue()) === "2027-09-30", "the new term starts the day after the old end and runs a year");
+  check((await field("abschlag").inputValue()) === "39.99" && (await field("zahlweise").inputValue()) === "monthly", "the current amount and interval are filled in");
+  check((await field("erste_zahlung").count()) === 1 && (await field("erste_zahlung").inputValue()) === "", "the first debit of the new term can be given, and is empty by default");
+  check((await dialogText()).includes("Betrag unverändert"), "an unchanged amount says so");
+
+  await field("abschlag").fill("43,99");
+  check((await dialogText()).includes("10,0 % teurer (43,99 € statt 39,99 € pro Monat)"), `a dearer amount says by how much (${(await dialogText()).split("\n").find((l) => l.includes("teurer"))})`);
+  await field("zahlweise").selectOption("yearly");
+  await field("abschlag").fill("528");
+  check((await dialogText()).includes("10,0 % teurer (44,00 € statt 39,99 € pro Monat)"), "a yearly amount is compared per month");
+  await field("abschlag").fill("432");
+  check((await dialogText()).includes("10,0 % günstiger"), "a cheaper amount says so");
+  await dialog(page).screenshot({ path: join(outDir, "renew-dialog.png") });
+
+  await field("beginn").fill("");
+  await page.getByRole("button", { name: "Verlängern", exact: true }).click();
+  check((await dialogText()).includes("Pflichtfeld") && !(await calls(page)).some((c) => c.type === "tariffy/renew"), "the start is required and nothing is sent");
+  await field("beginn").fill("2026-10-01");
+  await field("abschlag").fill("528");
+  await page.getByRole("button", { name: "Verlängern", exact: true }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const sent = (await calls(page)).find((c) => c.type === "tariffy/renew");
+  check(sent && sent.entry_id === "contract-5" && JSON.stringify(sent.values) === JSON.stringify({ beginn: "2026-10-01", ende: "2027-09-30", zahlweise: "yearly", abschlag: 528 }),
+    `the renewal is sent for the contract (${JSON.stringify(sent)})`);
+
+  await page.locator("details", { hasText: "Mobilfunk" }).first().getByRole("button", { name: "Vertrag verlängern" }).click();
+  await page.keyboard.press("Escape");
+  check((await page.locator(".dialog").count()) === 0 && (await calls(page)).filter((c) => c.type === "tariffy/renew").length === 1, "escape closes the dialog and sends nothing");
+  await context.close();
+}
+
+{ // a refused renewal says why and keeps the dialog
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`renew/error: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de&renewerr=1`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Internet" }).first().getByRole("button", { name: "Vertrag verlängern" }).click();
+  await page.getByRole("button", { name: "Verlängern", exact: true }).click();
+  await page.waitForFunction(() => window.__panel.shadowRoot.querySelector(".dialog .err"));
+  check((await page.locator(".dialog .err").innerText()).includes("Trage einen Betrag über null ein."), "the reason is shown");
+  check(await page.getByRole("button", { name: "Verlängern", exact: true }).isEnabled(), "and the dialog can be corrected");
+  await context.close();
+}
+
+{ // total cost over all terms of a contract
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`total: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const text = async (sel) => (await page.locator(sel).first().innerText()).replace(/\u00a0/g, " ");
+
+  // a metered contract with a history: one line in the footer
+  const strom = await text("section.card:has-text('Strom Haus')");
+  check(strom.includes("Kosten gesamt 2.667,24 €") && strom.includes("seit 01.01.2024 · 3 Laufzeiten"), `a metered card sums the earlier terms and the running one (${strom.split("\n").find((l) => l.includes("gesamt"))})`);
+  check(!(await text("section.card:has-text('Gas Heizung')")).includes("Kosten gesamt"), "a contract without a history shows no total");
+
+  // a flat-rate contract with a history: a tile of its own
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet"
+      ? { ...c, historie: [{ beginn: "2025-10-01", ende: "2026-09-30", abschlag_gezahlt: 480 }], kosten_gesamt: 879.9, kosten_gesamt_vollstaendig: true, laufzeiten_anzahl: 2, seit: "2025-10-01" } : c));
+    panel._render();
+  });
+  const internet = await text("section.card:has-text('Internet')");
+  check(/KOSTEN GESAMT\s*879,90 €/i.test(internet) && internet.includes("seit 01.10.2025 · 2 Laufzeiten"), `a flat-rate card has a tile for the total (${internet.replace(/\n/g, " | ")})`);
+
+  // a term without any cost: the total is a lower bound
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = panel._contracts.map((c) => (c.title === "Internet" ? { ...c, kosten_gesamt_vollstaendig: false } : c));
+    panel._render();
+  });
+  check((await text("section.card:has-text('Internet')")).includes("mindestens 879,90 €"), "an incomplete total says at least");
+
+  // the contract list and the history tab
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Strom Haus" }).first().locator("summary").click();
+  check(/Kosten gesamt\s*2\.667,24 € · seit 01\.01\.2024 · 3 Laufzeiten/.test(await text("details:has-text('Strom Haus')")), "the details show the total");
+  await page.getByRole("tab", { name: "Historie", exact: true }).click();
+  const hist = await text(".hist[data-id=contract-1]");
+  check(hist.includes("Kosten gesamt: 2.667,24 €"), "the history shows the total under the earlier terms");
+  const archived = await text(".hist[data-id=contract-7]");
+  check(archived.includes("Kosten gesamt: 1.725,40 € · seit 01.01.2022 · 2 Laufzeiten"), `an archived contract counts its last term only once (${archived.split("\n").find((l) => l.includes("gesamt"))})`);
+  await context.close();
+}
+
+{ // one-time items (bonus / bill) and the cost split
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`einmal: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const text = async (sel) => (await page.locator(sel).first().innerText()).replace(/\u00a0/g, " ");
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Strom Haus" }).first().locator("summary").click();
+  const strom = await text("details:has-text('Strom Haus')");
+  check(strom.includes("Wechselbonus") && strom.includes("+80,00 €") && strom.includes("Honorar Makler") && strom.includes("−25,00 €"), `the items are listed with their sign (${strom.split("EINMALPOSTEN")[1]?.slice(0, 120)})`);
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  await page.locator("details", { hasText: "Strom Haus" }).first().getByRole("button", { name: "Posten hinzufügen" }).click();
+  await field("betrag").fill("-12,5");
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  check((await page.locator(".dialog").innerText()).includes("Pflichtfeld") && !(await calls(page)).some((c) => c.type === "tariffy/einmal_save"), "the description is required");
+  await field("bezeichnung").fill("Gebühr");
+  await dialog(page).screenshot({ path: join(outDir, "once-dialog.png") });
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const sent = (await calls(page)).find((c) => c.type === "tariffy/einmal_save");
+  check(sent && sent.entry_id === "contract-1" && sent.values.betrag === -12.5 && sent.values.bezeichnung === "Gebühr" && !("index" in sent), `the item is sent (${JSON.stringify(sent)})`);
+  await page.locator("details", { hasText: "Strom Haus" }).first().getByRole("button", { name: "Posten bearbeiten" }).first().click();
+  check((await field("bezeichnung").inputValue()) === "Wechselbonus" && (await field("datum").inputValue()) === "2026-01-15", "editing fills the item in");
+  await page.getByRole("button", { name: "Posten löschen", exact: true }).click();
+  await page.getByRole("button", { name: "Ja, löschen" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const gone = (await calls(page)).find((c) => c.type === "tariffy/einmal_delete");
+  check(gone && gone.index === 0, "an item can be deleted");
+
+  await page.getByRole("tab", { name: "Kosten", exact: true }).click();
+  // by category (the default): contracts of one category count together
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = [...panel._contracts, { ...panel._contracts.find((c) => c.title === "Internet"), entry_id: "contract-98", title: "Zweitanschluss" }];
+    panel._render();
+  });
+  const grouped = await text(".chart .cs-legend");
+  check(grouped.includes("Internet (2)") && !grouped.includes("Zweitanschluss") && !grouped.includes("Strom Haus"), `contracts of one category are added up (${grouped.replace(/\n/g, " | ").slice(0, 160)})`);
+  await page.locator(".chart").screenshot({ path: join(outDir, "cost-chart-sparte.png") });
+  await page.getByRole("button", { name: "Je Vertrag" }).click();
+  const each = await text(".chart .cs-legend");
+  check(each.includes("Zweitanschluss") && each.includes("Strom Haus") && !each.includes("Internet (2)"), "per contract lists every contract");
+  const chart = await text(".chart");
+  check(chart.toLowerCase().includes("kostenaufteilung") && chart.includes("Strom Haus") && chart.includes("%"), `the cost split lists the contracts with their share (${chart.slice(0, 200)})`);
+  check((await page.locator(".chart .cs-ring circle").count()) >= 3, "the ring has one slice per contract");
+  const before = await text(".chart .cs-legend");
+  await page.getByRole("button", { name: "Pro Jahr" }).click();
+  check((await text(".chart .cs-legend")) !== before, "the basis can be switched to a year");
+  const options = await page.locator(".chart .yr-pick option").allInnerTexts();
+  check(options[0] === "Aktuell" && options.includes("2024") && options.includes("2025") && options.includes("2026"), `the years with data can be picked (${options})`);
+  await page.locator(".chart .yr-pick select").selectOption("2025");
+  const y25 = await text(".chart .cs-legend");
+  check(/Strom Haus\s*1\.166,20 €/.test(y25), `a past year shows that term's cost (${y25.slice(0, 120)})`);
+  check((await text(".chart")).includes("Kalenderjahr"), "the year view says how earlier terms are counted");
+  await page.locator(".chart").screenshot({ path: join(outDir, "cost-chart-year.png") });
+  await page.locator(".chart .yr-pick select").selectOption("");
+  check((await text(".chart")).includes("Pauschalverträge") && (await text(".chart")).includes("Verbrauchsverträge"), "the split between consumption and flat-rate contracts is shown");
+  await page.locator(".chart").screenshot({ path: join(outDir, "cost-chart.png") });
+  await context.close();
+}
+
+{ // notice period and minimum term
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`notice: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Internet" }).first().locator("summary").click();
+  const net = (await page.locator("details:has-text('Internet')").first().innerText()).replace(/\u00a0/g, " ");
+  check(/Mindestlaufzeit\s*12 Monate · bis 01\.10\.2026/.test(net), `the minimum term is shown (${net.split("\n").filter((l) => l.includes("Mindest"))})`);
+  check(/Kündigungsfrist\s*3 Monate/.test(net) && /Kündigen bis\s*30\.06\.2026/.test(net), "the notice period and the cancellation deadline are shown");
+  check(/Kündigung erinnern|Erinnerung/.test(net) && net.includes("30.03.2026"), "the reminder date counts from the deadline (6 months before the end)");
+  const other = (await page.locator("details:has-text('Gas Heizung')").first().innerText()).replace(/\u00a0/g, " ");
+  check(!other.includes("Kündigungsfrist") && !other.includes("Mindestlaufzeit"), "a contract without them shows nothing new");
+  await context.close();
+}
+
+{ // the sparte "streaming" has a name and an icon in both languages
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`streaming: ${e.message}`));
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const de = await page.evaluate(() => window.__panel._t("sparte").streaming);
+  check(de === "Streaming", `the sparte has a name (${de})`);
+  await page.evaluate(() => {
+    const panel = window.__panel;
+    panel._contracts = [...panel._contracts, { ...panel._contracts.find((c) => c.title === "Mobilfunk"), entry_id: "contract-99", title: "Musik", anbieter: "Spotify", sparte: "streaming" }];
+    panel._render();
+  });
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  check((await page.locator("details:has-text('Musik') .badge.streaming svg").count()) === 1, "a streaming contract has its own badge and icon");
+  await context.close();
+}
+
+{ // outdoor meters of a water contract
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`aussen: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Wasser" }).first().locator("summary").click();
+  const wasser = (await page.locator("details:has-text('Wasser')").first().innerText()).replace(/\u00a0/g, " ");
+  check(/Garten\s*sensor\.wasser_garten/.test(wasser) && /Gartenwasser\s*12,0 m³/.test(wasser) && /Abwasserpflichtiger Verbrauch\s*29,0 m³/.test(wasser),
+    `the water contract lists the outdoor meter and the split (${wasser.split("\n").filter((l) => /Garten|Abwasser/.test(l)).join(" | ")})`);
+  check(!(await page.locator("details:has-text('Gas Heizung')").first().innerText()).includes("Außenzähler"), "other contracts have no outdoor meters");
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  await page.locator("details", { hasText: "Wasser" }).first().getByRole("button", { name: "Außenzähler hinzufügen" }).click();
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  check((await page.locator(".dialog").innerText()).includes("Pflichtfeld") && !(await calls(page)).some((c) => c.type === "tariffy/aussen_save"), "name and sensor are required");
+  await field("name").fill("Pool");
+  await field("sensor").fill("sensor.pool");
+  await field("preis").fill("1,5");
+  await dialog(page).screenshot({ path: join(outDir, "aussen-dialog.png") });
+  await page.getByRole("button", { name: "Speichern", exact: true }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const sent = (await calls(page)).find((c) => c.type === "tariffy/aussen_save");
+  check(sent && sent.values.name === "Pool" && sent.values.sensor === "sensor.pool" && sent.values.preis === 1.5 && !("index" in sent), `the meter is sent (${JSON.stringify(sent)})`);
+  await page.locator("details", { hasText: "Wasser" }).first().getByRole("button", { name: "Außenzähler bearbeiten" }).first().click();
+  check((await field("name").inputValue()) === "Garten" && (await field("sensor").inputValue()) === "sensor.wasser_garten", "editing fills the meter in");
+  await page.getByRole("button", { name: "Zähler löschen" }).click();
+  await page.getByRole("button", { name: "Ja, löschen" }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const gone = (await calls(page)).find((c) => c.type === "tariffy/aussen_delete");
+  check(gone && gone.index === 0, "a meter can be deleted");
+  await context.close();
+}
+
+{ // flat-rate cards: four columns from 1500 px, the consumption cards need more room
+  const context = await browser.newContext({ viewport: { width: 1650, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`grid: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".grid.flat"));
+  const columns = (sel) => page.evaluate((s) => getComputedStyle(window.__panel.shadowRoot.querySelector(s)).gridTemplateColumns.split(" ").length, sel);
+  check((await columns(".grid.flat")) === 4, `the flat-rate cards use four columns at 1650 px (${await columns(".grid.flat")})`);
+  check((await columns(".grid.metered")) === 3, `the consumption cards keep three columns at 1650 px (${await columns(".grid.metered")})`);
   await context.close();
 }
 

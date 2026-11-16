@@ -12,6 +12,8 @@
           "tarif": "Tarifname",
           "beginn": "Vertragsbeginn",
           "ende": "Vertragsende / Laufzeit bis",
+          "mindestlaufzeit": "Mindestlaufzeit (Monate)",
+          "kuendigungsfrist": "Kündigungsfrist (Monate)",
           "erinnerung_monate": "Kündigung erinnern",
           "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
         },
@@ -22,7 +24,9 @@
           "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
           "beginn": "Datum, ab dem der Vertrag gilt",
           "ende": "Letzter Gültigkeitstag des Vertrags",
-          "erinnerung_monate": "Wie viele Monate vor Vertragsende soll eine Kündigungs-Erinnerung erscheinen?",
+          "mindestlaufzeit": "Optional. Das Panel zeigt, bis wann der Vertrag mindestens läuft (Beginn + Mindestlaufzeit).",
+          "kuendigungsfrist": "Optional. Monate vor Vertragsende, bis zu denen die Kündigung vorliegen muss. Wenn eingetragen, bezieht sich die Erinnerung auf diese Frist statt auf das Vertragsende.",
+          "erinnerung_monate": "Wie viele Monate vor Ablauf der Kündigungsfrist soll erinnert werden (ohne eingetragene Frist: vor Vertragsende)?",
           "notify_target": "HA-Benachrichtigungsdienst für die Kündigungs-Erinnerung (z. B. notify.mobile_app)"
         }
       },
@@ -30,22 +34,28 @@
         "title": "Vertrag bearbeiten",
         "description": "Allgemeine Vertragsdaten.",
         "data": {
+          "name": "Name",
           "sparte": "Sparte",
           "anbieter": "Anbieter",
           "kundennummer": "Kundennummer",
           "tarif": "Tarifname",
           "beginn": "Vertragsbeginn",
           "ende": "Vertragsende / Laufzeit bis",
+          "mindestlaufzeit": "Mindestlaufzeit (Monate)",
+          "kuendigungsfrist": "Kündigungsfrist (Monate)",
           "erinnerung_monate": "Kündigung erinnern",
           "notify_target": "Benachrichtigungs-Ziel (notify-Dienst)"
         },
         "data_description": {
+          "name": "Name des Vertrags: wird im Panel gezeigt und ist der Name seines Geräts",
           "anbieter": "Name des Energieversorgers oder Anbieters",
           "kundennummer": "Deine Kundennummer aus den Vertragsunterlagen",
           "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
           "beginn": "Datum, ab dem der Vertrag gilt",
           "ende": "Letzter Gültigkeitstag des Vertrags",
-          "erinnerung_monate": "Wie viele Monate vor Vertragsende soll eine Kündigungs-Erinnerung erscheinen?",
+          "mindestlaufzeit": "Optional. Das Panel zeigt, bis wann der Vertrag mindestens läuft (Beginn + Mindestlaufzeit).",
+          "kuendigungsfrist": "Optional. Monate vor Vertragsende, bis zu denen die Kündigung vorliegen muss. Wenn eingetragen, bezieht sich die Erinnerung auf diese Frist statt auf das Vertragsende.",
+          "erinnerung_monate": "Wie viele Monate vor Ablauf der Kündigungsfrist soll erinnert werden (ohne eingetragene Frist: vor Vertragsende)?",
           "notify_target": "HA-Benachrichtigungsdienst für die Kündigungs-Erinnerung (z. B. notify.mobile_app)"
         }
       },
@@ -255,26 +265,82 @@
       },
       "pauschal": {
         "title": "Kosten",
-        "description": "Monatliche Kosten des Vertrags.",
+        "description": "Kosten des Vertrags. Trage ein, wie hoch eine Zahlung ist und wie oft du zahlst; die Integration rechnet mit dem Monatsbetrag.",
         "data": {
-          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "zahlweise": "Zahlweise",
+          "abschlag": "Betrag pro Zahlung (€)",
+          "erste_zahlung": "Erste Abbuchung am",
           "grundpreis": "Grundpreis (€/Monat)"
         },
         "data_description": {
-          "abschlag": "Monatliche Pauschale für diesen Vertrag",
-          "grundpreis": "Optionaler Grundbetrag, falls separat vom Abschlag ausgewiesen"
+          "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
+          "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
+          "erste_zahlung": "Nur bei vierteljährlicher, halbjährlicher oder jährlicher Zahlung: der Tag, an dem der erste Betrag abgebucht wird. Leer = Vertragsbeginn. Die weiteren Abbuchungen folgen im Abstand der Zahlweise.",
+          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird"
+        }
+      },
+      "versicherung": {
+        "title": "Versicherung",
+        "description": "Was versichert der Vertrag? Nur eine Kfz-Versicherung fragt nach weiteren Angaben.",
+        "data": {
+          "versicherungsart": "Art der Versicherung"
+        },
+        "data_description": {
+          "versicherungsart": "Optional: was die Versicherung abdeckt"
+        }
+      },
+      "versicherung_kfz": {
+        "title": "Kfz-Versicherung",
+        "description": "Angaben zur Kfz-Versicherung. Alles optional, es dokumentiert nur den Vertrag.",
+        "data": {
+          "kennzeichen": "Kennzeichen",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)"
+        },
+        "data_description": {
+          "kennzeichen": "Wird wie die Kundennummer behandelt: im Seitenleisten-Panel nicht sichtbar",
+          "km_start": "Kilometerstand zu Beginn des Vertrags",
+          "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr"
         }
       },
       "reconfigure_pauschal": {
         "title": "Kosten",
-        "description": "Monatliche Kosten des Vertrags.",
+        "description": "Kosten des Vertrags. Trage ein, wie hoch eine Zahlung ist und wie oft du zahlst; die Integration rechnet mit dem Monatsbetrag.",
         "data": {
-          "abschlag": "Monatlicher Abschlag (€/Monat)",
+          "zahlweise": "Zahlweise",
+          "abschlag": "Betrag pro Zahlung (€)",
+          "erste_zahlung": "Erste Abbuchung am",
           "grundpreis": "Grundpreis (€/Monat)"
         },
         "data_description": {
-          "abschlag": "Monatliche Pauschale für diesen Vertrag",
-          "grundpreis": "Optionaler Grundbetrag, falls separat vom Abschlag ausgewiesen"
+          "zahlweise": "Wie oft der Betrag bezahlt wird (Versicherungen werden oft jährlich bezahlt)",
+          "abschlag": "Der Betrag einer Zahlung in der Zahlweise darüber (zum Beispiel der Jahresbeitrag)",
+          "erste_zahlung": "Nur bei vierteljährlicher, halbjährlicher oder jährlicher Zahlung: der Tag, an dem der erste Betrag abgebucht wird. Leer = Vertragsbeginn. Die weiteren Abbuchungen folgen im Abstand der Zahlweise.",
+          "grundpreis": "Optionale Grundgebühr, wenn sie getrennt vom Abschlag abgerechnet wird"
+        }
+      },
+      "reconfigure_versicherung": {
+        "title": "Versicherung",
+        "description": "Was versichert der Vertrag? Nur eine Kfz-Versicherung fragt nach weiteren Angaben.",
+        "data": {
+          "versicherungsart": "Art der Versicherung"
+        },
+        "data_description": {
+          "versicherungsart": "Optional: was die Versicherung abdeckt"
+        }
+      },
+      "reconfigure_versicherung_kfz": {
+        "title": "Kfz-Versicherung",
+        "description": "Angaben zur Kfz-Versicherung. Alles optional, es dokumentiert nur den Vertrag.",
+        "data": {
+          "kennzeichen": "Kennzeichen",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)"
+        },
+        "data_description": {
+          "kennzeichen": "Wird wie die Kundennummer behandelt: im Seitenleisten-Panel nicht sichtbar",
+          "km_start": "Kilometerstand zu Beginn des Vertrags",
+          "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr"
         }
       },
       "wasser": {
@@ -471,7 +537,8 @@
       }
     },
     "abort": {
-      "reconfigure_successful": "Vertrag wurde aktualisiert."
+      "reconfigure_successful": "Vertrag wurde aktualisiert.",
+      "invalid_backup": "Die Sicherung ist nicht gültig."
     },
     "error": {
       "invalid_number": "Keine gültige Zahl. Bitte Punkt oder Komma als Dezimaltrennzeichen verwenden (z.B. 11.2 oder 11,2)."
@@ -515,6 +582,7 @@
         "water": "Wasser",
         "internet": "Internet",
         "mobile": "Mobilfunk",
+        "streaming": "Streaming",
         "insurance": "Versicherung",
         "other": "Sonstiges",
         "electricity_ht_nt": "Strom (Zweizählertarif, Hoch-/Niedertarif)"
@@ -534,6 +602,27 @@
         "price_per_unit": "Fixer Preis pro Einheit (z.B. DE, AT, CH)",
         "percentage": "Prozentsatz des Frischwasserpreises (z.B. US, UK, AU)",
         "flat_rate": "Monatliche Pauschale (z.B. FR, BE)"
+      }
+    },
+    "zahlweise": {
+      "options": {
+        "monthly": "Monatlich",
+        "quarterly": "Vierteljährlich",
+        "halfyearly": "Halbjährlich",
+        "yearly": "Jährlich"
+      }
+    },
+    "versicherungsart": {
+      "options": {
+        "car": "Auto (Kfz)",
+        "house": "Gebäude / Haus",
+        "household": "Hausrat",
+        "liability": "Haftpflicht",
+        "health": "Kranken",
+        "life": "Leben",
+        "legal": "Rechtsschutz",
+        "accident": "Unfall",
+        "other": "Sonstige"
       }
     }
   },
@@ -574,6 +663,18 @@
       },
       "naechster_wechsel": {
         "name": "Nächster Wechsel"
+      },
+      "garten_verbrauch": {
+        "name": "Gartenwasser (Verbrauch)"
+      },
+      "garten_kosten": {
+        "name": "Gartenwasser (Kosten)"
+      },
+      "abwasserpflichtiger_verbrauch": {
+        "name": "Abwasserpflichtiger Verbrauch"
+      },
+      "abwasser_kosten": {
+        "name": "Abwasserkosten"
       },
       "kuendigung_erinnerung": {
         "name": "Kündigungs-Erinnerung"
@@ -637,6 +738,29 @@
       },
       "kosten_nt_bisher": {
         "name": "Kosten Niedertarif (Bisher)"
+      },
+      "versicherungsart": {
+        "name": "Art der Versicherung",
+        "state": {
+          "car": "Auto (Kfz)",
+          "house": "Gebäude / Haus",
+          "household": "Hausrat",
+          "liability": "Haftpflicht",
+          "health": "Kranken",
+          "life": "Leben",
+          "legal": "Rechtsschutz",
+          "accident": "Unfall",
+          "other": "Sonstige"
+        }
+      },
+      "kennzeichen": {
+        "name": "Kennzeichen"
+      },
+      "km_start": {
+        "name": "Kilometerstand bei Vertragsbeginn"
+      },
+      "km_pro_jahr": {
+        "name": "Erlaubte Kilometer pro Jahr"
       }
     },
     "button": {

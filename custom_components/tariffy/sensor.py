@@ -32,6 +32,9 @@ from .const import (
     CONF_ENDE,
     CONF_GRUNDPREIS,
     CONF_JAHRESVERBRAUCH,
+    CONF_KENNZEICHEN,
+    CONF_KM_PRO_JAHR,
+    CONF_KM_START,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_OEKOSTROM,
@@ -39,6 +42,7 @@ from .const import (
     CONF_SPARTE,
     CONF_TARIF,
     CONF_VERBRAUCH_SENSOR,
+    CONF_VERSICHERUNGSART,
     CONF_ZAEHLERNUMMER,
     CONF_ZUSTANDSZAHL,
     DOMAIN,
@@ -48,6 +52,8 @@ from .const import (
     VERBRAUCH_KWH_EINHEIT,
     WASSER_SPARTE,
     SPARTE_ELECTRICITY_HT_NT,
+    SPARTE_INSURANCE,
+    VERSICHERUNGSARTEN,
     CONF_ARBEITSPREIS_NT,
     CONF_ZAEHLERNUMMER_NT,
 )
@@ -135,6 +141,8 @@ class VertragSensorDescription(SensorEntityDescription):
     tag_nacht_only: bool = False
     tiered_only: bool = False
     ht_nt_only: bool = False
+    versicherung_only: bool = False
+    aussen_only: bool = False
     currency_icon: bool = False
 
 
@@ -239,6 +247,39 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         value_fn=lambda d: d.get(CONF_KUNDENNUMMER),
     ),
     VertragSensorDescription(
+        key=CONF_VERSICHERUNGSART,
+        translation_key="versicherungsart",
+        icon="mdi:shield-check",
+        device_class=SensorDeviceClass.ENUM,
+        options=VERSICHERUNGSARTEN,
+        versicherung_only=True,
+        value_fn=lambda d: d.get(CONF_VERSICHERUNGSART) or None,
+    ),
+    VertragSensorDescription(
+        key=CONF_KENNZEICHEN,
+        translation_key="kennzeichen",
+        icon="mdi:car-info",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        versicherung_only=True,
+        value_fn=lambda d: d.get(CONF_KENNZEICHEN) or None,
+    ),
+    VertragSensorDescription(
+        key=CONF_KM_START,
+        translation_key="km_start",
+        icon="mdi:counter",
+        native_unit_of_measurement="km",
+        versicherung_only=True,
+        value_fn=lambda d: d.get(CONF_KM_START),
+    ),
+    VertragSensorDescription(
+        key=CONF_KM_PRO_JAHR,
+        translation_key="km_pro_jahr",
+        icon="mdi:road-variant",
+        native_unit_of_measurement="km",
+        versicherung_only=True,
+        value_fn=lambda d: d.get(CONF_KM_PRO_JAHR),
+    ),
+    VertragSensorDescription(
         key=CONF_ZAEHLERNUMMER,
         translation_key="zaehlernummer",
         icon="mdi:counter",
@@ -277,6 +318,8 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
             "aktiv": d.get("erinnerung_aktiv"),
             "bestaetigt": d.get("erinnerung_bestaetigt"),
             "monate_vorher": d.get("erinnerung_monate"),
+            "kuendigungsfrist_monate": d.get("kuendigungsfrist"),
+            "kuendigung_bis": _fmt_date(d.get("kuendigung_bis")),
         },
     ),
     VertragSensorDescription(
@@ -298,6 +341,40 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         wasser_only=True,
         value_fn=lambda d: d.get("arbeitspreis_gesamt_wasser"),
+    ),
+    VertragSensorDescription(
+        key="garten_verbrauch",
+        translation_key="garten_verbrauch",
+        icon="mdi:sprinkler",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        wasser_only=True,
+        aussen_only=True,
+        value_fn=lambda d: d.get("garten_verbrauch"),
+    ),
+    VertragSensorDescription(
+        key="garten_kosten",
+        translation_key="garten_kosten",
+        icon="mdi:cash-multiple",
+        wasser_only=True,
+        aussen_only=True,
+        value_fn=lambda d: d.get("garten_kosten"),
+    ),
+    VertragSensorDescription(
+        key="abwasserpflichtiger_verbrauch",
+        translation_key="abwasserpflichtiger_verbrauch",
+        icon="mdi:water-minus",
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        wasser_only=True,
+        aussen_only=True,
+        value_fn=lambda d: d.get("abwasserpflichtiger_verbrauch"),
+    ),
+    VertragSensorDescription(
+        key="abwasser_kosten",
+        translation_key="abwasser_kosten",
+        icon="mdi:cash-multiple",
+        wasser_only=True,
+        aussen_only=True,
+        value_fn=lambda d: d.get("abwasser_kosten"),
     ),
     VertragSensorDescription(
         key="einspeiseverguetung",
@@ -503,8 +580,10 @@ async def async_setup_entry(
     ist_wasser = sparte == WASSER_SPARTE
     ist_strom = sparte in ("electricity", "strom", SPARTE_ELECTRICITY_HT_NT)
     ist_ht_nt = sparte == SPARTE_ELECTRICITY_HT_NT
+    ist_versicherung = sparte == SPARTE_INSURANCE
     hat_tag_nacht = bool(coordinator.data.get("hat_tag_nacht"))
     hat_tiered = bool(coordinator.data.get("ist_tiered"))
+    hat_aussen = bool(coordinator.data.get("aussenzaehler"))
 
     def _passend(desc: VertragSensorDescription) -> bool:
         if desc.energie_only and not ist_energie:
@@ -520,6 +599,10 @@ async def async_setup_entry(
         if desc.tiered_only and not hat_tiered:
             return False
         if desc.ht_nt_only and not ist_ht_nt:
+            return False
+        if desc.versicherung_only and not ist_versicherung:
+            return False
+        if desc.aussen_only and not hat_aussen:
             return False
         return True
 
@@ -564,9 +647,9 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
         elif key == "jahreskosten":
             self._attr_native_unit_of_measurement = currency
-        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher"):
+        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher", "garten_kosten", "abwasser_kosten"):
             self._attr_native_unit_of_measurement = currency
-        elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit"):
+        elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit", "garten_verbrauch", "abwasserpflichtiger_verbrauch"):
             if sparte in (GAS_SPARTE, WASSER_SPARTE):
                 # verbrauch_bisher/hochgerechnet sind der ROHE Delta-Wert des
                 # verbrauch_sensor, in dessen tatsaechlicher Einheit (meist m³
@@ -578,6 +661,8 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
                 sensor_id = entry.data.get(CONF_VERBRAUCH_SENSOR)
                 state = coordinator.hass.states.get(sensor_id) if sensor_id else None
                 sensor_unit = state.attributes.get("unit_of_measurement") if state else None
+                if str(sensor_unit or "").strip().lower() in ("wh", "mwh"):
+                    sensor_unit = VERBRAUCH_KWH_EINHEIT  # the consumption is calculated in kWh
                 self._attr_native_unit_of_measurement = sensor_unit or fallback
             else:
                 self._attr_native_unit_of_measurement = VERBRAUCH_KWH_EINHEIT

@@ -5,13 +5,15 @@
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
 | Bezeichnung | ✅ | Anzeigename (z. B. „Strom Haus") |
-| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Versicherung, Sonstiges |
+| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Sonstiges |
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
 | Vertragsbeginn | – | Startdatum des Vertrags |
 | Vertragsende | – | Enddatum / Laufzeit bis |
-| Kündigung erinnern | ✅ | 0–4 Monate vorher (0 = deaktiviert) |
+| Mindestlaufzeit (Monate) | – | Das Panel zeigt, bis wann der Vertrag mindestens läuft |
+| Kündigungsfrist (Monate) | – | Wenn eingetragen, bezieht sich die Erinnerung auf den letzten Kündigungstag |
+| Kündigung erinnern | ✅ | 0–4 Monate vorher (0 = deaktiviert); vor Vertragsende, mit Kündigungsfrist vor Ablauf der Frist |
 | Benachrichtigungs-Ziel | – | notify-Dienst (z. B. `mobile_app_iphone`) |
 
 ## Schritt 2a – Strom-Details
@@ -60,9 +62,31 @@ Wie Strom, zusätzlich:
 | Abwassergebühr | – | Betrag je nach gewähltem Typ |
 | Zählernummer | – | Für Dokumentation |
 
-## Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Versicherung, …)
+### Außenzähler (Garten, Pool, Bewässerung)
+
+Bei einem **Wasservertrag** können im Tab **Verträge** des Panels (Block **Außenzähler**, nur Administratoren) bis zu zehn Außenzähler eingetragen werden. Wasser, das darüber läuft, fließt nicht in die Kanalisation. Je Zähler: **Name**, **Verbrauchssensor**, optional ein **Startwert** (Zählerstand am Vertragsbeginn, in der Einheit des Zählers) und optional ein **eigener Preis je Einheit** (sonst der Frischwasserpreis). Der Außenzähler gilt als Unterzähler, sein Verbrauch ist im Hauptzähler enthalten:
+
+- **Abwasserpflichtiger Verbrauch = Hauptzähler − Summe der Außenzähler** (nie unter 0).
+- Das Gartenwasser kostet Frischwasserpreis (oder den eigenen Preis), das übrige Wasser Frischwasser plus Abwasser. Die Kosten bisher, die Prognose und der empfohlene Abschlag rechnen mit dem daraus **gewichteten Preis** des Hauptzählers, wie beim Zweizählertarif.
+- Ein Zähler in Litern wird in die Einheit des Hauptzählers umgerechnet.
+- Für einen Vertrag mit Außenzähler gibt es vier zusätzliche Sensoren: **Gartenwasser (Verbrauch)**, **Gartenwasser (Kosten)**, **Abwasserpflichtiger Verbrauch**, **Abwasserkosten**. Die Gesamtkosten stehen wie immer in den Kosten-Sensoren. Ohne Außenzähler ändert sich nichts.
+
+
+## Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Streaming, Versicherung, …)
+
+**Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Bei nicht monatlicher Zahlweise zählen die **Abbuchungen** zu den Kosten bisher; die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.
 
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
-| Monatlicher Abschlag | ✅ | €/Monat |
+| Zahlweise | ✅ | monatlich, vierteljährlich, halbjährlich oder jährlich |
+| Betrag pro Zahlung | ✅ | € pro Zahlung in der gewählten Zahlweise (zum Beispiel der Jahresbeitrag) |
+| Erste Abbuchung am | – | Nur bei nicht monatlicher Zahlweise; leer = Vertragsbeginn |
 | Grundpreis | – | €/Monat (falls separat ausgewiesen) |
+
+**Versicherungen** haben vor den Kosten einen eigenen Schritt **Art der Versicherung** (Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige). **Nur bei einer Kfz-Versicherung** folgt danach ein Schritt mit Angaben zum Auto; alle anderen Arten gehen gleich weiter zu den Kosten. Alle Versicherungsangaben sind optional und dienen der Dokumentation, es wird nichts berechnet.
+
+| Feld (nur Kfz) | Pflicht | Beschreibung |
+|------|---------|-------------|
+| Kennzeichen | – | Wie die Kundennummer persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
+| Kilometerstand bei Vertragsbeginn | – | in km |
+| Erlaubte Kilometer pro Jahr | – | in km |

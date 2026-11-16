@@ -40,18 +40,22 @@ def _form_defaults(form) -> dict:
 from voluptuous.schema_builder import UNDEFINED as vol_UNDEFINED  # noqa: E402
 
 
-async def _reconfigure(hass, entry, first=None, second=None):
+async def _reconfigure(hass, entry, first=None, second=None, drop=(), drop_first=()):
     result = await hass.config_entries.flow.async_init(
         "tariffy", context={"source": "reconfigure", "entry_id": entry.entry_id}
     )
     assert result["step_id"] == "reconfigure"
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {**_form_defaults(result), **(first or {})}
-    )
+    start = {**_form_defaults(result), **(first or {})}
+    for name in drop_first:  # a field of the first step the user emptied
+        start.pop(name, None)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], start)
     assert result["type"] is FlowResultType.FORM
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {**_form_defaults(result), **(second or {})}
-    )
+    while result["step_id"].startswith("reconfigure_versicherung"):  # an insurance asks for its type (and car details)
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
+    values = {**_form_defaults(result), **(second or {})}
+    for name in drop:  # a field the user emptied: the panel leaves it out
+        values.pop(name, None)
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], values)
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
     await hass.async_block_till_done()
@@ -72,6 +76,38 @@ async def test_nothing_is_lost_when_the_form_is_saved_unchanged(frontend_env, co
     assert data["ende"] == "2026-12-31"
 
 
+async def test_the_form_offers_the_name_first_with_the_current_one(frontend_env, contract, hass):  # noqa: F811
+    entry, _ = await _contract(contract)
+    result = await hass.config_entries.flow.async_init(
+        "tariffy", context={"source": "reconfigure", "entry_id": entry.entry_id}
+    )
+    first = next(iter(result["data_schema"].schema))
+    assert str(first) == "name" and first.default() == "Test"
+
+
+@pytest.mark.parametrize("sparte", ["electricity", "gas", "internet", "mobile", "streaming"])
+async def test_the_name_can_be_changed(frontend_env, contract, hass, sparte):  # noqa: F811
+    from homeassistant.helpers import device_registry as dr, entity_registry as er
+
+    entry, _ = await _contract(contract, sparte=sparte)
+    entities_before = {e.entity_id for e in er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)}
+    extra = {"brennwert": "11.2", "zustandszahl": "0.95"} if sparte == "gas" else {}
+    data = await _reconfigure(hass, entry, first={"name": "  Autoversicherung  "}, second=extra)
+    assert entry.title == "Autoversicherung"  # trimmed
+    assert "name" not in data  # the name is the title, not a contract value
+    assert data["anbieter"] == "Stadtwerke"
+    device = dr.async_get(hass).async_get_device(identifiers={("tariffy", entry.entry_id)})
+    assert device is not None and device.name == "Autoversicherung"
+    entities_after = {e.entity_id for e in er.async_entries_for_config_entry(er.async_get(hass), entry.entry_id)}
+    assert entities_after == entities_before  # entity ids stay as they are
+
+
+async def test_an_empty_name_keeps_the_old_one(frontend_env, contract, hass):  # noqa: F811
+    entry, _ = await _contract(contract)
+    await _reconfigure(hass, entry, first={"name": "   "})
+    assert entry.title == "Test"
+
+
 async def test_edited_fields_are_stored_and_internal_state_stays(frontend_env, contract, hass):  # noqa: F811
     entry, _ = await _contract(contract)
     data = await _reconfigure(hass, entry, first={"tarif": "Neu"}, second={"arbeitspreis": 0.31})
@@ -79,6 +115,15 @@ async def test_edited_fields_are_stored_and_internal_state_stays(frontend_env, c
     assert data["arbeitspreis"] == 0.31
     assert data["verbrauch_letzte_laufzeit"] == 1481.17
     assert data["_kuendigung_bestaetigt"] is True
+
+
+async def test_history_and_archive_flag_survive_a_reconfiguration(frontend_env, contract, hass):  # noqa: F811
+    history = [{"anbieter": "Alt", "beginn": "2025-01-01", "ende": "2025-12-31", "kosten": 480.0}]
+    entry, _ = await _contract(contract, _historie=history, _archiviert="2026-05-01")
+    data = await _reconfigure(hass, entry, first={"tarif": "Neu"})
+    assert data["tarif"] == "Neu"
+    assert data["_historie"] == history
+    assert data["_archiviert"] == "2026-05-01"
 
 
 @pytest.mark.parametrize(

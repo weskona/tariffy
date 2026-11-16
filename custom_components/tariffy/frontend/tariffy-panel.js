@@ -44,10 +44,20 @@ const I18N = {
     costsHint: "Positive = credit, negative = balance due. “At contract end” is projected from the consumption so far. For flat-rate contracts the cost so far is the instalments due until today.",
     secContract: "Contract", secPrices: "Prices", secConsumption: "Consumption",
     secAdvice: "Recommendations", secNext: "Next contract",
-    provider: "Provider", tariff: "Tariff", start: "Start", end: "End",
+    provider: "Provider", tariff: "Tariff", insuranceType: "Type of insurance", kmStart: "Odometer at start", kmPerYear: "Allowed per year", start: "Start", end: "End",
     unitPrice: "Unit price", unitPriceLow: "Unit price low tariff", unitPriceNight: "Unit price night",
     unitPriceEff: "Unit price effective", unitPriceWater: "Water price incl. wastewater",
     basePrice: "Base price", perMonth: "/ month",
+    totalCost: "Total cost", totalSince: "since {d}", termsOne: "1 term", termsMany: "{n} terms", atLeast: "at least {v}",
+    actRenew: "Renew contract", renewTitle: "Renew contract", renewGo: "Renew",
+    renewHint: "The current term goes to the history. The contract runs on with the new start, end and amount; reminders start over. Use it when the premium or price changes at the end of the term.",
+    rf_zahlweise: "Payment interval", rf_abschlag: "Amount per payment (€)",
+    renewUp: "{p} % dearer ({n} instead of {o} per month)", renewDown: "{p} % cheaper ({n} instead of {o} per month)", renewSame: "Amount unchanged",
+    termErr_invalid_abschlag: "Enter an amount above zero.", termErr_invalid_zahlweise: "Choose a payment interval.",
+    termErr_not_available: "This contract cannot be renewed (no end date, or not a flat-rate contract).",
+    firstDebit: "First debit", nextPayment: "Next payment", rf_erste: "First debit (optional)",
+    instalmentYear: "Instalment / year", costYear: "Cost / year", payment: "Payment", perYearShort: "{v} / year",
+    interval: { monthly: "monthly", quarterly: "quarterly", halfyearly: "half-yearly", yearly: "yearly" },
     soFar: "So far", soFarHigh: "So far, high tariff", soFarLow: "So far, low tariff",
     projectedTerm: "Projected for the term", lastPeriod: "Last period",
     recommended: "Recommended instalment", adjustment: "Instalment adjustment",
@@ -61,6 +71,53 @@ const I18N = {
     actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
     actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract", actNew: "New contract",
     saldoShort: "Balance today",
+    history: "History", histEmptyTitle: "No history yet",
+    histEmpty: "The earlier terms of a contract appear here once the next contract takes over. Archived contracts appear here too.",
+    allArchived: "All contracts are archived. You find them in the History tab.",
+    groupArchived: "Archived contracts", groupEarlier: "Earlier terms", archived: "Archived",
+    colTerm: "Term", colTermCost: "Cost", colUsage: "Consumption", colTermBalance: "Balance",
+    expired: "Expired", noteExpired: "This contract has ended. You can archive it in the Contracts tab.",
+    actArchive: "Archive", actRestore: "Restore",
+    actAskArchive: "Archive this contract? It leaves the overview, the costs and the contracts and moves to the History tab. Nothing is deleted and you can bring it back.",
+    actYesArchive: "Yes, archive",
+    actAskRestore: "Bring this contract back to the overview?", actYesRestore: "Yes, restore",
+    backup: "Backup", bkTitleExport: "Create a backup", bkTitleRestore: "Restore from a file", bkTitleDeleted: "Deleted contracts",
+    bkExportText: "Saves all contracts in one file: their data, history, planned next contract and acknowledgements. The file contains personal data (customer number, meter number, market location, notification target). Keep it safe and do not pass it on.",
+    bkDownload: "Download backup", bkDownloaded: "Backup downloaded: {n} contracts.",
+    bkRestoreText: "Choose a backup file. You see what would happen before anything is created. Contracts that exist already (same name and kind) are skipped and never changed; only missing ones are created.",
+    bkPlanCreate: "will be created", bkPlanSkip: "skipped: exists already", bkNothing: "Nothing to restore: the contracts of this file exist already.",
+    bkRestoreGo: "Restore ({n})", bkAskRestore: "Create {n} missing contract(s) from this file? Existing contracts are not changed.",
+    bkYesRestore: "Yes, restore", bkDone: "Restored: {c} created, {s} skipped.",
+    bkDeletedText: "A deleted contract is kept for 30 days and can be brought back here, also if it was deleted in Home Assistant.",
+    bkDeletedEmpty: "No deleted contracts.", bkDeletedOn: "deleted {d}", bkRestoreOne: "Restore", bkAskOne: "Bring back \"{name}\"?",
+    bkYesOne: "Yes, bring back", bkRestoredOne: "\"{name}\" is back.",
+    bkDiscard: "Forget now", bkAskDiscard: "Forget \"{name}\" for good? It can not be brought back afterwards.",
+    bkYesDiscard: "Yes, forget", bkDiscarded: "\"{name}\" was forgotten.",
+    bkErr_invalid_backup: "This file is not a valid Tariffy backup.", bkErr_exists: "A contract with this name and kind exists already.",
+    bkErr_not_found: "This backup does not exist any more.", bkErr_restore_failed: "Restoring failed.", bkErrBig: "The file is too large.",
+    termAdd: "Add an old contract", termEdit: "Edit this term", termTitleAdd: "Add an old contract", termTitleEdit: "Edit term",
+    termHint: "Enter the term of an earlier contract. Leave the grey fields empty and they are worked out automatically (the consumption from the statistics of the meter, the rest from it and your prices). You can type a value into any field yourself.",
+    termDelete: "Delete term", termDeleteAsk: "Delete this term from the history?", termDeleteYes: "Yes, delete", termManual: "entered by hand",
+    tf_entry_id: "Contract", tf_beginn: "Start", tf_ende: "End", tf_anbieter: "Provider", tf_tarif: "Tariff",
+    tf_arbeitspreis: "Price per unit (€)", tf_grundpreis: "Base price per month (€)", tf_abschlag: "Instalment per month (€)",
+    tf_verbrauch: "Consumption", tf_kosten: "Cost (€)", tf_abschlag_gezahlt: "Instalments paid (€)", tf_saldo: "Balance (€)",
+    autoStat: "Automatic, from the statistics of {s}", autoNoSensor: "No meter is set for this contract, please enter it",
+    autoNoStat: "No statistics for this term, please enter it", autoFlat: "Flat-rate contract: no consumption",
+    autoCalc: "Calculated", autoWait: "Calculated as soon as the other values are there", autoOwn: "Entered by you",
+    termErr_invalid_dates: "The end must not be before the start.", termErr_too_many: "The history is full (50 terms).",
+    termErr_not_found: "This term does not exist any more.", termErr_invalid: "One of the numbers is not valid.",
+    secOnce: "One-time items", onceAdd: "Add item", onceEdit: "Edit item", onceTitleAdd: "Add a one-time item", onceTitleEdit: "Edit item",
+    onceHint: "A positive amount is a credit (e.g. a switching bonus), a negative one a bill (e.g. a broker's fee). It counts in the balance and in the total cost from its date.",
+    onceName: "Description", onceAmount: "Amount (+ credit, − bill)", onceDate: "Date", onceDelete: "Delete item", onceDeleteAsk: "Delete this item?", onceDeleteYes: "Yes, delete", onceSum: "Net",
+    termErr_invalid_bezeichnung: "Enter a description.", termErr_invalid_betrag: "Enter an amount other than zero (with a minus for a bill).",
+    minTerm: "Minimum term", noticePeriod: "Notice period", cancelBy: "Cancel by", untilDate: "until {d}",
+    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.", secAussen: "Outdoor meters", aussenAdd: "Add outdoor meter", aussenEdit: "Edit outdoor meter", aussenTitleAdd: "Add an outdoor meter", aussenTitleEdit: "Edit outdoor meter",
+    aussenHint: "Water that does not go into the sewer (garden, pool, irrigation). Its consumption is part of the main meter and is charged without wastewater.",
+    aussenName: "Name", aussenSensor: "Consumption sensor", aussenStart: "Start value (optional)", aussenPrice: "Own price per unit (optional)",
+    aussenDelete: "Delete meter", aussenDeleteAsk: "Delete this outdoor meter?", aussenTooMany: "There are too many outdoor meters (10).",
+    gardenUse: "Outdoor water", gardenCost: "Outdoor water cost", wwUse: "Wastewater-liable consumption", wwCost: "Wastewater cost",
+    termErr_invalid_name: "Enter a name.", termErr_invalid_sensor: "Enter the entity id of a sensor (for example sensor.garden_water).", termErr_same_sensor: "This is the main meter of the contract.",
+    chartBySparte: "By category", chartByContract: "By contract", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
     dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
@@ -85,7 +142,11 @@ const I18N = {
     adviceNone: "No instalment needed: the credit covers the costs until the contract ends", adviceOk: "The instalment fits",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
-      water: "Water", internet: "Internet", mobile: "Mobile", insurance: "Insurance", other: "Other",
+      water: "Water", internet: "Internet", mobile: "Mobile", streaming: "Streaming", insurance: "Insurance", other: "Other",
+    },
+    versicherungsart: {
+      car: "Car", house: "Building / house", household: "Household contents", liability: "Liability",
+      health: "Health", life: "Life", legal: "Legal protection", accident: "Accident", other: "Other",
     },
   },
   de: {
@@ -123,10 +184,20 @@ const I18N = {
     costsHint: "Positiv = Guthaben, negativ = Nachzahlung. „Zum Vertragsende“ ist aus dem bisherigen Verbrauch hochgerechnet. Bei Pauschalverträgen sind die Kosten bisher die bis heute fälligen Abschläge.",
     secContract: "Vertrag", secPrices: "Preise", secConsumption: "Verbrauch",
     secAdvice: "Empfehlungen", secNext: "Folgevertrag",
-    provider: "Anbieter", tariff: "Tarif", start: "Beginn", end: "Ende",
+    provider: "Anbieter", tariff: "Tarif", insuranceType: "Art der Versicherung", kmStart: "Kilometerstand bei Beginn", kmPerYear: "Erlaubt pro Jahr", start: "Beginn", end: "Ende",
     unitPrice: "Arbeitspreis", unitPriceLow: "Arbeitspreis Niedertarif", unitPriceNight: "Arbeitspreis Nacht",
     unitPriceEff: "Arbeitspreis effektiv", unitPriceWater: "Wasserpreis inkl. Abwasser",
     basePrice: "Grundpreis", perMonth: "/ Monat",
+    totalCost: "Kosten gesamt", totalSince: "seit {d}", termsOne: "1 Laufzeit", termsMany: "{n} Laufzeiten", atLeast: "mindestens {v}",
+    actRenew: "Vertrag verlängern", renewTitle: "Vertrag verlängern", renewGo: "Verlängern",
+    renewHint: "Die bisherige Laufzeit kommt in die Historie. Der Vertrag läuft mit neuem Beginn, Ende und Betrag weiter; die Erinnerungen beginnen neu. Nutze es, wenn sich Beitrag oder Preis zum Ende der Laufzeit ändert.",
+    rf_zahlweise: "Zahlweise", rf_abschlag: "Betrag pro Zahlung (€)",
+    renewUp: "{p} % teurer ({n} statt {o} pro Monat)", renewDown: "{p} % günstiger ({n} statt {o} pro Monat)", renewSame: "Betrag unverändert",
+    termErr_invalid_abschlag: "Trage einen Betrag über null ein.", termErr_invalid_zahlweise: "Wähle eine Zahlweise.",
+    termErr_not_available: "Dieser Vertrag lässt sich nicht verlängern (kein Ende eingetragen oder kein Pauschalvertrag).",
+    firstDebit: "Erste Abbuchung", nextPayment: "Nächste Zahlung", rf_erste: "Erste Abbuchung (optional)",
+    instalmentYear: "Abschlag / Jahr", costYear: "Kosten / Jahr", payment: "Zahlung", perYearShort: "{v} / Jahr",
+    interval: { monthly: "monatlich", quarterly: "vierteljährlich", halfyearly: "halbjährlich", yearly: "jährlich" },
     soFar: "Bisher", soFarHigh: "Bisher, Hochtarif", soFarLow: "Bisher, Niedertarif",
     projectedTerm: "Hochgerechnet auf die Laufzeit", lastPeriod: "Letzte Laufzeit",
     recommended: "Empfohlener Abschlag", adjustment: "Abschlag-Anpassung",
@@ -141,6 +212,53 @@ const I18N = {
     actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
     actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten", actNew: "Neuer Vertrag",
     saldoShort: "Saldo heute",
+    history: "Historie", histEmptyTitle: "Noch keine Historie",
+    histEmpty: "Die früheren Laufzeiten eines Vertrags erscheinen hier, sobald der Folgevertrag übernimmt. Archivierte Verträge erscheinen hier ebenfalls.",
+    allArchived: "Alle Verträge sind archiviert. Du findest sie im Tab Historie.",
+    groupArchived: "Archivierte Verträge", groupEarlier: "Frühere Laufzeiten", archived: "Archiviert",
+    colTerm: "Laufzeit", colTermCost: "Kosten", colUsage: "Verbrauch", colTermBalance: "Saldo",
+    expired: "Abgelaufen", noteExpired: "Dieser Vertrag ist abgelaufen. Im Tab Verträge kannst du ihn archivieren.",
+    actArchive: "Archivieren", actRestore: "Zurückholen",
+    actAskArchive: "Diesen Vertrag archivieren? Er verschwindet aus Übersicht, Kosten und Verträgen und steht in der Historie. Nichts wird gelöscht, du kannst ihn zurückholen.",
+    actYesArchive: "Ja, archivieren",
+    actAskRestore: "Diesen Vertrag wieder in die Übersicht holen?", actYesRestore: "Ja, zurückholen",
+    backup: "Sicherung", bkTitleExport: "Sicherung erstellen", bkTitleRestore: "Aus Datei wiederherstellen", bkTitleDeleted: "Gelöschte Verträge",
+    bkExportText: "Speichert alle Verträge in einer Datei: ihre Daten, die Historie, den geplanten Folgevertrag und die Bestätigungen. Die Datei enthält persönliche Daten (Kundennummer, Zählernummer, Marktlokation, Benachrichtigungsziel). Bewahre sie sicher auf und gib sie nicht weiter.",
+    bkDownload: "Sicherung herunterladen", bkDownloaded: "Sicherung heruntergeladen: {n} Verträge.",
+    bkRestoreText: "Wähle eine Sicherungsdatei. Du siehst vorher, was passieren würde, bevor etwas angelegt wird. Verträge, die es schon gibt (gleicher Name und Sparte), werden übersprungen und nie verändert; nur fehlende werden angelegt.",
+    bkPlanCreate: "wird angelegt", bkPlanSkip: "übersprungen: gibt es schon", bkNothing: "Nichts wiederherzustellen: die Verträge dieser Datei gibt es schon.",
+    bkRestoreGo: "Wiederherstellen ({n})", bkAskRestore: "{n} fehlende(n) Vertrag/Verträge aus dieser Datei anlegen? Vorhandene Verträge werden nicht verändert.",
+    bkYesRestore: "Ja, wiederherstellen", bkDone: "Wiederhergestellt: {c} angelegt, {s} übersprungen.",
+    bkDeletedText: "Ein gelöschter Vertrag bleibt 30 Tage erhalten und lässt sich hier zurückholen, auch wenn er in Home Assistant gelöscht wurde.",
+    bkDeletedEmpty: "Keine gelöschten Verträge.", bkDeletedOn: "gelöscht am {d}", bkRestoreOne: "Zurückholen", bkAskOne: "„{name}“ zurückholen?",
+    bkYesOne: "Ja, zurückholen", bkRestoredOne: "„{name}“ ist wieder da.",
+    bkDiscard: "Jetzt vergessen", bkAskDiscard: "„{name}“ endgültig vergessen? Danach lässt er sich nicht mehr zurückholen.",
+    bkYesDiscard: "Ja, vergessen", bkDiscarded: "„{name}“ wurde vergessen.",
+    bkErr_invalid_backup: "Das ist keine gültige Tariffy-Sicherung.", bkErr_exists: "Einen Vertrag mit diesem Namen und dieser Sparte gibt es schon.",
+    bkErr_not_found: "Diese Sicherung gibt es nicht mehr.", bkErr_restore_failed: "Das Wiederherstellen ist fehlgeschlagen.", bkErrBig: "Die Datei ist zu groß.",
+    termAdd: "Alten Vertrag hinzufügen", termEdit: "Laufzeit bearbeiten", termTitleAdd: "Alten Vertrag hinzufügen", termTitleEdit: "Laufzeit bearbeiten",
+    termHint: "Trage die Laufzeit eines früheren Vertrags ein. Lass die grau hinterlegten Felder leer, dann werden sie automatisch berechnet (der Verbrauch aus den Statistiken des Zählers, der Rest daraus und aus deinen Preisen). In jedes Feld kannst du auch selbst einen Wert eintragen.",
+    termDelete: "Laufzeit löschen", termDeleteAsk: "Diese Laufzeit aus der Historie löschen?", termDeleteYes: "Ja, löschen", termManual: "von Hand eingetragen",
+    tf_entry_id: "Vertrag", tf_beginn: "Beginn", tf_ende: "Ende", tf_anbieter: "Anbieter", tf_tarif: "Tarif",
+    tf_arbeitspreis: "Arbeitspreis je Einheit (€)", tf_grundpreis: "Grundpreis pro Monat (€)", tf_abschlag: "Abschlag pro Monat (€)",
+    tf_verbrauch: "Verbrauch", tf_kosten: "Kosten (€)", tf_abschlag_gezahlt: "Gezahlte Abschläge (€)", tf_saldo: "Saldo (€)",
+    autoStat: "Automatisch aus den Statistiken von {s}", autoNoSensor: "Am Vertrag ist kein Zähler hinterlegt, bitte eintragen",
+    autoNoStat: "Keine Statistik für diese Laufzeit, bitte eintragen", autoFlat: "Pauschalvertrag: kein Verbrauch",
+    autoCalc: "Berechnet", autoWait: "Wird berechnet, sobald die anderen Werte da sind", autoOwn: "Von dir eingetragen",
+    termErr_invalid_dates: "Das Ende darf nicht vor dem Beginn liegen.", termErr_too_many: "Die Historie ist voll (50 Laufzeiten).",
+    termErr_not_found: "Diese Laufzeit gibt es nicht mehr.", termErr_invalid: "Eine der Zahlen ist nicht gültig.",
+    secOnce: "Einmalposten", onceAdd: "Posten hinzufügen", onceEdit: "Posten bearbeiten", onceTitleAdd: "Einmalposten hinzufügen", onceTitleEdit: "Posten bearbeiten",
+    onceHint: "Ein positiver Betrag ist eine Gutschrift (z. B. Wechselbonus), ein negativer eine Rechnung (z. B. Honorar für den Makler). Er zählt ab seinem Datum im Saldo und in den Gesamtkosten.",
+    onceName: "Bezeichnung", onceAmount: "Betrag (+ Gutschrift, − Rechnung)", onceDate: "Datum", onceDelete: "Posten löschen", onceDeleteAsk: "Diesen Posten löschen?", onceDeleteYes: "Ja, löschen", onceSum: "Saldo",
+    termErr_invalid_bezeichnung: "Trage eine Bezeichnung ein.", termErr_invalid_betrag: "Trage einen Betrag ungleich null ein (mit Minus für eine Rechnung).",
+    minTerm: "Mindestlaufzeit", noticePeriod: "Kündigungsfrist", cancelBy: "Kündigen bis", untilDate: "bis {d}",
+    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.", secAussen: "Außenzähler", aussenAdd: "Außenzähler hinzufügen", aussenEdit: "Außenzähler bearbeiten", aussenTitleAdd: "Außenzähler hinzufügen", aussenTitleEdit: "Außenzähler bearbeiten",
+    aussenHint: "Wasser, das nicht in die Kanalisation fließt (Garten, Pool, Bewässerung). Sein Verbrauch ist im Hauptzähler enthalten und wird ohne Abwasser berechnet.",
+    aussenName: "Name", aussenSensor: "Verbrauchssensor", aussenStart: "Startwert (optional)", aussenPrice: "Eigener Preis je Einheit (optional)",
+    aussenDelete: "Zähler löschen", aussenDeleteAsk: "Diesen Außenzähler löschen?", aussenTooMany: "Es gibt zu viele Außenzähler (10).",
+    gardenUse: "Gartenwasser", gardenCost: "Gartenwasser-Kosten", wwUse: "Abwasserpflichtiger Verbrauch", wwCost: "Abwasserkosten",
+    termErr_invalid_name: "Trage einen Namen ein.", termErr_invalid_sensor: "Trage die Entity-ID eines Sensors ein (zum Beispiel sensor.garten_wasser).", termErr_same_sensor: "Das ist der Hauptzähler des Vertrags.",
+    chartBySparte: "Je Sparte", chartByContract: "Je Vertrag", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
     dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
@@ -165,16 +283,21 @@ const I18N = {
     adviceNone: "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende", adviceOk: "Der Abschlag passt",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
-      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", insurance: "Versicherung", other: "Sonstiges",
+      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", streaming: "Streaming", insurance: "Versicherung", other: "Sonstiges",
+    },
+    versicherungsart: {
+      car: "Auto (Kfz)", house: "Gebäude / Haus", household: "Hausrat", liability: "Haftpflicht",
+      health: "Kranken", life: "Leben", legal: "Rechtsschutz", accident: "Unfall", other: "Sonstige",
     },
   },
 };
 
 const SVG_NS = "http://www.w3.org/2000/svg";
-const TABS = ["overview", "costs", "contracts"];
+const TABS = ["overview", "costs", "contracts", "history", "backup"];
 // contracts that are billed by consumption; everything else (internet, mobile, ...) is a flat rate
 // column widths shared by the cost tables, so that their columns line up
 const GRID = ["24%", "15.2%", "15.2%", "15.2%", "15.2%", "15.2%"];
+const INTERVAL_MONTHS = { monthly: 1, quarterly: 3, halfyearly: 6, yearly: 12 };
 const METERED = new Set(["electricity", "electricity_ht_nt", "gas", "water"]);
 const TAB_KEY = "tariffy-panel-tab";
 
@@ -194,6 +317,10 @@ const ICONS = {
     ["rect", { x: "7", y: "2.500", width: "10", height: "19", rx: "2.500" }],
     ["path", { d: "M11 18.500h2" }],
   ],
+  streaming: [
+    ["rect", { x: "3", y: "5", width: "18", height: "14", rx: "3" }],
+    ["path", { d: "M10 9.500v5l4.500-2.500z" }],
+  ],
   insurance: [["path", { d: "M12 2.500 20 5.500v6c0 5-3.500 8.500-8 10.500-4.500-2-8-5.500-8-10.500v-6z" }]],
   // actions of the contract list
   edit: [["path", { d: "M12 20h9" }], ["path", { d: "M16.500 3.500a2.100 2.100 0 0 1 3 3L7 19l-4 1 1-4z" }]],
@@ -203,6 +330,7 @@ const ICONS = {
   ],
   plus: [["path", { d: "M12 5v14M5 12h14" }]],
   chevron: [["path", { d: "M9 6l6 6-6 6" }]],
+  renew: [["path", { d: "M20 11a8 8 0 0 0-14.500-3.500M4 5v4h4" }], ["path", { d: "M4 13a8 8 0 0 0 14.500 3.500M20 19v-4h-4" }]],
   other: [
     ["circle", { cx: "6", cy: "12", r: "1.600", fill: "currentColor" }],
     ["circle", { cx: "12", cy: "12", r: "1.600", fill: "currentColor" }],
@@ -217,7 +345,7 @@ const STYLE = `
   --text: #f3f5f9; --muted: #8b91a1; --dim: #5d6373;
   --green: #34d399; --red: #f87171; --orange: #fb923c; --blue: #60a5fa; --gold: #f7b733;
   display: block; min-height: 100%; box-sizing: border-box;
-  background: var(--bg); color: var(--text);
+  background: var(--bg); color: var(--text); color-scheme: dark;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   container-type: inline-size;
 }
@@ -265,6 +393,7 @@ const STYLE = `
 .grid.flat { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 /* wide screens: three contracts per row in both groups, four on a very wide window */
 @container (min-width: 1000px) { .grid.metered, .grid.flat { grid-template-columns: repeat(3, 1fr); } }
+@container (min-width: 1500px) { .grid.flat { grid-template-columns: repeat(4, 1fr); } }
 @container (min-width: 1750px) { .grid.metered, .grid.flat { grid-template-columns: repeat(4, 1fr); } }
 section.card { display: flex; flex-direction: column; }
 section.card .foot { padding-top: 12px; }
@@ -296,7 +425,7 @@ section.card .foot { padding-top: 12px; }
   background: var(--tile); border: 1px solid var(--tile-line); color: var(--blue); }
 .badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .badge.gas { color: var(--orange); } .badge.water { color: #38bdf8; } .badge.electricity,
-.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); }
+.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); } .badge.streaming { color: #f472b6; }
 .title { font-size: 17px; font-weight: 700; line-height: 1.2; }
 .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .who { min-width: 0; flex: 1; }
@@ -334,9 +463,15 @@ section.card .foot { padding-top: 12px; }
 .dialog h2 { margin: 0 0 6px; font-size: 18px; }
 .dialog .hint { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
 .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
-.fld { display: block; margin: 8px 0; }
+.fld { display: block; margin: 8px 0; min-width: 0; }
 .fld .lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .fld input, .fld select { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
+/* the list of a drop-down is drawn by the browser: some ignore color-scheme, so it gets its colours explicitly
+   (otherwise light text on a white list) */
+/* iOS draws a date field with its own intrinsic width and no height while empty: it stuck out of the dialog */
+.fld input[type="date"] { appearance: none; -webkit-appearance: none; min-width: 0; max-width: 100%; min-height: 38px; text-align: left; }
+.fld input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 1.2em; }
+.fld select option, .fld select optgroup { background: #1a1d25; color: var(--text); }
 .fld input:focus-visible, .fld select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
 .confirm-name { width: 100%; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
 .confirm-name:focus-visible { outline: 2px solid var(--red); outline-offset: 1px; }
@@ -378,6 +513,50 @@ th:first-child, td:first-child { text-align: left; }
 th { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--panel2); }
 tr.sub td { font-size: 13px; color: var(--muted); padding-top: 6px; padding-bottom: 6px; }
 tr.sub td:first-child { padding-left: 32px; }
+.hist { margin-bottom: 16px; }
+.hist-head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
+.hist-head .who { flex: 1; }
+.hist .actions { margin-top: 10px; }
+.hist-total { margin: 8px 2px 0; }
+.once-row .t2 { display: block; }
+.once-row .icon-btn { margin-left: 4px; flex: none; }
+.once-add { margin-top: 8px; }
+.chart { margin-bottom: 22px; }
+.chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }
+.yr-pick { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.yr-pick select { font: inherit; font-size: 13px; padding: 6px 10px; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
+.yr-pick select option { background: #14171e; color: #f3f5f9; }
+.seg { display: inline-flex; gap: 2px; padding: 3px; margin: 0; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
+.seg button { font: inherit; font-size: 13px; padding: 5px 12px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; }
+.seg button.on { background: var(--tile-line); color: var(--text); font-weight: 600; }
+.chart-body { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.cs-ringwrap { position: relative; width: 190px; height: 190px; flex: none; }
+.cs-ring { width: 100%; height: 100%; display: block; }
+.cs-mid { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.cs-legend { list-style: none; margin: 0; padding: 0; flex: 1 1 260px; min-width: 0; max-width: 560px; }
+.cs-legend li { display: flex; align-items: baseline; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.cs-legend .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-legend .val { font-variant-numeric: tabular-nums; }
+.cs-legend .pct { width: 56px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cs-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.kindbar { margin-top: 16px; }
+.kindbar .cs-split { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--tile-line); }
+.cs-dot.k0, .cs-split .k0 { background: var(--blue); }
+.cs-dot.k1, .cs-split .k1 { background: var(--orange); }
+.kindleg { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.kindleg .cs-dot { margin-right: 6px; }
+.hist-total b { color: var(--text); }
+.bk { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: grid; gap: 12px; }
+.bk p { margin: 0; font-size: 13px; color: var(--muted); }
+.bk-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; justify-content: space-between; }
+.bk-row .who { flex: 1 1 200px; }
+.bk-msg { margin: 0 0 12px; font-size: 13px; color: var(--green); }
+.bk .file { font: inherit; font-size: 13px; color: var(--muted); max-width: 100%; }
+.bk .file::file-selector-button { font: inherit; font-size: 13px; font-weight: 700; padding: 8px 14px; margin-right: 10px; border-radius: 10px;
+  border: 1px solid var(--tile-line); background: var(--tile); color: var(--text); cursor: pointer; }
+.bk .file::file-selector-button:hover { background: rgba(255,255,255,.09); }
+td.act { width: 1%; white-space: nowrap; }
+.fnote { font-size: 12px; color: var(--muted); margin-top: 4px; }
 tr.total td { font-weight: 700; border-bottom: 0; background: var(--panel2); }
 td .t2 { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
 .hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
@@ -417,7 +596,7 @@ details[open] summary .caret svg { transform: rotate(90deg); }
 @container (max-width: 760px) {
   .wrap { padding: 12px 12px 32px; }
   .top { gap: 10px; }
-  .tabs { order: 3; width: 100%; margin: 0; }
+  .tabs { order: 3; width: 100%; margin: 0; overflow-x: auto; scrollbar-width: none; }
   .tab { flex: 1; padding: 9px 6px; }
   .spacer { display: none; }
   .summary { grid-template-columns: 1fr; gap: 10px; }
@@ -495,6 +674,8 @@ const FLOWS = {
   create: { api: "config/config_entries/flow", body: () => ({ handler: "tariffy" }), category: "config" },
 };
 
+const CHART_COLORS = ["#4e79a7", "#f28e2b", "#59a14f", "#e15759", "#76b7b2", "#b07aa1", "#edc948", "#9c755f"];
+
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 
 /* ---------- the panel ---------- */
@@ -513,6 +694,7 @@ class TariffyPanel extends HTMLElement {
     this._confirming = null;
     this._busy = null;
     this._actionError = null;
+    this._bk = { deleted: null, loading: false, plan: null, backup: null, file: null, message: null, error: null, busy: false, asking: null };
     this.attachShadow({ mode: "open" });
   }
 
@@ -680,6 +862,11 @@ class TariffyPanel extends HTMLElement {
     return d ? Math.round((d - this._today()) / 86400000) : null;
   }
 
+  _insuranceType(key) {
+    const labels = (I18N[this._lang] && I18N[this._lang].versicherungsart) || I18N.en.versicherungsart;
+    return labels[key] || key;
+  }
+
   _unit(contract) {
     if (contract.verbrauch_einheit) return contract.verbrauch_einheit;
     return contract.sparte === "gas" || contract.sparte === "water" ? "m³" : "kWh";
@@ -705,6 +892,7 @@ class TariffyPanel extends HTMLElement {
     // the state (credit / balance due / warning) always comes last, so it sits at the far right
     // of every card; further badges (cancel now, switch on ...) stand to its left
     const chips = [];
+    if (c.archivierbar) chips.push({ text: this._t("expired"), tone: "muted" });
     if (c.erinnerung_aktiv) chips.push({ text: this._t("cancelDue"), tone: "orange" });
     if (c.wechsel) chips.push({ text: this._t("switchOn", { d: this._date(c.wechsel) }), tone: "blue" });
     if (c.abschlag_warnung_aktiv) chips.push({ text: this._t("warning"), tone: "red" });
@@ -728,8 +916,14 @@ class TariffyPanel extends HTMLElement {
       wrap.appendChild(h("div", { class: "state" }, h("h2", { text: this._t("error" ) }), h("div", { text: this._error })));
     } else if (this._contracts === null) {
       wrap.appendChild(h("div", { class: "state", text: this._t("loading") }));
+    } else if (this._tab === "backup" && this._isAdmin) {
+      wrap.appendChild(this._backup());
     } else if (this._contracts.length === 0) {
       wrap.appendChild(this._empty());
+    } else if (this._tab === "history") {
+      wrap.appendChild(this._history());
+    } else if (this._live.length === 0) {
+      wrap.appendChild(h("div", { class: "state", text: this._t("allArchived") }));
     } else if (this._tab === "costs") {
       wrap.appendChild(this._costs());
     } else if (this._tab === "contracts") {
@@ -742,8 +936,8 @@ class TariffyPanel extends HTMLElement {
       // a group is null when there is no contract of that kind: skip it (appendChild(null) throws
       // and leaves the whole panel empty for anyone who has only metered or only flat-rate contracts)
       for (const section of [
-        group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte)), "metered"),
-        group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte)), "flat"),
+        group("groupMetered", this._live.filter((c) => METERED.has(c.sparte)), "metered"),
+        group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte)), "flat"),
       ]) {
         if (section) wrap.appendChild(section);
       }
@@ -758,7 +952,7 @@ class TariffyPanel extends HTMLElement {
       : null;
     const tabs = h(
       "div", { class: "tabs", role: "tablist" },
-      TABS.map((tab) => h("button", {
+      TABS.filter((tab) => tab !== "backup" || this._isAdmin).map((tab) => h("button", {
         class: "tab", role: "tab", "aria-selected": String(this._tab === tab), text: this._t(tab),
         onclick: () => { this._tab = tab; this._saveTab(tab); this._render(); },
       }))
@@ -781,8 +975,13 @@ class TariffyPanel extends HTMLElement {
     );
   }
 
+  /* Contracts that are not archived: the overview, the costs and the list only show these. */
+  get _live() {
+    return (this._contracts || []).filter((c) => !c.archiviert);
+  }
+
   _summary() {
-    const contracts = this._contracts;
+    const contracts = this._live;
     const currency = contracts[0].currency || "EUR";
     const metered = contracts.filter((c) => METERED.has(c.sparte));
     const flat = contracts.filter((c) => !METERED.has(c.sparte));
@@ -874,6 +1073,18 @@ class TariffyPanel extends HTMLElement {
     );
   }
 
+  /* Cost over all terms of a contract (earlier ones from the history plus the running one): value and
+   * "since 01.06.2024 · 3 terms". Only for contracts that have a history; the sum is a lower bound when a
+   * term has no cost. */
+  _total(c) {
+    if (!((c.historie || []).length || (c.einmalposten || []).length) || !isNum(c.kosten_gesamt)) return null;
+    const value = this._money(c.kosten_gesamt, c.currency, { digits: 2 });
+    const n = c.laufzeiten_anzahl;
+    const since = [c.seit ? this._t("totalSince", { d: this._date(c.seit) }) : null,
+      isNum(n) ? this._t(n === 1 ? "termsOne" : "termsMany", { n }) : null].filter(Boolean).join(" · ");
+    return { value: c.kosten_gesamt_vollstaendig === false ? this._t("atLeast", { v: value }) : value, since };
+  }
+
   /* Cost so far: measured for metered contracts, the instalments due until today for flat-rate ones. */
   _costSoFar(c) {
     if (isNum(c.kosten_bisher)) return c.kosten_bisher;
@@ -937,7 +1148,12 @@ class TariffyPanel extends HTMLElement {
     const heroLabel = flat ? this._t("instalment") : d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
     const heroTone = !flat && d.hasMetering ? (heroValue < 0 ? "red-t" : "green-t") : "";
     const heroSub = flat
-      ? (c.ende && isNum(c.jahreskosten) ? this._t("overTerm", { v: this._money(c.jahreskosten, c.currency) }) : null)
+      ? [
+        c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)
+          ? `${this._money(c.abschlag_je_zahlung, c.currency, { digits: 2 })} ${this._t("interval")[c.zahlweise] || c.zahlweise}` : null,
+        isNum(c.abschlag_jahr) && c.zahlweise !== "yearly" ? this._t("perYearShort", { v: this._money(c.abschlag_jahr, c.currency) }) : null,
+        c.ende && isNum(c.jahreskosten) ? this._t("overTerm", { v: this._money(c.jahreskosten, c.currency) }) : null,
+      ].filter(Boolean).join(" · ") || null
       : isNum(c.abschlag)
       ? `${this._t("instalment")}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
         (isNum(c.abschlag_anpassung_empfohlen)
@@ -956,6 +1172,7 @@ class TariffyPanel extends HTMLElement {
     // three figures at most; the remaining term goes into the footer line
     const tiles = flat ? [
       isNum(this._costSoFar(c)) ? this._tile(this._t("costSoFar"), this._money(this._costSoFar(c), c.currency, { digits: 2 })) : null,
+      this._total(c) ? this._tile(this._t("totalCost"), this._total(c).value, this._total(c).since) : null,
       c.ende ? this._tile(this._t("contractEnd"), this._date(c.ende)) : null,
     ] : d.measured
       ? [
@@ -978,6 +1195,9 @@ class TariffyPanel extends HTMLElement {
     } else if (flat) {
       foot.push(h("span", { text: this._t("noEnd") }));
     }
+    if (!flat && this._total(c)) { // the flat-rate cards have a tile for it
+      foot.push(h("span", {}, `${this._t("totalCost")} `, h("b", { text: this._total(c).value }), ` · ${this._total(c).since}`));
+    }
     if (flat || !d.measured) {
       foot.push(h("span", {}, `${this._t("reminder")} `, h("b", { text: c.erinnerung_datum ? this._date(c.erinnerung_datum) : this._t("reminderOff") })));
     }
@@ -988,6 +1208,9 @@ class TariffyPanel extends HTMLElement {
       notes.push(h("div", { class: "callout red", text: isNum(c.abschlag_anpassung_empfohlen) && c.abschlag_anpassung_empfohlen > 0
         ? this._t("noteWarning", { v: value, a: this._money(c.abschlag_anpassung_empfohlen, c.currency) })
         : this._t("noteWarningShort", { v: value }) }));
+    }
+    if (c.archivierbar) {
+      notes.push(h("div", { class: "callout", text: this._t("noteExpired") }));
     }
     if (c.erinnerung_aktiv) {
       notes.push(h("div", { class: "callout orange", text: this._t("noteCancel", { d: this._date(c.ende) }) }));
@@ -1047,7 +1270,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   /* Actions are only offered to administrators; the backend checks it again. */
-  _actions(c) {
+  _actions(c, only = null) {
     if (!this._isAdmin) return null;
     const list = [];
     if (c.abschlag_warnung_zu_bestaetigen) {
@@ -1056,6 +1279,13 @@ class TariffyPanel extends HTMLElement {
     if (c.erinnerung_aktiv) {
       list.push({ key: "confirm_cancellation", label: this._t("actConfirmCancel"), tone: "orange", ask: "actAskCancel", yes: "actYesAck" });
     }
+    if (c.archivierbar) {
+      list.push({ key: "archive_contract", label: this._t("actArchive"), tone: "orange", ask: "actAskArchive", yes: "actYesArchive" });
+    }
+    if (c.archiviert) {
+      list.push({ key: "restore_contract", label: this._t("actRestore"), tone: "blue", ask: "actAskRestore", yes: "actYesRestore" });
+    }
+    if (only) list.splice(0, list.length, ...list.filter((a) => only.includes(a.key)));
     if (!list.length) return null;
 
     const id = c.entry_id;
@@ -1164,7 +1394,9 @@ class TariffyPanel extends HTMLElement {
       dlg.values = {};
       dlg.refocus = true;
     }
-    dlg.final = dlg.mode === "next" || form.step_id !== (dlg.mode === "create" ? "user" : "reconfigure");
+    // Home Assistant says whether a step is the last one; without it every step after the first is
+    dlg.final = dlg.mode === "next" || (typeof form.last_step === "boolean" ? form.last_step
+      : form.step_id !== (dlg.mode === "create" ? "user" : "reconfigure"));
     dlg.fields = (form.data_schema || []).map((f) => this._fieldSpec(f, dlg, form.step_id));
     dlg.unsupported = dlg.fields.some((f) => !f.kind);
     dlg.hint = dlg.localize(`component.tariffy.${dlg.category}.step.${form.step_id}.description`) || "";
@@ -1380,6 +1612,10 @@ class TariffyPanel extends HTMLElement {
   _renderDialog() {
     const dlg = this._dlg;
     if (!dlg) return;
+    if (dlg.mode === "term") { this._renderTermDialog(); return; }
+    if (dlg.mode === "renew") { this._renderRenewDialog(); return; }
+    if (dlg.mode === "once") { this._renderOnceDialog(); return; }
+    if (dlg.mode === "aussen") { this._renderAussenDialog(); return; }
     const busy = dlg.stage === "saving";
     const body = [h("h2", { id: "dlg-title", text: this._t({ edit: "dlgTitleEdit", create: "dlgTitleCreate", next: "dlgTitle" }[dlg.mode], { name: dlg.name }) })];
     const buttons = [];
@@ -1452,7 +1688,10 @@ class TariffyPanel extends HTMLElement {
       }
     }
     body.push(h("div", { class: "actions" }, buttons));
+    this._mountDialog(dlg, body, busy);
+  }
 
+  _mountDialog(dlg, body, busy) {
     const el = this._dlgEl || (this._dlgEl = h("div", { class: "overlay" }));
     el.onkeydown = (ev) => { if (ev.key === "Escape" && !busy) this._closeFlow(); };
     el.replaceChildren(h("div", { class: "dialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "dlg-title" }, body));
@@ -1474,6 +1713,670 @@ class TariffyPanel extends HTMLElement {
     }
   }
 
+  /* ----- backup: export, restore from a file, deleted contracts (administrators only) ----- */
+
+  _bkError(err) {
+    const code = String((err && (err.code || (err.body && err.body.code))) || "");
+    const key = `bkErr_${code}`;
+    return I18N[this._lang][key] || I18N.en[key] ? this._t(key) : this._t("bkErr_invalid_backup");
+  }
+
+  async _bkLoad() {
+    const bk = this._bk;
+    bk.loading = true;
+    try {
+      bk.deleted = (await this._hass.callWS({ type: "tariffy/deleted_list" })).deleted || [];
+    } catch (_err) {
+      bk.deleted = [];
+    }
+    bk.loading = false;
+    this._render();
+  }
+
+  async _bkDownload() {
+    const bk = this._bk;
+    bk.message = null;
+    bk.error = null;
+    try {
+      const { backup } = await this._hass.callWS({ type: "tariffy/backup_export" });
+      const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }));
+      const link = h("a", { href: url, download: `tariffy-backup-${new Date().toISOString().slice(0, 10)}.json` });
+      this.shadowRoot.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      bk.message = this._t("bkDownloaded", { n: backup.contracts.length });
+    } catch (err) {
+      bk.error = this._bkError(err);
+    }
+    this._render();
+  }
+
+  async _bkPick(file) {
+    const bk = this._bk;
+    Object.assign(bk, { plan: null, backup: null, file: null, message: null, error: null, asking: null });
+    if (file && file.size > 1048576) {
+      bk.error = this._t("bkErrBig");
+    } else if (file) {
+      try {
+        const backup = JSON.parse(await file.text());
+        bk.plan = (await this._hass.callWS({ type: "tariffy/backup_preview", backup })).contracts;
+        bk.backup = backup;
+        bk.file = file.name;
+      } catch (err) {
+        bk.error = this._bkError(err);
+      }
+    }
+    this._render();
+  }
+
+  async _bkRun(task, done) {
+    const bk = this._bk;
+    Object.assign(bk, { busy: true, asking: null, message: null, error: null });
+    this._render();
+    try {
+      bk.message = done(await task());
+    } catch (err) {
+      bk.error = this._bkError(err);
+    }
+    bk.busy = false;
+    await this._bkLoad();
+  }
+
+  _bkRestore() {
+    const bk = this._bk;
+    return this._bkRun(() => this._hass.callWS({ type: "tariffy/backup_restore", backup: bk.backup }), (r) => {
+      bk.plan = null;
+      bk.backup = null;
+      return this._t("bkDone", { c: r.created.length, s: r.skipped.length });
+    });
+  }
+
+  _bkDiscard(item) {
+    return this._bkRun(() => this._hass.callWS({ type: "tariffy/deleted_discard", item_id: item.id }),
+      () => this._t("bkDiscarded", { name: item.title }));
+  }
+
+  _bkRestoreOne(item) {
+    return this._bkRun(() => this._hass.callWS({ type: "tariffy/deleted_restore", item_id: item.id }),
+      (r) => this._t("bkRestoredOne", { name: r.title }));
+  }
+
+  _backup() {
+    const bk = this._bk;
+    if (bk.deleted === null && !bk.loading) this._bkLoad();
+    const ask = (text, yes, onYes) => h("div", { class: "ask" }, h("span", { text }),
+      h("button", { class: "btn go", type: "button", disabled: bk.busy ? "" : null, text: yes, onclick: onYes }),
+      h("button", { class: "btn", type: "button", text: this._t("actCancel"), onclick: () => { bk.asking = null; this._render(); } }));
+    const section = (title, ...children) => h("section", { class: "group" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t(title) })), h("div", { class: "bk" }, children));
+    const text = (key) => h("p", { text: this._t(key) });
+
+    const creating = (bk.plan || []).filter((step) => step.action === "create").length;
+    const plan = bk.plan ? [
+      h("table", {}, h("thead", {}, h("tr", {}, [this._t("colContract"), ""].map((label) => h("th", { text: label })))),
+        h("tbody", {}, bk.plan.map((step) => h("tr", {},
+          h("td", {}, step.title, h("span", { class: "t2", text: this._t("sparte")[step.sparte] || step.sparte })),
+          h("td", { class: step.action === "create" ? "green-t" : "muted-t", text: this._t(step.action === "create" ? "bkPlanCreate" : "bkPlanSkip") }))))),
+      creating === 0 ? h("p", { text: this._t("bkNothing") }) : null,
+      creating > 0 && bk.asking === "restore"
+        ? ask(this._t("bkAskRestore", { n: creating }), this._t("bkYesRestore"), () => this._bkRestore())
+        : creating > 0 ? h("div", { class: "actions" }, h("button", { class: "btn go", type: "button", disabled: bk.busy ? "" : null,
+          text: this._t("bkRestoreGo", { n: creating }), onclick: () => { bk.asking = "restore"; this._render(); } })) : null,
+    ] : [];
+
+    const deleted = (bk.deleted || []).map((item) => h("div", { class: "bk-row" },
+      h("div", { class: "who" }, h("div", { class: "title", text: item.title }),
+        h("div", { class: "meta", text: `${this._t("sparte")[item.sparte] || item.sparte} · ${this._t("bkDeletedOn", { d: this._date(item.deleted) })}` })),
+      bk.asking === item.id
+        ? ask(this._t("bkAskOne", { name: item.title }), this._t("bkYesOne"), () => this._bkRestoreOne(item))
+        : bk.asking === `discard:${item.id}`
+          ? ask(this._t("bkAskDiscard", { name: item.title }), this._t("bkYesDiscard"), () => this._bkDiscard(item))
+          : h("div", { class: "actions" },
+            h("button", { class: "btn blue", type: "button", disabled: bk.busy ? "" : null, text: this._t("bkRestoreOne"),
+              onclick: () => { bk.asking = item.id; this._render(); } }),
+            h("button", { class: "btn red", type: "button", disabled: bk.busy ? "" : null, text: this._t("bkDiscard"),
+              onclick: () => { bk.asking = `discard:${item.id}`; this._render(); } }))));
+
+    return h("div", {},
+      bk.message ? h("p", { class: "bk-msg", role: "status", text: bk.message }) : null,
+      bk.error ? h("div", { class: "err", role: "alert", text: bk.error }) : null,
+      section("bkTitleExport", text("bkExportText"),
+        h("div", { class: "actions" }, h("button", { class: "btn blue", type: "button", disabled: bk.busy ? "" : null,
+          text: this._t("bkDownload"), onclick: () => this._bkDownload() }))),
+      section("bkTitleRestore", text("bkRestoreText"),
+        h("input", { class: "file", type: "file", accept: ".json,application/json", "aria-label": this._t("bkTitleRestore"),
+          onchange: (ev) => this._bkPick(ev.target.files && ev.target.files[0]) }),
+        plan),
+      section("bkTitleDeleted", text("bkDeletedText"),
+        deleted.length ? deleted : (bk.deleted === null ? null : h("p", { text: this._t("bkDeletedEmpty") }))));
+  }
+
+  /* ----- renew a flat-rate contract: new start, end and amount; the old term goes to the history ----- */
+
+  _isoShift(iso, { days = 0, years = 0 }) {
+    const date = this._parse(iso);
+    if (!date) return "";
+    date.setFullYear(date.getFullYear() + years);
+    date.setDate(date.getDate() + days);
+    const two = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())}`;
+  }
+
+  _openRenew(c) {
+    this._closeFlow();
+    const spec = (name, kind, label, extra = {}) => ({
+      name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const zahlweise = c.zahlweise && INTERVAL_MONTHS[c.zahlweise] ? c.zahlweise : "monthly";
+    const dlg = {
+      mode: "renew", stage: "form", id: c.entry_id, name: c.title, contract: c, flowId: null, localize: () => "",
+      fields: [
+        spec("beginn", "date", this._t("tf_beginn"), { required: true }),
+        spec("ende", "date", this._t("tf_ende"), { required: true }),
+        spec("zahlweise", "select", this._t("rf_zahlweise"), { options: Object.keys(INTERVAL_MONTHS).map((k) => ({ value: k, label: this._t("interval")[k] })) }),
+        spec("abschlag", "number", this._t("rf_abschlag"), { required: true, min: 0.01 }),
+        spec("erste_zahlung", "date", this._t("rf_erste")),
+      ],
+      values: {
+        beginn: this._isoShift(c.ende, { days: 1 }), ende: this._isoShift(c.ende, { years: 1 }), zahlweise,
+        abschlag: String(isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : (c.abschlag ?? "")),
+      },
+      fieldErrors: {}, message: null,
+    };
+    this._dlg = dlg;
+    this._renderRenewDialog();
+  }
+
+  /* "5 % dearer": what the new amount means compared with the current one */
+  _renewChange(dlg) {
+    const amount = Number(String(dlg.values.abschlag ?? "").replace(",", "."));
+    const months = INTERVAL_MONTHS[dlg.values.zahlweise] || 1;
+    const old = dlg.contract.abschlag;
+    if (!Number.isFinite(amount) || amount <= 0 || !isNum(old) || old <= 0) return "";
+    const monthly = amount / months;
+    const percent = ((monthly - old) / old) * 100;
+    if (Math.abs(percent) < 0.05) return this._t("renewSame");
+    return this._t(percent > 0 ? "renewUp" : "renewDown", {
+      p: this._num(Math.abs(percent), 1), n: this._money(monthly, dlg.contract.currency, { digits: 2 }), o: this._money(old, dlg.contract.currency, { digits: 2 }),
+    });
+  }
+
+  async _saveRenew() {
+    const dlg = this._dlg;
+    const { values, errors } = this._collectFlow(dlg);
+    dlg.fieldErrors = errors;
+    dlg.message = null;
+    if (Object.keys(errors).length) {
+      this._renderRenewDialog();
+      return;
+    }
+    dlg.stage = "saving";
+    this._renderRenewDialog();
+    try {
+      await this._hass.callWS({ type: "tariffy/renew", entry_id: dlg.id, values });
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.message = this._termError(err);
+      this._renderRenewDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderRenewDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t("renewTitle") }),
+      h("p", { class: "hint", text: dlg.name }),
+      h("p", { class: "hint", text: this._t("renewHint") }),
+      h("div", { class: "fields" }, dlg.fields.map((f) => {
+        const error = dlg.fieldErrors[f.name];
+        return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+          h("span", { class: "lbl", text: f.label }), this._fieldInput(dlg, f),
+          f.name === "abschlag" ? h("div", { class: "fnote", "data-note": "change", text: this._renewChange(dlg) }) : null,
+          error ? h("div", { class: "ferr", text: error }) : null);
+      })),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    body.push(h("div", { class: "actions" },
+      h("button", { class: "btn go", type: "button", disabled: busy ? "" : null, text: this._t(busy ? "dlgSaving" : "renewGo"), onclick: () => this._saveRenew() }),
+      h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() })));
+    this._mountDialog(dlg, body, busy);
+    const el = this._dlgEl;
+    // a finished edit of the amount or the interval updates the note under the amount
+    el.onchange = () => {
+      const note = el.querySelector('[data-note="change"]');
+      if (note) note.textContent = this._renewChange(dlg);
+    };
+    el.oninput = el.onchange;
+    if (!dlg.focused) {
+      dlg.focused = true;
+      const first = el.querySelector("input, select");
+      if (first) first.focus();
+    }
+  }
+
+  /* ----- one-time items of a contract: bonus (+) or bill (-), administrators only ----- */
+  _openOnce(c, index) {
+    this._closeFlow();
+    const spec = (name, kind, label, extra = {}) => ({
+      name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const item = index === null ? {} : (c.einmalposten || [])[index] || {};
+    this._dlg = {
+      mode: "once", stage: "form", id: c.entry_id, name: c.title, index, flowId: null, localize: () => "", asking: null,
+      fields: [
+        spec("bezeichnung", "text", this._t("onceName"), { required: true }),
+        spec("betrag", "number", this._t("onceAmount"), { required: true }),
+        spec("datum", "date", this._t("onceDate")),
+      ],
+      values: { bezeichnung: item.bezeichnung || "", betrag: isNum(item.betrag) ? String(item.betrag) : "", datum: item.datum || "" },
+      fieldErrors: {}, message: null,
+    };
+    this._renderOnceDialog();
+  }
+
+  async _saveOnce() {
+    const dlg = this._dlg;
+    const { values, errors } = this._collectFlow(dlg);
+    dlg.fieldErrors = errors;
+    dlg.message = null;
+    if (Object.keys(errors).length) { this._renderOnceDialog(); return; }
+    await this._callOnce(dlg, { type: "tariffy/einmal_save", entry_id: dlg.id, values, ...(dlg.index === null ? {} : { index: dlg.index }) });
+  }
+
+  async _deleteOnce() {
+    const dlg = this._dlg;
+    await this._callOnce(dlg, { type: "tariffy/einmal_delete", entry_id: dlg.id, index: dlg.index });
+  }
+
+  async _callOnce(dlg, message) {
+    dlg.stage = "saving";
+    this._renderOnceDialog();
+    try {
+      await this._hass.callWS(message);
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.asking = null;
+      dlg.message = this._termError(err);
+      this._renderOnceDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderOnceDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t(dlg.index === null ? "onceTitleAdd" : "onceTitleEdit") }),
+      h("p", { class: "hint", text: dlg.name }),
+      h("p", { class: "hint", text: this._t("onceHint") }),
+      h("div", { class: "fields" }, dlg.fields.map((f) => {
+        const error = dlg.fieldErrors[f.name];
+        return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+          h("span", { class: "lbl", text: f.label }), this._fieldInput(dlg, f),
+          error ? h("div", { class: "ferr", text: error }) : null);
+      })),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    const buttons = [];
+    if (dlg.asking === "delete") {
+      buttons.push(h("div", { class: "ask" },
+        h("span", { text: this._t("onceDeleteAsk") }),
+        h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("onceDeleteYes"), onclick: () => this._deleteOnce() }),
+        h("button", { class: "btn", type: "button", text: this._t("actCancel"), onclick: () => { dlg.asking = null; this._renderOnceDialog(); } })));
+    } else {
+      buttons.push(h("button", { class: "btn go", type: "button", disabled: busy ? "" : null,
+        text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveOnce() }));
+      buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() }));
+      if (dlg.index !== null) {
+        buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("onceDelete"),
+          onclick: () => { dlg.asking = "delete"; this._renderOnceDialog(); } }));
+      }
+    }
+    body.push(h("div", { class: "actions" }, buttons));
+    this._mountDialog(dlg, body, busy);
+    if (!dlg.focused) {
+      dlg.focused = true;
+      const first = this._dlgEl.querySelector("input, select");
+      if (first) first.focus();
+    }
+  }
+
+  /* the "one-time items" block of a contract */
+  _onceSection(c) {
+    const items = c.einmalposten || [];
+    if (!items.length && !this._isAdmin) return null;
+    const rows = items.map((item, index) => h("div", { class: "row once-row" },
+      h("span", {}, item.bezeichnung, item.datum ? h("span", { class: "t2", text: this._date(item.datum) }) : null),
+      h("span", { class: item.betrag < 0 ? "red-t" : "green-t", text: this._money(item.betrag, c.currency, { sign: true, digits: 2 }) }),
+      this._isAdmin ? h("button", {
+        class: "icon-btn", type: "button", title: this._t("onceEdit"), "aria-label": this._t("onceEdit"),
+        onclick: () => this._openOnce(c, index),
+      }, icon("edit")) : null));
+    return h("div", { class: "sec" }, h("h4", { text: this._t("secOnce") }), rows,
+      items.length > 1 && isNum(c.einmal_summe)
+        ? h("div", { class: "row" }, h("span", { text: this._t("onceSum") }),
+          h("span", { text: this._money(c.einmal_summe, c.currency, { sign: true, digits: 2 }) })) : null,
+      this._isAdmin ? h("div", { class: "once-add" }, h("button", {
+        class: "btn", type: "button", onclick: () => this._openOnce(c, null),
+      }, icon("plus"), this._t("onceAdd"))) : null);
+  }
+
+  /* ----- outdoor meters of a water contract (garden, pool, ...): not charged wastewater, administrators only ----- */
+  _openAussen(c, index) {
+    this._closeFlow();
+    const spec = (name, kind, label, extra = {}) => ({
+      name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const item = index === null ? {} : (c.aussenzaehler || [])[index] || {};
+    this._dlg = {
+      mode: "aussen", stage: "form", id: c.entry_id, name: c.title, index, flowId: null, localize: () => "", asking: null,
+      fields: [
+        spec("name", "text", this._t("aussenName"), { required: true }),
+        spec("sensor", "entity", this._t("aussenSensor"), { required: true, domains: ["sensor"] }),
+        spec("start_wert", "number", this._t("aussenStart"), { min: 0 }),
+        spec("preis", "number", this._t("aussenPrice"), { min: 0 }),
+      ],
+      values: {
+        name: item.name || "", sensor: item.sensor || "",
+        start_wert: isNum(item.start_wert) ? String(item.start_wert) : "", preis: isNum(item.preis) ? String(item.preis) : "",
+      },
+      fieldErrors: {}, message: null,
+    };
+    this._renderAussenDialog();
+  }
+
+  async _saveAussen() {
+    const dlg = this._dlg;
+    const { values, errors } = this._collectFlow(dlg);
+    dlg.fieldErrors = errors;
+    dlg.message = null;
+    if (Object.keys(errors).length) { this._renderAussenDialog(); return; }
+    await this._callAussen(dlg, { type: "tariffy/aussen_save", entry_id: dlg.id, values, ...(dlg.index === null ? {} : { index: dlg.index }) });
+  }
+
+  async _deleteAussen() {
+    const dlg = this._dlg;
+    await this._callAussen(dlg, { type: "tariffy/aussen_delete", entry_id: dlg.id, index: dlg.index });
+  }
+
+  async _callAussen(dlg, message) {
+    dlg.stage = "saving";
+    this._renderAussenDialog();
+    try {
+      await this._hass.callWS(message);
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.asking = null;
+      const code = String((err && (err.code || (err.body && err.body.code))) || "");
+      dlg.message = code === "too_many" ? this._t("aussenTooMany") : this._termError(err);
+      this._renderAussenDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderAussenDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t(dlg.index === null ? "aussenTitleAdd" : "aussenTitleEdit") }),
+      h("p", { class: "hint", text: dlg.name }),
+      h("p", { class: "hint", text: this._t("aussenHint") }),
+      h("div", { class: "fields" }, dlg.fields.map((f) => {
+        const error = dlg.fieldErrors[f.name];
+        return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+          h("span", { class: "lbl", text: f.label }), this._fieldInput(dlg, f),
+          error ? h("div", { class: "ferr", text: error }) : null);
+      })),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    const buttons = [];
+    if (dlg.asking === "delete") {
+      buttons.push(h("div", { class: "ask" },
+        h("span", { text: this._t("aussenDeleteAsk") }),
+        h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("onceDeleteYes"), onclick: () => this._deleteAussen() }),
+        h("button", { class: "btn", type: "button", text: this._t("actCancel"), onclick: () => { dlg.asking = null; this._renderAussenDialog(); } })));
+    } else {
+      buttons.push(h("button", { class: "btn go", type: "button", disabled: busy ? "" : null,
+        text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveAussen() }));
+      buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() }));
+      if (dlg.index !== null) {
+        buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("aussenDelete"),
+          onclick: () => { dlg.asking = "delete"; this._renderAussenDialog(); } }));
+      }
+    }
+    body.push(h("div", { class: "actions" }, buttons));
+    this._mountDialog(dlg, body, busy);
+    if (!dlg.focused) {
+      dlg.focused = true;
+      const first = this._dlgEl.querySelector("input, select");
+      if (first) first.focus();
+    }
+  }
+
+  /* the "outdoor meters" block of a water contract */
+  _aussenSection(c) {
+    if (c.sparte !== "water") return null;
+    const items = c.aussenzaehler || [];
+    if (!items.length && !this._isAdmin) return null;
+    const unit = this._unit(c);
+    const amount = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : "–");
+    const rows = items.map((item, index) => h("div", { class: "row once-row" },
+      h("span", {}, item.name, h("span", { class: "t2", text: item.sensor })),
+      h("span", { text: isNum(item.verbrauch) ? `${amount(item.verbrauch)}${isNum(item.kosten) ? ` · ${this._money(item.kosten, c.currency, { digits: 2 })}` : ""}` : "–" }),
+      this._isAdmin ? h("button", {
+        class: "icon-btn", type: "button", title: this._t("aussenEdit"), "aria-label": this._t("aussenEdit"),
+        onclick: () => this._openAussen(c, index),
+      }, icon("edit")) : null));
+    const sum = (label, value) => h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value }));
+    const totals = isNum(c.garten_verbrauch) ? [
+      sum(this._t("gardenUse"), amount(c.garten_verbrauch)),
+      sum(this._t("gardenCost"), this._money(c.garten_kosten, c.currency, { digits: 2 })),
+      sum(this._t("wwUse"), amount(c.abwasserpflichtiger_verbrauch)),
+      sum(this._t("wwCost"), this._money(c.abwasser_kosten, c.currency, { digits: 2 })),
+    ] : [];
+    return h("div", { class: "sec" }, h("h4", { text: this._t("secAussen") }), rows, totals,
+      this._isAdmin ? h("div", { class: "once-add" }, h("button", {
+        class: "btn", type: "button", onclick: () => this._openAussen(c, null),
+      }, icon("plus"), this._t("aussenAdd"))) : null);
+  }
+
+  /* ----- old contracts: a term entered by hand (administrators only) ----- */
+
+  _openTerm(c, index) {
+    this._closeFlow();
+    const target = c || this._live[0] || this._contracts[0];
+    const term = c && index !== null ? (c.historie || [])[index] : null;
+    const AUTO = ["verbrauch", "kosten", "abschlag_gezahlt", "saldo"];
+    const spec = (name, kind, extra = {}) => ({
+      name, kind, label: this._t(`tf_${name}`), required: false, min: kind === "number" ? 0 : null,
+      domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const fields = [
+      spec("entry_id", "select", { options: this._contracts.map((x) => ({ value: x.entry_id, label: x.title })) }),
+      spec("beginn", "date", { required: true }), spec("ende", "date", { required: true }),
+      spec("anbieter", "text"), spec("tarif", "text"),
+      spec("arbeitspreis", "number"), spec("grundpreis", "number"), spec("abschlag", "number"),
+      spec("verbrauch", "number", { auto: true }), spec("kosten", "number", { auto: true }),
+      spec("abschlag_gezahlt", "number", { auto: true }), spec("saldo", "number", { auto: true, min: null }),
+    ];
+    const values = { entry_id: target.entry_id };
+    if (term) {
+      // the values the user typed in stay filled in; the ones that were worked out are worked out again
+      const own = Array.isArray(term.eigene) ? term.eigene : AUTO;
+      for (const f of fields) {
+        const stored = term[f.name];
+        if (f.name === "entry_id" || stored === undefined || stored === null) continue;
+        if (!f.auto || own.includes(f.name)) values[f.name] = String(stored);
+      }
+    }
+    const dlg = {
+      mode: "term", stage: "form", id: target.entry_id, name: target.title, index: term ? index : null, fields, values,
+      fieldErrors: {}, message: null, asking: null, calc: null, calcSeq: 0, flowId: null, localize: () => "",
+    };
+    this._dlg = dlg;
+    this._renderTermDialog();
+    this._termCalc(dlg);
+  }
+
+  async _termCalc(dlg) {
+    const { values } = this._collectFlow(dlg);
+    if (!values.beginn || !values.ende) {
+      dlg.calc = null;
+      this._termPaint(dlg);
+      return;
+    }
+    const seq = ++dlg.calcSeq;
+    const { entry_id: _id, ...rest } = values;
+    let calc = null;
+    try {
+      calc = await this._hass.callWS({ type: "tariffy/history_calc", entry_id: dlg.values.entry_id, values: rest });
+    } catch (_err) { /* invalid dates and the like: nothing to show yet */ }
+    if (this._dlg !== dlg || seq !== dlg.calcSeq) return;
+    dlg.calc = calc;
+    this._termPaint(dlg);
+  }
+
+  /* Shows the worked-out values as grey placeholders and says where each one comes from. */
+  _termPaint(dlg) {
+    const el = this._dlgEl;
+    if (!el || this._dlg !== dlg) return;
+    const calc = dlg.calc;
+    const contract = (this._contracts || []).find((c) => c.entry_id === dlg.values.entry_id);
+    for (const f of dlg.fields.filter((x) => x.auto)) {
+      const typed = String(dlg.values[f.name] ?? "").trim() !== "";
+      const computed = calc ? calc.values[f.name] : null;
+      const input = el.querySelector(`[name="${f.name}"]`);
+      const note = el.querySelector(`[data-note="${f.name}"]`);
+      if (input) input.placeholder = isNum(computed) ? this._num(computed, 2) : "";
+      let text;
+      if (typed) text = this._t("autoOwn");
+      else if (f.name === "verbrauch") {
+        if (!calc) text = this._t("autoWait");
+        else if (isNum(computed)) text = this._t("autoStat", { s: (calc.sensors || []).join(", ") });
+        else if (contract && !METERED.has(contract.sparte)) text = this._t("autoFlat");
+        else if (!(calc.sensors || []).length) text = this._t("autoNoSensor");
+        else text = this._t("autoNoStat");
+      } else text = isNum(computed) ? this._t("autoCalc") : this._t("autoWait");
+      if (note) note.textContent = text;
+    }
+  }
+
+  _termError(err) {
+    const code = String((err && (err.code || (err.body && err.body.code))) || "");
+    const specific = `termErr_${code}`;
+    const has = (key) => Boolean(I18N[this._lang][key] || I18N.en[key]);
+    const key = has(specific) ? specific : (code.startsWith("invalid_") ? "termErr_invalid" : specific);
+    return has(key) ? this._t(key) : this._t("dlgSaveFailed", { m: this._errorText(err) });
+  }
+
+  async _saveTerm() {
+    const dlg = this._dlg;
+    const { values, errors } = this._collectFlow(dlg);
+    dlg.fieldErrors = errors;
+    dlg.message = null;
+    if (Object.keys(errors).length) {
+      this._renderTermDialog();
+      return;
+    }
+    dlg.stage = "saving";
+    this._renderTermDialog();
+    const { entry_id: _id, ...rest } = values;
+    const message = { type: "tariffy/history_save", entry_id: dlg.values.entry_id, values: rest };
+    if (dlg.index !== null) message.index = dlg.index;
+    try {
+      await this._hass.callWS(message);
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.message = this._termError(err);
+      this._renderTermDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  async _deleteTerm() {
+    const dlg = this._dlg;
+    dlg.stage = "saving";
+    this._renderTermDialog();
+    try {
+      await this._hass.callWS({ type: "tariffy/history_delete", entry_id: dlg.values.entry_id, index: dlg.index });
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      dlg.stage = "form";
+      dlg.asking = null;
+      dlg.message = this._termError(err);
+      this._renderTermDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderTermDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t(dlg.index === null ? "termTitleAdd" : "termTitleEdit") }),
+      h("p", { class: "hint", text: this._t("termHint") }),
+      h("div", { class: "fields" }, dlg.fields.map((f) => {
+        const error = dlg.fieldErrors[f.name];
+        return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
+          h("span", { class: "lbl", text: f.label }), this._fieldInput(dlg, f),
+          f.auto ? h("div", { class: "fnote", "data-note": f.name }) : null,
+          error ? h("div", { class: "ferr", text: error }) : null);
+      })),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    const buttons = [];
+    if (dlg.asking === "delete") {
+      buttons.push(h("div", { class: "ask" },
+        h("span", { text: this._t("termDeleteAsk") }),
+        h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("termDeleteYes"), onclick: () => this._deleteTerm() }),
+        h("button", { class: "btn", type: "button", text: this._t("actCancel"), onclick: () => { dlg.asking = null; this._renderTermDialog(); } })));
+    } else {
+      buttons.push(h("button", { class: "btn go", type: "button", disabled: busy ? "" : null,
+        text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveTerm() }));
+      buttons.push(h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() }));
+      if (dlg.index !== null) {
+        buttons.push(h("button", { class: "btn red", type: "button", disabled: busy ? "" : null, text: this._t("termDelete"),
+          onclick: () => { dlg.asking = "delete"; this._renderTermDialog(); } }));
+      }
+    }
+    body.push(h("div", { class: "actions" }, buttons));
+    this._mountDialog(dlg, body, busy);
+    const el = this._dlgEl;
+    // a finished edit of any field (blur, drop-down) works the automatic values out again
+    el.onchange = () => this._termCalc(dlg);
+    if (dlg.index !== null) {
+      const select = el.querySelector('[name="entry_id"]');
+      if (select) select.disabled = true; // a term stays with its contract
+    }
+    this._termPaint(dlg);
+    if (!dlg.focused) { // keyboard users start in the dialog (Escape closes it)
+      dlg.focused = true;
+      const first = el.querySelector("select:not(:disabled), input");
+      if (first) first.focus();
+    }
+  }
+
   _recommendedCell(c) {
     const raw = c.empfohlener_abschlag ?? c.abschlag_anpassung_empfohlen;
     return h("td", {
@@ -1482,8 +2385,120 @@ class TariffyPanel extends HTMLElement {
     this._covered(raw) ? h("span", { class: "t2", text: this._t("coveredHint") }) : null);
   }
 
+  /* Cost split: a ring with one slice per contract, switchable between what has been paid so far and a year */
+  /* the cost of one calendar year: every term (earlier ones and the running one) counts for the days it has in that year */
+  _yearTerms(c) {
+    const today = new Date().toISOString().slice(0, 10);
+    const terms = (c.historie || []).map((t) => ({ from: t.beginn, to: t.ende, cost: isNum(t.kosten) ? t.kosten : t.abschlag_gezahlt }));
+    if (!c.archiviert && c.beginn) {
+      const end = c.ende && c.ende < today ? c.ende : today; // the running term counts up to today
+      terms.push({ from: c.beginn, to: end, cost: this._costSoFar(c) });
+    }
+    return terms.filter((t) => t.from && t.to && isNum(t.cost) && t.to >= t.from);
+  }
+
+  _costYears(contracts) {
+    const years = new Set();
+    for (const c of contracts) {
+      for (const t of this._yearTerms(c)) for (let y = Number(t.from.slice(0, 4)); y <= Number(t.to.slice(0, 4)); y += 1) years.add(y);
+    }
+    return [...years].sort((a, b) => b - a);
+  }
+
+  _yearCost(c, year) {
+    const day = (iso) => Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10))) / 86400000;
+    const start = Date.UTC(year, 0, 1) / 86400000;
+    const end = Date.UTC(year, 11, 31) / 86400000;
+    let sum = 0;
+    for (const t of this._yearTerms(c)) {
+      const from = day(t.from);
+      const to = day(t.to);
+      const overlap = Math.min(to, end) - Math.max(from, start) + 1;
+      if (overlap > 0) sum += t.cost * (overlap / (to - from + 1));
+    }
+    return sum;
+  }
+
+  _costChart(live) {
+    const years = this._costYears(this._contracts);
+    const year = years.includes(this._costYear) ? this._costYear : null;
+    const contracts = year === null ? live : this._contracts;
+    const basis = this._costBasis || "sofar";
+    const value = (c) => {
+      if (year !== null) return this._yearCost(c, year);
+      const v = basis === "year" ? (isNum(c.abschlag_jahr) ? c.abschlag_jahr : isNum(c.abschlag) ? c.abschlag * 12 : null) : this._costSoFar(c);
+      return isNum(v) && v > 0 ? v : 0;
+    };
+    const currency = contracts[0].currency || "EUR";
+    const grouped = this._costGroup !== "contract"; // by category unless "per contract" is chosen
+    const perContract = contracts.map((c) => ({ label: c.title, sparte: c.sparte, currency: c.currency, n: 1, v: value(c) }))
+      .filter((it) => it.v > 0.005);
+    const merged = new Map(); // contracts of one category count together
+    for (const it of perContract) {
+      const old = merged.get(it.sparte);
+      if (old) { old.v += it.v; old.n += 1; } else merged.set(it.sparte, { ...it, label: this._t("sparte")[it.sparte] || it.sparte });
+    }
+    const items = (grouped ? [...merged.values()] : perContract).sort((a, b) => b.v - a.v)
+      .map((it, i) => ({ ...it, color: CHART_COLORS[i % CHART_COLORS.length] }));
+    const total = items.reduce((s, it) => s + it.v, 0);
+    const toggle = h("div", { class: "seg", role: "group" }, [["sofar", "chartSoFar"], ["year", "chartYear"]].map(([key, label]) => h("button", {
+      class: year === null && basis === key ? "on" : "", type: "button", "aria-pressed": String(year === null && basis === key), text: this._t(label),
+      onclick: () => { this._costBasis = key; this._costYear = null; this._render(); },
+    })));
+    // the years with data: the cost of that calendar year (earlier terms count for their days in it)
+    const picker = years.length ? h("label", { class: "yr-pick" }, h("span", { text: this._t("chartYearLabel") }),
+      h("select", {
+        "aria-label": this._t("chartYearLabel"),
+        onchange: (ev) => { this._costYear = ev.target.value ? Number(ev.target.value) : null; this._render(); },
+      }, [h("option", { value: "", text: this._t("chartYearAll") })].concat(
+        years.map((y) => h("option", { value: String(y), text: String(y), selected: y === year ? "" : null }))))) : null;
+    const groupToggle = h("div", { class: "seg", role: "group" }, [["sparte", "chartBySparte"], ["contract", "chartByContract"]].map(([key, label]) => h("button", {
+      class: (grouped ? "sparte" : "contract") === key ? "on" : "", type: "button", "aria-pressed": String((grouped ? "sparte" : "contract") === key), text: this._t(label),
+      onclick: () => { this._costGroup = key; this._render(); },
+    })));
+    const card = h("section", { class: "chart" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t("chartTitle") })),
+      h("div", { class: "chart-ctl" }, toggle, picker, groupToggle),
+      year !== null ? h("p", { class: "hint", text: this._t("chartYearHint") }) : null);
+    if (!total) {
+      card.appendChild(h("div", { class: "hint", text: this._t("chartEmpty") }));
+      return card;
+    }
+    const percent = (v) => `${this._num((v / total) * 100, 1)} %`;
+    let offset = 0;
+    const slices = items.map((it) => {
+      const part = (it.v / total) * 100;
+      const slice = svg("circle", {
+        cx: "21", cy: "21", r: "15.9155", fill: "none", stroke: it.color, "stroke-width": "6",
+        "stroke-dasharray": `${Math.max(part - 0.4, 0.01)} ${100 - Math.max(part - 0.4, 0.01)}`, "stroke-dashoffset": String(-offset),
+        transform: "rotate(-90 21 21)",
+      });
+      offset += part;
+      return slice;
+    });
+    const ring = svg("svg", { viewBox: "0 0 42 42", class: "cs-ring", role: "img", "aria-label": this._t("chartTitle") },
+      svg("circle", { cx: "21", cy: "21", r: "15.9155", fill: "none", stroke: "rgba(255,255,255,.06)", "stroke-width": "6" }), slices);
+    const kinds = [["chartMetered", (c) => METERED.has(c.sparte)], ["chartFlat", (c) => !METERED.has(c.sparte)]]
+      .map(([label, test]) => ({ label, v: items.filter((it) => test(it)).reduce((s, it) => s + it.v, 0) })).filter((k) => k.v > 0);
+    card.appendChild(h("div", { class: "chart-body" },
+      h("div", { class: "cs-ringwrap" }, ring,
+        h("div", { class: "cs-mid" }, h("b", { text: this._money(total, currency, { digits: 0 }) }))),
+      h("ul", { class: "cs-legend" }, items.map((it) => h("li", {},
+        h("span", { class: "cs-dot", style: `background:${it.color}` }),
+        h("span", { class: "nm", text: it.n > 1 ? `${it.label} (${it.n})` : it.label }),
+        h("span", { class: "val", text: this._money(it.v, it.currency, { digits: 2 }) }),
+        h("span", { class: "pct", text: percent(it.v) }))))));
+    if (kinds.length > 1) {
+      card.appendChild(h("div", { class: "kindbar" },
+        h("div", { class: "cs-split" }, kinds.map((k, i) => h("span", { class: `k${i}`, style: `width:${(k.v / total) * 100}%` }))),
+        h("div", { class: "kindleg" }, kinds.map((k, i) => h("span", {}, h("span", { class: `cs-dot k${i}` }),
+          `${this._t(k.label)} ${percent(k.v)}`)))));
+    }
+    return card;
+  }
+
   _costs() {
-    const contracts = this._contracts;
+    const contracts = this._live;
     const currency = contracts[0].currency || "EUR";
     const tone = (v) => (isNum(v) ? (v < 0 ? "red-t" : v > 0 ? "green-t" : "") : "muted-t");
     const cell = (label, value, cls) => h("td", { "data-label": label, class: [cls, value === "–" ? "empty" : ""].filter(Boolean).join(" ") || null, text: value });
@@ -1527,7 +2542,8 @@ class TariffyPanel extends HTMLElement {
       cell(this._t("colCost"), this._money(this._costSoFar(c), c.currency, { digits: 2 })),
       cell(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : "–"),
       cell(this._t("contractEnd"), c.ende ? this._date(c.ende) : this._t("noEnd")),
-      cell(this._t("colInstalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
+      h("td", { "data-label": this._t("colInstalment") }, this._money(c.abschlag, c.currency, { digits: 2 }),
+        isNum(c.abschlag_jahr) ? h("span", { class: "t2", text: this._t("perYearShort", { v: this._money(c.abschlag_jahr, c.currency) }) }) : null),
       h("td", { class: "empty" })));
     flatRows.push(h("tr", { class: "total" },
       h("td", { text: this._t("total") }),
@@ -1546,6 +2562,7 @@ class TariffyPanel extends HTMLElement {
 
     return h(
       "div", {},
+      this._costChart(contracts),
       group("groupMetered", metered, [
         this._t("colContract"), this._t("colCost"), this._t("colBalance"),
         this._t("colForecast"), this._t("colInstalment"), this._t("colRecommended"),
@@ -1566,6 +2583,52 @@ class TariffyPanel extends HTMLElement {
   }
 
 
+  /* History: archived contracts and the earlier terms of every contract. */
+  _history() {
+    const archived = this._contracts.filter((c) => c.archiviert).sort((a, b) => a.title.localeCompare(b.title));
+    const earlier = this._contracts.filter((c) => !c.archiviert && (c.historie || []).length)
+      .sort((a, b) => a.title.localeCompare(b.title));
+    const toolbar = this._isAdmin
+      ? h("div", { class: "list-head" },
+        h("button", { class: "btn blue", type: "button", onclick: () => this._openTerm(null, null) }, icon("plus"), this._t("termAdd")))
+      : null;
+    if (!archived.length && !earlier.length) {
+      return h("div", {}, toolbar,
+        h("div", { class: "state" }, h("h2", { text: this._t("histEmptyTitle") }), h("div", { text: this._t("histEmpty") })));
+    }
+    const tone = (v) => (isNum(v) ? (v < 0 ? "red-t" : v > 0 ? "green-t" : "") : "muted-t");
+    const cell = (label, value, cls) => h("td", { "data-label": label, class: cls || null, text: value });
+    const termRow = (c, t, index) => h("tr", {},
+      h("td", {}, `${this._date(t.beginn)} – ${t.ende ? this._date(t.ende) : "–"}`,
+        h("span", { class: "t2", text: [t.anbieter, t.tarif].filter(Boolean).join(" · ") || "–" })),
+      cell(this._t("colInstalment"), isNum(t.abschlag) ? this._money(t.abschlag, c.currency, { digits: 2 }) : "–"),
+      cell(this._t("colTermCost"), this._money(isNum(t.kosten) ? t.kosten : t.abschlag_gezahlt, c.currency, { digits: 2 })),
+      cell(this._t("colUsage"), isNum(t.verbrauch) ? `${this._num(t.verbrauch, 0)} ${this._unit(c)}` : "–"),
+      cell(this._t("colTermBalance"), isNum(t.saldo) ? this._money(t.saldo, c.currency, { sign: true, digits: 2 }) : "–", tone(t.saldo)),
+      this._isAdmin ? h("td", { class: "act" }, h("button", {
+        class: "icon-btn", type: "button", title: this._t("termEdit"), "aria-label": this._t("termEdit"),
+        onclick: () => this._openTerm(c, index),
+      }, icon("edit"))) : null);
+    const contractBlock = (c) => h("div", { class: "hist", "data-id": c.entry_id },
+      h("div", { class: "hist-head" },
+        h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+        this._who(c),
+        c.archiviert ? h("span", { class: "chip", text: this._t("archived") }) : null),
+      h("table", {},
+        h("thead", {}, h("tr", {}, [this._t("colTerm"), this._t("colInstalment"), this._t("colTermCost"), this._t("colUsage"), this._t("colTermBalance")]
+          .concat(this._isAdmin ? [""] : []).map((label) => h("th", { text: label })))),
+        // newest first; `index` is the position in the stored list (oldest first), needed to edit a term
+        h("tbody", {}, (c.historie || []).map((t, index) => [t, index]).reverse().map(([t, index]) => termRow(c, t, index)))),
+      this._total(c) ? h("p", { class: "hint hist-total" }, `${this._t("totalCost")}: `,
+        h("b", { text: this._total(c).value }), ` · ${this._total(c).since}`) : null,
+      // the acknowledgements belong to the contract list; here only archiving and restoring
+      this._actions(c, ["archive_contract", "restore_contract"]));
+    const group = (key, list) => (list.length ? h("section", { class: "group" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
+      list.map(contractBlock)) : null);
+    return h("div", {}, toolbar, group("groupArchived", archived), group("groupEarlier", earlier));
+  }
+
   _contractList() {
     const head = this._isAdmin
       ? h("div", { class: "list-head" },
@@ -1576,8 +2639,8 @@ class TariffyPanel extends HTMLElement {
       h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
       list.map((c) => this._detail(c))) : null);
     return h("div", {}, head,
-      group("groupMetered", this._contracts.filter((c) => METERED.has(c.sparte))),
-      group("groupFlat", this._contracts.filter((c) => !METERED.has(c.sparte))));
+      group("groupMetered", this._live.filter((c) => METERED.has(c.sparte))),
+      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte))));
   }
 
   /* Everything that changes a contract lives here, in the list of contracts (administrators only). */
@@ -1589,6 +2652,10 @@ class TariffyPanel extends HTMLElement {
       onclick: (ev) => { ev.preventDefault(); ev.stopPropagation(); this._openFlow(c, flow); },
     }, icon(name));
     return h("div", { class: "row-actions" },
+      c.verlaengerbar ? h("button", {
+        class: "icon-btn", type: "button", title: this._t("actRenew"), "aria-label": this._t("actRenew"),
+        onclick: (ev) => { ev.preventDefault(); ev.stopPropagation(); this._openRenew(c); },
+      }, icon("renew")) : null,
       button("next", this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"), "plan"),
       button("edit", this._t("actEdit"), "edit"));
   }
@@ -1610,9 +2677,16 @@ class TariffyPanel extends HTMLElement {
     const sections = [
       section(this._t("secContract"), [
         row(this._t("provider"), c.anbieter), row(this._t("tariff"), c.tarif),
+        row(this._t("insuranceType"), c.versicherungsart ? this._insuranceType(c.versicherungsart) : null),
+        row(this._t("kmStart"), isNum(c.km_start) ? `${this._num(c.km_start, 0)} km` : null),
+        row(this._t("kmPerYear"), isNum(c.km_pro_jahr) ? `${this._num(c.km_pro_jahr, 0)} km` : null),
         row(this._t("start"), c.beginn ? this._date(c.beginn) : null),
         row(this._t("end"), c.ende ? this._date(c.ende) : null),
         row(this._t("remaining"), isNum(c.restlaufzeit) ? this._t("daysLeft", { n: c.restlaufzeit }) : null),
+        row(this._t("minTerm"), isNum(c.mindestlaufzeit)
+          ? `${this._t("months", { n: c.mindestlaufzeit })}${c.mindestlaufzeit_bis ? ` · ${this._t("untilDate", { d: this._date(c.mindestlaufzeit_bis) })}` : ""}` : null),
+        row(this._t("noticePeriod"), isNum(c.kuendigungsfrist) ? this._t("months", { n: c.kuendigungsfrist }) : null),
+        row(this._t("cancelBy"), c.kuendigung_bis ? this._date(c.kuendigung_bis) : null),
         row(this._t("reminderDate"), c.erinnerung_datum
           ? `${this._date(c.erinnerung_datum)} · ${c.erinnerung_bestaetigt ? this._t("reminderDone") : c.erinnerung_aktiv ? this._t("reminderActive") : this._t("months", { n: c.erinnerung_monate })}`
           : null),
@@ -1625,8 +2699,18 @@ class TariffyPanel extends HTMLElement {
         row(this._t("unitPriceWater"), isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
         row(this._t("basePrice"), isNum(c.grundpreis) ? `${money(c.grundpreis)} ${this._t("perMonth")}` : null),
         row(this._t("instalment"), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
+        row(this._t("instalmentYear"), isNum(c.abschlag_jahr) ? money(c.abschlag_jahr) : null),
+        // flat-rate contracts: what the contract costs a year, and how it is paid when not monthly
+        row(this._t("costYear"), !METERED.has(c.sparte) && isNum(c.kosten_jahr) ? money(c.kosten_jahr) : null),
+        row(this._t("payment"), c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)
+          ? `${money(c.abschlag_je_zahlung)} ${this._t("interval")[c.zahlweise] || c.zahlweise}` : null),
+        row(this._t("firstDebit"), c.zahlweise && c.zahlweise !== "monthly" && c.erste_zahlung ? this._date(c.erste_zahlung) : null),
+        row(this._t("nextPayment"), c.naechste_zahlung ? this._date(c.naechste_zahlung) : null),
         row(this._t("costSoFar"), !METERED.has(c.sparte) && isNum(this._costSoFar(c)) ? money(this._costSoFar(c)) : null),
+        row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),
+      this._onceSection(c),
+      this._aussenSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),

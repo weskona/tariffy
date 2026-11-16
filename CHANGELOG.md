@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.0] - 2026-11-16
+
+This release brings together everything that was tested in the betas `1.28.0-beta.1` to `1.28.0-rc.9` and `1.29.0-beta.1` to `1.29.0-beta.3` (there is no stable 1.28.0; the numbering continued at 1.29.0 because GitHub lists numbers above 9 in the wrong order, see "Beta releases" in the documentation). **Existing contracts keep working without any change.** Everything new is optional and stored in the contract data; new sensors exist only where stated below. A few numbers change for existing contracts, they are listed under "Changed" and "Fixed".
+
+### Added
+
+- **Contract history and archive.** When the next contract takes over, the old term is saved (term, provider, tariff, prices, instalment, cost, consumption and balance at the end; up to 50 terms). The new **History** tab shows the terms under each contract. An expired contract without a next contract is marked **Expired** and can be **archived** (and restored) in the "Contracts" tab; nothing is deleted and nothing is archived automatically.
+- **Add old contracts by hand** in the History tab (administrators): consumption, cost, instalments paid and balance are worked out automatically from the long-term statistics of the meter, and every value can be typed in.
+- **Backup and restore.** The new **Backup** tab downloads all contracts as a file and restores contracts from such a file (only contracts that do not exist yet; the file is checked strictly; it contains personal data). **Deleted contracts are kept for 30 days** and can be brought back.
+- **The name of a contract can be changed** when editing it.
+- **Payment interval and yearly values for flat-rate contracts** (monthly, quarterly, half-yearly, yearly) and an optional **date of the first debit**. Internally the amount per month stays the basis, so existing contracts stay exactly as they are.
+- **Renew flat-rate contracts** (insurance, internet, mobile, streaming, other) with a new start, end and amount; the old term goes to the history. Meant for a premium that rises every year.
+- **Total cost over all terms** of a contract (tile, line, details, History tab).
+- **One-time items per contract** (bonus for switching positive, broker's fee negative): they change the balance so far and the total cost.
+- **Cost split in the "Costs" tab**: a ring chart per category (or per contract), switchable between "Cost so far" and "Per year", with a year selection and a bar for consumption against flat-rate contracts.
+- **Notice period and minimum term** per contract (optional, in months). With a notice period the cancellation reminder counts from the last day to cancel: notice period 3 months and reminder "3 months before" means the message comes 6 months before the contract end. Without a notice period nothing changes.
+- **More details for insurance contracts**: type of insurance and, for a car insurance, licence plate, odometer and allowed kilometres. The form asks only for what fits the type.
+- **New category "Streaming"** for subscriptions (a flat-rate category with its own icon).
+- **Outdoor meters for a water contract** (garden, pool, irrigation): water through such a meter is not charged wastewater (wastewater-liable consumption = main meter − outdoor meters, optional own price). The cost, the forecast and the recommended instalment use the weighted price. A contract **with** an outdoor meter gets four more sensors; **contracts without one get no new sensor and no other number**.
+- The sidebar panel shows the flat-rate cards four per row on wide screens.
+
+### Changed
+
+- **"Cost so far" of flat-rate contracts counts the rates booked** instead of a share of the days: every rate counts on its payment day, a monthly rate from the first day of its month (17.99 € a month since 1 April shows 143.92 € on 13 November, eight rates). The yearly values, the instalment and everything about consumption contracts are unchanged.
+
+### Fixed
+
+- **A meter that reports in Wh or MWh gave a consumption that was 1000 times too high** (or too low). The unit of the consumption sensor is now read and the consumption is calculated in kWh (Wh ÷ 1000, MWh × 1000); kWh and every other unit stay exactly as they are. A template sensor as a workaround is no longer needed. Reported in #74.
+- **"Cost so far" was 0.00 € when the instalment was filled in after the contract was created.** Contracts that were affected are corrected on their own.
+- The list of a drop-down in the panel's dialogs was unreadable in some browsers, and date fields stuck out of the dialog on an iPhone.
+
 ## [1.27.3] - 2026-11-11
 
 ### Fixed

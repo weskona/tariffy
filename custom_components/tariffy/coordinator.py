@@ -24,6 +24,9 @@ from .const import (
     CONF_ABSCHLAG_WARNUNG_NOTIFY_GESENDET,
     CONF_ABSCHLAG_WARNUNG_SCHWELLE,
     DEFAULT_ABSCHLAG_WARNUNG_SCHWELLE,
+    DEFAULT_ZAHLWEISE,
+    HISTORIE_MAX,
+    METERED_SPARTEN,
     NOTIFY_ID_ABSCHLAG_PREFIX,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
@@ -32,10 +35,20 @@ from .const import (
     CONF_BRENNWERT,
     CONF_ENDE,
     CONF_ERINNERUNG_MONATE,
+    CONF_KUENDIGUNGSFRIST,
+    CONF_MINDESTLAUFZEIT,
+    CONF_ERSTE_ZAHLUNG,
+    CONF_ARCHIVIERT,
     CONF_GAS_EINHEIT,
     CONF_GRUNDPREIS,
+    CONF_AUSSENZAEHLER,
+    CONF_EINMALPOSTEN,
+    CONF_HISTORIE,
     CONF_JAHRESVERBRAUCH,
     CONF_KUENDIGUNG_BESTAETIGT,
+    CONF_KENNZEICHEN,
+    CONF_KM_PRO_JAHR,
+    CONF_KM_START,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_GESENDET,
@@ -48,7 +61,9 @@ from .const import (
     CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
     CONF_VERBRAUCH_SENSOR,
     CONF_VERBRAUCH_START_WERT,
+    CONF_VERSICHERUNGSART,
     CONF_ZAEHLERNUMMER,
+    CONF_ZAHLWEISE,
     CONF_ZUSTANDSZAHL,
     ABWASSER_TYP_PAUSCHAL,
     ABWASSER_TYP_PROZENT,
@@ -71,6 +86,7 @@ from .const import (
     NEXT_PREFIX,
     NOTIFY_ID_PREFIX,
     SPARTEN_MIGRATION,
+    ZAHLWEISE_MONATE,
     SPARTE_ELECTRICITY_HT_NT,
     CONF_ARBEITSPREIS_NT,
     CONF_VERBRAUCH_SENSOR_NT,
@@ -153,7 +169,9 @@ def _abschlag_bisher_gezahlt(
     """
     ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
     vorheriger_wert = data.get(CONF_ABSCHLAG_VORHERIGER_WERT)
-    if ab_datum is None or vorheriger_wert is None or ab_datum <= beginn:
+    # Ein vorheriger Wert von 0 heisst: vorher war kein Abschlag eingetragen (aeltere Staende haben
+    # so einen Stempel noch); dann gilt der Betrag fuer die ganze Laufzeit.
+    if ab_datum is None or not vorheriger_wert or ab_datum <= beginn:
         return abschlag * vergangene_monate
     monate_alt = (ab_datum - beginn).days / 30.44
     if monate_alt >= vergangene_monate:
@@ -173,6 +191,29 @@ def _f(value: Any) -> float | None:
         return None
 
 
+def _wasser_einheit(hass: HomeAssistant, entity_id: str | None) -> str:
+    state = hass.states.get(entity_id) if entity_id else None
+    unit = state.attributes.get("unit_of_measurement") if state else None
+    return str(unit or "").strip().lower().replace("m3", "m³")
+
+
+def _in_einheit(wert: float | None, von: str, nach: str) -> float | None:
+    """Rechnet einen Wasserverbrauch von Liter in m³ (oder zurueck) um; sonst unveraendert."""
+    if wert is None:
+        return None
+    if von == "l" and nach == "m³":
+        return wert / 1000
+    if von == "m³" and nach == "l":
+        return wert * 1000
+    return wert
+
+
+def _monate_wert(value: Any) -> int:
+    """Monate aus einer optionalen Eingabe (leer, 0 oder ungueltig = 0)."""
+    zahl = _f(value)
+    return int(zahl) if zahl is not None and zahl > 0 else 0
+
+
 def _minus_months(d: date, months: int) -> date:
     if not months:
         return d
@@ -181,6 +222,82 @@ def _minus_months(d: date, months: int) -> date:
     month = index % 12 + 1
     day = min(d.day, calendar.monthrange(year, month)[1])
     return date(year, month, day)
+
+
+def _plus_months(d: date, months: int) -> date:
+    return _minus_months(d, -months)
+
+
+def _einmal_summen(
+    data: dict[str, Any], beginn: date | None, heute: date
+) -> tuple[list[dict[str, Any]], float, float]:
+    """Einmalposten des Vertrags: (Liste, Summe bis heute ueber alle Laufzeiten, Summe bis
+    heute in der laufenden Laufzeit). Positiv = Gutschrift, negativ = Rechnung. Ein Posten
+    mit Datum in der Zukunft zaehlt erst ab diesem Tag; einer ohne Datum zaehlt sofort."""
+    posten: list[dict[str, Any]] = []
+    gesamt = 0.0
+    laufend = 0.0
+    for item in data.get(CONF_EINMALPOSTEN) or []:
+        betrag = _f(item.get("betrag")) if isinstance(item, dict) else None
+        if betrag is None:
+            continue
+        tag = _parse_date(item.get("datum"))
+        posten.append(
+            {
+                "bezeichnung": str(item.get("bezeichnung") or "")[:100],
+                "betrag": round(betrag, 2),
+                "datum": tag.isoformat() if tag else None,
+            }
+        )
+        if tag is not None and tag > heute:
+            continue
+        gesamt += betrag
+        if tag is None or beginn is None or tag >= beginn:
+            laufend += betrag
+    return posten, round(gesamt, 2), round(laufend, 2)
+
+
+
+def _abschlag_nach_zahlungen(
+    abschlag: float,
+    intervall: int,
+    beginn: date,
+    ende: date | None,
+    heute: date,
+    data: dict[str, Any],
+) -> tuple[float, date | None]:
+    """Bis heute tatsaechlich abgebuchte Betraege bei nicht monatlicher Zahlweise (zum Beispiel eine
+    Versicherung, die jaehrlich im Voraus bezahlt wird): gezaehlt wird jede Zahlung ab der ersten
+    Abbuchung (leer = Vertragsbeginn), nicht ein monatlicher Anteil. Bei monatlicher Zahlung zaehlt
+    eine Rate, sobald ihr Monat begonnen hat, auch wenn der Tag im Monat noch aussteht. Gibt auch die naechste Zahlung
+    zurueck. Eine Preisaenderung gilt fuer Zahlungen ab ihrem Datum."""
+    erste = _parse_date(data.get(CONF_ERSTE_ZAHLUNG)) or beginn
+    monat_heute = (heute.year, heute.month)
+    ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
+    vorher = _f(data.get(CONF_ABSCHLAG_VORHERIGER_WERT))
+    summe = 0.0
+    zahlung = 0
+    naechste: date | None = None
+    while zahlung < 1200:
+        termin = _plus_months(erste, zahlung * intervall)
+        if ende is not None and termin > ende:
+            break
+        if termin > heute and naechste is None:
+            naechste = termin
+        # Monatliche Zahlung: die Rate zaehlt, sobald ihr Monat begonnen hat (egal, an welchem Tag des
+        # Monats sie liegt); sonst zaehlt jede Abbuchung am Tag der Zahlung
+        if (intervall == 1 and (termin.year, termin.month) > monat_heute) or (
+            intervall != 1 and termin > heute
+        ):
+            break
+        monatlich = vorher if (ab_datum is not None and vorher and termin < ab_datum) else abschlag
+        summe += round(monatlich * intervall, 2)
+        zahlung += 1
+    if naechste is None:  # die naechste Abbuchung nach heute, falls der Vertrag dann noch laeuft
+        termin = _plus_months(erste, zahlung * intervall)
+        if termin > heute and (ende is None or termin <= ende):
+            naechste = termin
+    return round(summe, 2), naechste
 
 
 def _entry_sum_state(entry: dict) -> tuple[float | None, float | None]:
@@ -323,11 +440,43 @@ async def _get_latest_sum(hass: HomeAssistant, entity_id: str) -> tuple[float | 
     return None, None
 
 
+# Zaehler, die in Wh oder MWh statt kWh melden (z. B. Tasmota-Lesekopf): der Verbrauch wird in kWh
+# gerechnet. Andere Einheiten bleiben unveraendert (Faktor 1).
+_ENERGIE_FAKTOR = {"wh": 0.001, "mwh": 1000.0}
+
+
+async def _einheit_faktor(hass: HomeAssistant, entity_id: str | None) -> float:
+    """Faktor, der den Verbrauch eines Zaehlers in kWh umrechnet: 0.001 bei Wh, 1000 bei MWh, sonst 1.
+    Die Einheit steht am Live-Zustand; fehlt er (z. B. kurz nach dem Start), gilt die Einheit der
+    Langzeitstatistik. Wirft nie."""
+    if not entity_id:
+        return 1.0
+    unit = None
+    state = hass.states.get(entity_id)
+    if state is not None:
+        unit = state.attributes.get("unit_of_measurement")
+    if not unit:
+        try:
+            from homeassistant.components.recorder import get_instance
+            from homeassistant.components.recorder.statistics import get_metadata
+
+            instance = get_instance(hass)
+            meta = await instance.async_add_executor_job(
+                lambda: get_metadata(hass, statistic_ids={entity_id})
+            )
+            if entity_id in meta:
+                unit = meta[entity_id][1].get("statistics_unit_of_measurement")
+        except Exception:  # noqa: BLE001 - ohne Einheit bleibt es bei kWh
+            unit = None
+    return _ENERGIE_FAKTOR.get(str(unit or "").strip().lower(), 1.0)
+
+
 def _pick_verbrauch_delta(
     aktuell_sum: float | None,
     offset_sum: float | None,
     aktuell_state: float | None,
     offset_state: float | None,
+    faktor: float = 1.0,
 ) -> float | None:
     """Waehlt zwischen dem reset-sicheren 'sum'-Delta und dem einfachen
     rohen State-Delta. Bevorzugt bewusst das State-Delta, sobald der
@@ -339,10 +488,11 @@ def _pick_verbrauch_delta(
     einen unplausiblen Sprung machte). Ist der Zustand dagegen gefallen (ein
     echter Reset, z.B. bei manchen Gaszaehlern ueblich), ist das 'sum'-Delta
     weiterhin die einzig korrekte Wahl, da es Resets bereits aufsummiert."""
+    # `faktor` rechnet die Einheit des Zaehlers in kWh um (Wh, MWh), vor dem Runden
     if aktuell_state is not None and offset_state is not None and aktuell_state >= offset_state:
-        return round(aktuell_state - offset_state, 2)
+        return round((aktuell_state - offset_state) * faktor, 2)
     if aktuell_sum is not None and offset_sum is not None:
-        return round(aktuell_sum - offset_sum, 2)
+        return round((aktuell_sum - offset_sum) * faktor, 2)
     return None
 
 
@@ -402,6 +552,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset_nt: float | None = None
         self._verbrauch_offset_state_nt: float | None = None
         self._verbrauch_offset_date_nt: date | None = None
+        # Aussenzaehler eines Wasservertrags: Offset je Sensor (Datum, sum, state)
+        self._aussen_offsets: dict[str, tuple[date, float, float | None]] = {}
         # Fuer den Diagnose-Download und die Warnung im Log: wie der
         # Verbrauch beim letzten Update ermittelt wurde (siehe diagnostics.py).
         self.verbrauch_diag: dict[str, Any] = {}
@@ -444,14 +596,152 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     def _abschlag_notification_id(self) -> str:
         return f"{NOTIFY_ID_ABSCHLAG_PREFIX}{self.entry.entry_id}"
 
+    # ------------------------------------------------------------- Historie
+    def _historie_eintrag(self, heute: date) -> dict[str, Any]:
+        """Die auslaufende Laufzeit als Eintrag der Vertragshistorie.
+
+        Nur Werte, die das Panel ohnehin zeigt (keine Kunden- oder
+        Zaehlernummern). Die Summen stammen aus der letzten Berechnung."""
+        alt = self.entry.data
+        d = self.data or {}
+
+        def _zahl(wert: Any) -> float | None:
+            zahl = _f(wert)
+            return round(zahl, 2) if zahl is not None else None
+
+        return {
+            "sparte": alt.get(CONF_SPARTE),
+            "anbieter": alt.get(CONF_ANBIETER),
+            "tarif": alt.get(CONF_TARIF),
+            "beginn": alt.get(CONF_BEGINN),
+            "ende": alt.get(CONF_ENDE) or heute.isoformat(),
+            "arbeitspreis": _f(alt.get(CONF_ARBEITSPREIS)),
+            "grundpreis": _f(alt.get(CONF_GRUNDPREIS)),
+            "abschlag": _f(alt.get(CONF_ABSCHLAG)),
+            "kosten": _zahl(d.get("kosten_bisher")),
+            "abschlag_gezahlt": _zahl(d.get("abschlag_bisher_gezahlt")),
+            "saldo": _zahl(d.get("guthaben_bisher")),
+            "verbrauch": _zahl(d.get("verbrauch_bisher")),
+            "abgeschlossen": heute.isoformat(),
+        }
+
+    def _gesamtkosten(
+        self,
+        data: dict[str, Any],
+        beginn: date | None,
+        kosten_bisher: float | None,
+        abschlag_bisher: float | None,
+        archiviert: bool,
+        einmal: float = 0.0,
+    ) -> dict[str, Any]:
+        """Kosten ueber alle Laufzeiten des Vertrags: die frueheren aus der Historie plus die
+        laufende. Bei einem archivierten Vertrag steht die letzte Laufzeit schon in der Historie
+        (das Archivieren legt sie dort ab), sie wird nicht doppelt gezaehlt."""
+        historie = list(data.get(CONF_HISTORIE) or [])
+        summe = 0.0
+        vollstaendig = True
+        beginne: list[date] = []
+        for term in historie:
+            kosten = _f(term.get("kosten"))
+            if kosten is None:
+                kosten = _f(term.get("abschlag_gezahlt"))
+            if kosten is None:
+                vollstaendig = False
+            else:
+                summe += kosten
+            fruehester = _parse_date(term.get(CONF_BEGINN))
+            if fruehester is not None:
+                beginne.append(fruehester)
+        laufzeiten = len(historie)
+        if not archiviert:
+            laufzeiten += 1
+            laufende = kosten_bisher if kosten_bisher is not None else abschlag_bisher
+            if laufende is None:
+                vollstaendig = False
+            else:
+                summe += laufende
+            if beginn is not None:
+                beginne.append(beginn)
+        summe -= einmal  # Bonus (positiv) senkt, Rechnung (negativ) erhoeht die Kosten
+        return {
+            "kosten_gesamt": round(summe, 2) if (summe or vollstaendig) else None,
+            "kosten_gesamt_vollstaendig": vollstaendig,
+            "laufzeiten_anzahl": laufzeiten,
+            "seit": min(beginne) if beginne else None,
+        }
+
+    async def async_archive(self) -> None:
+        """Archiviert den abgelaufenen Vertrag: ein Merker plus die letzte Laufzeit
+        als Historien-Eintrag. Nichts wird geloescht, alle Entitaeten bleiben."""
+        await self._dismiss_notifications()
+        heute = dt_util.now().date()
+        historie = list(self.entry.data.get(CONF_HISTORIE) or [])
+        historie.append({**self._historie_eintrag(heute), "archiviert": True})
+        self.hass.config_entries.async_update_entry(
+            self.entry,
+            data={
+                **self.entry.data,
+                CONF_ARCHIVIERT: heute.isoformat(),
+                CONF_HISTORIE: historie[-HISTORIE_MAX:],
+            },
+        )
+        # sofort neu berechnen (async_request_refresh waere entprellt)
+        await self.async_refresh()
+
+    async def async_restore(self) -> None:
+        """Holt einen archivierten Vertrag zurueck."""
+        data = dict(self.entry.data)
+        data.pop(CONF_ARCHIVIERT, None)
+        historie = list(data.get(CONF_HISTORIE) or [])
+        for position in range(len(historie) - 1, -1, -1):
+            if historie[position].get("archiviert"):
+                del historie[position]  # der Eintrag, den das Archivieren angelegt hat
+                break
+        if historie:
+            data[CONF_HISTORIE] = historie
+        else:
+            data.pop(CONF_HISTORIE, None)
+        self.hass.config_entries.async_update_entry(self.entry, data=data)
+        await self.async_refresh()
+
+    async def _dismiss_notifications(self) -> None:
+        for notification_id in (self._notification_id, self._abschlag_notification_id):
+            await self.hass.services.async_call(
+                "persistent_notification",
+                "dismiss",
+                {"notification_id": notification_id},
+                blocking=True,
+            )
+
     # -------------------------------------------------------------- Wechsel
     def _switch_now(self, verbrauch_letzte: float | None = None) -> None:
         nxt = dict(self.entry.options)
         if not nxt:
             return
+        historie = list(self.entry.data.get(CONF_HISTORIE) or [])
+        if not self.entry.data.get(CONF_ARCHIVIERT):  # sonst steht die Laufzeit schon drin
+            historie.append(self._historie_eintrag(dt_util.now().date()))
         new_data: dict[str, Any] = {
+            CONF_HISTORIE: historie[-HISTORIE_MAX:],
             CONF_SPARTE: self.entry.data.get(CONF_SPARTE),
             CONF_ERINNERUNG_MONATE: self.entry.data.get(CONF_ERINNERUNG_MONATE, "0"),
+            # die Aussenzaehler bleiben angeschlossen; ihr Startwert gehoerte zum alten Vertrag
+            **(
+                {
+                    CONF_AUSSENZAEHLER: [
+                        {key: value for key, value in zaehler.items() if key != "start_wert"}
+                        for zaehler in self.entry.data[CONF_AUSSENZAEHLER]
+                    ]
+                }
+                if self.entry.data.get(CONF_AUSSENZAEHLER)
+                else {}
+            ),
+            # die Erinnerung haengt an der Kuendigungsfrist: sie bleibt beim Wechsel erhalten
+            **(
+                {CONF_KUENDIGUNGSFRIST: self.entry.data[CONF_KUENDIGUNGSFRIST]}
+                if self.entry.data.get(CONF_KUENDIGUNGSFRIST) not in (None, "")
+                else {}
+            ),
             CONF_NOTIFY_TARGET: self.entry.data.get(CONF_NOTIFY_TARGET),
         }
         for feld in BASIS_FELDER:
@@ -487,6 +777,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset_nt = None
         self._verbrauch_offset_state_nt = None
         self._verbrauch_offset_date_nt = None
+        self._aussen_offsets = {}
         self.hass.config_entries.async_update_entry(
             self.entry, data=new_data, options={}
         )
@@ -529,13 +820,20 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     ) -> None:
         if not aktiv:
             return
+        frist = _monate_wert(data.get(CONF_KUENDIGUNGSFRIST))
+        kuendigung_bis = _minus_months(ende, frist) if (ende is not None and frist) else None
         title = f"Kündigung: {self.entry.title}"
         ende_str = ende.isoformat() if ende else "?"
         message = (
             f"Vertrag **{data.get(CONF_ANBIETER) or ''}** "
             f"({data.get(CONF_TARIF) or ''}) läuft am **{ende_str}** aus.\n\n"
-            f"Erinnerung {data.get(CONF_ERINNERUNG_MONATE)} Monat(e) vorher. "
-            "Bitte rechtzeitig kündigen oder den Folgevertrag eintragen.\n\n"
+            + (
+                f"Kündigungsfrist {frist} Monat(e): Die Kündigung muss **bis {kuendigung_bis.isoformat()}** "
+                f"vorliegen. Erinnerung {data.get(CONF_ERINNERUNG_MONATE)} Monat(e) vorher. "
+                if frist and kuendigung_bis
+                else f"Erinnerung {data.get(CONF_ERINNERUNG_MONATE)} Monat(e) vorher. "
+            )
+            + "Bitte rechtzeitig kündigen oder den Folgevertrag eintragen.\n\n"
             "_Diese Meldung bleibt bestehen, bis du sie über den Button "
             "'Kündigung bestätigen' quittierst._"
         )
@@ -683,6 +981,89 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         _sum, last_state = await _get_latest_sum(self.hass, sensor_id)
         return last_state
 
+    async def _get_aussen_offset(
+        self, entity_id: str, beginn: date
+    ) -> tuple[float | None, float | None]:
+        """(sum, state) eines Aussenzaehlers zum Vertragsbeginn (je Sensor einmal, dann gecacht)."""
+        cached = self._aussen_offsets.get(entity_id)
+        if cached is not None and cached[0] == beginn:
+            return cached[1], cached[2]
+        sum_val, state_val = await _get_historic_value(self.hass, entity_id, beginn)
+        if sum_val is not None:
+            self._aussen_offsets[entity_id] = (beginn, sum_val, state_val)
+        return sum_val, state_val
+
+    async def _aussenzaehler(
+        self,
+        zaehler_liste: list[dict[str, Any]],
+        beginn: date | None,
+        verbrauch_bisher: float | None,
+        hauptsensor: str | None,
+        frischwasserpreis: float | None,
+        gesamtpreis: float | None,
+    ) -> dict[str, Any]:
+        """Aussenzaehler (Garten, Pool, ...) eines Wasservertrags: ihr Verbrauch steckt im Hauptzaehler,
+        ist aber nicht abwasserpflichtig. Rechnet je Zaehler Verbrauch und Kosten und gibt zurueck, welcher
+        durchschnittliche Preis je Einheit des Hauptzaehlers daraus folgt (`preis`: None = unveraendert)."""
+        ergebnis: dict[str, Any] = {
+            "liste": [],
+            "garten_verbrauch": None,
+            "garten_kosten": None,
+            "abwasserpflichtig": None,
+            "abwasser_kosten": None,
+            "preis": None,
+        }
+        haupt_einheit = _wasser_einheit(self.hass, hauptsensor)
+        verbrauch_summe = 0.0
+        for zaehler in zaehler_liste:
+            sensor = zaehler.get("sensor")
+            start = _f(zaehler.get("start_wert"))
+            verbrauch = await self._verbrauch_bisher_fuer_sensor(
+                sensor, start, beginn, self._get_aussen_offset
+            )
+            verbrauch = _in_einheit(verbrauch, _wasser_einheit(self.hass, sensor), haupt_einheit)
+            if verbrauch is not None and verbrauch < 0:
+                verbrauch = None
+            ergebnis["liste"].append(
+                {
+                    "name": zaehler.get("name"),
+                    "sensor": sensor,
+                    "start_wert": start,
+                    "preis": _f(zaehler.get("preis")),
+                    "verbrauch": verbrauch,
+                    "kosten": None,
+                }
+            )
+            if verbrauch is not None:
+                verbrauch_summe += verbrauch
+        if verbrauch_bisher is None or verbrauch_bisher <= 0 or frischwasserpreis is None:
+            return ergebnis
+        # mehr als der Hauptzaehler gezaehlt hat kann nicht ausserhalb des Abwassers liegen
+        anteil = min(1.0, verbrauch_bisher / verbrauch_summe) if verbrauch_summe > 0 else 0.0
+        garten_kosten = 0.0
+        for eintrag in ergebnis["liste"]:
+            if eintrag["verbrauch"] is None:
+                continue
+            preis = eintrag["preis"] if eintrag["preis"] is not None else frischwasserpreis
+            eintrag["kosten"] = round(eintrag["verbrauch"] * anteil * preis, 2)
+            garten_kosten += eintrag["verbrauch"] * anteil * preis
+        garten_verbrauch = verbrauch_summe * anteil
+        abwasserpflichtig = verbrauch_bisher - garten_verbrauch
+        voll = gesamtpreis if gesamtpreis is not None else frischwasserpreis
+        ergebnis.update(
+            {
+                "garten_verbrauch": round(garten_verbrauch, 2),
+                "garten_kosten": round(garten_kosten, 2),
+                "abwasserpflichtig": round(abwasserpflichtig, 2),
+                "abwasser_kosten": round(abwasserpflichtig * (voll - frischwasserpreis), 2),
+                # Hauptzaehler-Verbrauch: der abwasserpflichtige Teil zum vollen Preis, der Rest zum Gartenpreis
+                "preis": round((abwasserpflichtig * voll + garten_kosten) / verbrauch_bisher, 6)
+                if verbrauch_summe > 0
+                else None,
+            }
+        )
+        return ergebnis
+
     async def _verbrauch_bisher_fuer_sensor(
         self,
         sensor_id: str | None,
@@ -704,7 +1085,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             aktuell = await self._aktueller_zaehlerstand(sensor_id)
             if aktuell is None:
                 return None
-            return round(aktuell - manueller_start_wert, 2)
+            return round((aktuell - manueller_start_wert) * await _einheit_faktor(self.hass, sensor_id), 2)
 
         aktuell_sum, aktuell_state = await _get_latest_sum(self.hass, sensor_id)
         live_state = self.hass.states.get(sensor_id)
@@ -716,7 +1097,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if aktuell_sum is None:
             return None
         offset_sum, offset_state = await offset_getter(sensor_id, beginn)
-        return _pick_verbrauch_delta(aktuell_sum, offset_sum, aktuell_state, offset_state)
+        return _pick_verbrauch_delta(
+            aktuell_sum, offset_sum, aktuell_state, offset_state, await _einheit_faktor(self.hass, sensor_id)
+        )
 
     def _log_verbrauch_status(
         self, sensor_id: str, verbrauch_bisher: float | None, diag: dict[str, Any]
@@ -773,7 +1156,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if aktuell_sum is None:
             return None
         verbrauch_ht = _pick_verbrauch_delta(
-            aktuell_sum, self._verbrauch_offset, aktuell_state, self._verbrauch_offset_state
+            aktuell_sum, self._verbrauch_offset, aktuell_state, self._verbrauch_offset_state,
+            await _einheit_faktor(self.hass, sensor_id),
         )
         if self.entry.data.get(CONF_SPARTE) != SPARTE_ELECTRICITY_HT_NT:
             return verbrauch_ht
@@ -796,7 +1180,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if aktuell_sum_nt is None:
             return verbrauch_ht
         verbrauch_nt = _pick_verbrauch_delta(
-            aktuell_sum_nt, self._verbrauch_offset_nt, aktuell_state_nt, self._verbrauch_offset_state_nt
+            aktuell_sum_nt, self._verbrauch_offset_nt, aktuell_state_nt, self._verbrauch_offset_state_nt,
+            await _einheit_faktor(self.hass, sensor_id_nt),
         )
         if verbrauch_ht is None and verbrauch_nt is None:
             return None
@@ -926,17 +1311,40 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         abschlagssumme = round(abschlag * laufzeit_monate, 2) if abschlag is not None else None
 
+        # Jahreswerte und Zahlweise (nur Anzeige im Panel, keine neuen Sensoren): `abschlag` ist
+        # immer der Betrag pro Monat, die Zahlweise sagt nur, wie er bezahlt wird.
+        zahlweise = data.get(CONF_ZAHLWEISE)
+        if zahlweise not in ZAHLWEISE_MONATE:
+            zahlweise = DEFAULT_ZAHLWEISE
+        abschlag_jahr = round(abschlag * 12, 2) if abschlag is not None else None
+        abschlag_je_zahlung = (
+            round(abschlag * ZAHLWEISE_MONATE[zahlweise], 2) if abschlag is not None else None
+        )
+        kosten_jahr = (
+            round((abschlag + (grundpreis or 0)) * 12, 2) if abschlag is not None else None
+        )
+
         # Bis heute faellige Abschlaege. Bei Pauschalvertraegen (Internet, Mobilfunk, ...)
         # sind das die Kosten bisher. Bewusst nur ein Datenwert, kein Sensor: bestehende
         # Installationen bekommen dadurch keine neuen Entitaeten.
         abschlag_bisher_gezahlt_wert: float | None = None
+        naechste_zahlung: date | None = None
         if abschlag is not None and beginn is not None:
-            monate_bisher = max(0, (heute - beginn).days) / 30.44
-            if ende is not None:
-                monate_bisher = min(monate_bisher, laufzeit_monate)
-            abschlag_bisher_gezahlt_wert = round(
-                _abschlag_bisher_gezahlt(abschlag, monate_bisher, beginn, data), 2
-            )
+            if sparte not in METERED_SPARTEN:
+                # Pauschalvertrag: gezaehlt werden die Abbuchungen (jede Rate am Tag der Zahlung, bei
+                # monatlicher Zahlung also am Monatstag des Beginns), nicht ein tagesgenauer Anteil
+                abschlag_bisher_gezahlt_wert, naechste_zahlung = _abschlag_nach_zahlungen(
+                    abschlag, ZAHLWEISE_MONATE[zahlweise], beginn, ende, heute, data
+                )
+                if zahlweise == DEFAULT_ZAHLWEISE:
+                    naechste_zahlung = None  # bei monatlicher Zahlung gibt es dazu keine Anzeige
+            else:
+                monate_bisher = max(0, (heute - beginn).days) / 30.44
+                if ende is not None:
+                    monate_bisher = min(monate_bisher, laufzeit_monate)
+                abschlag_bisher_gezahlt_wert = round(
+                    _abschlag_bisher_gezahlt(abschlag, monate_bisher, beginn, data), 2
+                )
 
         # ---- Echte Verbrauchsmessung via Sensor ----
         verbrauch_sensor = data.get(CONF_VERBRAUCH_SENSOR)
@@ -969,7 +1377,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "aktueller_zaehlerstand": aktuell,
                 }
                 if aktuell is not None:
-                    verbrauch_bisher = round(aktuell - manueller_start_wert, 2)
+                    verbrauch_bisher = round(
+                        (aktuell - manueller_start_wert) * await _einheit_faktor(self.hass, verbrauch_sensor), 2
+                    )
             else:
                 # Aktuellen kumulierten Wert lesen (reset-sicher über 'sum', s.o.),
                 # PLUS den dazugehoerigen rohen state -- als Absicherung gegen
@@ -998,7 +1408,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     diag["offset_sum"] = offset_sum
                     diag["offset_state"] = offset_state
                     verbrauch_bisher = _pick_verbrauch_delta(
-                        aktuell_sum, offset_sum, aktuell_state, offset_state
+                        aktuell_sum, offset_sum, aktuell_state, offset_state,
+                        await _einheit_faktor(self.hass, verbrauch_sensor),
                     )
 
                 if verbrauch_bisher is None:
@@ -1054,6 +1465,16 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         / verbrauch_bisher,
                         6,
                     )
+
+        aussen: dict[str, Any] = {}
+        if sparte == WASSER_SPARTE and data.get(CONF_AUSSENZAEHLER):
+            aussen = await self._aussenzaehler(
+                list(data[CONF_AUSSENZAEHLER]), beginn, verbrauch_bisher, verbrauch_sensor,
+                arbeitspreis, arbeitspreis_gesamt_wasser,
+            )
+            if aussen["preis"] is not None:
+                # wie beim Zweizaehlertarif: ab hier rechnet alles mit dem gewichteten Preis weiter
+                arbeitspreis_gesamt_wasser = aussen["preis"]
 
         if verbrauch_bisher is not None and verbrauch_bisher > 0:
             vergangene_tage = (heute - beginn).days
@@ -1121,6 +1542,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                                 / restlaufzeit_monate,
                                 2,
                             )
+
+        einmal_liste, einmal_gesamt, einmal_laufend = _einmal_summen(data, beginn, heute)
 
         # Tatsächliche Kosten bisher (auf Basis realer Messung)
         kosten_bisher: float | None = None
@@ -1222,14 +1645,22 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         monate = int(data.get(CONF_ERINNERUNG_MONATE) or 0)
         bestaetigt = bool(data.get(CONF_KUENDIGUNG_BESTAETIGT))
+        frist = _monate_wert(data.get(CONF_KUENDIGUNGSFRIST))
+        mindest = _monate_wert(data.get(CONF_MINDESTLAUFZEIT))
+        # letzter Tag, an dem noch gekuendigt werden kann; die Erinnerung kommt `monate` davor
+        kuendigung_bis = _minus_months(ende, frist) if (ende is not None and frist) else None
         erinnerung_datum = (
-            _minus_months(ende, monate) if (ende is not None and monate) else None
+            _minus_months(ende, monate + frist) if (ende is not None and monate) else None
         )
+        mindestlaufzeit_bis = _plus_months(beginn, mindest) if (beginn is not None and mindest) else None
+        archiviert_am = _parse_date(data.get(CONF_ARCHIVIERT))
+        archiviert = archiviert_am is not None
         aktiv = bool(
             erinnerung_datum is not None
             and ende is not None
             and erinnerung_datum <= heute <= ende
             and not bestaetigt
+            and not archiviert
         )
         await self._handle_reminder(aktiv, ende, data)
 
@@ -1240,6 +1671,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             data.get(CONF_ABSCHLAG_WARNUNG)
             and prognose_real is not None
             and prognose_real < -warnung_schwelle
+            and not archiviert
         )
         await self._handle_abschlag_warnung(
             warnung_aktiv, prognose_real, abschlag_anpassung_empfohlen, data
@@ -1260,6 +1692,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ABWASSER_TYP: abwasser_typ,
             "arbeitspreis_gesamt_wasser": arbeitspreis_gesamt_wasser,
             "abwasser_pauschal_monat": abwasser_pauschal_monat,
+            "aussenzaehler": aussen.get("liste") or [],
+            "garten_verbrauch": aussen.get("garten_verbrauch"),
+            "garten_kosten": aussen.get("garten_kosten"),
+            "abwasserpflichtiger_verbrauch": aussen.get("abwasserpflichtig"),
+            "abwasser_kosten": aussen.get("abwasser_kosten"),
             "hat_tag_nacht": hat_tag_nacht,
             CONF_EINSPEISEVERGUETUNG: einspeiseverguetung,
             CONF_ARBEITSPREIS_NACHT: arbeitspreis_nacht,
@@ -1286,6 +1723,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ZUSTANDSZAHL: zustandszahl,
             "verbrauch_kwh": verbrauch_kwh,
             CONF_ZAEHLERNUMMER: data.get(CONF_ZAEHLERNUMMER),
+            CONF_VERSICHERUNGSART: data.get(CONF_VERSICHERUNGSART),
+            CONF_KENNZEICHEN: data.get(CONF_KENNZEICHEN),
+            CONF_KM_START: _f(data.get(CONF_KM_START)),
+            CONF_KM_PRO_JAHR: _f(data.get(CONF_KM_PRO_JAHR)),
             CONF_MARKTLOKATION: data.get(CONF_MARKTLOKATION),
             CONF_PREISGARANTIE: _parse_date(data.get(CONF_PREISGARANTIE)),
             CONF_BONUS: _f(data.get(CONF_BONUS)),
@@ -1294,13 +1735,23 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ENDE: ende,
             "restlaufzeit": restlaufzeit,
             "jahreskosten": abschlagssumme,
+            "zahlweise": zahlweise,
+            "abschlag_jahr": abschlag_jahr,
+            "abschlag_je_zahlung": abschlag_je_zahlung,
+            "kosten_jahr": kosten_jahr,
+            "erste_zahlung": _parse_date(data.get(CONF_ERSTE_ZAHLUNG)),
+            "naechste_zahlung": naechste_zahlung,
             "abschlag_bisher_gezahlt": abschlag_bisher_gezahlt_wert,
             "verbrauch_bisher": verbrauch_bisher,
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,
             "prognose_real": prognose_real,
             "abschlag_anpassung_empfohlen": abschlag_anpassung_empfohlen,
             "kosten_bisher": kosten_bisher,
-            "guthaben_bisher": guthaben_bisher,
+            "guthaben_bisher": (
+                round(guthaben_bisher + einmal_laufend, 2) if guthaben_bisher is not None else None
+            ),
+            "einmalposten": einmal_liste,
+            "einmal_summe": einmal_gesamt,
             "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,
             "verbrauch_letzte_laufzeit_monate": verbrauch_letzte_laufzeit_monate,
             "empfohlener_abschlag": empfohlener_abschlag,
@@ -1308,10 +1759,28 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "erinnerung_aktiv": aktiv,
             "erinnerung_bestaetigt": bestaetigt,
             "erinnerung_monate": monate,
+            "kuendigungsfrist": frist or None,
+            "kuendigung_bis": kuendigung_bis,
+            "mindestlaufzeit": mindest or None,
+            "mindestlaufzeit_bis": mindestlaufzeit_bis,
             "abschlag_warnung_aktiv": warnung_aktiv,
             "abschlag_warnung_zu_bestaetigen": warnung_zu_bestaetigen,
             "wechsel": _parse_date(nxt.get(NEXT_PREFIX + CONF_BEGINN)) if nxt else None,
             "next": nxt,
+            "archiviert": archiviert,
+            "archiviert_am": archiviert_am,
+            # abgelaufen, kein Folgevertrag geplant, noch nicht archiviert
+            "archivierbar": bool(
+                ende is not None and ende < heute and not nxt and not archiviert
+            ),
+            "historie": list(data.get(CONF_HISTORIE) or []),
+            **self._gesamtkosten(
+                data, beginn, kosten_bisher, abschlag_bisher_gezahlt_wert, archiviert, einmal_gesamt
+            ),
+            # Pauschalvertrag mit Ende, nicht archiviert: laesst sich verlaengern (neuer Betrag, neues Ende)
+            "verlaengerbar": bool(
+                sparte not in METERED_SPARTEN and ende is not None and not archiviert
+            ),
             CONF_ARBEITSPREIS_NT: arbeitspreis_nt,
             "arbeitspreis_ht": arbeitspreis_ht,
             CONF_ZAEHLERNUMMER_NT: data.get(CONF_ZAEHLERNUMMER_NT),

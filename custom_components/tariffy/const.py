@@ -79,6 +79,28 @@ CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE = "verbrauch_letzte_laufzeit_monate"
 # das die automatische Erkennung normalerweise funktioniert.
 CONF_VERBRAUCH_START_WERT = "verbrauch_start_wert"
 
+# Versicherung (nur Sparte "insurance"): Art der Versicherung und, fuer eine
+# Kfz-Versicherung, Kennzeichen, Kilometerstand bei Vertragsbeginn und die
+# vereinbarten Kilometer pro Jahr. Nur zur Dokumentation, es wird nichts
+# berechnet. Das Kennzeichen gilt wie die Kundennummer als persoenlich.
+SPARTE_INSURANCE = "insurance"
+CONF_VERSICHERUNGSART = "versicherungsart"
+CONF_KENNZEICHEN = "kennzeichen"
+CONF_KM_START = "km_start"
+CONF_KM_PRO_JAHR = "km_pro_jahr"
+VERSICHERUNGSART_KFZ = "car"
+VERSICHERUNGSARTEN = [
+    VERSICHERUNGSART_KFZ,
+    "house",
+    "household",
+    "liability",
+    "health",
+    "life",
+    "legal",
+    "accident",
+    "other",
+]
+
 # Einspeiseverguetung (nur Strom)
 CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"
 
@@ -111,6 +133,10 @@ ENERGIE_SPARTEN_MIT_WASSER = ("strom", "gas", "wasser")
 
 # Kündigungs-Erinnerung
 CONF_ERINNERUNG_MONATE = "erinnerung_monate"
+# Optional, in Monaten: Kuendigungsfrist (die Erinnerung bezieht sich dann auf den letzten
+# Kuendigungstag statt auf das Vertragsende) und Mindestvertragslaufzeit (nur Anzeige).
+CONF_KUENDIGUNGSFRIST = "kuendigungsfrist"
+CONF_MINDESTLAUFZEIT = "mindestlaufzeit"
 CONF_NOTIFY_TARGET = "notify_target"
 ERINNERUNG_OPTIONS = ["0", "1", "2", "3", "4"]
 
@@ -119,6 +145,37 @@ CONF_KUENDIGUNG_BESTAETIGT = "_kuendigung_bestaetigt"
 CONF_NOTIFY_GESENDET = "_notify_gesendet"
 
 NOTIFY_ID_PREFIX = "tariffy_kuendigung_"
+
+# Sparten, die nach Verbrauch abgerechnet werden (wie im Panel); alles andere ist eine Pauschale.
+METERED_SPARTEN = frozenset({"electricity", "electricity_ht_nt", "gas", "water"})
+
+# Zahlweise bei Pauschalvertraegen (Versicherung usw.): der Betrag pro Zahlung wird in einen
+# Monatsbetrag umgerechnet; `abschlag` bleibt immer der Betrag pro Monat.
+CONF_ZAHLWEISE = "zahlweise"
+ZAHLWEISE_MONATE = {"monthly": 1, "quarterly": 3, "halfyearly": 6, "yearly": 12}
+DEFAULT_ZAHLWEISE = "monthly"
+# Datum der ersten Abbuchung bei nicht monatlicher Zahlweise (leer = am Vertragsbeginn)
+CONF_ERSTE_ZAHLUNG = "erste_zahlung"
+
+# Vertragshistorie: beim Tarifwechsel wird die alte Laufzeit als Eintrag in
+# `_historie` gesichert (die Vertragsdaten werden dabei ueberschrieben); ein
+# abgelaufener Vertrag ohne Folgevertrag kann archiviert werden (`_archiviert`
+# = Datum). Beides sind interne Schluessel: kein neuer Sensor, keine neue
+# Entitaet, und beim Bearbeiten (Neu konfigurieren) bleiben sie erhalten.
+CONF_HISTORIE = "_historie"
+CONF_ARCHIVIERT = "_archiviert"
+HISTORIE_MAX = 50
+
+# Einmalposten pro Vertrag (interner Schluessel, kein neuer Sensor): Liste aus
+# {bezeichnung, betrag, datum}; positiv = Gutschrift/Bonus, negativ = Rechnung/Honorar.
+CONF_EINMALPOSTEN = "_einmalposten"
+EINMALPOSTEN_MAX = 50
+
+# Aussenzaehler eines Wasservertrags (interner Schluessel, nur Wasser): Liste aus
+# {name, sensor, start_wert, preis}. Ihr Verbrauch ist im Hauptzaehler enthalten und ist nicht
+# abwasserpflichtig (Garten, Pool, Bewaesserung).
+CONF_AUSSENZAEHLER = "_aussenzaehler"
+AUSSENZAEHLER_MAX = 10
 
 # Abschlag-Warnung (optional, pro Vertrag): warnt, wenn die Prognose zum
 # Vertragsende eine Nachzahlung ueber der Schwelle erwarten laesst.
@@ -175,6 +232,9 @@ BASIS_FELDER = [
     CONF_ARBEITSPREIS_NT,
     CONF_VERBRAUCH_SENSOR_NT,
     CONF_ZAEHLERNUMMER_NT,
+    CONF_VERSICHERUNGSART,
+    CONF_KENNZEICHEN,
+    CONF_KM_PRO_JAHR,
 ]
 
 SPARTEN = [
@@ -184,7 +244,8 @@ SPARTEN = [
     "water",
     "internet",
     "mobile",
-    "insurance",
+    "streaming",
+    SPARTE_INSURANCE,
     "other",
 ]
 

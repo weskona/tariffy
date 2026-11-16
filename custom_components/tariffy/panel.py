@@ -26,6 +26,7 @@ from homeassistant.helpers.dispatcher import (
 )
 from homeassistant.loader import async_get_integration
 
+from . import backup, history
 from .const import (
     CONF_VERBRAUCH_SENSOR,
     DOMAIN,
@@ -48,7 +49,16 @@ SIGNAL_CONTRACTS = f"{DOMAIN}_contracts_updated"
 # switches in by itself on its start date.
 ACTION_CONFIRM_CANCELLATION = "confirm_cancellation"
 ACTION_CONFIRM_WARNING = "confirm_abschlag_warning"
-ACTIONS = (ACTION_CONFIRM_CANCELLATION, ACTION_CONFIRM_WARNING)
+# Archive an expired contract / bring it back. Panel only: it stores a flag in the
+# contract data and changes no entity.
+ACTION_ARCHIVE = "archive_contract"
+ACTION_RESTORE = "restore_contract"
+ACTIONS = (
+    ACTION_CONFIRM_CANCELLATION,
+    ACTION_CONFIRM_WARNING,
+    ACTION_ARCHIVE,
+    ACTION_RESTORE,
+)
 DATA_KEY = f"{DOMAIN}_panel"
 
 # Values shown by the panel. Deliberately a whitelist: the panel is visible to
@@ -58,6 +68,9 @@ CONTRACT_FIELDS = (
     "sparte",
     "anbieter",
     "tarif",
+    "versicherungsart",
+    "km_start",
+    "km_pro_jahr",
     "currency",
     "beginn",
     "ende",
@@ -71,6 +84,12 @@ CONTRACT_FIELDS = (
     "grundpreis",
     "abschlag",
     "abschlag_bisher_gezahlt",
+    "zahlweise",
+    "abschlag_jahr",
+    "abschlag_je_zahlung",
+    "kosten_jahr",
+    "erste_zahlung",
+    "naechste_zahlung",
     "jahreskosten",
     "verbrauch_bisher",
     "verbrauch_bisher_ht",
@@ -89,9 +108,29 @@ CONTRACT_FIELDS = (
     "erinnerung_aktiv",
     "erinnerung_bestaetigt",
     "erinnerung_monate",
+    "kuendigungsfrist",
+    "kuendigung_bis",
+    "mindestlaufzeit",
+    "mindestlaufzeit_bis",
     "abschlag_warnung_aktiv",
     "abschlag_warnung_zu_bestaetigen",
     "wechsel",
+    "archiviert",
+    "archiviert_am",
+    "archivierbar",
+    "verlaengerbar",
+    "historie",
+    "einmalposten",
+    "aussenzaehler",
+    "garten_verbrauch",
+    "garten_kosten",
+    "abwasserpflichtiger_verbrauch",
+    "abwasser_kosten",
+    "einmal_summe",
+    "kosten_gesamt",
+    "kosten_gesamt_vollstaendig",
+    "laufzeiten_anzahl",
+    "seit",
 )
 NEXT_FIELDS = ("beginn", "ende", "anbieter", "tarif", "arbeitspreis", "abschlag")
 
@@ -126,9 +165,9 @@ def contract_payload(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
     # Unit of the raw consumption values: the unit of the user's meter sensor.
     sensor_id = entry.data.get(CONF_VERBRAUCH_SENSOR)
     state = hass.states.get(sensor_id) if sensor_id else None
-    payload["verbrauch_einheit"] = (
-        state.attributes.get("unit_of_measurement") if state else None
-    )
+    unit = state.attributes.get("unit_of_measurement") if state else None
+    # a meter reporting Wh or MWh is calculated in kWh (see coordinator._einheit_faktor)
+    payload["verbrauch_einheit"] = "kWh" if str(unit or "").strip().lower() in ("wh", "mwh") else unit
     return payload
 
 
@@ -188,6 +227,10 @@ def _action_available(action: str, data: dict[str, Any]) -> bool:
         return bool(data.get("erinnerung_aktiv"))
     if action == ACTION_CONFIRM_WARNING:
         return bool(data.get("abschlag_warnung_zu_bestaetigen"))
+    if action == ACTION_ARCHIVE:
+        return bool(data.get("archivierbar"))
+    if action == ACTION_RESTORE:
+        return bool(data.get("archiviert"))
     return False
 
 
@@ -222,8 +265,303 @@ async def ws_action(hass: HomeAssistant, connection, msg: dict[str, Any]) -> Non
 
     if action == ACTION_CONFIRM_CANCELLATION:
         await coordinator.async_confirm_kuendigung()
-    else:
+    elif action == ACTION_CONFIRM_WARNING:
         await coordinator.async_confirm_abschlag_warnung()
+    elif action == ACTION_ARCHIVE:
+        await coordinator.async_archive()
+    else:
+        await coordinator.async_restore()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+def _loaded_entry(hass: HomeAssistant, entry_id: str) -> ConfigEntry | None:
+    entry = hass.config_entries.async_get_entry(entry_id)
+    if (
+        entry is None
+        or entry.domain != DOMAIN
+        or entry.state is not ConfigEntryState.LOADED
+        or getattr(entry, "runtime_data", None) is None
+    ):
+        return None
+    return entry
+
+
+HISTORY_VALUES = vol.Schema({str: vol.Any(None, str, int, float)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/history_calc",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+    }
+)
+@websocket_api.async_response
+async def ws_history_calc(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Berechnet die automatisch ermittelbaren Werte einer alten Laufzeit (nur Vorschau)."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        result = await history.async_calc(hass, entry, msg["values"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], result)
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/history_save",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+        vol.Optional("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_history_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Legt eine alte Laufzeit an oder ersetzt eine vorhandene."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        index = await history.async_save_term(hass, entry, msg["values"], msg.get("index"))
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"index": index})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/renew",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+    }
+)
+@websocket_api.async_response
+async def ws_renew(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Verlaengert einen Pauschalvertrag mit neuem Betrag und Ende."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        await history.async_renew(hass, entry, msg["values"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/history_delete",
+        vol.Required("entry_id"): str,
+        vol.Required("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_history_delete(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Loescht eine Laufzeit aus der Historie."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        history.delete_term(hass, entry, msg["index"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/einmal_save",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+        vol.Optional("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_einmal_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Legt einen Einmalposten (Bonus oder Rechnung) an oder ersetzt ihn."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        history.save_einmal(hass, entry, msg["values"], msg.get("index"))
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/einmal_delete",
+        vol.Required("entry_id"): str,
+        vol.Required("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_einmal_delete(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Loescht einen Einmalposten."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        history.delete_einmal(hass, entry, msg["index"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/aussen_save",
+        vol.Required("entry_id"): str,
+        vol.Required("values"): HISTORY_VALUES,
+        vol.Optional("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_aussen_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Legt einen Aussenzaehler (Garten, Pool, ...) eines Wasservertrags an oder ersetzt ihn."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        first = history.save_aussenzaehler(hass, entry, msg["values"], msg.get("index"))
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    if first:  # the extra sensors exist only for a contract with an outdoor meter: set up again
+        hass.config_entries.async_schedule_reload(entry.entry_id)
+    else:
+        await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/aussen_delete",
+        vol.Required("entry_id"): str,
+        vol.Required("index"): vol.All(int, vol.Range(min=0)),
+    }
+)
+@websocket_api.async_response
+async def ws_aussen_delete(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Loescht einen Aussenzaehler."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        last = history.delete_aussenzaehler(hass, entry, msg["index"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    if last:
+        hass.config_entries.async_schedule_reload(entry.entry_id)
+    else:
+        await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "tariffy/backup_export"})
+@websocket_api.async_response
+async def ws_backup_export(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Alle Vertraege als Sicherung (enthaelt persoenliche Daten, nur fuer Administratoren)."""
+    connection.send_result(msg["id"], {"backup": await backup.async_build_backup(hass)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "tariffy/backup_preview", vol.Required("backup"): dict}
+)
+@callback
+def ws_backup_preview(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Zeigt, was das Wiederherstellen taete (legt nichts an)."""
+    try:
+        contracts = backup.sanitize_backup(msg["backup"])
+    except backup.BackupError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], {"contracts": backup.plan(hass, contracts)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "tariffy/backup_restore", vol.Required("backup"): dict}
+)
+@websocket_api.async_response
+async def ws_backup_restore(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Legt die fehlenden Vertraege einer Sicherung an, vorhandene bleiben unberuehrt."""
+    try:
+        result = await backup.async_restore(hass, msg["backup"])
+    except backup.BackupError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], result)
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command({vol.Required("type"): "tariffy/deleted_list"})
+@websocket_api.async_response
+async def ws_deleted_list(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Die geloeschten Vertraege, die sich noch zurueckholen lassen."""
+    connection.send_result(msg["id"], {"deleted": await backup.async_deleted(hass)})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "tariffy/deleted_restore", vol.Required("item_id"): str}
+)
+@websocket_api.async_response
+async def ws_deleted_restore(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Holt einen geloeschten Vertrag zurueck."""
+    try:
+        title = await backup.async_restore_deleted(hass, msg["item_id"])
+    except backup.BackupError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    connection.send_result(msg["id"], {"title": title})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {vol.Required("type"): "tariffy/deleted_discard", vol.Required("item_id"): str}
+)
+@websocket_api.async_response
+async def ws_deleted_discard(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Vergisst einen geloeschten Vertrag endgueltig."""
+    try:
+        await backup.async_discard_deleted(hass, msg["item_id"])
+    except backup.BackupError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
     connection.send_result(msg["id"], {"ok": True})
 
 
@@ -241,6 +579,23 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             websocket_api.async_register_command(hass, ws_contracts)
             websocket_api.async_register_command(hass, ws_subscribe)
             websocket_api.async_register_command(hass, ws_action)
+            websocket_api.async_register_command(hass, ws_history_calc)
+            websocket_api.async_register_command(hass, ws_history_save)
+            websocket_api.async_register_command(hass, ws_history_delete)
+            websocket_api.async_register_command(hass, ws_renew)
+            websocket_api.async_register_command(hass, ws_einmal_save)
+            websocket_api.async_register_command(hass, ws_einmal_delete)
+            websocket_api.async_register_command(hass, ws_aussen_save)
+            websocket_api.async_register_command(hass, ws_aussen_delete)
+            for command in (
+                ws_backup_export,
+                ws_backup_preview,
+                ws_backup_restore,
+                ws_deleted_list,
+                ws_deleted_restore,
+                ws_deleted_discard,
+            ):
+                websocket_api.async_register_command(hass, command)
             state["commands"] = True
 
         if not state["static"]:
