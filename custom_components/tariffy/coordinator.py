@@ -14,8 +14,14 @@ from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
+from . import loan
 from .const import (
     BASIS_FELDER,
+    CONF_EFFEKTIVZINS,
+    CONF_KREDIT_SUMME,
+    CONF_LAUFZEIT_MONATE,
+    CONF_SOLLZINS,
+    SPARTE_LOAN,
     CONF_ABSCHLAG,
     CONF_ABSCHLAG_AB_DATUM,
     CONF_ABSCHLAG_VORHERIGER_WERT,
@@ -604,6 +610,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         Zaehlernummern). Die Summen stammen aus der letzten Berechnung."""
         alt = self.entry.data
         d = self.data or {}
+        kredit = alt.get(CONF_SPARTE) == SPARTE_LOAN
 
         def _zahl(wert: Any) -> float | None:
             zahl = _f(wert)
@@ -618,11 +625,22 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "arbeitspreis": _f(alt.get(CONF_ARBEITSPREIS)),
             "grundpreis": _f(alt.get(CONF_GRUNDPREIS)),
             "abschlag": _f(alt.get(CONF_ABSCHLAG)),
-            "kosten": _zahl(d.get("kosten_bisher")),
+            "kosten": _zahl(d.get("kredit_gezahlt") if kredit else d.get("kosten_bisher")),
             "abschlag_gezahlt": _zahl(d.get("abschlag_bisher_gezahlt")),
             "saldo": _zahl(d.get("guthaben_bisher")),
             "verbrauch": _zahl(d.get("verbrauch_bisher")),
             "abgeschlossen": heute.isoformat(),
+            **(
+                {
+                    "kredit_summe": _zahl(alt.get(CONF_KREDIT_SUMME)),
+                    "sollzins": _f(alt.get(CONF_SOLLZINS)),
+                    "effektivzins": _f(alt.get(CONF_EFFEKTIVZINS)),
+                    "restschuld": _zahl(d.get("kredit_restschuld")),
+                    "zinsen": _zahl(d.get("kredit_zinsen_bisher")),
+                }
+                if kredit
+                else {}
+            ),
         }
 
     def _gesamtkosten(
@@ -1221,6 +1239,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         ende = _parse_date(data.get(CONF_ENDE))
         beginn = _parse_date(data.get(CONF_BEGINN))
+        # Kredit / Finanzierung: Tilgungsplan; das Ende ergibt sich aus Beginn und Laufzeit
+        ist_kredit = data.get(CONF_SPARTE) == SPARTE_LOAN
+        kredit: dict[str, Any] = loan.berechne(data, heute) if ist_kredit else {}
+        if ist_kredit and kredit.get("ende") is not None:
+            ende = kredit["ende"]
         restlaufzeit = (ende - heute).days if ende is not None else None
         laufzeit_monate = (ende - beginn).days / 30.44 if (beginn and ende) else 12.0
 
@@ -1781,7 +1804,22 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ),
             "historie": list(data.get(CONF_HISTORIE) or []),
             **self._gesamtkosten(
-                data, beginn, kosten_bisher, abschlag_bisher_gezahlt_wert, archiviert, einmal_gesamt
+                data,
+                beginn,
+                kredit.get("kredit_gezahlt") if ist_kredit else kosten_bisher,
+                abschlag_bisher_gezahlt_wert,
+                archiviert,
+                einmal_gesamt,
+            ),
+            **{key: value for key, value in kredit.items() if key != "ende"},
+            **(
+                {
+                    "naechste_zahlung": kredit.get("kredit_naechste_zahlung"),
+                    "erste_zahlung": kredit.get("kredit_erste_zahlung"),
+                    "laufzeit_monate": _f(data.get(CONF_LAUFZEIT_MONATE)),
+                }
+                if ist_kredit
+                else {}
             ),
             # Pauschalvertrag mit Ende, nicht archiviert: laesst sich verlaengern (neuer Betrag, neues Ende)
             "verlaengerbar": bool(

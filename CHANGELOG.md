@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.30.0] - 2026-11-16
+
+This release brings together everything that was tested in the betas `1.30.0-beta.1` and `1.30.0-beta.2`. **Existing contracts keep working without any change.** The new category is optional; new sensors exist only for loans.
+
+### Added
+
+- **New category "Loan / financing"** (requested in #61) for annuity loans, instalment loans and car financing. A loan is kept **apart from the contracts**: it has a group of its own in the panel (overview, costs, contracts) and does not count in the totals of the contracts or in the cost split. In the form you enter the loan amount, the **nominal interest rate** and/or the **effective annual rate**, the term in months, the payment interval (monthly to yearly) and, optionally, the **rate** (empty = Tariffy calculates the annuity; a rate that does not fit the interest is reported), a **final payment / residual value** and the **date of the first payment** (empty = one interval after the start, a monthly loan: the end of the first month).
+- Tariffy works out the **repayment plan**: the **remaining debt**, **paid so far** (interest and principal), the **remaining payments** until the end, interest so far and over the whole term, the payments made, the next rate split into interest and principal and the progress of the repayment. A loan has four sensors (**Remaining debt**, **Paid so far**, **Remaining payments**, **Interest paid so far**); other contracts get none.
+- **Follow-up financing** with the existing "Renew contract" icon: the remaining debt is suggested as the new amount, with a new interest rate and term; the current term goes to the history. Not included: special repayments and an interest rate that changes during the term.
+
+### Changed
+
+- **The block "Outdoor meters" of a water contract** stands below the other blocks, over the whole width, with the meters in several columns next to each other (up to ten fit). The split of the water (outdoor water, wastewater-liable consumption and the two costs) is shown in the block "Consumption", next to "so far" and "cost so far".
+
+### Fixed
+
+- **Outdoor meters and one-time items stuck out of their column in the contract details.** A long entity id of an outdoor meter pushed the figures out of the block and over the neighbouring block. Names and entity ids now wrap, and a long description of a one-time item wraps as well.
+
 ## [1.29.1] - 2026-11-16
 
 ### Fixed

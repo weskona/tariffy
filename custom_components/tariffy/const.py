@@ -237,6 +237,15 @@ BASIS_FELDER = [
     CONF_KM_PRO_JAHR,
 ]
 
+# Kredit / Finanzierung (Sparte "loan"): getrennt von den Vertraegen, zaehlt nicht in deren Summen.
+SPARTE_LOAN = "loan"
+CONF_KREDIT_SUMME = "kredit_summe"
+CONF_SOLLZINS = "sollzins"
+CONF_EFFEKTIVZINS = "effektivzins"
+CONF_LAUFZEIT_MONATE = "laufzeit_monate"
+CONF_KREDIT_RATE = "kredit_rate"
+CONF_SCHLUSSRATE = "schlussrate"
+
 SPARTEN = [
     "electricity",
     SPARTE_ELECTRICITY_HT_NT,
@@ -245,6 +254,7 @@ SPARTEN = [
     "internet",
     "mobile",
     "streaming",
+    SPARTE_LOAN,
     SPARTE_INSURANCE,
     "other",
 ]

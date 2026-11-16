@@ -117,6 +117,18 @@ const I18N = {
     aussenDelete: "Delete meter", aussenDeleteAsk: "Delete this outdoor meter?", aussenTooMany: "There are too many outdoor meters (10).",
     gardenUse: "Outdoor water", gardenCost: "Outdoor water cost", wwUse: "Wastewater-liable consumption", wwCost: "Wastewater cost",
     termErr_invalid_name: "Enter a name.", termErr_invalid_sensor: "Enter the entity id of a sensor (for example sensor.garden_water).", termErr_same_sensor: "This is the main meter of the contract.",
+    groupLoans: "Loans / financing", secLoan: "Loan", loanDebt: "Remaining debt", loanPaid: "Paid so far", loanRemainingSum: "Remaining payments",
+    loanNext: "Next payment", loanSplit: "interest {z} · principal {t}", loanRepaid: "Repaid", loanPayments: "Payments made", loanEffective: "effective {v} %",
+    loanInterestOf: "of which interest {v}", loanInterestTotalOf: "interest over the term {v}", loanAmount: "Loan amount", loanNominal: "Nominal interest rate",
+    loanEffectiveRow: "Effective interest rate", loanTerm: "Term", loanRatePaid: "Rate", loanRateCalc: "Rate by the interest", loanFinal: "Final payment at the end",
+    loanInterestPaid: "Interest paid so far", loanPrincipalPaid: "Principal repaid so far", loanInterestTotal: "Interest over the term", loanTotalCost: "Total of all payments",
+    firstPayment: "First payment", loanIncomplete: "The loan cannot be calculated yet: amount, term, start and an interest rate are needed.",
+    loanMismatch: "Your rate differs by {p} % from the one the interest gives ({r}).",
+    loansHint: "Loans are kept apart: they do not count in the totals of the contracts.",
+    loanRenewTitle: "Follow-up financing", loanRenewHint: "The current term goes to the history and the loan runs on with a new amount, interest and term. The amount is usually the remaining debt.",
+    lf_summe: "New loan amount (€)", lf_soll: "Nominal interest rate (% a year)", lf_effektiv: "Effective interest rate (%)", lf_laufzeit: "Term (months)",
+    lf_rate: "Rate per payment (optional)", lf_schluss: "Final payment (optional)",
+    termErr_invalid_kredit_summe: "Enter a loan amount above zero.", termErr_invalid_laufzeit_monate: "Enter a term of at least one month.", termErr_invalid_zins: "Enter the nominal or the effective interest rate.",
     chartBySparte: "By category", chartByContract: "By contract", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
@@ -142,7 +154,7 @@ const I18N = {
     adviceNone: "No instalment needed: the credit covers the costs until the contract ends", adviceOk: "The instalment fits",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
-      water: "Water", internet: "Internet", mobile: "Mobile", streaming: "Streaming", insurance: "Insurance", other: "Other",
+      water: "Water", internet: "Internet", mobile: "Mobile", streaming: "Streaming", loan: "Loan", insurance: "Insurance", other: "Other",
     },
     versicherungsart: {
       car: "Car", house: "Building / house", household: "Household contents", liability: "Liability",
@@ -258,6 +270,18 @@ const I18N = {
     aussenDelete: "Zähler löschen", aussenDeleteAsk: "Diesen Außenzähler löschen?", aussenTooMany: "Es gibt zu viele Außenzähler (10).",
     gardenUse: "Gartenwasser", gardenCost: "Gartenwasser-Kosten", wwUse: "Abwasserpflichtiger Verbrauch", wwCost: "Abwasserkosten",
     termErr_invalid_name: "Trage einen Namen ein.", termErr_invalid_sensor: "Trage die Entity-ID eines Sensors ein (zum Beispiel sensor.garten_wasser).", termErr_same_sensor: "Das ist der Hauptzähler des Vertrags.",
+    groupLoans: "Kredite / Finanzierungen", secLoan: "Kredit", loanDebt: "Restschuld", loanPaid: "Gezahlt bisher", loanRemainingSum: "Restsumme",
+    loanNext: "Nächste Rate", loanSplit: "Zinsen {z} · Tilgung {t}", loanRepaid: "Getilgt", loanPayments: "Raten gezahlt", loanEffective: "effektiv {v} %",
+    loanInterestOf: "davon Zinsen {v}", loanInterestTotalOf: "Zinsen insgesamt {v}", loanAmount: "Kreditsumme", loanNominal: "Sollzins",
+    loanEffectiveRow: "Effektiver Jahreszins", loanTerm: "Laufzeit", loanRatePaid: "Rate", loanRateCalc: "Rate laut Zins", loanFinal: "Schlussrate am Ende",
+    loanInterestPaid: "Zinsen bisher", loanPrincipalPaid: "Getilgt bisher", loanInterestTotal: "Zinsen über die Laufzeit", loanTotalCost: "Summe aller Zahlungen",
+    firstPayment: "Erste Rate", loanIncomplete: "Der Kredit lässt sich noch nicht berechnen: Summe, Laufzeit, Beginn und ein Zinssatz werden gebraucht.",
+    loanMismatch: "Deine Rate weicht um {p} % von der ab, die der Zins ergibt ({r}).",
+    loansHint: "Kredite laufen getrennt: Sie zählen nicht in die Summen der Verträge.",
+    loanRenewTitle: "Anschlussfinanzierung", loanRenewHint: "Die bisherige Laufzeit kommt in die Historie, der Kredit läuft mit neuer Summe, neuem Zins und neuer Laufzeit weiter. Die Summe ist meist die Restschuld.",
+    lf_summe: "Neue Kreditsumme (€)", lf_soll: "Sollzins (% pro Jahr)", lf_effektiv: "Effektiver Jahreszins (%)", lf_laufzeit: "Laufzeit (Monate)",
+    lf_rate: "Rate je Zahlung (freiwillig)", lf_schluss: "Schlussrate (freiwillig)",
+    termErr_invalid_kredit_summe: "Trage eine Kreditsumme über null ein.", termErr_invalid_laufzeit_monate: "Trage eine Laufzeit von mindestens einem Monat ein.", termErr_invalid_zins: "Trage den Sollzins oder den effektiven Jahreszins ein.",
     chartBySparte: "Je Sparte", chartByContract: "Je Vertrag", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
@@ -283,7 +307,7 @@ const I18N = {
     adviceNone: "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende", adviceOk: "Der Abschlag passt",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
-      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", streaming: "Streaming", insurance: "Versicherung", other: "Sonstiges",
+      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", streaming: "Streaming", loan: "Kredit", insurance: "Versicherung", other: "Sonstiges",
     },
     versicherungsart: {
       car: "Auto (Kfz)", house: "Gebäude / Haus", household: "Hausrat", liability: "Haftpflicht",
@@ -320,6 +344,11 @@ const ICONS = {
   streaming: [
     ["rect", { x: "3", y: "5", width: "18", height: "14", rx: "3" }],
     ["path", { d: "M10 9.500v5l4.500-2.500z" }],
+  ],
+  loan: [
+    ["rect", { x: "3", y: "6", width: "18", height: "12", rx: "2" }],
+    ["circle", { cx: "12", cy: "12", r: "2.500" }],
+    ["path", { d: "M6.500 9.500v.01M17.500 14.500v.01" }],
   ],
   insurance: [["path", { d: "M12 2.500 20 5.500v6c0 5-3.500 8.500-8 10.500-4.500-2-8-5.500-8-10.500v-6z" }]],
   // actions of the contract list
@@ -425,7 +454,7 @@ section.card .foot { padding-top: 12px; }
   background: var(--tile); border: 1px solid var(--tile-line); color: var(--blue); }
 .badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .badge.gas { color: var(--orange); } .badge.water { color: #38bdf8; } .badge.electricity,
-.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); } .badge.streaming { color: #f472b6; }
+.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); } .badge.streaming { color: #f472b6; } .badge.loan { color: #fbbf24; }
 .title { font-size: 17px; font-weight: 700; line-height: 1.2; }
 .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .who { min-width: 0; flex: 1; }
@@ -520,6 +549,16 @@ tr.sub td:first-child { padding-left: 32px; }
 .hist-total { margin: 8px 2px 0; }
 .once-row .t2 { display: block; }
 .once-row .icon-btn { margin-left: 4px; flex: none; }
+.once-row > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.once-row > span:nth-child(2) { white-space: nowrap; }
+.aussen-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: start; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.aussen-row .an { min-width: 0; overflow-wrap: anywhere; }
+.aussen-row .t2 { display: block; font-size: 12px; color: var(--muted); }
+.aussen-row .av { grid-column: 1; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.aussen-row .icon-btn { grid-column: 2; grid-row: 1 / span 2; }
+.sec { min-width: 0; }
+.aussen-sec { grid-column: 1 / -1; }
+.aussen-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 18px; }
 .once-add { margin-top: 8px; }
 .chart { margin-bottom: 22px; }
 .chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }
@@ -922,14 +961,14 @@ class TariffyPanel extends HTMLElement {
       wrap.appendChild(this._empty());
     } else if (this._tab === "history") {
       wrap.appendChild(this._history());
-    } else if (this._live.length === 0) {
+    } else if (this._live.length === 0 && this._loans.length === 0) {
       wrap.appendChild(h("div", { class: "state", text: this._t("allArchived") }));
     } else if (this._tab === "costs") {
       wrap.appendChild(this._costs());
     } else if (this._tab === "contracts") {
       wrap.appendChild(this._contractList());
     } else {
-      wrap.appendChild(this._summary());
+      if (this._live.length) wrap.appendChild(this._summary());
       const group = (key, list, extra) => (list.length ? h("section", { class: "group" },
         h("h3", { class: "group-title" }, h("span", { text: this._t(key) }), h("span", { class: "count", text: String(list.length) })),
         h("div", { class: `grid ${extra}` }, list.map((c) => this._card(c)))) : null);
@@ -938,6 +977,7 @@ class TariffyPanel extends HTMLElement {
       for (const section of [
         group("groupMetered", this._live.filter((c) => METERED.has(c.sparte)), "metered"),
         group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte)), "flat"),
+        group("groupLoans", this._loans, "flat"),
       ]) {
         if (section) wrap.appendChild(section);
       }
@@ -975,9 +1015,145 @@ class TariffyPanel extends HTMLElement {
     );
   }
 
-  /* Contracts that are not archived: the overview, the costs and the list only show these. */
+  /* ----- loans / financing (kept apart from the contracts and their totals) ----- */
+  get _loans() {
+    return (this._contracts || []).filter((c) => c.sparte === "loan" && !c.archiviert);
+  }
+
+  _loanSub(c) {
+    const iv = this._t("interval")[c.zahlweise] || this._t("interval").monthly;
+    const rates = [
+      isNum(c.kredit_rate) ? `${this._money(c.kredit_rate, c.currency, { digits: 2 })} ${iv}` : null,
+      isNum(c.kredit_sollzins) ? `${this._num(c.kredit_sollzins, 2)} %` : null,
+      isNum(c.kredit_effektivzins) ? this._t("loanEffective", { v: this._num(c.kredit_effektivzins, 2) }) : null,
+    ].filter(Boolean);
+    return rates.join(" · ") || null;
+  }
+
+  _loanNote(c) {
+    if (c.kredit_rate_passt !== false || !isNum(c.kredit_rate_abweichung)) return null;
+    return this._t("loanMismatch", {
+      p: this._num(Math.abs(c.kredit_rate_abweichung), 1),
+      r: this._money(c.kredit_rate_berechnet, c.currency, { digits: 2 }),
+    });
+  }
+
+  _loanCard(c) {
+    const d = this._derive(c);
+    const money = (v) => this._money(v, c.currency, { digits: 2 });
+    const next = isNum(c.kredit_naechste_betrag);
+    const tiles = [
+      this._tile(this._t("loanPaid"), money(c.kredit_gezahlt),
+        isNum(c.kredit_zinsen_bisher) ? this._t("loanInterestOf", { v: money(c.kredit_zinsen_bisher) }) : null),
+      this._tile(this._t("loanRemainingSum"), money(c.kredit_restsumme),
+        isNum(c.kredit_zinsen_gesamt) ? this._t("loanInterestTotalOf", { v: money(c.kredit_zinsen_gesamt) }) : null),
+      next ? this._tile(this._t("loanNext"), money(c.kredit_naechste_betrag),
+        c.kredit_naechste_zahlung ? this._date(c.kredit_naechste_zahlung) : null) : null,
+    ];
+    const repaid = isNum(c.kredit_tilgung_prozent) ? c.kredit_tilgung_prozent : 0;
+    const bar = h("div", { class: "bars" }, h("div", { class: "bar" },
+      h("span", { text: this._t("loanRepaid") }), h("b", { text: `${this._num(repaid, 0)} %` }),
+      h("span", { class: "tr" }, h("span", { class: "fl", style: `width:${Math.max(2, repaid).toFixed(1)}%;background:var(--green)` }))));
+    const foot = [];
+    if (isNum(c.restlaufzeit)) {
+      foot.push(h("span", {}, `${this._t("remaining")} `, h("b", { text: this._t("daysLeft", { n: c.restlaufzeit }) }),
+        c.ende ? ` · ${this._t("until", { d: this._date(c.ende) })}` : ""));
+    }
+    if (isNum(c.kredit_zahlungen_gesamt)) {
+      foot.push(h("span", {}, `${this._t("loanPayments")} `, h("b", { text: `${c.kredit_zahlungen_geleistet} / ${c.kredit_zahlungen_gesamt}` })));
+    }
+    if (next) { // how the next rate is made up
+      foot.push(h("span", {}, `${this._t("loanNext")} `, h("b", { text: this._t("loanSplit", { z: money(c.kredit_zins_anteil), t: money(c.kredit_tilgung_anteil) }) })));
+    }
+    const notes = [];
+    if (this._loanNote(c)) notes.push(h("div", { class: "callout orange", text: this._loanNote(c) }));
+    if (c.archivierbar) notes.push(h("div", { class: "callout", text: this._t("noteExpired") }));
+    if (c.erinnerung_aktiv) notes.push(h("div", { class: "callout orange", text: this._t("noteCancel", { d: this._date(c.ende) }) }));
+    if (!isNum(c.kredit_restschuld)) notes.push(h("div", { class: "callout", text: this._t("loanIncomplete") }));
+    const hero = h("div", { class: "hero" },
+      h("div", {},
+        h("div", { class: "label", text: this._t("loanDebt") }),
+        h("div", { class: "big", text: isNum(c.kredit_restschuld) ? money(c.kredit_restschuld) : "–" }),
+        this._loanSub(c) ? h("div", { class: "note", text: this._loanSub(c) }) : null));
+    const body = [hero, h("div", { class: "tiles" }, tiles.filter(Boolean)), bar,
+      foot.length ? h("div", { class: "foot" }, foot) : null,
+      notes.length ? h("div", { class: "notes" }, notes) : null];
+    if (this._compact) {
+      const card = h("details", { class: "card compact tone-none".replace(" tone-none", ""), "data-id": c.entry_id },
+        h("summary", {},
+          h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+          this._who(c),
+          h("div", { class: "end", text: isNum(c.kredit_restschuld) ? this._money(c.kredit_restschuld, c.currency) : "–" }),
+          h("span", { class: "caret", "aria-hidden": "true" }, icon("chevron")),
+          this._chips(d.chips)),
+        h("div", { class: "body" }, body));
+      if (this._open.has(c.entry_id)) card.setAttribute("open", "");
+      card.addEventListener("toggle", () => {
+        if (card.open) this._open.add(c.entry_id);
+        else this._open.delete(c.entry_id);
+      });
+      return card;
+    }
+    return h("section", { class: "card flat", "data-id": c.entry_id },
+      h("div", { class: "head" }, h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)), this._who(c), this._chips(d.chips)),
+      body.map((part) => part || h("div", { class: "slot" })));
+  }
+
+  /* the "loan" block of the contract details */
+  _kreditSection(c) {
+    if (c.sparte !== "loan") return null;
+    const money = (v) => (isNum(v) ? this._money(v, c.currency, { digits: 2 }) : null);
+    const pct = (v) => (isNum(v) ? `${this._num(v, 2)} %` : null);
+    const row = (label, value) => (value === null || value === undefined ? null
+      : h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value })));
+    const iv = this._t("interval")[c.zahlweise] || this._t("interval").monthly;
+    const rows = [
+      row(this._t("loanAmount"), money(c.kredit_summe)),
+      row(this._t("loanNominal"), pct(c.kredit_sollzins)),
+      row(this._t("loanEffectiveRow"), pct(c.kredit_effektivzins)),
+      row(this._t("loanTerm"), isNum(c.laufzeit_monate) ? this._t("months", { n: c.laufzeit_monate }) : null),
+      row(this._t("loanRatePaid"), isNum(c.kredit_rate) ? `${money(c.kredit_rate)} ${iv}` : null),
+      row(this._t("loanRateCalc"), c.kredit_rate_passt === false ? money(c.kredit_rate_berechnet) : null),
+      row(this._t("loanFinal"), isNum(c.kredit_schlussrate) && c.kredit_schlussrate > 0 ? money(c.kredit_schlussrate) : null),
+      row(this._t("firstPayment"), c.kredit_erste_zahlung ? this._date(c.kredit_erste_zahlung) : null),
+      row(this._t("loanPayments"), isNum(c.kredit_zahlungen_gesamt) ? `${c.kredit_zahlungen_geleistet} / ${c.kredit_zahlungen_gesamt}` : null),
+      row(this._t("loanDebt"), money(c.kredit_restschuld)),
+      row(this._t("loanPaid"), money(c.kredit_gezahlt)),
+      row(this._t("loanInterestPaid"), money(c.kredit_zinsen_bisher)),
+      row(this._t("loanPrincipalPaid"), money(c.kredit_tilgung_bisher)),
+      row(this._t("loanRemainingSum"), money(c.kredit_restsumme)),
+      row(this._t("loanInterestTotal"), money(c.kredit_zinsen_gesamt)),
+      row(this._t("loanTotalCost"), money(c.kredit_gesamtkosten)),
+      row(this._t("nextPayment"), c.kredit_naechste_zahlung ? `${this._date(c.kredit_naechste_zahlung)} · ${this._t("loanSplit", { z: money(c.kredit_zins_anteil), t: money(c.kredit_tilgung_anteil) })}` : null),
+    ].filter(Boolean);
+    return rows.length ? h("div", { class: "sec" }, h("h4", { text: this._t("secLoan") }), rows,
+      this._loanNote(c) ? h("div", { class: "hint", text: this._loanNote(c) }) : null) : null;
+  }
+
+  _loanTable(loans) {
+    if (!loans.length) return null;
+    const money = (v, c) => this._money(v, c.currency, { digits: 2 });
+    const cell = (label, value) => h("td", { "data-label": label, class: value === "–" ? "empty" : null, text: value });
+    const rows = loans.map((c) => h("tr", {},
+      h("td", {}, c.title, h("span", { class: "t2", text: c.anbieter || this._t("sparte").loan })),
+      cell(this._t("loanPaid"), money(c.kredit_gezahlt, c)),
+      cell(this._t("loanDebt"), money(c.kredit_restschuld, c)),
+      cell(this._t("loanRemainingSum"), money(c.kredit_restsumme, c)),
+      cell(this._t("colInstalment"), isNum(c.kredit_rate) ? money(c.kredit_rate, c) : "–"),
+      cell(this._t("loanInterestTotal"), money(c.kredit_zinsen_gesamt, c))));
+    return h("section", { class: "group" },
+      h("h3", { class: "group-title" }, h("span", { text: this._t("groupLoans") }), h("span", { class: "count", text: String(loans.length) })),
+      h("table", {},
+        h("colgroup", {}, GRID.map((width) => h("col", { style: `width:${width}` }))),
+        h("thead", {}, h("tr", {}, [this._t("colContract"), this._t("loanPaid"), this._t("loanDebt"), this._t("loanRemainingSum"),
+          this._t("colInstalment"), this._t("loanInterestTotal")].map((label) => h("th", { text: label })))),
+        h("tbody", {}, rows)),
+      h("div", { class: "hint", text: this._t("loansHint") }));
+  }
+
+  /* Contracts that are not archived (loans are kept apart): the overview, the costs and the list only show these. */
   get _live() {
-    return (this._contracts || []).filter((c) => !c.archiviert);
+    return (this._contracts || []).filter((c) => !c.archiviert && c.sparte !== "loan");
   }
 
   _summary() {
@@ -1135,6 +1311,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   _card(c) {
+    if (c.sparte === "loan") return this._loanCard(c);
     const d = this._derive(c);
     const unit = this._unit(c);
     const alert = c.abschlag_warnung_aktiv;
@@ -1863,7 +2040,39 @@ class TariffyPanel extends HTMLElement {
     return `${date.getFullYear()}-${two(date.getMonth() + 1)}-${two(date.getDate())}`;
   }
 
+  /* follow-up financing: the remaining debt becomes the new loan amount */
+  _openRenewLoan(c) {
+    this._closeFlow();
+    const spec = (name, kind, label, extra = {}) => ({
+      name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
+    });
+    const zahlweise = c.zahlweise && INTERVAL_MONTHS[c.zahlweise] ? c.zahlweise : "monthly";
+    const text = (v) => (isNum(v) ? String(v) : "");
+    this._dlg = {
+      mode: "renew", kredit: true, stage: "form", id: c.entry_id, name: c.title, contract: c, flowId: null, localize: () => "",
+      fields: [
+        spec("beginn", "date", this._t("tf_beginn"), { required: true }),
+        spec("kredit_summe", "number", this._t("lf_summe"), { required: true, min: 0.01 }),
+        spec("sollzins", "number", this._t("lf_soll"), { min: 0 }),
+        spec("effektivzins", "number", this._t("lf_effektiv"), { min: 0 }),
+        spec("laufzeit_monate", "number", this._t("lf_laufzeit"), { required: true, min: 1 }),
+        spec("zahlweise", "select", this._t("rf_zahlweise"), { options: Object.keys(INTERVAL_MONTHS).map((k) => ({ value: k, label: this._t("interval")[k] })) }),
+        spec("kredit_rate", "number", this._t("lf_rate"), { min: 0 }),
+        spec("schlussrate", "number", this._t("lf_schluss"), { min: 0 }),
+        spec("erste_zahlung", "date", this._t("rf_erste")),
+      ],
+      values: {
+        beginn: c.ende || "", kredit_summe: text(c.kredit_restschuld), sollzins: text(c.kredit_sollzins),
+        effektivzins: text(c.kredit_effektivzins), laufzeit_monate: text(c.laufzeit_monate), zahlweise,
+        kredit_rate: "", schlussrate: "", erste_zahlung: "",
+      },
+      fieldErrors: {}, message: null,
+    };
+    this._renderRenewDialog();
+  }
+
   _openRenew(c) {
+    if (c.sparte === "loan") { this._openRenewLoan(c); return; }
     this._closeFlow();
     const spec = (name, kind, label, extra = {}) => ({
       name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
@@ -1931,9 +2140,9 @@ class TariffyPanel extends HTMLElement {
     if (!dlg) return;
     const busy = dlg.stage === "saving";
     const body = [
-      h("h2", { id: "dlg-title", text: this._t("renewTitle") }),
+      h("h2", { id: "dlg-title", text: this._t(dlg.kredit ? "loanRenewTitle" : "renewTitle") }),
       h("p", { class: "hint", text: dlg.name }),
-      h("p", { class: "hint", text: this._t("renewHint") }),
+      h("p", { class: "hint", text: this._t(dlg.kredit ? "loanRenewHint" : "renewHint") }),
       h("div", { class: "fields" }, dlg.fields.map((f) => {
         const error = dlg.fieldErrors[f.name];
         return h("label", { class: `fld${error ? " bad" : ""}`, for: `f-${f.name}` },
@@ -2175,21 +2384,16 @@ class TariffyPanel extends HTMLElement {
     if (!items.length && !this._isAdmin) return null;
     const unit = this._unit(c);
     const amount = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : "–");
-    const rows = items.map((item, index) => h("div", { class: "row once-row" },
-      h("span", {}, item.name, h("span", { class: "t2", text: item.sensor })),
-      h("span", { text: isNum(item.verbrauch) ? `${amount(item.verbrauch)}${isNum(item.kosten) ? ` · ${this._money(item.kosten, c.currency, { digits: 2 })}` : ""}` : "–" }),
+    // name and sensor on top (a long entity id wraps), the figures below, the pencil at the right
+    const rows = items.map((item, index) => h("div", { class: "aussen-row" },
+      h("div", { class: "an" }, item.name, h("span", { class: "t2", text: item.sensor })),
+      h("div", { class: "av", text: isNum(item.verbrauch) ? `${amount(item.verbrauch)}${isNum(item.kosten) ? ` · ${this._money(item.kosten, c.currency, { digits: 2 })}` : ""}` : "–" }),
       this._isAdmin ? h("button", {
         class: "icon-btn", type: "button", title: this._t("aussenEdit"), "aria-label": this._t("aussenEdit"),
         onclick: () => this._openAussen(c, index),
       }, icon("edit")) : null));
-    const sum = (label, value) => h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value }));
-    const totals = isNum(c.garten_verbrauch) ? [
-      sum(this._t("gardenUse"), amount(c.garten_verbrauch)),
-      sum(this._t("gardenCost"), this._money(c.garten_kosten, c.currency, { digits: 2 })),
-      sum(this._t("wwUse"), amount(c.abwasserpflichtiger_verbrauch)),
-      sum(this._t("wwCost"), this._money(c.abwasser_kosten, c.currency, { digits: 2 })),
-    ] : [];
-    return h("div", { class: "sec" }, h("h4", { text: this._t("secAussen") }), rows, totals,
+    return h("div", { class: "sec aussen-sec" }, h("h4", { text: this._t("secAussen") }),
+      rows.length ? h("div", { class: "aussen-list" }, rows) : null,
       this._isAdmin ? h("div", { class: "once-add" }, h("button", {
         class: "btn", type: "button", onclick: () => this._openAussen(c, null),
       }, icon("plus"), this._t("aussenAdd"))) : null);
@@ -2420,9 +2624,9 @@ class TariffyPanel extends HTMLElement {
   }
 
   _costChart(live) {
-    const years = this._costYears(this._contracts);
+    const years = this._costYears(this._contracts.filter((c) => c.sparte !== "loan"));
     const year = years.includes(this._costYear) ? this._costYear : null;
-    const contracts = year === null ? live : this._contracts;
+    const contracts = year === null ? live : this._contracts.filter((c) => c.sparte !== "loan");
     const basis = this._costBasis || "sofar";
     const value = (c) => {
       if (year !== null) return this._yearCost(c, year);
@@ -2499,7 +2703,8 @@ class TariffyPanel extends HTMLElement {
 
   _costs() {
     const contracts = this._live;
-    const currency = contracts[0].currency || "EUR";
+    const loans = this._loans;
+    const currency = (contracts[0] || loans[0] || {}).currency || "EUR";
     const tone = (v) => (isNum(v) ? (v < 0 ? "red-t" : v > 0 ? "green-t" : "") : "muted-t");
     const cell = (label, value, cls) => h("td", { "data-label": label, class: [cls, value === "–" ? "empty" : ""].filter(Boolean).join(" ") || null, text: value });
     const sum = (list, key) => list.reduce((s, c) => s + (isNum(c[key]) ? c[key] : 0), 0);
@@ -2562,7 +2767,7 @@ class TariffyPanel extends HTMLElement {
 
     return h(
       "div", {},
-      this._costChart(contracts),
+      contracts.length ? this._costChart(contracts) : null,
       group("groupMetered", metered, [
         this._t("colContract"), this._t("colCost"), this._t("colBalance"),
         this._t("colForecast"), this._t("colInstalment"), this._t("colRecommended"),
@@ -2570,15 +2775,16 @@ class TariffyPanel extends HTMLElement {
       group("groupFlat", flat, [
         this._t("colContract"), this._t("colCost"), this._t("remaining"), this._t("contractEnd"), this._t("colInstalment"), "",
       ], flatRows),
-      h("table", { class: "grand-table" },
+      contracts.length ? h("table", { class: "grand-table" },
         h("colgroup", {}, GRID.map((width) => h("col", { style: `width:${width}` }))),
         h("tbody", {}, h("tr", { class: "grandrow" },
           h("td", { text: this._t("grandTotal") }),
           cell(this._t("colCost"), money(sumCost(contracts))),
           h("td", { text: "" }), h("td", { text: "" }),
           cell(this._t("colInstalment"), money(sum(contracts, "abschlag"))),
-          h("td", { text: "" })))),
-      h("div", { class: "hint", text: this._t("costsHint") })
+          h("td", { text: "" })))) : null,
+      contracts.length ? h("div", { class: "hint", text: this._t("costsHint") }) : null,
+      this._loanTable(loans)
     );
   }
 
@@ -2640,7 +2846,8 @@ class TariffyPanel extends HTMLElement {
       list.map((c) => this._detail(c))) : null);
     return h("div", {}, head,
       group("groupMetered", this._live.filter((c) => METERED.has(c.sparte))),
-      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte))));
+      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte))),
+      group("groupLoans", this._loans));
   }
 
   /* Everything that changes a contract lives here, in the list of contracts (administrators only). */
@@ -2656,7 +2863,7 @@ class TariffyPanel extends HTMLElement {
         class: "icon-btn", type: "button", title: this._t("actRenew"), "aria-label": this._t("actRenew"),
         onclick: (ev) => { ev.preventDefault(); ev.stopPropagation(); this._openRenew(c); },
       }, icon("renew")) : null,
-      button("next", this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"), "plan"),
+      c.sparte === "loan" ? null : button("next", this._t(c.next && c.next.beginn ? "actNextEdit" : "actNextPlan"), "plan"),
       button("edit", this._t("actEdit"), "edit"));
   }
 
@@ -2672,6 +2879,7 @@ class TariffyPanel extends HTMLElement {
     };
     const money = (v, digits = 2) => (isNum(v) ? this._money(v, c.currency, { digits }) : null);
     const amount = (v) => (isNum(v) ? `${this._num(v, 0)} ${unit}` : null);
+    const amount1 = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : null); // small amounts (outdoor water) need a decimal
     const nxt = c.next || {};
 
     const sections = [
@@ -2691,6 +2899,7 @@ class TariffyPanel extends HTMLElement {
           ? `${this._date(c.erinnerung_datum)} · ${c.erinnerung_bestaetigt ? this._t("reminderDone") : c.erinnerung_aktiv ? this._t("reminderActive") : this._t("months", { n: c.erinnerung_monate })}`
           : null),
       ]),
+      this._kreditSection(c),
       section(this._t("secPrices"), [
         row(this._t("unitPrice"), isNum(c.arbeitspreis) ? this._price(c.arbeitspreis, c.currency, pu) : null),
         row(this._t("unitPriceLow"), isNum(c.arbeitspreis_nt) ? this._price(c.arbeitspreis_nt, c.currency, pu) : null),
@@ -2710,14 +2919,17 @@ class TariffyPanel extends HTMLElement {
         row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),
       this._onceSection(c),
-      this._aussenSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),
+        row(this._t("gardenUse"), amount1(c.garten_verbrauch)),
+        row(this._t("wwUse"), amount1(c.abwasserpflichtiger_verbrauch)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),
         row(this._t("soFarLow"), amount(c.verbrauch_bisher_nt)),
         row(this._t("projectedTerm"), amount(c.verbrauch_hochgerechnet)),
         row(this._t("lastPeriod"), amount(c.verbrauch_letzte_laufzeit)),
         row(this._t("costSoFar"), money(c.kosten_bisher)),
+        row(this._t("gardenCost"), money(c.garten_kosten)),
+        row(this._t("wwCost"), money(c.abwasser_kosten)),
         row(this._t("balanceSoFar"), isNum(c.guthaben_bisher) ? this._money(c.guthaben_bisher, c.currency, { sign: true, digits: 2 }) : null),
         row(this._t("endForecast"), isNum(c.prognose_real) ? this._money(c.prognose_real, c.currency, { sign: true, digits: 2 }) : null),
       ]) : null,
@@ -2732,10 +2944,12 @@ class TariffyPanel extends HTMLElement {
         row(this._t("nextPrice"), isNum(nxt.arbeitspreis) ? this._price(nxt.arbeitspreis, c.currency, pu) : null),
         row(this._t("nextInstalment"), isNum(nxt.abschlag) ? `${money(nxt.abschlag)} ${this._t("perMonth")}` : null),
       ]) : null,
+      this._aussenSection(c), // over the whole width below the other blocks: up to ten meters fit side by side
     ];
 
     const flat = !METERED.has(c.sparte);
-    const endValue = flat ? `${this._money(c.abschlag, c.currency, { digits: 2 })} ${this._t("perMonth")}`
+    const endValue = c.sparte === "loan" ? (isNum(c.kredit_restschuld) ? this._money(c.kredit_restschuld, c.currency, { digits: 2 }) : "–")
+      : flat ? `${this._money(c.abschlag, c.currency, { digits: 2 })} ${this._t("perMonth")}`
       : d.hasMetering ? this._money(c.prognose_real, c.currency, { sign: true }) : this._money(c.jahreskosten, c.currency);
     const details = h(
       "details", { "data-id": c.entry_id },

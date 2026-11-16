@@ -115,7 +115,7 @@ const card = (page, name) => page.locator(".card", { hasText: name }).first();
   check((await listRow("Strom Haus").getByRole("button", { name: "Warnung bestätigen" }).count()) === 1, "warning button on Strom Haus");
   check((await listRow("Internet").getByRole("button", { name: "Kündigung bestätigen" }).count()) === 1, "cancellation button on Internet");
   const named = (name) => page.getByRole("button", { name, exact: true });
-  check((await named("Vertrag bearbeiten").count()) === 6, "every row has an icon to edit the contract");
+  check((await named("Vertrag bearbeiten").count()) === 7, "every row has an icon to edit the contract");
   check((await page.getByRole("button", { name: /^Folgevertrag (planen|bearbeiten)$/ }).count()) === 6, "and one to plan or edit the next contract");
   check((await named("Neuer Vertrag").count()) === 1, "the list has the button for a new contract");
   const row = (name) => page.locator("details", { hasText: name }).first();
@@ -502,7 +502,7 @@ for (const width of [1280, 900, 600, 390]) {
     const box = (sel) => { const el = summary.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, w: r.width, h: r.height, r: r.right, b: r.bottom }; };
     return { who: box(".who"), meta: box(".meta"), end: box(".end"), chips: box(".chips"), row: summary.getBoundingClientRect().width };
   }));
-  check(rows.length === 6, `list ${width}: six rows`);
+  check(rows.length === 7, `list ${width}: seven rows`);
   const overlap = (a, b) => a && b && a.x < b.r - 1 && b.x < a.r - 1 && a.y < b.b - 1 && b.y < a.b - 1;
   for (const [i, row] of rows.entries()) {
     check(row.who.w >= 150, `list ${width}, row ${i + 1}: the name keeps a readable width (${Math.round(row.who.w)}px)`);
@@ -589,7 +589,7 @@ for (const width of [1280, 900, 600, 390]) {
     title: g.querySelector(".group-title span").textContent, count: g.querySelector(".count").textContent,
     cards: [...g.querySelectorAll("section.card")].map((c) => c.querySelector(".title").textContent),
   })));
-  check(JSON.stringify(groups.map((g) => [g.title, g.count])) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"]]), `two groups with their counts: ${JSON.stringify(groups.map((g) => [g.title, g.count]))}`);
+  check(JSON.stringify(groups.map((g) => [g.title, g.count])) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"], ["Kredite / Finanzierungen", "1"]]), `two groups with their counts: ${JSON.stringify(groups.map((g) => [g.title, g.count]))}`);
   check(groups[1].cards.join() === "Internet,Mobilfunk", "internet and mobile are flat-rate contracts");
   for (const name of ["Internet", "Mobilfunk"]) {
     const text = await card(page, name).innerText();
@@ -614,7 +614,7 @@ for (const width of [1280, 900, 600, 390]) {
 
   // three contracts per row on a wide screen, in both groups; the cards of a row are equally high
   const cols = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".grid")].map((g) => getComputedStyle(g).gridTemplateColumns.split(" ").length));
-  check(cols.length === 2 && cols.every((n) => n === 3), `three columns in both groups (${cols})`);
+  check(cols.length === 3 && cols.every((n) => n === 3), `three columns in all groups (${cols})`);
   const rows = await page.evaluate(() => {
     const byTop = {};
     for (const el of window.__panel.shadowRoot.querySelectorAll(".grid > section.card")) {
@@ -623,8 +623,8 @@ for (const width of [1280, 900, 600, 390]) {
     }
     return Object.values(byTop);
   });
-  check(rows.length === 3 && rows[0].length === 3 && rows[1].length === 1 && rows[2].length === 2 && rows.every((row) => row.every((h) => h === row[0])),
-    `4 + 2 contracts make rows of 3, 1 and 2 cards, each row equally high: ${JSON.stringify(rows)}`);
+  check(rows.length === 4 && rows[0].length === 3 && rows[1].length === 1 && rows[2].length === 2 && rows[3].length === 1 && rows.every((row) => row.every((h) => h === row[0])),
+    `4 + 2 + 1 contracts make rows of 3, 1, 2 and 1 cards, each row equally high: ${JSON.stringify(rows)}`);
   await context.close();
 }
 
@@ -633,14 +633,14 @@ for (const width of [1280, 900, 600, 390]) {
   const groupsOf = () => page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group")].map((g) => [
     g.querySelector(".group-title span").textContent, g.querySelector(".count").textContent]));
   await page.getByRole("tab", { name: "Verträge" }).click();
-  check(JSON.stringify(await groupsOf()) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"]]), "the contract list has the two groups");
+  check(JSON.stringify(await groupsOf()) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"], ["Kredite / Finanzierungen", "1"]]), "the contract list has the two groups");
   const listGroups = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group")].map((g) => [...g.querySelectorAll("details .title")].map((t) => t.textContent).join()));
   check(listGroups[1] === "Internet,Mobilfunk", `internet and mobile are in the flat-rate group of the list: ${listGroups}`);
 
   await page.getByRole("tab", { name: "Kosten" }).click();
-  check(JSON.stringify(await groupsOf()) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"]]), "the cost table has the two groups");
+  check(JSON.stringify(await groupsOf()) === JSON.stringify([["Verbrauchsverträge", "4"], ["Pauschalverträge", "2"], ["Kredite / Finanzierungen", "1"]]), "the cost table has the two groups");
   const heads = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group table")].map((t) => [...t.querySelectorAll("th")].map((h) => h.textContent)));
-  check(heads.length === 2 && heads[0].includes("Saldo heute") && heads[0].includes("Empfohlen"), "the metered table has balance, forecast and recommendation");
+  check(heads.length === 3 && heads[0].includes("Saldo heute") && heads[0].includes("Empfohlen"), "the metered table has balance, forecast and recommendation");
   check(!heads[1].includes("Saldo heute") && !heads[1].includes("Zum Vertragsende") && heads[1].includes("Vertragsende") && heads[1].includes("Restlaufzeit"),
     `the flat-rate table has no balance but the term: ${heads[1]}`);
 
@@ -653,7 +653,7 @@ for (const width of [1280, 900, 600, 390]) {
   check(internet[4].includes("480 € / Jahr"), "Internet: the yearly instalment stands under the monthly one");
   // both tables share one column grid: cost so far and instalment sit exactly below each other
   const edges = await page.evaluate(() => [...window.__panel.shadowRoot.querySelectorAll(".group table")].map((t) => [...t.querySelectorAll("th")].map((th) => Math.round(th.getBoundingClientRect().right))));
-  check(edges.length === 2 && edges[0][1] === edges[1][1] && edges[0][4] === edges[1][4] && edges[0].length === edges[1].length,
+  check(edges.length === 3 && edges.every((e) => e[1] === edges[0][1] && e[4] === edges[0][4] && e.length === edges[0].length),
     `the two cost tables line up (cost so far ${edges.map((e) => e[1])}, instalment ${edges.map((e) => e[4])})`);
 
   // group totals and the grand total
@@ -787,7 +787,7 @@ for (const width of [1280, 900, 600, 390]) {
   await page.goto(`${base}?lang=de&admin=0`);
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
   check((await page.locator(".actions").count()) === 0 && (await page.locator(".btn").count()) === 0, "non-administrators see no action buttons");
-  check((await page.locator(".card").count()) === 6, "non-administrators still see all contracts");
+  check((await page.locator(".card").count()) === 7, "non-administrators still see all contracts");
   await page.getByRole("tab", { name: "Verträge" }).click();
   check((await page.getByRole("button", { name: /Neuer Vertrag|bearbeiten|Folgevertrag/ }).count()) === 0 && (await page.locator(".icon-btn").count()) === 0,
     "and no icons and no button for a new contract in the list");
@@ -820,11 +820,11 @@ for (const width of [1280, 900, 600, 390]) {
   const wrapText = () => page.evaluate(() => window.__panel.shadowRoot.querySelector(".wrap").innerText.replace(/\u00a0/g, " "));
   const tab = (name) => page.getByRole("tab", { name, exact: true }).click();
 
-  check((await page.locator("section.card").count()) === 6 && !(await wrapText()).includes("Altvertrag"), "an archived contract is not on the overview");
+  check((await page.locator("section.card").count()) === 7 && !(await wrapText()).includes("Altvertrag"), "an archived contract is not on the overview");
   await tab("Kosten");
   check(!(await wrapText()).includes("Altvertrag"), "an archived contract is not in the costs");
   await tab("Verträge");
-  check((await page.locator("details").count()) === 6 && !(await wrapText()).includes("Altvertrag"), "an archived contract is not in the contract list");
+  check((await page.locator("details").count()) === 7 && !(await wrapText()).includes("Altvertrag"), "an archived contract is not in the contract list");
 
   await tab("Historie");
   const history = await wrapText();
@@ -1167,7 +1167,7 @@ for (const width of [1280, 900, 600, 390]) {
   await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
   await page.getByRole("tab", { name: "Verträge", exact: true }).click();
   const renewButtons = page.getByRole("button", { name: "Vertrag verlängern" });
-  check((await renewButtons.count()) === 2, `only the flat-rate contracts with an end can be renewed (${await renewButtons.count()})`);
+  check((await renewButtons.count()) === 3, `only the flat-rate contracts with an end and the loan can be renewed (${await renewButtons.count()})`);
   check((await page.locator("details", { hasText: "Strom Haus" }).first().getByRole("button", { name: "Vertrag verlängern" }).count()) === 0, "a metered contract has no renew icon");
   const field = (name) => page.locator(`.dialog [name=${name}]`);
   const dialogText = async () => (await page.locator(".dialog").innerText()).replace(/\u00a0/g, " ");
@@ -1377,6 +1377,12 @@ for (const width of [1280, 900, 600, 390]) {
   check(/Garten\s*sensor\.wasser_garten/.test(wasser) && /Gartenwasser\s*12,0 m³/.test(wasser) && /Abwasserpflichtiger Verbrauch\s*29,0 m³/.test(wasser),
     `the water contract lists the outdoor meter and the split (${wasser.split("\n").filter((l) => /Garten|Abwasser/.test(l)).join(" | ")})`);
   check(!(await page.locator("details:has-text('Gas Heizung')").first().innerText()).includes("Außenzähler"), "other contracts have no outdoor meters");
+  // the split of the water belongs to the consumption block, not to the list of meters
+  const sections = await page.evaluate(() => Object.fromEntries([...[...window.__panel.shadowRoot.querySelectorAll("details")].find((x) => x.textContent.includes("Wasser")).querySelectorAll(".sec")]
+    .map((el) => [el.querySelector("h4").textContent, el.innerText.replace(/\u00a0/g, " ")])));
+  check(/Gartenwasser\s*12,0 m³/.test(sections["Verbrauch"]) && /Abwasserpflichtiger Verbrauch\s*29,0 m³/.test(sections["Verbrauch"])
+    && /Gartenwasser-Kosten\s*23,40 €/.test(sections["Verbrauch"]) && /Abwasserkosten\s*50,90 €/.test(sections["Verbrauch"]), `the split stands in the consumption block (${JSON.stringify(sections["Verbrauch"])})`);
+  check(!/Abwasserkosten|Gartenwasser-Kosten/.test(sections["Außenzähler"]), "and no longer in the block of the outdoor meters");
   const field = (name) => page.locator(`.dialog [name=${name}]`);
   await page.locator("details", { hasText: "Wasser" }).first().getByRole("button", { name: "Außenzähler hinzufügen" }).click();
   await page.getByRole("button", { name: "Speichern", exact: true }).click();
@@ -1410,6 +1416,105 @@ for (const width of [1280, 900, 600, 390]) {
   check((await columns(".grid.flat")) === 4, `the flat-rate cards use four columns at 1650 px (${await columns(".grid.flat")})`);
   check((await columns(".grid.metered")) === 3, `the consumption cards keep three columns at 1650 px (${await columns(".grid.metered")})`);
   await context.close();
+}
+
+{ // loans / financing: kept apart from the contracts
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`loan: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+  const loanCard = (await page.locator("section.card", { hasText: "Baufinanzierung" }).innerText()).replace(/\u00a0/g, " ");
+  check(/RESTSCHULD\s*229\.212,49 €/i.test(loanCard) && loanCard.includes("1.462,78 € monatlich") && loanCard.includes("3,60 %") && loanCard.includes("effektiv 3,66 %"),
+    `the loan card leads with the remaining debt and the rate (${loanCard.split("\n").slice(0, 12).join(" | ")})`);
+  check(/GEZAHLT BISHER\s*40\.957,80 €/i.test(loanCard) && /RESTSUMME\s*310\.109,08 €/i.test(loanCard), "paid so far and the remaining payments are shown");
+  check(loanCard.includes("Zinsen 687,64 € · Tilgung 775,14 €") && loanCard.includes("28 / 240"), "the next rate is split into interest and principal");
+  check(!(await page.locator(".summary").innerText()).includes("Baufinanzierung"), "the loan is not named in the summary tiles");
+  const instalments = await page.evaluate(() => window.__panel._live.reduce((s, c) => s + (c.abschlag || 0), 0));
+  check(Math.abs(instalments - 322.98) < 0.01, `the instalments in the totals are those of the contracts (${instalments})`);
+
+  await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+  await page.locator("details", { hasText: "Baufinanzierung" }).first().locator("summary").click();
+  const details = (await page.locator("details:has-text('Baufinanzierung')").first().innerText()).replace(/\u00a0/g, " ");
+  check(/Kreditsumme\s*250\.000,00 €/.test(details) && /Sollzins\s*3,60 %/.test(details) && /Laufzeit\s*240 Monate/.test(details) && /Zinsen über die Laufzeit\s*101\.066,88 €/.test(details),
+    "the details show the loan figures");
+  check(!details.includes("Rate laut Zins"), "a rate that fits the interest does not show the calculated one");
+  check((await page.locator("details", { hasText: "Baufinanzierung" }).first().getByRole("button", { name: "Folgevertrag planen" }).count()) === 0, "a loan has no next-contract icon");
+
+  // the renew dialog is the follow-up financing: the remaining debt is the new amount
+  const field = (name) => page.locator(`.dialog [name=${name}]`);
+  await page.locator("details", { hasText: "Baufinanzierung" }).first().getByRole("button", { name: "Vertrag verlängern" }).click();
+  check((await page.locator(".dialog").innerText()).includes("Anschlussfinanzierung"), "the dialog is the follow-up financing");
+  check((await field("kredit_summe").inputValue()) === "229212.49" && (await field("sollzins").inputValue()) === "3.6" && (await field("laufzeit_monate").inputValue()) === "240" && (await field("beginn").inputValue()) === "2044-03-01",
+    "the remaining debt, the interest and the term are filled in");
+  await field("kredit_summe").fill("");
+  await page.getByRole("button", { name: "Verlängern", exact: true }).click();
+  check((await page.locator(".dialog").innerText()).includes("Pflichtfeld") && !(await calls(page)).some((c) => c.type === "tariffy/renew"), "the amount is required");
+  await field("kredit_summe").fill("200000");
+  await field("sollzins").fill("4,1");
+  await field("laufzeit_monate").fill("120");
+  await dialog(page).screenshot({ path: join(outDir, "loan-renew-dialog.png") });
+  await page.getByRole("button", { name: "Verlängern", exact: true }).click();
+  await page.waitForFunction(() => !window.__panel.shadowRoot.querySelector(".dialog"));
+  const sent = (await calls(page)).find((c) => c.type === "tariffy/renew");
+  check(sent && sent.values.kredit_summe === 200000 && sent.values.sollzins === 4.1 && sent.values.laufzeit_monate === 120 && sent.values.zahlweise === "monthly", `the follow-up financing is sent (${JSON.stringify(sent && sent.values)})`);
+
+  await page.getByRole("tab", { name: "Kosten", exact: true }).click();
+  const costs = (await page.locator(".group", { hasText: "Kredite" }).innerText()).replace(/\u00a0/g, " ");
+  check(costs.includes("Baufinanzierung") && costs.includes("229.212,49 €") && costs.includes("310.109,08 €") && costs.includes("Kredite laufen getrennt"), "the cost tab lists the loan apart from the contract tables");
+  check(!(await page.locator(".chart").innerText()).includes("Kredit"), "the loan is not in the cost split");
+  await context.close();
+}
+
+{ // outdoor meters with long entity ids stay inside their column (they used to reach into the next block)
+  for (const width of [1650, 1280, 390]) {
+    const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
+    const page = await context.newPage();
+    page.on("pageerror", (e) => errors.push(`aussen layout ${width}: ${e.message}`));
+    await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+    await page.goto(`${base}?lang=de${width < 500 ? "&narrow=1" : ""}`);
+    await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+    await page.evaluate(() => {
+      const p = window.__panel;
+      const meters = Array.from({ length: 10 }, (_, i) => ({ name: `Bewässerung ${i + 1}`, sensor: `sensor.bewaesserung_${i + 1}_gesamtverbrauch_m3`, verbrauch: 1.5 * (i + 1), kosten: 2.79 * (i + 1) }));
+      p._contracts = p._contracts.map((c) => (c.title === "Wasser" ? { ...c, einmalposten: [{ bezeichnung: "Ein sehr langer Name eines Einmalpostens ohne Leerzeichen_und_Unterstriche", betrag: 12.5, datum: null }], aussenzaehler: meters } : c));
+      p._render();
+    });
+    await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+    await page.locator("details", { hasText: "Wasser" }).first().locator("summary").click();
+    const stuck = await page.evaluate(() => {
+      const d = [...window.__panel.shadowRoot.querySelectorAll("details")].find((x) => x.textContent.includes("Wasser"));
+      const out = [];
+      for (const sec of d.querySelectorAll(".sec")) {
+        const r = sec.getBoundingClientRect();
+        for (const el of sec.querySelectorAll("*")) {
+          const b = el.getBoundingClientRect();
+          if (b.width && (b.right > r.right + 1 || b.left < r.left - 1)) out.push(`${sec.querySelector("h4").textContent}: ${el.tagName}.${el.getAttribute("class") || ""}`);
+        }
+      }
+      return [...new Set(out)];
+    });
+    check(stuck.length === 0, `the sections of a water contract keep their figures inside the column at ${width} px (${stuck.slice(0, 3)})`);
+    const layout = await page.evaluate(() => {
+      const d = [...window.__panel.shadowRoot.querySelectorAll("details")].find((x) => x.textContent.includes("Wasser"));
+      const sections = [...d.querySelectorAll(".sec")].map((el) => ({ title: el.querySelector("h4").textContent, r: el.getBoundingClientRect() }));
+      const outdoor = sections.find((x) => x.title === "Außenzähler");
+      const others = sections.filter((x) => x !== outdoor);
+      const detail = d.querySelector(".detail").getBoundingClientRect();
+      const rows = [...d.querySelectorAll(".aussen-row")].map((el) => el.getBoundingClientRect());
+      return {
+        belowOthers: others.every((x) => x.r.bottom <= outdoor.r.top + 1),
+        fullWidth: outdoor.r.width >= detail.width - 40,
+        meters: rows.length,
+        perRow: new Set(rows.map((r) => Math.round(r.top))).size,
+      };
+    });
+    check(layout.belowOthers && layout.fullWidth, `the outdoor meters stand below the other blocks over the whole width at ${width} px (${JSON.stringify(layout)})`);
+    check(layout.meters === 10 && (width < 500 ? layout.perRow === 10 : layout.perRow <= 4), `ten outdoor meters sit side by side where there is room (${layout.perRow} rows at ${width} px)`);
+    if (width === 1280) await page.locator("details", { hasText: "Wasser" }).first().screenshot({ path: join(outDir, "outdoor-meters-layout.png") });
+    await context.close();
+  }
 }
 
 await browser.close();

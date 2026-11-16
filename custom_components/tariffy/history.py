@@ -29,6 +29,13 @@ from .const import (
     AUSSENZAEHLER_MAX,
     CONF_ARCHIVIERT,
     CONF_AUSSENZAEHLER,
+    CONF_EFFEKTIVZINS,
+    CONF_KREDIT_RATE,
+    CONF_KREDIT_SUMME,
+    CONF_LAUFZEIT_MONATE,
+    CONF_SCHLUSSRATE,
+    CONF_SOLLZINS,
+    SPARTE_LOAN,
     CONF_BEGINN,
     CONF_BRENNWERT,
     CONF_EINMALPOSTEN,
@@ -270,6 +277,9 @@ async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str,
     coordinator = entry.runtime_data
     if not (coordinator.data or {}).get("verlaengerbar"):
         raise HistoryError("not_available")
+    if entry.data.get(CONF_SPARTE) == SPARTE_LOAN:
+        await _renew_kredit(hass, entry, values)
+        return
     beginn, ende = _dates(values)
     if ende <= beginn:
         raise HistoryError("invalid_dates")
@@ -301,6 +311,63 @@ async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str,
             CONF_HISTORIE: _sorted(historie)[-HISTORIE_MAX:],
         }
     )
+    await coordinator._dismiss_notifications()
+    hass.config_entries.async_update_entry(entry, data=data)
+
+
+async def _renew_kredit(hass: HomeAssistant, entry: ConfigEntry, values: dict[str, Any]) -> None:
+    """Anschlussfinanzierung: die bisherige Laufzeit kommt in die Historie, der Kredit laeuft mit neuer
+    Summe, neuem Zins und neuer Laufzeit weiter (die Summe ist meist die Restschuld)."""
+    coordinator = entry.runtime_data
+    try:
+        beginn = date.fromisoformat(str(values.get("beginn")))
+    except ValueError as err:
+        raise HistoryError("invalid_dates") from err
+    summe = _number(values.get(CONF_KREDIT_SUMME), "kredit_summe")
+    if summe is None or summe <= 0:
+        raise HistoryError("invalid_kredit_summe")
+    laufzeit = _number(values.get(CONF_LAUFZEIT_MONATE), "laufzeit_monate")
+    if laufzeit is None or laufzeit < 1:
+        raise HistoryError("invalid_laufzeit_monate")
+    soll = _number(values.get(CONF_SOLLZINS), "sollzins")
+    effektiv = _number(values.get(CONF_EFFEKTIVZINS), "effektivzins")
+    if soll is None and effektiv is None:
+        raise HistoryError("invalid_zins")
+    rate = _number(values.get(CONF_KREDIT_RATE), "kredit_rate")
+    schluss = _number(values.get(CONF_SCHLUSSRATE), "schlussrate")
+    zahlweise = values.get(CONF_ZAHLWEISE) or entry.data.get(CONF_ZAHLWEISE) or "monthly"
+    if zahlweise not in ZAHLWEISE_MONATE:
+        raise HistoryError("invalid_zahlweise")
+    erste = values.get("erste_zahlung")
+    if erste not in (None, ""):
+        try:
+            erste = date.fromisoformat(str(erste)).isoformat()
+        except ValueError as err:
+            raise HistoryError("invalid_dates") from err
+
+    historie = list(entry.data.get(CONF_HISTORIE) or [])
+    historie.append(coordinator._historie_eintrag(dt_util.now().date()))
+    reset = (*_RENEW_RESET, CONF_SOLLZINS, CONF_EFFEKTIVZINS, CONF_KREDIT_RATE, CONF_SCHLUSSRATE)
+    data = {key: value for key, value in entry.data.items() if key not in reset}
+    data.update(
+        {
+            CONF_BEGINN: beginn.isoformat(),
+            CONF_KREDIT_SUMME: summe,
+            CONF_LAUFZEIT_MONATE: int(laufzeit),
+            CONF_ZAHLWEISE: zahlweise,
+            CONF_HISTORIE: _sorted(historie)[-HISTORIE_MAX:],
+        }
+    )
+    data.pop(CONF_ENDE, None)  # the end follows from the start and the term
+    for key, wert in (
+        (CONF_SOLLZINS, soll),
+        (CONF_EFFEKTIVZINS, effektiv),
+        (CONF_KREDIT_RATE, rate),
+        (CONF_SCHLUSSRATE, schluss),
+        (CONF_ERSTE_ZAHLUNG, erste if erste not in (None, "") else None),
+    ):
+        if wert is not None:
+            data[key] = wert
     await coordinator._dismiss_notifications()
     hass.config_entries.async_update_entry(entry, data=data)
 

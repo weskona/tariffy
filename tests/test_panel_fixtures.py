@@ -146,6 +146,17 @@ CONTRACTS = [
         {},
         {},
     ),
+    (
+        "Baufinanzierung",
+        {
+            "sparte": "loan", "anbieter": "Hausbank", "tarif": "Annuitätendarlehen",
+            "kredit_summe": 250000.0, "sollzins": 3.6, "effektivzins": 3.66,
+            "laufzeit_monate": 240, "zahlweise": "monthly", "beginn": "2024-03-01",
+            "erinnerung_monate": "0",
+        },
+        {},
+        {},
+    ),
 ]
 
 

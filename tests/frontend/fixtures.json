@@ -89,8 +89,32 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 618.12,
       "kosten_nt_bisher": null,
+      "kredit_effektivzins": null,
+      "kredit_erste_zahlung": null,
+      "kredit_gesamtkosten": null,
+      "kredit_gezahlt": null,
+      "kredit_naechste_betrag": null,
+      "kredit_naechste_zahlung": null,
+      "kredit_rate": null,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": null,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": null,
+      "kredit_restsumme": null,
+      "kredit_schlussrate": null,
+      "kredit_sollzins": null,
+      "kredit_summe": null,
+      "kredit_tilgung_anteil": null,
+      "kredit_tilgung_bisher": null,
+      "kredit_tilgung_prozent": null,
+      "kredit_zahlungen_geleistet": null,
+      "kredit_zahlungen_gesamt": null,
+      "kredit_zins_anteil": null,
+      "kredit_zinsen_bisher": null,
+      "kredit_zinsen_gesamt": null,
       "kuendigung_bis": null,
       "kuendigungsfrist": null,
+      "laufzeit_monate": null,
       "laufzeiten_anzahl": 3,
       "mindestlaufzeit": null,
       "mindestlaufzeit_bis": null,
@@ -161,8 +185,32 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 1794.0,
       "kosten_nt_bisher": null,
+      "kredit_effektivzins": null,
+      "kredit_erste_zahlung": null,
+      "kredit_gesamtkosten": null,
+      "kredit_gezahlt": null,
+      "kredit_naechste_betrag": null,
+      "kredit_naechste_zahlung": null,
+      "kredit_rate": null,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": null,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": null,
+      "kredit_restsumme": null,
+      "kredit_schlussrate": null,
+      "kredit_sollzins": null,
+      "kredit_summe": null,
+      "kredit_tilgung_anteil": null,
+      "kredit_tilgung_bisher": null,
+      "kredit_tilgung_prozent": null,
+      "kredit_zahlungen_geleistet": null,
+      "kredit_zahlungen_gesamt": null,
+      "kredit_zins_anteil": null,
+      "kredit_zinsen_bisher": null,
+      "kredit_zinsen_gesamt": null,
       "kuendigung_bis": null,
       "kuendigungsfrist": null,
+      "laufzeit_monate": null,
       "laufzeiten_anzahl": 1,
       "mindestlaufzeit": null,
       "mindestlaufzeit_bis": null,
@@ -242,8 +290,32 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 408.0,
       "kosten_nt_bisher": null,
+      "kredit_effektivzins": null,
+      "kredit_erste_zahlung": null,
+      "kredit_gesamtkosten": null,
+      "kredit_gezahlt": null,
+      "kredit_naechste_betrag": null,
+      "kredit_naechste_zahlung": null,
+      "kredit_rate": null,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": null,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": null,
+      "kredit_restsumme": null,
+      "kredit_schlussrate": null,
+      "kredit_sollzins": null,
+      "kredit_summe": null,
+      "kredit_tilgung_anteil": null,
+      "kredit_tilgung_bisher": null,
+      "kredit_tilgung_prozent": null,
+      "kredit_zahlungen_geleistet": null,
+      "kredit_zahlungen_gesamt": null,
+      "kredit_zins_anteil": null,
+      "kredit_zinsen_bisher": null,
+      "kredit_zinsen_gesamt": null,
       "kuendigung_bis": null,
       "kuendigungsfrist": null,
+      "laufzeit_monate": null,
       "laufzeiten_anzahl": 1,
       "mindestlaufzeit": null,
       "mindestlaufzeit_bis": null,
@@ -314,8 +386,32 @@
       "kosten_ht_bisher": 288.0,
       "kosten_jahr": 804.0,
       "kosten_nt_bisher": 126.0,
+      "kredit_effektivzins": null,
+      "kredit_erste_zahlung": null,
+      "kredit_gesamtkosten": null,
+      "kredit_gezahlt": null,
+      "kredit_naechste_betrag": null,
+      "kredit_naechste_zahlung": null,
+      "kredit_rate": null,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": null,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": null,
+      "kredit_restsumme": null,
+      "kredit_schlussrate": null,
+      "kredit_sollzins": null,
+      "kredit_summe": null,
+      "kredit_tilgung_anteil": null,
+      "kredit_tilgung_bisher": null,
+      "kredit_tilgung_prozent": null,
+      "kredit_zahlungen_geleistet": null,
+      "kredit_zahlungen_gesamt": null,
+      "kredit_zins_anteil": null,
+      "kredit_zinsen_bisher": null,
+      "kredit_zinsen_gesamt": null,
       "kuendigung_bis": null,
       "kuendigungsfrist": null,
+      "laufzeit_monate": null,
       "laufzeiten_anzahl": 1,
       "mindestlaufzeit": null,
       "mindestlaufzeit_bis": null,
@@ -386,8 +482,32 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 479.88,
       "kosten_nt_bisher": null,
+      "kredit_effektivzins": null,
+      "kredit_erste_zahlung": null,
+      "kredit_gesamtkosten": null,
+      "kredit_gezahlt": null,
+      "kredit_naechste_betrag": null,
+      "kredit_naechste_zahlung": null,
+      "kredit_rate": null,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": null,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": null,
+      "kredit_restsumme": null,
+      "kredit_schlussrate": null,
+      "kredit_sollzins": null,
+      "kredit_summe": null,
+      "kredit_tilgung_anteil": null,
+      "kredit_tilgung_bisher": null,
+      "kredit_tilgung_prozent": null,
+      "kredit_zahlungen_geleistet": null,
+      "kredit_zahlungen_gesamt": null,
+      "kredit_zins_anteil": null,
+      "kredit_zinsen_bisher": null,
+      "kredit_zinsen_gesamt": null,
       "kuendigung_bis": "2026-06-30",
       "kuendigungsfrist": 3,
+      "laufzeit_monate": null,
       "laufzeiten_anzahl": 1,
       "mindestlaufzeit": 12,
       "mindestlaufzeit_bis": "2026-10-01",
@@ -458,8 +578,32 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 239.88,
       "kosten_nt_bisher": null,
+      "kredit_effektivzins": null,
+      "kredit_erste_zahlung": null,
+      "kredit_gesamtkosten": null,
+      "kredit_gezahlt": null,
+      "kredit_naechste_betrag": null,
+      "kredit_naechste_zahlung": null,
+      "kredit_rate": null,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": null,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": null,
+      "kredit_restsumme": null,
+      "kredit_schlussrate": null,
+      "kredit_sollzins": null,
+      "kredit_summe": null,
+      "kredit_tilgung_anteil": null,
+      "kredit_tilgung_bisher": null,
+      "kredit_tilgung_prozent": null,
+      "kredit_zahlungen_geleistet": null,
+      "kredit_zahlungen_gesamt": null,
+      "kredit_zins_anteil": null,
+      "kredit_zinsen_bisher": null,
+      "kredit_zinsen_gesamt": null,
       "kuendigung_bis": null,
       "kuendigungsfrist": null,
+      "laufzeit_monate": null,
       "laufzeiten_anzahl": 1,
       "mindestlaufzeit": null,
       "mindestlaufzeit_bis": null,
@@ -569,8 +713,32 @@
       "kosten_ht_bisher": null,
       "kosten_jahr": 540.0,
       "kosten_nt_bisher": null,
+      "kredit_effektivzins": null,
+      "kredit_erste_zahlung": null,
+      "kredit_gesamtkosten": null,
+      "kredit_gezahlt": null,
+      "kredit_naechste_betrag": null,
+      "kredit_naechste_zahlung": null,
+      "kredit_rate": null,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": null,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": null,
+      "kredit_restsumme": null,
+      "kredit_schlussrate": null,
+      "kredit_sollzins": null,
+      "kredit_summe": null,
+      "kredit_tilgung_anteil": null,
+      "kredit_tilgung_bisher": null,
+      "kredit_tilgung_prozent": null,
+      "kredit_zahlungen_geleistet": null,
+      "kredit_zahlungen_gesamt": null,
+      "kredit_zins_anteil": null,
+      "kredit_zinsen_bisher": null,
+      "kredit_zinsen_gesamt": null,
       "kuendigung_bis": null,
       "kuendigungsfrist": null,
+      "laufzeit_monate": null,
       "laufzeiten_anzahl": 2,
       "mindestlaufzeit": null,
       "mindestlaufzeit_bis": null,
@@ -590,6 +758,102 @@
       "verbrauch_letzte_laufzeit": null,
       "verbrauch_letzte_laufzeit_monate": null,
       "verlaengerbar": false,
+      "versicherungsart": null,
+      "wechsel": null,
+      "zahlweise": "monthly"
+    },
+    {
+      "abschlag": null,
+      "abschlag_anpassung_empfohlen": null,
+      "abschlag_bisher_gezahlt": null,
+      "abschlag_jahr": null,
+      "abschlag_je_zahlung": null,
+      "abschlag_warnung_aktiv": false,
+      "abschlag_warnung_zu_bestaetigen": false,
+      "abwasser_kosten": null,
+      "abwasserpflichtiger_verbrauch": null,
+      "anbieter": "Hausbank",
+      "arbeitspreis": null,
+      "arbeitspreis_gesamt_wasser": null,
+      "arbeitspreis_ht": null,
+      "arbeitspreis_nacht": null,
+      "arbeitspreis_nt": null,
+      "archivierbar": false,
+      "archiviert": false,
+      "archiviert_am": null,
+      "aussenzaehler": [],
+      "beginn": "2024-03-01",
+      "currency": "EUR",
+      "effektiver_arbeitspreis": null,
+      "einmal_summe": 0.0,
+      "einmalposten": [],
+      "empfohlener_abschlag": null,
+      "ende": "2044-03-01",
+      "entry_id": "contract-8",
+      "erinnerung_aktiv": false,
+      "erinnerung_bestaetigt": false,
+      "erinnerung_datum": null,
+      "erinnerung_monate": 0,
+      "erste_zahlung": "2024-04-01",
+      "garten_kosten": null,
+      "garten_verbrauch": null,
+      "grundpreis": null,
+      "guthaben_bisher": null,
+      "historie": [],
+      "jahreskosten": null,
+      "km_pro_jahr": null,
+      "km_start": null,
+      "kosten_bisher": null,
+      "kosten_gesamt": 40957.8,
+      "kosten_gesamt_vollstaendig": true,
+      "kosten_ht_bisher": null,
+      "kosten_jahr": null,
+      "kosten_nt_bisher": null,
+      "kredit_effektivzins": 3.66,
+      "kredit_erste_zahlung": "2024-04-01",
+      "kredit_gesamtkosten": 351066.88,
+      "kredit_gezahlt": 40957.8,
+      "kredit_naechste_betrag": 1462.78,
+      "kredit_naechste_zahlung": "2026-08-01",
+      "kredit_rate": 1462.78,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": 1462.78,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": 229212.49,
+      "kredit_restsumme": 310109.08,
+      "kredit_schlussrate": 0.0,
+      "kredit_sollzins": 3.6,
+      "kredit_summe": 250000.0,
+      "kredit_tilgung_anteil": 775.14,
+      "kredit_tilgung_bisher": 20787.51,
+      "kredit_tilgung_prozent": 8.3,
+      "kredit_zahlungen_geleistet": 28,
+      "kredit_zahlungen_gesamt": 240,
+      "kredit_zins_anteil": 687.64,
+      "kredit_zinsen_bisher": 20170.29,
+      "kredit_zinsen_gesamt": 101066.88,
+      "kuendigung_bis": null,
+      "kuendigungsfrist": null,
+      "laufzeit_monate": 240.0,
+      "laufzeiten_anzahl": 1,
+      "mindestlaufzeit": null,
+      "mindestlaufzeit_bis": null,
+      "naechste_zahlung": "2026-08-01",
+      "next": null,
+      "prognose_real": null,
+      "restlaufzeit": 6442,
+      "seit": "2024-03-01",
+      "sparte": "loan",
+      "tarif": "Annuitätendarlehen",
+      "title": "Baufinanzierung",
+      "verbrauch_bisher": null,
+      "verbrauch_bisher_ht": null,
+      "verbrauch_bisher_nt": null,
+      "verbrauch_einheit": null,
+      "verbrauch_hochgerechnet": null,
+      "verbrauch_letzte_laufzeit": null,
+      "verbrauch_letzte_laufzeit_monate": null,
+      "verlaengerbar": true,
       "versicherungsart": null,
       "wechsel": null,
       "zahlweise": "monthly"
@@ -625,6 +889,7 @@
                 "internet",
                 "mobile",
                 "streaming",
+                "loan",
                 "insurance",
                 "other"
               ],
@@ -2546,6 +2811,91 @@
       "preview": null,
       "step_id": "init",
       "type": "form"
+    },
+    "contract-8": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-8",
+      "handler": "contract-8",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
     }
   },
   "reconfigure": {
@@ -2580,6 +2930,7 @@
                   "internet",
                   "mobile",
                   "streaming",
+                  "loan",
                   "insurance",
                   "other"
                 ],
@@ -2954,6 +3305,7 @@
                   "internet",
                   "mobile",
                   "streaming",
+                  "loan",
                   "insurance",
                   "other"
                 ],
@@ -3333,6 +3685,7 @@
                   "internet",
                   "mobile",
                   "streaming",
+                  "loan",
                   "insurance",
                   "other"
                 ],
@@ -3682,6 +4035,7 @@
                   "internet",
                   "mobile",
                   "streaming",
+                  "loan",
                   "insurance",
                   "other"
                 ],
@@ -4108,6 +4462,7 @@
                   "internet",
                   "mobile",
                   "streaming",
+                  "loan",
                   "insurance",
                   "other"
                 ],
@@ -4352,6 +4707,7 @@
                   "internet",
                   "mobile",
                   "streaming",
+                  "loan",
                   "insurance",
                   "other"
                 ],
@@ -4590,6 +4946,7 @@
                   "internet",
                   "mobile",
                   "streaming",
+                  "loan",
                   "insurance",
                   "other"
                 ],
@@ -4927,6 +5284,299 @@
         "last_step": null,
         "preview": null,
         "step_id": "reconfigure_energie",
+        "type": "form"
+      }
+    },
+    "contract-8": {
+      "first": {
+        "data_schema": [
+          {
+            "default": "Baufinanzierung",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "default": "loan",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "streaming",
+                  "loan",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Hausbank",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "Annuitätendarlehen"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2024-03-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "default": "0",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-8",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "default": 250000.0,
+            "name": "kredit_summe",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 3.6
+            },
+            "name": "sollzins",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 100.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 3.66
+            },
+            "name": "effektivzins",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 100.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": "any"
+              }
+            }
+          },
+          {
+            "default": 240,
+            "name": "laufzeit_monate",
+            "required": true,
+            "selector": {
+              "number": {
+                "max": 600.0,
+                "min": 1.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "default": "monthly",
+            "name": "zahlweise",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "monthly",
+                  "quarterly",
+                  "halfyearly",
+                  "yearly"
+                ],
+                "sort": false,
+                "translation_key": "zahlweise"
+              }
+            }
+          },
+          {
+            "name": "kredit_rate",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "schlussrate",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "erste_zahlung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": {},
+        "flow_id": "rflow-8",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure_kredit",
         "type": "form"
       }
     }
