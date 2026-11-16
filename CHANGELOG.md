@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.0-beta.1] - 2026-11-16
+
+First beta of 1.29.0 (the release candidates of 1.28.0 ended at rc.9; the next stable version will contain everything from 1.28.x). Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- **A meter that reports in Wh or MWh gave a consumption that was 1000 times too high** (or too low). A Tasmota reading head, for example, delivers the meter reading in Wh; Tariffy took the numbers as kWh, so consumption, forecast, cost and the recommended instalment were far off. The unit of the consumption sensor is now read and the **consumption is calculated in kWh**: Wh (÷ 1000) and MWh (× 1000); kWh and every other unit stay exactly as they are. This applies to the running contract, the second register of a dual-tariff meter, the consumption frozen at a tariff switch and the old terms worked out from the statistics. A manually entered start value is read in the unit of the meter, as the sensor shows it. The consumption sensors and the panel name kWh for such a meter. A workaround with a template sensor is no longer needed (and keeps working). Reported in #74.
+
 ## [1.28.0-rc.9] - 2026-11-13
 
 Ninth release candidate of 1.28.0. Please report problems with the bug report form and mention this exact version.

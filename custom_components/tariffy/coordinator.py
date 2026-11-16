@@ -422,11 +422,43 @@ async def _get_latest_sum(hass: HomeAssistant, entity_id: str) -> tuple[float | 
     return None, None
 
 
+# Zaehler, die in Wh oder MWh statt kWh melden (z. B. Tasmota-Lesekopf): der Verbrauch wird in kWh
+# gerechnet. Andere Einheiten bleiben unveraendert (Faktor 1).
+_ENERGIE_FAKTOR = {"wh": 0.001, "mwh": 1000.0}
+
+
+async def _einheit_faktor(hass: HomeAssistant, entity_id: str | None) -> float:
+    """Faktor, der den Verbrauch eines Zaehlers in kWh umrechnet: 0.001 bei Wh, 1000 bei MWh, sonst 1.
+    Die Einheit steht am Live-Zustand; fehlt er (z. B. kurz nach dem Start), gilt die Einheit der
+    Langzeitstatistik. Wirft nie."""
+    if not entity_id:
+        return 1.0
+    unit = None
+    state = hass.states.get(entity_id)
+    if state is not None:
+        unit = state.attributes.get("unit_of_measurement")
+    if not unit:
+        try:
+            from homeassistant.components.recorder import get_instance
+            from homeassistant.components.recorder.statistics import get_metadata
+
+            instance = get_instance(hass)
+            meta = await instance.async_add_executor_job(
+                lambda: get_metadata(hass, statistic_ids={entity_id})
+            )
+            if entity_id in meta:
+                unit = meta[entity_id][1].get("statistics_unit_of_measurement")
+        except Exception:  # noqa: BLE001 - ohne Einheit bleibt es bei kWh
+            unit = None
+    return _ENERGIE_FAKTOR.get(str(unit or "").strip().lower(), 1.0)
+
+
 def _pick_verbrauch_delta(
     aktuell_sum: float | None,
     offset_sum: float | None,
     aktuell_state: float | None,
     offset_state: float | None,
+    faktor: float = 1.0,
 ) -> float | None:
     """Waehlt zwischen dem reset-sicheren 'sum'-Delta und dem einfachen
     rohen State-Delta. Bevorzugt bewusst das State-Delta, sobald der
@@ -438,10 +470,11 @@ def _pick_verbrauch_delta(
     einen unplausiblen Sprung machte). Ist der Zustand dagegen gefallen (ein
     echter Reset, z.B. bei manchen Gaszaehlern ueblich), ist das 'sum'-Delta
     weiterhin die einzig korrekte Wahl, da es Resets bereits aufsummiert."""
+    # `faktor` rechnet die Einheit des Zaehlers in kWh um (Wh, MWh), vor dem Runden
     if aktuell_state is not None and offset_state is not None and aktuell_state >= offset_state:
-        return round(aktuell_state - offset_state, 2)
+        return round((aktuell_state - offset_state) * faktor, 2)
     if aktuell_sum is not None and offset_sum is not None:
-        return round(aktuell_sum - offset_sum, 2)
+        return round((aktuell_sum - offset_sum) * faktor, 2)
     return None
 
 
@@ -937,7 +970,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             aktuell = await self._aktueller_zaehlerstand(sensor_id)
             if aktuell is None:
                 return None
-            return round(aktuell - manueller_start_wert, 2)
+            return round((aktuell - manueller_start_wert) * await _einheit_faktor(self.hass, sensor_id), 2)
 
         aktuell_sum, aktuell_state = await _get_latest_sum(self.hass, sensor_id)
         live_state = self.hass.states.get(sensor_id)
@@ -949,7 +982,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if aktuell_sum is None:
             return None
         offset_sum, offset_state = await offset_getter(sensor_id, beginn)
-        return _pick_verbrauch_delta(aktuell_sum, offset_sum, aktuell_state, offset_state)
+        return _pick_verbrauch_delta(
+            aktuell_sum, offset_sum, aktuell_state, offset_state, await _einheit_faktor(self.hass, sensor_id)
+        )
 
     def _log_verbrauch_status(
         self, sensor_id: str, verbrauch_bisher: float | None, diag: dict[str, Any]
@@ -1006,7 +1041,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if aktuell_sum is None:
             return None
         verbrauch_ht = _pick_verbrauch_delta(
-            aktuell_sum, self._verbrauch_offset, aktuell_state, self._verbrauch_offset_state
+            aktuell_sum, self._verbrauch_offset, aktuell_state, self._verbrauch_offset_state,
+            await _einheit_faktor(self.hass, sensor_id),
         )
         if self.entry.data.get(CONF_SPARTE) != SPARTE_ELECTRICITY_HT_NT:
             return verbrauch_ht
@@ -1029,7 +1065,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if aktuell_sum_nt is None:
             return verbrauch_ht
         verbrauch_nt = _pick_verbrauch_delta(
-            aktuell_sum_nt, self._verbrauch_offset_nt, aktuell_state_nt, self._verbrauch_offset_state_nt
+            aktuell_sum_nt, self._verbrauch_offset_nt, aktuell_state_nt, self._verbrauch_offset_state_nt,
+            await _einheit_faktor(self.hass, sensor_id_nt),
         )
         if verbrauch_ht is None and verbrauch_nt is None:
             return None
@@ -1225,7 +1262,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     "aktueller_zaehlerstand": aktuell,
                 }
                 if aktuell is not None:
-                    verbrauch_bisher = round(aktuell - manueller_start_wert, 2)
+                    verbrauch_bisher = round(
+                        (aktuell - manueller_start_wert) * await _einheit_faktor(self.hass, verbrauch_sensor), 2
+                    )
             else:
                 # Aktuellen kumulierten Wert lesen (reset-sicher über 'sum', s.o.),
                 # PLUS den dazugehoerigen rohen state -- als Absicherung gegen
@@ -1254,7 +1293,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     diag["offset_sum"] = offset_sum
                     diag["offset_state"] = offset_state
                     verbrauch_bisher = _pick_verbrauch_delta(
-                        aktuell_sum, offset_sum, aktuell_state, offset_state
+                        aktuell_sum, offset_sum, aktuell_state, offset_state,
+                        await _einheit_faktor(self.hass, verbrauch_sensor),
                     )
 
                 if verbrauch_bisher is None:

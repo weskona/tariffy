@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.29.0-beta.1] - 2026-11-16
+
+Erste Beta von 1.29.0 (die Release Candidates von 1.28.0 enden bei rc.9; die nächste Stable-Version enthält alles aus 1.28.x). Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Fixed
+
+- **Ein Zähler, der in Wh oder MWh meldet, ergab einen 1000-fach zu hohen (oder zu niedrigen) Verbrauch.** Ein Tasmota-Lesekopf liefert den Zählerstand zum Beispiel in Wh; Tariffy hat die Zahlen als kWh genommen, deshalb waren Verbrauch, Prognose, Kosten und der empfohlene Abschlag weit daneben. Jetzt wird die Einheit des Verbrauchssensors gelesen und der **Verbrauch in kWh gerechnet**: Wh (÷ 1000) und MWh (× 1000); kWh und jede andere Einheit bleiben genau wie sie sind. Das gilt für den laufenden Vertrag, das zweite Register eines Zweizählertarifs, den beim Tarifwechsel eingefrorenen Verbrauch und die aus den Statistiken berechneten alten Laufzeiten. Ein von Hand eingetragener Startwert wird in der Einheit des Zählers gelesen, so wie der Sensor ihn zeigt. Die Verbrauchssensoren und das Panel nennen bei so einem Zähler kWh. Der Umweg über einen Template-Sensor ist nicht mehr nötig (und funktioniert weiter). Gemeldet in #74.
+
 ## [1.28.0-rc.9] - 2026-11-13
 
 Neunter Release Candidate von 1.28.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
