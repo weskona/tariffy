@@ -1377,6 +1377,12 @@ for (const width of [1280, 900, 600, 390]) {
   check(/Garten\s*sensor\.wasser_garten/.test(wasser) && /Gartenwasser\s*12,0 m³/.test(wasser) && /Abwasserpflichtiger Verbrauch\s*29,0 m³/.test(wasser),
     `the water contract lists the outdoor meter and the split (${wasser.split("\n").filter((l) => /Garten|Abwasser/.test(l)).join(" | ")})`);
   check(!(await page.locator("details:has-text('Gas Heizung')").first().innerText()).includes("Außenzähler"), "other contracts have no outdoor meters");
+  // the split of the water belongs to the consumption block, not to the list of meters
+  const sections = await page.evaluate(() => Object.fromEntries([...[...window.__panel.shadowRoot.querySelectorAll("details")].find((x) => x.textContent.includes("Wasser")).querySelectorAll(".sec")]
+    .map((el) => [el.querySelector("h4").textContent, el.innerText.replace(/\u00a0/g, " ")])));
+  check(/Gartenwasser\s*12,0 m³/.test(sections["Verbrauch"]) && /Abwasserpflichtiger Verbrauch\s*29,0 m³/.test(sections["Verbrauch"])
+    && /Gartenwasser-Kosten\s*23,40 €/.test(sections["Verbrauch"]) && /Abwasserkosten\s*50,90 €/.test(sections["Verbrauch"]), `the split stands in the consumption block (${JSON.stringify(sections["Verbrauch"])})`);
+  check(!/Abwasserkosten|Gartenwasser-Kosten/.test(sections["Außenzähler"]), "and no longer in the block of the outdoor meters");
   const field = (name) => page.locator(`.dialog [name=${name}]`);
   await page.locator("details", { hasText: "Wasser" }).first().getByRole("button", { name: "Außenzähler hinzufügen" }).click();
   await page.getByRole("button", { name: "Speichern", exact: true }).click();

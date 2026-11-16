@@ -13,7 +13,7 @@ Second beta of 1.30.0. Please report problems with the bug report form and menti
 
 ### Fixed
 
-- **Outdoor meters and one-time items stuck out of their column in the contract details.** A long entity id of an outdoor meter (for example `sensor.bewaesserung_back_gesamtverbrauch_m3`) pushed the figures out of the block and over the neighbouring block "Consumption". The name and the entity id of an outdoor meter now wrap, the figures stand below them and the pencil sits at the right; a long description of a one-time item wraps as well. The block "Outdoor meters" now stands **below the other blocks of the water contract, over the whole width**, with the meters in several columns next to each other, so that up to ten meters fit. Only the panel changes.
+- **Outdoor meters and one-time items stuck out of their column in the contract details.** A long entity id of an outdoor meter (for example `sensor.bewaesserung_back_gesamtverbrauch_m3`) pushed the figures out of the block and over the neighbouring block "Consumption". The name and the entity id of an outdoor meter now wrap, the figures stand below them and the pencil sits at the right; a long description of a one-time item wraps as well. The block "Outdoor meters" now stands **below the other blocks of the water contract, over the whole width**, with the meters in several columns next to each other, so that up to ten meters fit. The split of the water (outdoor water, wastewater-liable consumption and the two costs) moved from the bottom of that block into the block **"Consumption"**, next to "so far" and "cost so far". Only the panel changes.
 
 ## [1.30.0-beta.1] - 2026-11-16
 

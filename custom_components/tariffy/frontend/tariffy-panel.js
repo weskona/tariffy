@@ -559,7 +559,6 @@ tr.sub td:first-child { padding-left: 32px; }
 .sec { min-width: 0; }
 .aussen-sec { grid-column: 1 / -1; }
 .aussen-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 18px; }
-.aussen-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); column-gap: 18px; margin-top: 4px; }
 .once-add { margin-top: 8px; }
 .chart { margin-bottom: 22px; }
 .chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }
@@ -2393,16 +2392,8 @@ class TariffyPanel extends HTMLElement {
         class: "icon-btn", type: "button", title: this._t("aussenEdit"), "aria-label": this._t("aussenEdit"),
         onclick: () => this._openAussen(c, index),
       }, icon("edit")) : null));
-    const sum = (label, value) => h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value }));
-    const totals = isNum(c.garten_verbrauch) ? [
-      sum(this._t("gardenUse"), amount(c.garten_verbrauch)),
-      sum(this._t("gardenCost"), this._money(c.garten_kosten, c.currency, { digits: 2 })),
-      sum(this._t("wwUse"), amount(c.abwasserpflichtiger_verbrauch)),
-      sum(this._t("wwCost"), this._money(c.abwasser_kosten, c.currency, { digits: 2 })),
-    ] : [];
     return h("div", { class: "sec aussen-sec" }, h("h4", { text: this._t("secAussen") }),
       rows.length ? h("div", { class: "aussen-list" }, rows) : null,
-      totals.length ? h("div", { class: "aussen-totals" }, totals) : null,
       this._isAdmin ? h("div", { class: "once-add" }, h("button", {
         class: "btn", type: "button", onclick: () => this._openAussen(c, null),
       }, icon("plus"), this._t("aussenAdd"))) : null);
@@ -2888,6 +2879,7 @@ class TariffyPanel extends HTMLElement {
     };
     const money = (v, digits = 2) => (isNum(v) ? this._money(v, c.currency, { digits }) : null);
     const amount = (v) => (isNum(v) ? `${this._num(v, 0)} ${unit}` : null);
+    const amount1 = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : null); // small amounts (outdoor water) need a decimal
     const nxt = c.next || {};
 
     const sections = [
@@ -2929,11 +2921,15 @@ class TariffyPanel extends HTMLElement {
       this._onceSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         row(this._t("soFar"), amount(c.verbrauch_bisher)),
+        row(this._t("gardenUse"), amount1(c.garten_verbrauch)),
+        row(this._t("wwUse"), amount1(c.abwasserpflichtiger_verbrauch)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),
         row(this._t("soFarLow"), amount(c.verbrauch_bisher_nt)),
         row(this._t("projectedTerm"), amount(c.verbrauch_hochgerechnet)),
         row(this._t("lastPeriod"), amount(c.verbrauch_letzte_laufzeit)),
         row(this._t("costSoFar"), money(c.kosten_bisher)),
+        row(this._t("gardenCost"), money(c.garten_kosten)),
+        row(this._t("wwCost"), money(c.abwasser_kosten)),
         row(this._t("balanceSoFar"), isNum(c.guthaben_bisher) ? this._money(c.guthaben_bisher, c.currency, { sign: true, digits: 2 }) : null),
         row(this._t("endForecast"), isNum(c.prognose_real) ? this._money(c.prognose_real, c.currency, { sign: true, digits: 2 }) : null),
       ]) : null,
