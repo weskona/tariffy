@@ -75,7 +75,7 @@ On a phone the cards turn into expandable rows:
 | Refund/balance due (so far) | € | Energy | Instalments paid so far − Cost (so far), as of today (no projection). Icon shows 👍/👎 depending on sign |
 | Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
 | Annual consumption (kWh) | kWh | Gas | Manually entered annual estimate, converted via calorific value & state number |
-| Consumption (so far) | unit of the consumption sensor (usually m³) | Energy+Water | Measured consumption since contract start — raw meter delta, **not** automatically converted to kWh |
+| Consumption (so far) | unit of the consumption sensor (usually m³) | Energy+Water | Measured consumption since contract start — raw meter delta in the unit of the sensor (a meter reporting **Wh or MWh is calculated in kWh**); gas/water are **not** converted to kWh here |
 | Consumption (contract term projected) | unit of the consumption sensor | Energy+Water | Current consumption extrapolated to the full contract term (not a fixed calendar year) |
 | Consumption (last period) | unit of the consumption sensor | Energy | Frozen at tariff switch — basis for recommended payment |
 | Consumption, high/low tariff (so far) | kWh | Electricity (dual meter) | Measured consumption of each register since contract start |

@@ -110,7 +110,9 @@ async def _verbrauch_aus_statistik(
     for sensor in sensors:
         start = await coord._get_historic_value(hass, sensor, beginn)
         end = await coord._get_historic_value(hass, sensor, ende + timedelta(days=1))
-        delta = coord._pick_verbrauch_delta(end[0], start[0], end[1], start[1])
+        delta = coord._pick_verbrauch_delta(
+            end[0], start[0], end[1], start[1], await coord._einheit_faktor(hass, sensor)
+        )
         if delta is None or delta < 0:
             return None, sensors
         total += delta

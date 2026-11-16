@@ -623,6 +623,8 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
                 sensor_id = entry.data.get(CONF_VERBRAUCH_SENSOR)
                 state = coordinator.hass.states.get(sensor_id) if sensor_id else None
                 sensor_unit = state.attributes.get("unit_of_measurement") if state else None
+                if str(sensor_unit or "").strip().lower() in ("wh", "mwh"):
+                    sensor_unit = VERBRAUCH_KWH_EINHEIT  # the consumption is calculated in kWh
                 self._attr_native_unit_of_measurement = sensor_unit or fallback
             else:
                 self._attr_native_unit_of_measurement = VERBRAUCH_KWH_EINHEIT

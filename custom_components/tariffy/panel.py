@@ -160,9 +160,9 @@ def contract_payload(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
     # Unit of the raw consumption values: the unit of the user's meter sensor.
     sensor_id = entry.data.get(CONF_VERBRAUCH_SENSOR)
     state = hass.states.get(sensor_id) if sensor_id else None
-    payload["verbrauch_einheit"] = (
-        state.attributes.get("unit_of_measurement") if state else None
-    )
+    unit = state.attributes.get("unit_of_measurement") if state else None
+    # a meter reporting Wh or MWh is calculated in kWh (see coordinator._einheit_faktor)
+    payload["verbrauch_einheit"] = "kWh" if str(unit or "").strip().lower() in ("wh", "mwh") else unit
     return payload
 
 
