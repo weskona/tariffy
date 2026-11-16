@@ -1377,6 +1377,12 @@ for (const width of [1280, 900, 600, 390]) {
   check(/Garten\s*sensor\.wasser_garten/.test(wasser) && /Gartenwasser\s*12,0 m³/.test(wasser) && /Abwasserpflichtiger Verbrauch\s*29,0 m³/.test(wasser),
     `the water contract lists the outdoor meter and the split (${wasser.split("\n").filter((l) => /Garten|Abwasser/.test(l)).join(" | ")})`);
   check(!(await page.locator("details:has-text('Gas Heizung')").first().innerText()).includes("Außenzähler"), "other contracts have no outdoor meters");
+  // the split of the water belongs to the consumption block, not to the list of meters
+  const sections = await page.evaluate(() => Object.fromEntries([...[...window.__panel.shadowRoot.querySelectorAll("details")].find((x) => x.textContent.includes("Wasser")).querySelectorAll(".sec")]
+    .map((el) => [el.querySelector("h4").textContent, el.innerText.replace(/\u00a0/g, " ")])));
+  check(/Gartenwasser\s*12,0 m³/.test(sections["Verbrauch"]) && /Abwasserpflichtiger Verbrauch\s*29,0 m³/.test(sections["Verbrauch"])
+    && /Gartenwasser-Kosten\s*23,40 €/.test(sections["Verbrauch"]) && /Abwasserkosten\s*50,90 €/.test(sections["Verbrauch"]), `the split stands in the consumption block (${JSON.stringify(sections["Verbrauch"])})`);
+  check(!/Abwasserkosten|Gartenwasser-Kosten/.test(sections["Außenzähler"]), "and no longer in the block of the outdoor meters");
   const field = (name) => page.locator(`.dialog [name=${name}]`);
   await page.locator("details", { hasText: "Wasser" }).first().getByRole("button", { name: "Außenzähler hinzufügen" }).click();
   await page.getByRole("button", { name: "Speichern", exact: true }).click();
@@ -1459,6 +1465,56 @@ for (const width of [1280, 900, 600, 390]) {
   check(costs.includes("Baufinanzierung") && costs.includes("229.212,49 €") && costs.includes("310.109,08 €") && costs.includes("Kredite laufen getrennt"), "the cost tab lists the loan apart from the contract tables");
   check(!(await page.locator(".chart").innerText()).includes("Kredit"), "the loan is not in the cost split");
   await context.close();
+}
+
+{ // outdoor meters with long entity ids stay inside their column (they used to reach into the next block)
+  for (const width of [1650, 1280, 390]) {
+    const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
+    const page = await context.newPage();
+    page.on("pageerror", (e) => errors.push(`aussen layout ${width}: ${e.message}`));
+    await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+    await page.goto(`${base}?lang=de${width < 500 ? "&narrow=1" : ""}`);
+    await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".card"));
+    await page.evaluate(() => {
+      const p = window.__panel;
+      const meters = Array.from({ length: 10 }, (_, i) => ({ name: `Bewässerung ${i + 1}`, sensor: `sensor.bewaesserung_${i + 1}_gesamtverbrauch_m3`, verbrauch: 1.5 * (i + 1), kosten: 2.79 * (i + 1) }));
+      p._contracts = p._contracts.map((c) => (c.title === "Wasser" ? { ...c, einmalposten: [{ bezeichnung: "Ein sehr langer Name eines Einmalpostens ohne Leerzeichen_und_Unterstriche", betrag: 12.5, datum: null }], aussenzaehler: meters } : c));
+      p._render();
+    });
+    await page.getByRole("tab", { name: "Verträge", exact: true }).click();
+    await page.locator("details", { hasText: "Wasser" }).first().locator("summary").click();
+    const stuck = await page.evaluate(() => {
+      const d = [...window.__panel.shadowRoot.querySelectorAll("details")].find((x) => x.textContent.includes("Wasser"));
+      const out = [];
+      for (const sec of d.querySelectorAll(".sec")) {
+        const r = sec.getBoundingClientRect();
+        for (const el of sec.querySelectorAll("*")) {
+          const b = el.getBoundingClientRect();
+          if (b.width && (b.right > r.right + 1 || b.left < r.left - 1)) out.push(`${sec.querySelector("h4").textContent}: ${el.tagName}.${el.getAttribute("class") || ""}`);
+        }
+      }
+      return [...new Set(out)];
+    });
+    check(stuck.length === 0, `the sections of a water contract keep their figures inside the column at ${width} px (${stuck.slice(0, 3)})`);
+    const layout = await page.evaluate(() => {
+      const d = [...window.__panel.shadowRoot.querySelectorAll("details")].find((x) => x.textContent.includes("Wasser"));
+      const sections = [...d.querySelectorAll(".sec")].map((el) => ({ title: el.querySelector("h4").textContent, r: el.getBoundingClientRect() }));
+      const outdoor = sections.find((x) => x.title === "Außenzähler");
+      const others = sections.filter((x) => x !== outdoor);
+      const detail = d.querySelector(".detail").getBoundingClientRect();
+      const rows = [...d.querySelectorAll(".aussen-row")].map((el) => el.getBoundingClientRect());
+      return {
+        belowOthers: others.every((x) => x.r.bottom <= outdoor.r.top + 1),
+        fullWidth: outdoor.r.width >= detail.width - 40,
+        meters: rows.length,
+        perRow: new Set(rows.map((r) => Math.round(r.top))).size,
+      };
+    });
+    check(layout.belowOthers && layout.fullWidth, `the outdoor meters stand below the other blocks over the whole width at ${width} px (${JSON.stringify(layout)})`);
+    check(layout.meters === 10 && (width < 500 ? layout.perRow === 10 : layout.perRow <= 4), `ten outdoor meters sit side by side where there is room (${layout.perRow} rows at ${width} px)`);
+    if (width === 1280) await page.locator("details", { hasText: "Wasser" }).first().screenshot({ path: join(outDir, "outdoor-meters-layout.png") });
+    await context.close();
+  }
 }
 
 await browser.close();
