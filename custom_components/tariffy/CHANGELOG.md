@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.30.0-beta.2] - 2026-11-16
+
+Zweite Beta von 1.30.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Fixed
+
+- **Außenzähler und Einmalposten ragten in den Vertragsdetails aus ihrer Spalte.** Eine lange Entity-ID eines Außenzählers (zum Beispiel `sensor.bewaesserung_back_gesamtverbrauch_m3`) schob die Werte aus dem Block heraus und über den Nachbarblock "Verbrauch". Name und Entity-ID eines Außenzählers brechen jetzt um, die Werte stehen darunter und der Stift sitzt rechts; auch eine lange Bezeichnung eines Einmalpostens bricht um. Es ändert sich nur das Panel.
+
 ## [1.30.0-beta.1] - 2026-11-16
 
 Erste Beta von 1.30.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

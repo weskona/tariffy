@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.30.0-beta.2] - 2026-11-16
+
+Second beta of 1.30.0. Please report problems with the bug report form and mention this exact version.
+
+### Fixed
+
+- **Outdoor meters and one-time items stuck out of their column in the contract details.** A long entity id of an outdoor meter (for example `sensor.bewaesserung_back_gesamtverbrauch_m3`) pushed the figures out of the block and over the neighbouring block "Consumption". The name and the entity id of an outdoor meter now wrap, the figures stand below them and the pencil sits at the right; a long description of a one-time item wraps as well. Only the panel changes.
+
 ## [1.30.0-beta.1] - 2026-11-16
 
 First beta of 1.30.0. Please report problems with the bug report form and mention this exact version.

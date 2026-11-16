@@ -549,6 +549,14 @@ tr.sub td:first-child { padding-left: 32px; }
 .hist-total { margin: 8px 2px 0; }
 .once-row .t2 { display: block; }
 .once-row .icon-btn { margin-left: 4px; flex: none; }
+.once-row > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.once-row > span:nth-child(2) { white-space: nowrap; }
+.aussen-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: start; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.aussen-row .an { min-width: 0; overflow-wrap: anywhere; }
+.aussen-row .t2 { display: block; font-size: 12px; color: var(--muted); }
+.aussen-row .av { grid-column: 1; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.aussen-row .icon-btn { grid-column: 2; grid-row: 1 / span 2; }
+.sec { min-width: 0; }
 .once-add { margin-top: 8px; }
 .chart { margin-bottom: 22px; }
 .chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }
@@ -2374,9 +2382,10 @@ class TariffyPanel extends HTMLElement {
     if (!items.length && !this._isAdmin) return null;
     const unit = this._unit(c);
     const amount = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : "–");
-    const rows = items.map((item, index) => h("div", { class: "row once-row" },
-      h("span", {}, item.name, h("span", { class: "t2", text: item.sensor })),
-      h("span", { text: isNum(item.verbrauch) ? `${amount(item.verbrauch)}${isNum(item.kosten) ? ` · ${this._money(item.kosten, c.currency, { digits: 2 })}` : ""}` : "–" }),
+    // name and sensor on top (a long entity id wraps), the figures below, the pencil at the right
+    const rows = items.map((item, index) => h("div", { class: "aussen-row" },
+      h("div", { class: "an" }, item.name, h("span", { class: "t2", text: item.sensor })),
+      h("div", { class: "av", text: isNum(item.verbrauch) ? `${amount(item.verbrauch)}${isNum(item.kosten) ? ` · ${this._money(item.kosten, c.currency, { digits: 2 })}` : ""}` : "–" }),
       this._isAdmin ? h("button", {
         class: "icon-btn", type: "button", title: this._t("aussenEdit"), "aria-label": this._t("aussenEdit"),
         onclick: () => this._openAussen(c, index),
