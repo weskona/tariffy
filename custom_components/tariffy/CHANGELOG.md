@@ -7,23 +7,23 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
-## [1.30.0-beta.2] - 2026-11-16
+## [1.30.0] - 2026-11-16
 
-Zweite Beta von 1.30.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Fixed
-
-- **Außenzähler und Einmalposten ragten in den Vertragsdetails aus ihrer Spalte.** Eine lange Entity-ID eines Außenzählers (zum Beispiel `sensor.bewaesserung_back_gesamtverbrauch_m3`) schob die Werte aus dem Block heraus und über den Nachbarblock "Verbrauch". Name und Entity-ID eines Außenzählers brechen jetzt um, die Werte stehen darunter und der Stift sitzt rechts; auch eine lange Bezeichnung eines Einmalpostens bricht um. Der Block "Außenzähler" steht jetzt **unter den anderen Blöcken des Wasservertrags, über die ganze Breite**, mit den Zählern in mehreren Spalten nebeneinander, sodass bis zu zehn Zähler Platz haben. Die Aufteilung des Wassers (Gartenwasser, abwasserpflichtiger Verbrauch und die beiden Kosten) ist vom Ende dieses Blocks in den Block **"Verbrauch"** gewandert, neben "Bisher" und "Kosten bisher". Es ändert sich nur das Panel.
-
-## [1.30.0-beta.1] - 2026-11-16
-
-Erste Beta von 1.30.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+Dieses Release fasst alles zusammen, was in den Betas `1.30.0-beta.1` und `1.30.0-beta.2` getestet wurde. **Bestehende Verträge laufen ohne jede Änderung weiter.** Die neue Sparte ist freiwillig; neue Sensoren gibt es nur für Kredite.
 
 ### Added
 
-- **Neue Sparte "Kredit / Finanzierung"** (gewünscht in #61) für Annuitätendarlehen, Ratenkredite und Autofinanzierungen. Ein Kredit läuft **getrennt von den Verträgen**: Er hat im Panel eine eigene Gruppe (Übersicht, Kosten, Verträge) und zählt nicht in die Summen der Verträge. Im Formular trägst du die Kreditsumme, den **Sollzins** und/oder den **effektiven Jahreszins**, die Laufzeit in Monaten, die Zahlweise (monatlich bis jährlich) und freiwillig die **Rate** (leer = Tariffy rechnet die Annuität aus; eine Rate, die nicht zum Zins passt, wird gemeldet), eine **Schlussrate / einen Restwert** und das **Datum der ersten Rate** ein (leer = ein Zahlungsintervall nach dem Beginn, bei monatlicher Zahlung: Ende des ersten Monats).
+- **Neue Sparte "Kredit / Finanzierung"** (gewünscht in #61) für Annuitätendarlehen, Ratenkredite und Autofinanzierungen. Ein Kredit läuft **getrennt von den Verträgen**: Er hat im Panel eine eigene Gruppe (Übersicht, Kosten, Verträge) und zählt nicht in die Summen der Verträge und nicht in die Kostenaufteilung. Im Formular trägst du die Kreditsumme, den **Sollzins** und/oder den **effektiven Jahreszins**, die Laufzeit in Monaten, die Zahlweise (monatlich bis jährlich) und freiwillig die **Rate** (leer = Tariffy rechnet die Annuität aus; eine Rate, die nicht zum Zins passt, wird gemeldet), eine **Schlussrate / einen Restwert** und das **Datum der ersten Rate** ein (leer = ein Zahlungsintervall nach dem Beginn, bei monatlicher Zahlung: Ende des ersten Monats).
 - Tariffy rechnet den **Tilgungsplan**: die **Restschuld**, **Gezahlt bisher** (Zinsen und Tilgung), die **Restsumme** bis zum Ende, Zinsen bisher und über die ganze Laufzeit, die gezahlten Raten, die nächste Rate mit der Aufteilung in Zins und Tilgung und den Fortschritt der Tilgung. Ein Kredit hat vier Sensoren (**Restschuld**, **Gezahlt bisher**, **Restsumme**, **Zinsen bisher**); andere Verträge bekommen keine.
-- **Anschlussfinanzierung** mit dem vorhandenen Symbol "Vertrag verlängern": Die Restschuld wird als neue Summe vorgeschlagen, dazu neuer Zins und neue Laufzeit; die bisherige Laufzeit kommt in die Historie. Nicht enthalten in dieser Version: Sondertilgungen und ein wechselnder Zins innerhalb der Laufzeit.
+- **Anschlussfinanzierung** mit dem vorhandenen Symbol "Vertrag verlängern": Die Restschuld wird als neue Summe vorgeschlagen, dazu neuer Zins und neue Laufzeit; die bisherige Laufzeit kommt in die Historie. Nicht enthalten: Sondertilgungen und ein wechselnder Zins innerhalb der Laufzeit.
+
+### Changed
+
+- **Der Block "Außenzähler" eines Wasservertrags** steht unter den anderen Blöcken, über die ganze Breite, mit den Zählern in mehreren Spalten nebeneinander (bis zu zehn passen). Die Aufteilung des Wassers (Gartenwasser, abwasserpflichtiger Verbrauch und die beiden Kosten) steht im Block "Verbrauch", neben "Bisher" und "Kosten bisher".
+
+### Fixed
+
+- **Außenzähler und Einmalposten ragten in den Vertragsdetails aus ihrer Spalte.** Eine lange Entity-ID eines Außenzählers schob die Werte aus dem Block heraus und über den Nachbarblock. Namen und Entity-IDs brechen jetzt um, auch eine lange Bezeichnung eines Einmalpostens bricht um.
 
 ## [1.29.1] - 2026-11-16
 
