@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.29.1] - 2026-11-16
+
+### Fixed
+
+- **Beim Bearbeiten eines Vertrags gingen seine Einmalposten und seine Außenzähler verloren.** Das Speichern des Formulars "Vertrag bearbeiten" (im Panel oder in Home Assistant unter "Neu konfigurieren") hat die Einmalposten (Bonus, Rechnung) und die Außenzähler eines Wasservertrags entfernt, weil sie nicht auf der Liste der Werte standen, die eine Bearbeitung behält. Sie bleiben jetzt erhalten. Auch ein Tarifwechsel behält die Einmalposten des Vertrags. Verträge, die nie Einmalposten oder Außenzähler hatten, sind nicht betroffen. Wenn du mit 1.29.0 Posten oder Zähler eingetragen und den Vertrag danach bearbeitet hast, trage sie bitte neu ein.
+
 ## [1.29.0] - 2026-11-16
 
 Dieses Release fasst alles zusammen, was in den Betas `1.28.0-beta.1` bis `1.28.0-rc.9` und `1.29.0-beta.1` bis `1.29.0-beta.3` getestet wurde (es gibt keine stabile 1.28.0; die Nummerierung geht bei 1.29.0 weiter, weil GitHub Nummern über 9 falsch sortiert, siehe "Beta-Releases" in der Dokumentation). **Bestehende Verträge laufen ohne jede Änderung weiter.** Alles Neue ist freiwillig und steht in den Vertragsdaten; neue Sensoren gibt es nur dort, wo es unten steht. Einige Zahlen ändern sich bei bestehenden Verträgen, sie stehen unter "Changed" und "Fixed".

@@ -72,3 +72,11 @@ async def test_bad_input_is_refused(frontend_env, contract, hass, hass_ws_client
     reply = await _call(client, "einmal_save", entry_id=entry.entry_id, values=values)
     assert reply["success"] is False and reply["error"]["code"] == code
     assert "_einmalposten" not in entry.data
+
+
+async def test_the_items_stay_after_a_tariff_switch(contract, hass):
+    posten = [{"bezeichnung": "Wechselbonus", "betrag": 80.0, "datum": "2026-02-01"}]
+    options = {"next_beginn": "2026-07-01", "next_ende": "2027-06-30", "next_anbieter": "Neu", "next_arbeitspreis": 0.25}
+    entry, _ = await contract.setup({**STROM, "_einmalposten": posten}, options=options, **GOLDEN)
+    assert entry.data["anbieter"] == "Neu"
+    assert entry.data["_einmalposten"] == posten  # the items belong to the contract, not to one term

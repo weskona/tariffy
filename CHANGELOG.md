@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.1] - 2026-11-16
+
+### Fixed
+
+- **Editing a contract removed its one-time items and its outdoor meters.** Saving the form "Edit contract" (in the panel or in Home Assistant under "Reconfigure") dropped the one-time items (bonus, bill) and the outdoor meters of a water contract, because they were not on the list of values that an edit keeps. They are kept now. A tariff switch also keeps the one-time items of the contract. Contracts that never had one-time items or outdoor meters are not affected. If you added items or meters with 1.29.0 and then edited the contract, enter them again.
+
 ## [1.29.0] - 2026-11-16
 
 This release brings together everything that was tested in the betas `1.28.0-beta.1` to `1.28.0-rc.9` and `1.29.0-beta.1` to `1.29.0-beta.3` (there is no stable 1.28.0; the numbering continued at 1.29.0 because GitHub lists numbers above 9 in the wrong order, see "Beta releases" in the documentation). **Existing contracts keep working without any change.** Everything new is optional and stored in the contract data; new sensors exist only where stated below. A few numbers change for existing contracts, they are listed under "Changed" and "Fixed".
