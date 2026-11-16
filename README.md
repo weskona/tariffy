@@ -354,6 +354,7 @@ Wie Strom, zusätzlich:
 | Verbrauchssensor | – | HA-Sensor des Wasserzählers |
 | Abwasser-Typ | ✅ | Festpreis/Einheit, % des Frischwassers oder Monatspauschale |
 | Abwassergebühr | – | Betrag je nach gewähltem Typ |
+| Außenzähler | – | Im Panel (Block „Außenzähler“): Garten/Pool ohne Abwasser, siehe Wiki |
 | Zählernummer | – | Für Dokumentation |
 
 #### Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Streaming, Versicherung, …)

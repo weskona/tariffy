@@ -664,6 +664,18 @@
       "naechster_wechsel": {
         "name": "Nächster Wechsel"
       },
+      "garten_verbrauch": {
+        "name": "Gartenwasser (Verbrauch)"
+      },
+      "garten_kosten": {
+        "name": "Gartenwasser (Kosten)"
+      },
+      "abwasserpflichtiger_verbrauch": {
+        "name": "Abwasserpflichtiger Verbrauch"
+      },
+      "abwasser_kosten": {
+        "name": "Abwasserkosten"
+      },
       "kuendigung_erinnerung": {
         "name": "Kündigungs-Erinnerung"
       },

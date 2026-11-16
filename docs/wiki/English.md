@@ -242,6 +242,15 @@ Metered contracts (electricity, gas, water) have the **next contract** for this,
 
 Screenshots: [docs/panel-preview](https://github.com/weskona/tariffy/tree/main/docs/panel-preview)
 
+### Outdoor meters (garden, pool, irrigation)
+
+A **water contract** can have up to ten outdoor meters, entered in the **Contracts** tab of the panel (block **Outdoor meters**, administrators only). Water taken through them does not go into the sewer. Per meter: **name**, **consumption sensor**, optionally a **start value** (the reading at the start of the contract, in the unit of the meter) and optionally **a price of its own per unit** (otherwise the fresh-water price). The outdoor meter counts as a sub-meter, its consumption is part of the main meter:
+
+- **Wastewater-liable consumption = main meter − sum of the outdoor meters** (never below 0).
+- Outdoor water costs the fresh-water price (or the price of its own), the rest fresh water plus wastewater. The cost so far, the forecast and the recommended instalment use the **weighted price** of the main meter, like a dual-tariff meter.
+- A meter in litres is converted to the unit of the main meter.
+- A contract with an outdoor meter gets four more sensors: **Outdoor water (consumption)**, **Outdoor water (cost)**, **Wastewater-liable consumption**, **Wastewater cost**. The total cost is in the cost sensors as always. Without an outdoor meter nothing changes.
+
 ## One-time items (bonus and bill)
 
 In the **Contracts** tab of the panel every contract has a block **One-time items** in its details (only administrators can change it). Enter one-off amounts that are not part of the instalment, with a **description**, an **amount** and a **date**: a **positive** amount is a **credit** (e.g. a switching bonus), a **negative** amount is a **bill** (e.g. the fee of a broker looking after the contracts). An item counts from its date (at once without a date). It changes the **balance so far** and the **total cost** over all terms: a bonus lowers the cost, a bill raises it. The forecast at contract end and the low-instalment warning still depend on the consumption only. The items work for every kind of contract, survive renewal and a tariff change and are part of the backup. The field "New customer bonus" in the contract form is unchanged and only displayed.

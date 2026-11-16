@@ -41,6 +41,7 @@ from .const import (
     CONF_ARCHIVIERT,
     CONF_GAS_EINHEIT,
     CONF_GRUNDPREIS,
+    CONF_AUSSENZAEHLER,
     CONF_EINMALPOSTEN,
     CONF_HISTORIE,
     CONF_JAHRESVERBRAUCH,
@@ -188,6 +189,23 @@ def _f(value: Any) -> float | None:
         return float(value)
     except (ValueError, TypeError):
         return None
+
+
+def _wasser_einheit(hass: HomeAssistant, entity_id: str | None) -> str:
+    state = hass.states.get(entity_id) if entity_id else None
+    unit = state.attributes.get("unit_of_measurement") if state else None
+    return str(unit or "").strip().lower().replace("m3", "m³")
+
+
+def _in_einheit(wert: float | None, von: str, nach: str) -> float | None:
+    """Rechnet einen Wasserverbrauch von Liter in m³ (oder zurueck) um; sonst unveraendert."""
+    if wert is None:
+        return None
+    if von == "l" and nach == "m³":
+        return wert / 1000
+    if von == "m³" and nach == "l":
+        return wert * 1000
+    return wert
 
 
 def _monate_wert(value: Any) -> int:
@@ -534,6 +552,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset_nt: float | None = None
         self._verbrauch_offset_state_nt: float | None = None
         self._verbrauch_offset_date_nt: date | None = None
+        # Aussenzaehler eines Wasservertrags: Offset je Sensor (Datum, sum, state)
+        self._aussen_offsets: dict[str, tuple[date, float, float | None]] = {}
         # Fuer den Diagnose-Download und die Warnung im Log: wie der
         # Verbrauch beim letzten Update ermittelt wurde (siehe diagnostics.py).
         self.verbrauch_diag: dict[str, Any] = {}
@@ -705,6 +725,17 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_HISTORIE: historie[-HISTORIE_MAX:],
             CONF_SPARTE: self.entry.data.get(CONF_SPARTE),
             CONF_ERINNERUNG_MONATE: self.entry.data.get(CONF_ERINNERUNG_MONATE, "0"),
+            # die Aussenzaehler bleiben angeschlossen; ihr Startwert gehoerte zum alten Vertrag
+            **(
+                {
+                    CONF_AUSSENZAEHLER: [
+                        {key: value for key, value in zaehler.items() if key != "start_wert"}
+                        for zaehler in self.entry.data[CONF_AUSSENZAEHLER]
+                    ]
+                }
+                if self.entry.data.get(CONF_AUSSENZAEHLER)
+                else {}
+            ),
             # die Erinnerung haengt an der Kuendigungsfrist: sie bleibt beim Wechsel erhalten
             **(
                 {CONF_KUENDIGUNGSFRIST: self.entry.data[CONF_KUENDIGUNGSFRIST]}
@@ -746,6 +777,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._verbrauch_offset_nt = None
         self._verbrauch_offset_state_nt = None
         self._verbrauch_offset_date_nt = None
+        self._aussen_offsets = {}
         self.hass.config_entries.async_update_entry(
             self.entry, data=new_data, options={}
         )
@@ -948,6 +980,89 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return live
         _sum, last_state = await _get_latest_sum(self.hass, sensor_id)
         return last_state
+
+    async def _get_aussen_offset(
+        self, entity_id: str, beginn: date
+    ) -> tuple[float | None, float | None]:
+        """(sum, state) eines Aussenzaehlers zum Vertragsbeginn (je Sensor einmal, dann gecacht)."""
+        cached = self._aussen_offsets.get(entity_id)
+        if cached is not None and cached[0] == beginn:
+            return cached[1], cached[2]
+        sum_val, state_val = await _get_historic_value(self.hass, entity_id, beginn)
+        if sum_val is not None:
+            self._aussen_offsets[entity_id] = (beginn, sum_val, state_val)
+        return sum_val, state_val
+
+    async def _aussenzaehler(
+        self,
+        zaehler_liste: list[dict[str, Any]],
+        beginn: date | None,
+        verbrauch_bisher: float | None,
+        hauptsensor: str | None,
+        frischwasserpreis: float | None,
+        gesamtpreis: float | None,
+    ) -> dict[str, Any]:
+        """Aussenzaehler (Garten, Pool, ...) eines Wasservertrags: ihr Verbrauch steckt im Hauptzaehler,
+        ist aber nicht abwasserpflichtig. Rechnet je Zaehler Verbrauch und Kosten und gibt zurueck, welcher
+        durchschnittliche Preis je Einheit des Hauptzaehlers daraus folgt (`preis`: None = unveraendert)."""
+        ergebnis: dict[str, Any] = {
+            "liste": [],
+            "garten_verbrauch": None,
+            "garten_kosten": None,
+            "abwasserpflichtig": None,
+            "abwasser_kosten": None,
+            "preis": None,
+        }
+        haupt_einheit = _wasser_einheit(self.hass, hauptsensor)
+        verbrauch_summe = 0.0
+        for zaehler in zaehler_liste:
+            sensor = zaehler.get("sensor")
+            start = _f(zaehler.get("start_wert"))
+            verbrauch = await self._verbrauch_bisher_fuer_sensor(
+                sensor, start, beginn, self._get_aussen_offset
+            )
+            verbrauch = _in_einheit(verbrauch, _wasser_einheit(self.hass, sensor), haupt_einheit)
+            if verbrauch is not None and verbrauch < 0:
+                verbrauch = None
+            ergebnis["liste"].append(
+                {
+                    "name": zaehler.get("name"),
+                    "sensor": sensor,
+                    "start_wert": start,
+                    "preis": _f(zaehler.get("preis")),
+                    "verbrauch": verbrauch,
+                    "kosten": None,
+                }
+            )
+            if verbrauch is not None:
+                verbrauch_summe += verbrauch
+        if verbrauch_bisher is None or verbrauch_bisher <= 0 or frischwasserpreis is None:
+            return ergebnis
+        # mehr als der Hauptzaehler gezaehlt hat kann nicht ausserhalb des Abwassers liegen
+        anteil = min(1.0, verbrauch_bisher / verbrauch_summe) if verbrauch_summe > 0 else 0.0
+        garten_kosten = 0.0
+        for eintrag in ergebnis["liste"]:
+            if eintrag["verbrauch"] is None:
+                continue
+            preis = eintrag["preis"] if eintrag["preis"] is not None else frischwasserpreis
+            eintrag["kosten"] = round(eintrag["verbrauch"] * anteil * preis, 2)
+            garten_kosten += eintrag["verbrauch"] * anteil * preis
+        garten_verbrauch = verbrauch_summe * anteil
+        abwasserpflichtig = verbrauch_bisher - garten_verbrauch
+        voll = gesamtpreis if gesamtpreis is not None else frischwasserpreis
+        ergebnis.update(
+            {
+                "garten_verbrauch": round(garten_verbrauch, 2),
+                "garten_kosten": round(garten_kosten, 2),
+                "abwasserpflichtig": round(abwasserpflichtig, 2),
+                "abwasser_kosten": round(abwasserpflichtig * (voll - frischwasserpreis), 2),
+                # Hauptzaehler-Verbrauch: der abwasserpflichtige Teil zum vollen Preis, der Rest zum Gartenpreis
+                "preis": round((abwasserpflichtig * voll + garten_kosten) / verbrauch_bisher, 6)
+                if verbrauch_summe > 0
+                else None,
+            }
+        )
+        return ergebnis
 
     async def _verbrauch_bisher_fuer_sensor(
         self,
@@ -1351,6 +1466,16 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         6,
                     )
 
+        aussen: dict[str, Any] = {}
+        if sparte == WASSER_SPARTE and data.get(CONF_AUSSENZAEHLER):
+            aussen = await self._aussenzaehler(
+                list(data[CONF_AUSSENZAEHLER]), beginn, verbrauch_bisher, verbrauch_sensor,
+                arbeitspreis, arbeitspreis_gesamt_wasser,
+            )
+            if aussen["preis"] is not None:
+                # wie beim Zweizaehlertarif: ab hier rechnet alles mit dem gewichteten Preis weiter
+                arbeitspreis_gesamt_wasser = aussen["preis"]
+
         if verbrauch_bisher is not None and verbrauch_bisher > 0:
             vergangene_tage = (heute - beginn).days
             if vergangene_tage > 0:
@@ -1567,6 +1692,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ABWASSER_TYP: abwasser_typ,
             "arbeitspreis_gesamt_wasser": arbeitspreis_gesamt_wasser,
             "abwasser_pauschal_monat": abwasser_pauschal_monat,
+            "aussenzaehler": aussen.get("liste") or [],
+            "garten_verbrauch": aussen.get("garten_verbrauch"),
+            "garten_kosten": aussen.get("garten_kosten"),
+            "abwasserpflichtiger_verbrauch": aussen.get("abwasserpflichtig"),
+            "abwasser_kosten": aussen.get("abwasser_kosten"),
             "hat_tag_nacht": hat_tag_nacht,
             CONF_EINSPEISEVERGUETUNG: einspeiseverguetung,
             CONF_ARBEITSPREIS_NACHT: arbeitspreis_nacht,

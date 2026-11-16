@@ -42,11 +42,15 @@ class Contract:
         self.values: dict[str, Any] = {}
 
     async def _latest(self, _hass, entity_id):
+        if entity_id in self.values.get("extra", {}):
+            return self.values["extra"][entity_id][0]
         if entity_id == self.values.get("nt_id"):
             return self.values["latest_nt"]
         return self.values["latest"]
 
     async def _offset(self, _hass, entity_id, _at_date):
+        if entity_id in self.values.get("extra", {}):
+            return self.values["extra"][entity_id][1]
         if entity_id == self.values.get("nt_id"):
             return self.values["offset_nt"]
         return self.values["offset"]
@@ -66,8 +70,10 @@ class Contract:
         offset_nt: tuple[float | None, float | None] = (None, None),
         average_price: float | None = None,
         sensor_states: dict[str, str] | None = None,
+        extra: dict[str, tuple[tuple[float | None, float | None], tuple[float | None, float | None]]] | None = None,
     ):
         self.values = {
+            "extra": extra or {},
             "latest": latest,
             "offset": offset,
             "latest_nt": latest_nt,

@@ -171,6 +171,12 @@ HISTORIE_MAX = 50
 CONF_EINMALPOSTEN = "_einmalposten"
 EINMALPOSTEN_MAX = 50
 
+# Aussenzaehler eines Wasservertrags (interner Schluessel, nur Wasser): Liste aus
+# {name, sensor, start_wert, preis}. Ihr Verbrauch ist im Hauptzaehler enthalten und ist nicht
+# abwasserpflichtig (Garten, Pool, Bewaesserung).
+CONF_AUSSENZAEHLER = "_aussenzaehler"
+AUSSENZAEHLER_MAX = 10
+
 # Abschlag-Warnung (optional, pro Vertrag): warnt, wenn die Prognose zum
 # Vertragsende eine Nachzahlung ueber der Schwelle erwarten laesst.
 CONF_ABSCHLAG_WARNUNG = "abschlag_warnung"
