@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.29.0-beta.3] - 2026-11-16
+
+Dritte Beta von 1.29.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- **Die Karten der Pauschalverträge nutzen auf breiten Bildschirmen vier Spalten.** Ab einer Panelbreite von 1500 px stehen die Karten der Pauschalverträge (Internet, Streaming, Versicherung, ...) vier statt drei nebeneinander; die Karten der Verbrauchsverträge behalten bis 1750 px drei Spalten, weil sie mehr Platz brauchen.
+
 ## [1.29.0-beta.2] - 2026-11-16
 
 Zweite Beta von 1.29.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

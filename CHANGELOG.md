@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.29.0-beta.3] - 2026-11-16
+
+Third beta of 1.29.0. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- **The flat-rate contract cards use four columns on wide screens.** From a panel width of 1500 px the flat-rate cards (internet, streaming, insurance, ...) are shown four in a row instead of three; the consumption cards keep three columns up to 1750 px, because they need more room.
+
 ## [1.29.0-beta.2] - 2026-11-16
 
 Second beta of 1.29.0. Please report problems with the bug report form and mention this exact version.

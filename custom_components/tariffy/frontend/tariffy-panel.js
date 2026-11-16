@@ -393,6 +393,7 @@ const STYLE = `
 .grid.flat { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
 /* wide screens: three contracts per row in both groups, four on a very wide window */
 @container (min-width: 1000px) { .grid.metered, .grid.flat { grid-template-columns: repeat(3, 1fr); } }
+@container (min-width: 1500px) { .grid.flat { grid-template-columns: repeat(4, 1fr); } }
 @container (min-width: 1750px) { .grid.metered, .grid.flat { grid-template-columns: repeat(4, 1fr); } }
 section.card { display: flex; flex-direction: column; }
 section.card .foot { padding-top: 12px; }

@@ -1399,6 +1399,19 @@ for (const width of [1280, 900, 600, 390]) {
   await context.close();
 }
 
+{ // flat-rate cards: four columns from 1500 px, the consumption cards need more room
+  const context = await browser.newContext({ viewport: { width: 1650, height: 900 }, deviceScaleFactor: 1 });
+  const page = await context.newPage();
+  page.on("pageerror", (e) => errors.push(`grid: ${e.message}`));
+  await page.clock.setFixedTime("2026-07-12T12:00:00Z");
+  await page.goto(`${base}?lang=de`);
+  await page.waitForFunction(() => window.__panel && window.__panel.shadowRoot.querySelector(".grid.flat"));
+  const columns = (sel) => page.evaluate((s) => getComputedStyle(window.__panel.shadowRoot.querySelector(s)).gridTemplateColumns.split(" ").length, sel);
+  check((await columns(".grid.flat")) === 4, `the flat-rate cards use four columns at 1650 px (${await columns(".grid.flat")})`);
+  check((await columns(".grid.metered")) === 3, `the consumption cards keep three columns at 1650 px (${await columns(".grid.metered")})`);
+  await context.close();
+}
+
 await browser.close();
 server.close();
 if (errors.length) { console.error("Browser errors:\n" + errors.join("\n")); process.exit(1); }
