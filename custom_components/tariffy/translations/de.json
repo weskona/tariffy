@@ -618,6 +618,62 @@
           "schlussrate": "Freiwillig: ein Betrag, der am Ende noch offen ist und mit der letzten Rate gezahlt wird (Autofinanzierung, Restwert)",
           "erste_zahlung": "Leer = ein Zahlungsintervall nach dem Beginn (bei monatlicher Zahlung: Ende des ersten Monats). Die weiteren Raten folgen im Abstand der Zahlweise."
         }
+      },
+      "leasing": {
+        "title": "Leasing",
+        "description": "Kilometer des Leasingvertrags. Alles freiwillig. Die Rate folgt im nächsten Schritt, Beginn und Rückgabedatum wurden vorher angegeben. Ohne Gesamtwert ergeben sich die erlaubten Kilometer aus den Kilometern pro Jahr und der Laufzeit.",
+        "data": {
+          "kennzeichen": "Kennzeichen",
+          "km_sensor": "Kilometerzähler-Sensor",
+          "km_aktuell": "Aktueller Kilometerstand (km)",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)",
+          "km_gesamt": "Erlaubte Kilometer über die ganze Laufzeit (km)",
+          "km_toleranz_oben": "Toleranz nach oben (km)",
+          "km_toleranz_unten": "Toleranz nach unten (km)",
+          "preis_mehrkm": "Preis je Mehrkilometer (€)",
+          "preis_minderkm": "Gutschrift je Minderkilometer (€)"
+        },
+        "data_description": {
+          "kennzeichen": "Gilt wie die Kundennummer als persönlich: wird im Seitenpanel nicht angezeigt",
+          "km_sensor": "Sensor des Fahrzeugs mit dem Kilometerstand in km. Er hat Vorrang vor dem von Hand eingetragenen Wert.",
+          "km_aktuell": "Nur wenn du keinen Sensor hast: Trage den Kilometerstand von Hand ein und aktualisiere ihn ab und zu (Vertrag bearbeiten).",
+          "km_start": "Kilometerstand bei Beginn des Leasings",
+          "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr",
+          "km_gesamt": "Freiwillig: die Summe der ganzen Laufzeit. Leer = Kilometer pro Jahr mal Laufzeit.",
+          "km_toleranz_oben": "Mehrkilometer bis zu diesem Wert werden nicht berechnet",
+          "km_toleranz_unten": "Minderkilometer bis zu diesem Wert werden nicht gutgeschrieben",
+          "preis_mehrkm": "Wird für jeden Mehrkilometer über der Toleranz berechnet",
+          "preis_minderkm": "Wird für jeden Minderkilometer über der Toleranz gutgeschrieben"
+        }
+      },
+      "reconfigure_leasing": {
+        "title": "Leasing",
+        "description": "Kilometer des Leasingvertrags. Alles freiwillig. Die Rate folgt im nächsten Schritt, Beginn und Rückgabedatum wurden vorher angegeben. Ohne Gesamtwert ergeben sich die erlaubten Kilometer aus den Kilometern pro Jahr und der Laufzeit.",
+        "data": {
+          "kennzeichen": "Kennzeichen",
+          "km_sensor": "Kilometerzähler-Sensor",
+          "km_aktuell": "Aktueller Kilometerstand (km)",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)",
+          "km_gesamt": "Erlaubte Kilometer über die ganze Laufzeit (km)",
+          "km_toleranz_oben": "Toleranz nach oben (km)",
+          "km_toleranz_unten": "Toleranz nach unten (km)",
+          "preis_mehrkm": "Preis je Mehrkilometer (€)",
+          "preis_minderkm": "Gutschrift je Minderkilometer (€)"
+        },
+        "data_description": {
+          "kennzeichen": "Gilt wie die Kundennummer als persönlich: wird im Seitenpanel nicht angezeigt",
+          "km_sensor": "Sensor des Fahrzeugs mit dem Kilometerstand in km. Er hat Vorrang vor dem von Hand eingetragenen Wert.",
+          "km_aktuell": "Nur wenn du keinen Sensor hast: Trage den Kilometerstand von Hand ein und aktualisiere ihn ab und zu (Vertrag bearbeiten).",
+          "km_start": "Kilometerstand bei Beginn des Leasings",
+          "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr",
+          "km_gesamt": "Freiwillig: die Summe der ganzen Laufzeit. Leer = Kilometer pro Jahr mal Laufzeit.",
+          "km_toleranz_oben": "Mehrkilometer bis zu diesem Wert werden nicht berechnet",
+          "km_toleranz_unten": "Minderkilometer bis zu diesem Wert werden nicht gutgeschrieben",
+          "preis_mehrkm": "Wird für jeden Mehrkilometer über der Toleranz berechnet",
+          "preis_minderkm": "Wird für jeden Minderkilometer über der Toleranz gutgeschrieben"
+        }
       }
     },
     "abort": {
@@ -674,7 +730,8 @@
         "insurance": "Versicherung",
         "other": "Sonstiges",
         "electricity_ht_nt": "Strom (Zweizählertarif, Hoch-/Niedertarif)",
-        "loan": "Kredit / Finanzierung"
+        "loan": "Kredit / Finanzierung",
+        "leasing": "Leasing"
       }
     },
     "erinnerung": {
@@ -862,6 +919,15 @@
       },
       "kredit_zinsen_bisher": {
         "name": "Zinsen bisher"
+      },
+      "leasing_km_gefahren": {
+        "name": "Gefahrene Kilometer"
+      },
+      "leasing_km_hochgerechnet": {
+        "name": "Kilometer bei Rückgabe (Hochrechnung)"
+      },
+      "leasing_km_kosten": {
+        "name": "Erwartete Mehr-/Minderkilometer-Kosten"
       }
     },
     "button": {

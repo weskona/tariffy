@@ -117,6 +117,14 @@ const I18N = {
     aussenDelete: "Delete meter", aussenDeleteAsk: "Delete this outdoor meter?", aussenTooMany: "There are too many outdoor meters (10).",
     gardenUse: "Outdoor water", gardenCost: "Outdoor water cost", wwUse: "Wastewater-liable consumption", wwCost: "Wastewater cost",
     termErr_invalid_name: "Enter a name.", termErr_invalid_sensor: "Enter the entity id of a sensor (for example sensor.garden_water).", termErr_same_sensor: "This is the main meter of the contract.",
+    secLeasing: "Leasing kilometres", leasingDriven: "Driven so far", leasingAllowed: "Allowed in total", leasingTarget: "Target by now", leasingDiff: "Against the target",
+    leasingLeft: "Kilometres left", leasingPerDay: "Allowed per day from now", leasingAvg: "Your average per day", leasingForecast: "Projected at return",
+    leasingEndDiff: "Against the allowance at return", leasingExtra: "Extra kilometres (beyond the tolerance)", leasingShort: "Kilometres not driven (beyond the tolerance)",
+    leasingToleranceUp: "Tolerance upwards", leasingToleranceDown: "Tolerance downwards", leasingPriceExtra: "Price per extra kilometre", leasingPriceShort: "Credit per kilometre not driven",
+    leasingCostExtra: "Expected extra payment", leasingCostCredit: "Expected credit", leasingCostBalance: "Expected balance at return", leasingOdo: "Odometer",
+    leasingNoOdo: "No odometer yet: choose a sensor or enter the odometer in the contract.", leasingEarly: "The projection needs at least two weeks of driving.",
+    leasingOver: "At this pace you will be about {k} km over the allowance at return.", leasingUnder: "At this pace you will be about {k} km under the allowance at return.",
+    leasingFine: "At this pace you stay within the allowance at return.",
     groupLoans: "Loans / financing", secLoan: "Loan", loanDebt: "Remaining debt", loanPaid: "Paid so far", loanRemainingSum: "Remaining payments",
     loanNext: "Next payment", loanSplit: "interest {z} · principal {t}", loanRepaid: "Repaid", loanPayments: "Payments made", loanEffective: "effective {v} %",
     loanInterestOf: "of which interest {v}", loanInterestTotalOf: "interest over the term {v}", loanAmount: "Loan amount", loanNominal: "Nominal interest rate",
@@ -155,7 +163,7 @@ const I18N = {
     adviceNone: "No instalment needed: the credit covers the costs until the contract ends", adviceOk: "The instalment fits",
     sparte: {
       electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
-      water: "Water", internet: "Internet", mobile: "Mobile", streaming: "Streaming", loan: "Loan", insurance: "Insurance", other: "Other",
+      water: "Water", internet: "Internet", mobile: "Mobile", streaming: "Streaming", loan: "Loan", leasing: "Leasing", insurance: "Insurance", other: "Other",
     },
     versicherungsart: {
       car: "Car", house: "Building / house", household: "Household contents", liability: "Liability",
@@ -271,6 +279,14 @@ const I18N = {
     aussenDelete: "Zähler löschen", aussenDeleteAsk: "Diesen Außenzähler löschen?", aussenTooMany: "Es gibt zu viele Außenzähler (10).",
     gardenUse: "Gartenwasser", gardenCost: "Gartenwasser-Kosten", wwUse: "Abwasserpflichtiger Verbrauch", wwCost: "Abwasserkosten",
     termErr_invalid_name: "Trage einen Namen ein.", termErr_invalid_sensor: "Trage die Entity-ID eines Sensors ein (zum Beispiel sensor.garten_wasser).", termErr_same_sensor: "Das ist der Hauptzähler des Vertrags.",
+    secLeasing: "Leasing-Kilometer", leasingDriven: "Bisher gefahren", leasingAllowed: "Erlaubt insgesamt", leasingTarget: "Soll bis heute", leasingDiff: "Gegenüber dem Soll",
+    leasingLeft: "Noch übrig", leasingPerDay: "Erlaubt pro Tag ab jetzt", leasingAvg: "Dein Schnitt pro Tag", leasingForecast: "Hochrechnung bei Rückgabe",
+    leasingEndDiff: "Gegenüber der Erlaubnis bei Rückgabe", leasingExtra: "Mehrkilometer (über der Toleranz)", leasingShort: "Minderkilometer (über der Toleranz)",
+    leasingToleranceUp: "Toleranz nach oben", leasingToleranceDown: "Toleranz nach unten", leasingPriceExtra: "Preis je Mehrkilometer", leasingPriceShort: "Gutschrift je Minderkilometer",
+    leasingCostExtra: "Erwartete Nachzahlung", leasingCostCredit: "Erwartete Gutschrift", leasingCostBalance: "Erwartet bei Rückgabe", leasingOdo: "Kilometerstand",
+    leasingNoOdo: "Noch kein Kilometerstand: Wähle einen Sensor oder trage den Stand im Vertrag ein.", leasingEarly: "Die Hochrechnung braucht mindestens zwei Wochen Fahrt.",
+    leasingOver: "In diesem Tempo liegst du bei Rückgabe etwa {k} km über der Erlaubnis.", leasingUnder: "In diesem Tempo liegst du bei Rückgabe etwa {k} km unter der Erlaubnis.",
+    leasingFine: "In diesem Tempo bleibst du bei Rückgabe innerhalb der Erlaubnis.",
     groupLoans: "Kredite / Finanzierungen", secLoan: "Kredit", loanDebt: "Restschuld", loanPaid: "Gezahlt bisher", loanRemainingSum: "Restsumme",
     loanNext: "Nächste Rate", loanSplit: "Zinsen {z} · Tilgung {t}", loanRepaid: "Getilgt", loanPayments: "Raten gezahlt", loanEffective: "effektiv {v} %",
     loanInterestOf: "davon Zinsen {v}", loanInterestTotalOf: "Zinsen insgesamt {v}", loanAmount: "Kreditsumme", loanNominal: "Sollzins",
@@ -309,7 +325,7 @@ const I18N = {
     adviceNone: "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende", adviceOk: "Der Abschlag passt",
     sparte: {
       electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
-      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", streaming: "Streaming", loan: "Kredit", insurance: "Versicherung", other: "Sonstiges",
+      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", streaming: "Streaming", loan: "Kredit", leasing: "Leasing", insurance: "Versicherung", other: "Sonstiges",
     },
     versicherungsart: {
       car: "Auto (Kfz)", house: "Gebäude / Haus", household: "Hausrat", liability: "Haftpflicht",
@@ -351,6 +367,11 @@ const ICONS = {
     ["rect", { x: "3", y: "6", width: "18", height: "12", rx: "2" }],
     ["circle", { cx: "12", cy: "12", r: "2.500" }],
     ["path", { d: "M6.500 9.500v.01M17.500 14.500v.01" }],
+  ],
+  leasing: [
+    ["path", { d: "M5 16.500h14l1.500-4.500-2-4.500H5.500l-2 4.500z" }],
+    ["circle", { cx: "8", cy: "17", r: "1.600" }],
+    ["circle", { cx: "16", cy: "17", r: "1.600" }],
   ],
   insurance: [["path", { d: "M12 2.500 20 5.500v6c0 5-3.500 8.500-8 10.500-4.500-2-8-5.500-8-10.500v-6z" }]],
   // actions of the contract list
@@ -456,7 +477,7 @@ section.card .foot { padding-top: 12px; }
   background: var(--tile); border: 1px solid var(--tile-line); color: var(--blue); }
 .badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .badge.gas { color: var(--orange); } .badge.water { color: #38bdf8; } .badge.electricity,
-.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); } .badge.streaming { color: #f472b6; } .badge.loan { color: #fbbf24; }
+.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); } .badge.streaming { color: #f472b6; } .badge.loan { color: #fbbf24; } .badge.leasing { color: #38bdf8; }
 .title { font-size: 17px; font-weight: 700; line-height: 1.2; }
 .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .who { min-width: 0; flex: 1; }
@@ -1132,6 +1153,45 @@ class TariffyPanel extends HTMLElement {
       this._loanNote(c) ? h("div", { class: "hint", text: this._loanNote(c) }) : null) : null;
   }
 
+  /* the "leasing" block of the contract details: kilometres against the allowance */
+  _leasingSection(c) {
+    if (c.sparte !== "leasing") return null;
+    const km = (v) => (isNum(v) ? `${this._num(v, 0)} km` : null);
+    const sgn = (v) => (isNum(v) ? `${v > 0 ? "+" : ""}${this._num(v, 0)} km` : null);
+    const money = (v) => (isNum(v) ? this._money(v, c.currency, { digits: 2 }) : null);
+    const row = (label, value) => (value === null || value === undefined ? null
+      : h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value })));
+    let note = null;
+    if (!isNum(c.leasing_km_gefahren)) note = this._t("leasingNoOdo");
+    else if (!isNum(c.leasing_km_hochgerechnet)) note = this._t("leasingEarly");
+    else if (c.leasing_mehr_km > 0) note = this._t("leasingOver", { k: this._num(c.leasing_km_abweichung_ende, 0) });
+    else if (c.leasing_minder_km > 0) note = this._t("leasingUnder", { k: this._num(-c.leasing_km_abweichung_ende, 0) });
+    else note = this._t("leasingFine");
+    const rows = [
+      row(this._t("leasingOdo"), km(c.leasing_km_stand)),
+      row(this._t("leasingDriven"), km(c.leasing_km_gefahren)),
+      row(this._t("leasingAllowed"), km(c.leasing_km_erlaubt)),
+      row(this._t("leasingTarget"), km(c.leasing_km_soll)),
+      row(this._t("leasingDiff"), sgn(c.leasing_km_abweichung)),
+      row(this._t("leasingLeft"), km(c.leasing_km_rest)),
+      row(this._t("leasingPerDay"), isNum(c.leasing_km_rest_je_tag) ? `${this._num(c.leasing_km_rest_je_tag, 1)} km` : null),
+      row(this._t("leasingAvg"), isNum(c.leasing_km_je_tag) ? `${this._num(c.leasing_km_je_tag, 1)} km` : null),
+      row(this._t("leasingForecast"), km(c.leasing_km_hochgerechnet)),
+      row(this._t("leasingEndDiff"), sgn(c.leasing_km_abweichung_ende)),
+      row(this._t("leasingToleranceUp"), km(c.km_toleranz_oben)),
+      row(this._t("leasingToleranceDown"), km(c.km_toleranz_unten)),
+      row(this._t("leasingExtra"), c.leasing_mehr_km > 0 ? km(c.leasing_mehr_km) : null),
+      row(this._t("leasingShort"), c.leasing_minder_km > 0 ? km(c.leasing_minder_km) : null),
+      row(this._t("leasingPriceExtra"), money(c.preis_mehrkm)),
+      row(this._t("leasingPriceShort"), money(c.preis_minderkm)),
+      row(this._t("leasingCostExtra"), c.leasing_nachzahlung > 0 ? money(c.leasing_nachzahlung) : null),
+      row(this._t("leasingCostCredit"), c.leasing_gutschrift > 0 ? money(c.leasing_gutschrift) : null),
+      row(this._t("leasingCostBalance"), isNum(c.leasing_km_kosten) ? money(c.leasing_km_kosten) : null),
+    ].filter(Boolean);
+    return h("div", { class: "sec" }, h("h4", { text: this._t("secLeasing") }), rows,
+      note ? h("div", { class: "hint", text: note }) : null);
+  }
+
   _loanTable(loans) {
     if (!loans.length) return null;
     const money = (v, c) => this._money(v, c.currency, { digits: 2 });
@@ -1393,6 +1453,15 @@ class TariffyPanel extends HTMLElement {
     }
     if (c.erinnerung_aktiv) {
       notes.push(h("div", { class: "callout orange", text: this._t("noteCancel", { d: this._date(c.ende) }) }));
+    }
+    if (c.sparte === "leasing" && isNum(c.leasing_km_gefahren)) { // kilometres against the allowance
+      const km = `${this._num(c.leasing_km_gefahren, 0)} km`;
+      const over = isNum(c.leasing_mehr_km) && c.leasing_mehr_km > 0;
+      const text = !isNum(c.leasing_km_hochgerechnet) ? this._t("leasingEarly")
+        : over ? this._t("leasingOver", { k: this._num(c.leasing_km_abweichung_ende, 0) })
+        : c.leasing_minder_km > 0 ? this._t("leasingUnder", { k: this._num(-c.leasing_km_abweichung_ende, 0) })
+        : this._t("leasingFine");
+      notes.push(h("div", { class: `callout ${over ? "orange" : "blue"}`, text: `${km} · ${text}` }));
     }
     if (c.next && c.next.beginn) {
       const name = [c.next.anbieter, c.next.tarif].filter(Boolean).join(" · ") || "–";
@@ -2902,6 +2971,7 @@ class TariffyPanel extends HTMLElement {
           : null),
       ]),
       this._kreditSection(c),
+      this._leasingSection(c),
       section(this._t("secPrices"), [
         row(this._t("unitPrice"), isNum(c.arbeitspreis) ? this._price(c.arbeitspreis, c.currency, pu) : null),
         row(this._t("unitPriceLow"), isNum(c.arbeitspreis_nt) ? this._price(c.arbeitspreis_nt, c.currency, pu) : null),

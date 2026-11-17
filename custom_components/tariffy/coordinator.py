@@ -15,7 +15,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
 from . import autarkie as pv
-from . import loan
+from . import leasing, loan
 from .const import (
     BASIS_FELDER,
     CONF_AUTARKIE_MANUELL,
@@ -60,7 +60,15 @@ from .const import (
     CONF_KUENDIGUNG_BESTAETIGT,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
+    CONF_KM_AKTUELL,
+    CONF_KM_GESAMT,
+    CONF_KM_SENSOR,
     CONF_KM_START,
+    CONF_KM_TOL_OBEN,
+    CONF_KM_TOL_UNTEN,
+    CONF_PREIS_MEHRKM,
+    CONF_PREIS_MINDERKM,
+    SPARTE_LEASING,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_GESENDET,
@@ -764,6 +772,25 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 )
                 if self.entry.data.get(key) not in (None, "")
             },
+            # Leasing: Fahrzeug und Kilometerregeln bleiben beim Wechsel; Kilometerstand bei Beginn und von Hand gehoeren zur alten Laufzeit
+            **(
+                {
+                    key: self.entry.data[key]
+                    for key in (
+                        CONF_KENNZEICHEN,
+                        CONF_KM_SENSOR,
+                        CONF_KM_PRO_JAHR,
+                        CONF_KM_GESAMT,
+                        CONF_KM_TOL_OBEN,
+                        CONF_KM_TOL_UNTEN,
+                        CONF_PREIS_MEHRKM,
+                        CONF_PREIS_MINDERKM,
+                    )
+                    if self.entry.data.get(key) not in (None, "")
+                }
+                if self.entry.data.get(CONF_SPARTE) == SPARTE_LEASING
+                else {}
+            ),
             # Einmalposten gehoeren zum Vertrag (auch in die Gesamtkosten ueber alle Laufzeiten)
             **(
                 {CONF_EINMALPOSTEN: self.entry.data[CONF_EINMALPOSTEN]}
@@ -1146,6 +1173,17 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._pv_mittelwerte[key] = anteil
         return anteil
 
+    def _km_stand(self, sensor_id: Any) -> float | None:
+        """Kilometerstand aus dem Sensor des Fahrzeugs (Meilen werden umgerechnet); None ohne gueltigen Wert."""
+        if not sensor_id:
+            return None
+        state = self.hass.states.get(str(sensor_id))
+        wert = _f(state.state) if state else None
+        if wert is None:
+            return None
+        einheit = str(state.attributes.get("unit_of_measurement") or "").strip().lower()
+        return round(wert * 1.609344, 1) if einheit in ("mi", "mile", "miles") else wert
+
     async def _pv_autarkie(
         self,
         data: dict[str, Any],
@@ -1424,6 +1462,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if ist_kredit and kredit.get("ende") is not None:
             ende = kredit["ende"]
         restlaufzeit = (ende - heute).days if ende is not None else None
+        # Leasing: Kilometerstand (Sensor vor Handeingabe) gegen die erlaubten Kilometer
+        ist_leasing = data.get(CONF_SPARTE) == SPARTE_LEASING
+        leasing_werte: dict[str, Any] = (
+            leasing.berechne(data, heute, self._km_stand(data.get(CONF_KM_SENSOR))) if ist_leasing else {}
+        )
         laufzeit_monate = (ende - beginn).days / 30.44 if (beginn and ende) else 12.0
 
         arbeitspreis = _f(data.get(CONF_ARBEITSPREIS))
@@ -1968,6 +2011,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_KENNZEICHEN: data.get(CONF_KENNZEICHEN),
             CONF_KM_START: _f(data.get(CONF_KM_START)),
             CONF_KM_PRO_JAHR: _f(data.get(CONF_KM_PRO_JAHR)),
+            CONF_KM_SENSOR: data.get(CONF_KM_SENSOR),
+            CONF_KM_AKTUELL: _f(data.get(CONF_KM_AKTUELL)),
+            CONF_KM_GESAMT: _f(data.get(CONF_KM_GESAMT)),
+            CONF_KM_TOL_OBEN: _f(data.get(CONF_KM_TOL_OBEN)),
+            CONF_KM_TOL_UNTEN: _f(data.get(CONF_KM_TOL_UNTEN)),
+            CONF_PREIS_MEHRKM: _f(data.get(CONF_PREIS_MEHRKM)),
+            CONF_PREIS_MINDERKM: _f(data.get(CONF_PREIS_MINDERKM)),
+            **leasing_werte,
             CONF_MARKTLOKATION: data.get(CONF_MARKTLOKATION),
             CONF_PREISGARANTIE: _parse_date(data.get(CONF_PREISGARANTIE)),
             CONF_BONUS: _f(data.get(CONF_BONUS)),

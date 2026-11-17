@@ -5,7 +5,7 @@
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
 | Bezeichnung | ✅ | Anzeigename (z. B. „Strom Haus") |
-| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Kredit / Finanzierung, Versicherung, Sonstiges |
+| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Kredit / Finanzierung, Leasing, Versicherung, Sonstiges |
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
@@ -111,3 +111,24 @@ Die Sparte **Kredit / Finanzierung** ist für Annuitätendarlehen (Baufinanzieru
 **Angezeigt** werden die **Restschuld**, **Gezahlt bisher** (Zinsen und Tilgung), die **Restsumme** (noch zu zahlen bis zum Ende), Zinsen bisher und über die Laufzeit, die gezahlten Raten, die nächste Rate mit der Aufteilung in Zins und Tilgung und der Fortschritt der Tilgung. Für jeden Kredit gibt es vier Sensoren: **Restschuld**, **Gezahlt bisher**, **Restsumme** und **Zinsen bisher**.
 
 **Anschlussfinanzierung:** Im Tab **Verträge** hat der Kredit das Symbol **Vertrag verlängern**. Der Dialog schlägt die Restschuld als neue Summe vor, dazu Zins und Laufzeit; die bisherige Laufzeit kommt in die Historie. Ein Kredit hat kein Symbol für einen Folgevertrag.
+
+## Leasing
+
+Die Sparte **Leasing** ist für einen Auto-Leasingvertrag. Die Rate läuft wie jeder **Pauschalvertrag** (Rate, Beginn, Ende = Rückgabedatum, Erinnerung, Kündigungsfrist); dazu behält Tariffy die **Kilometer** im Blick. Alle Angaben zu den Kilometern sind freiwillig.
+
+| Feld | Pflicht | Beschreibung |
+|------|---------|-------------|
+| Kennzeichen | – | Gilt wie die Kundennummer als persönlich: wird im Seitenpanel nicht angezeigt |
+| Kilometerzähler-Sensor | – | Sensor des Fahrzeugs mit dem Kilometerstand in km (Meilen werden umgerechnet). Er hat Vorrang vor dem von Hand eingetragenen Wert. |
+| Aktueller Kilometerstand | – | Nur wenn es keinen Sensor gibt: von Hand eintragen und ab und zu aktualisieren (Vertrag bearbeiten) |
+| Kilometerstand bei Vertragsbeginn | – | Beginn des Leasings. Leer = 0 |
+| Erlaubte Kilometer pro Jahr | – | Aus dem Vertrag |
+| Erlaubte Kilometer über die ganze Laufzeit | – | Freiwillig. Leer = Kilometer pro Jahr mal Laufzeit. |
+| Toleranz nach oben / unten | – | Mehrkilometer (Minderkilometer) bis zu diesem Wert werden nicht berechnet (gutgeschrieben) |
+| Preis je Mehrkilometer / Gutschrift je Minderkilometer | – | In € pro km, für den erwarteten Saldo |
+
+**Berechnung:** Die gefahrenen Kilometer sind der Kilometerstand minus der Stand bei Beginn. Das **Soll bis heute** ist die Erlaubnis, gleichmäßig auf die Laufzeit verteilt. Die **Hochrechnung bei Rückgabe** ist der bisherige Schnitt je Tag, bis zum Rückgabedatum fortgeschrieben (ab zwei Wochen Fahrt). `Abweichung = Hochrechnung − erlaubt`; **Mehrkilometer** sind, was die Toleranz nach oben übersteigt, **Minderkilometer**, was die Toleranz nach unten übersteigt. Mit den Preisen ergibt sich die **erwartete Nachzahlung oder Gutschrift** bei Rückgabe. Nach dem Rückgabedatum sind die gefahrenen Kilometer das Ergebnis.
+
+**Angezeigt** wird in der Vertragskarte eine Zeile mit den gefahrenen Kilometern und was das Tempo bei Rückgabe bedeutet, in den Details ein Block **Leasing-Kilometer** (Kilometerstand, gefahren, erlaubt, Soll bis heute, noch übrig und erlaubt pro Tag ab jetzt, dein Schnitt, Hochrechnung, Mehr-/Minderkilometer und der erwartete Saldo). Ein Leasingvertrag hat drei weitere Sensoren: **Gefahrene Kilometer**, **Kilometer bei Rückgabe (Hochrechnung)**, **Erwartete Mehr-/Minderkilometer-Kosten**, dazu die Fahrzeug-Sensoren der Versicherung (Kennzeichen, Stand bei Beginn, erlaubt pro Jahr). Die Kilometerkosten zählen **nicht** in die Summen des Vertrags: Sie sind eine Schätzung für die Rückgabe.
+
+**Gut zu wissen:** Ein **Tarifwechsel** oder ein geplanter Folgevertrag behält Fahrzeug, Sensor und Kilometerregeln; Kilometerstand bei Beginn und der von Hand eingetragene Wert gehören zur alten Laufzeit und entfallen. Bei **Vertrag verlängern** bleiben die Angaben, wie sie sind: Prüfe bei einem anderen Fahrzeug unter **Bearbeiten** den Stand bei Beginn und die Erlaubnis.

@@ -50,7 +50,8 @@ async def _reconfigure(hass, entry, first=None, second=None, drop=(), drop_first
         start.pop(name, None)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], start)
     assert result["type"] is FlowResultType.FORM
-    while result["step_id"].startswith("reconfigure_versicherung"):  # an insurance asks for its type (and car details)
+    # an insurance asks for its type (and car details), a lease for its kilometres
+    while result["step_id"].startswith("reconfigure_versicherung") or result["step_id"] == "reconfigure_leasing":
         result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
     values = {**_form_defaults(result), **(second or {})}
     for name in drop:  # a field the user emptied: the panel leaves it out

@@ -157,6 +157,19 @@ CONTRACTS = [
         {},
         {},
     ),
+    (
+        "Auto-Leasing",
+        {
+            "sparte": "leasing", "anbieter": "Autobank", "tarif": "Leasing Kompakt",
+            "abschlag": 289.0, "beginn": "2025-11-01", "ende": "2028-10-31",
+            "km_start": 12000.0, "km_aktuell": 21500.0, "km_pro_jahr": 10000.0,
+            "km_toleranz_oben": 2500.0, "km_toleranz_unten": 1000.0,
+            "preis_mehrkm": 0.1, "preis_minderkm": 0.06, "kennzeichen": "B-XY 123",
+            "erinnerung_monate": "0",
+        },
+        {},
+        {},
+    ),
 ]
 
 

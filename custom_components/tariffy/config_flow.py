@@ -60,7 +60,15 @@ from .const import (
     CONF_JAHRESVERBRAUCH,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
+    CONF_KM_AKTUELL,
+    CONF_KM_GESAMT,
+    CONF_KM_SENSOR,
     CONF_KM_START,
+    CONF_KM_TOL_OBEN,
+    CONF_KM_TOL_UNTEN,
+    CONF_PREIS_MEHRKM,
+    CONF_PREIS_MINDERKM,
+    SPARTE_LEASING,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_TARGET,
@@ -697,6 +705,33 @@ def _kfz_schema(d: dict[str, Any]) -> vol.Schema:
     )
 
 
+def _leasing_schema(d: dict[str, Any]) -> vol.Schema:
+    """Leasing: Kilometer. Alles optional. Die Rate steht im Kosten-Schritt danach, Beginn und Ende
+    (= Rueckgabe) im ersten Schritt. Die erlaubten Kilometer ergeben sich aus Kilometern pro Jahr und
+    Laufzeit, oder aus dem Gesamtwert, wenn er eingetragen ist."""
+    km = selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            min=0, step=1, mode=selector.NumberSelectorMode.BOX, unit_of_measurement="km"
+        )
+    )
+    return vol.Schema(
+        {
+            _opt(CONF_KENNZEICHEN, d.get(CONF_KENNZEICHEN)): selector.TextSelector(),
+            _opt(CONF_KM_SENSOR, d.get(CONF_KM_SENSOR)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            _opt(CONF_KM_AKTUELL, d.get(CONF_KM_AKTUELL)): km,
+            _opt(CONF_KM_START, d.get(CONF_KM_START)): km,
+            _opt(CONF_KM_PRO_JAHR, d.get(CONF_KM_PRO_JAHR)): km,
+            _opt(CONF_KM_GESAMT, d.get(CONF_KM_GESAMT)): km,
+            _opt(CONF_KM_TOL_OBEN, d.get(CONF_KM_TOL_OBEN)): km,
+            _opt(CONF_KM_TOL_UNTEN, d.get(CONF_KM_TOL_UNTEN)): km,
+            _opt(CONF_PREIS_MEHRKM, d.get(CONF_PREIS_MEHRKM)): _preis(0.001),
+            _opt(CONF_PREIS_MINDERKM, d.get(CONF_PREIS_MINDERKM)): _preis(0.001),
+        }
+    )
+
+
 def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
     """Kosten-Schritt für Pauschalverträge (Internet, Mobilfunk, Versicherung, …); bei einer
     Versicherung kommen die Versicherungsangaben in eigenen Schritten davor.
@@ -920,6 +955,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_versicherung()
             if user_input[CONF_SPARTE] == SPARTE_LOAN:
                 return await self.async_step_kredit()
+            if user_input[CONF_SPARTE] == SPARTE_LEASING:
+                return await self.async_step_leasing()
             return await self.async_step_pauschal()
         return self.async_show_form(
             step_id="user", data_schema=_common_schema(self.hass, {}, mit_name=True)
@@ -968,6 +1005,17 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             data = {**self._data, **_pauschal_monatlich(user_input)}
             return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(step_id="pauschal", data_schema=_pauschal_schema({}))
+
+    async def async_step_leasing(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Kilometer eines Leasingvertrags; danach der Kosten-Schritt wie bei jedem Pauschalvertrag."""
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_pauschal()
+        return self.async_show_form(
+            step_id="leasing", data_schema=_leasing_schema({}), last_step=False
+        )
 
     async def async_step_kredit(
         self, user_input: dict[str, Any] | None = None
@@ -1052,6 +1100,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_reconfigure_versicherung()
             if user_input[CONF_SPARTE] == SPARTE_LOAN:
                 return await self.async_step_reconfigure_kredit()
+            if user_input[CONF_SPARTE] == SPARTE_LEASING:
+                return await self.async_step_reconfigure_leasing()
             return await self.async_step_reconfigure_pauschal()
         return self.async_show_form(
             step_id="reconfigure",
@@ -1155,6 +1205,19 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="reconfigure_versicherung_kfz",
             data_schema=_kfz_schema(dict(entry.data)),
+            last_step=False,
+        )
+
+    async def async_step_reconfigure_leasing(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_reconfigure_pauschal()
+        return self.async_show_form(
+            step_id="reconfigure_leasing",
+            data_schema=_leasing_schema(dict(entry.data)),
             last_step=False,
         )
 
