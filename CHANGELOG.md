@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-beta.1] - 2026-11-17
+
+First beta of 1.32.0. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **New category "Leasing"** (requested in #90) for a car lease. The rate is a normal **flat-rate contract** (instalment, start, end = return date, reminder, notice period, one-time items); on top of that Tariffy watches the **kilometres**. In the form (all optional): an **odometer sensor** (miles are converted) or the odometer **entered by hand**, the odometer at the start, the **allowed kilometres per year** and/or **over the whole term**, a **tolerance upwards and downwards** and a **price per extra kilometre / credit per kilometre not driven**. Tariffy shows the kilometres driven, the **target by now**, what is **left** (and allowed per day from now), your average per day and the **projection at the return date**; extra kilometres and kilometres not driven beyond the tolerance give the **expected extra payment or credit**. A leasing contract has three more sensors (**Kilometres driven**, **Projected kilometres at return**, **Expected extra/shortfall kilometre cost**) and the car sensors of the insurance; the panel shows a line in the card and a block "Leasing kilometres" in the details. The kilometre cost is an estimate and is **not** part of the totals. A tariff switch keeps the car, the sensor and the kilometre rules; the odometer at the start and the value entered by hand belong to the old term. Other contracts are not changed.
+
 ## [1.31.0] - 2026-11-17
 
 This release brings together everything that was tested in the betas `1.31.0-beta.1` and `1.31.0-beta.2`. **Existing contracts keep working without any change.** The new option is off by default.

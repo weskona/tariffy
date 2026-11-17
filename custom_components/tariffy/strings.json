@@ -618,6 +618,62 @@
           "schlussrate": "Optional: an amount that is still open at the end and paid with the last rate (car financing, residual value)",
           "erste_zahlung": "Empty = one interval after the start of the contract (a monthly loan: the end of the first month). The following payments follow at the interval."
         }
+      },
+      "leasing": {
+        "title": "Leasing",
+        "description": "Kilometres of the lease. All optional. The rate follows in the next step, start and return date were given before. Without a total, the allowed kilometres are worked out from the kilometres per year and the term.",
+        "data": {
+          "kennzeichen": "Licence plate",
+          "km_sensor": "Odometer sensor",
+          "km_aktuell": "Current odometer (km)",
+          "km_start": "Odometer at contract start (km)",
+          "km_pro_jahr": "Allowed kilometres per year (km)",
+          "km_gesamt": "Allowed kilometres over the whole term (km)",
+          "km_toleranz_oben": "Tolerance upwards (km)",
+          "km_toleranz_unten": "Tolerance downwards (km)",
+          "preis_mehrkm": "Price per extra kilometre (€)",
+          "preis_minderkm": "Credit per kilometre not driven (€)"
+        },
+        "data_description": {
+          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "km_sensor": "Sensor of the car with the odometer in km. It takes precedence over the value entered by hand.",
+          "km_aktuell": "Only if you have no sensor: enter the odometer by hand and update it from time to time (edit the contract).",
+          "km_start": "Odometer reading at the start of the lease",
+          "km_pro_jahr": "Kilometres per year agreed in the contract",
+          "km_gesamt": "Optional: the total of the whole term. Empty = kilometres per year times the term.",
+          "km_toleranz_oben": "Extra kilometres up to this value are not charged",
+          "km_toleranz_unten": "Kilometres not driven up to this value are not credited",
+          "preis_mehrkm": "Charged for each extra kilometre beyond the tolerance",
+          "preis_minderkm": "Credited for each kilometre not driven beyond the tolerance"
+        }
+      },
+      "reconfigure_leasing": {
+        "title": "Leasing",
+        "description": "Kilometres of the lease. All optional. The rate follows in the next step, start and return date were given before. Without a total, the allowed kilometres are worked out from the kilometres per year and the term.",
+        "data": {
+          "kennzeichen": "Licence plate",
+          "km_sensor": "Odometer sensor",
+          "km_aktuell": "Current odometer (km)",
+          "km_start": "Odometer at contract start (km)",
+          "km_pro_jahr": "Allowed kilometres per year (km)",
+          "km_gesamt": "Allowed kilometres over the whole term (km)",
+          "km_toleranz_oben": "Tolerance upwards (km)",
+          "km_toleranz_unten": "Tolerance downwards (km)",
+          "preis_mehrkm": "Price per extra kilometre (€)",
+          "preis_minderkm": "Credit per kilometre not driven (€)"
+        },
+        "data_description": {
+          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "km_sensor": "Sensor of the car with the odometer in km. It takes precedence over the value entered by hand.",
+          "km_aktuell": "Only if you have no sensor: enter the odometer by hand and update it from time to time (edit the contract).",
+          "km_start": "Odometer reading at the start of the lease",
+          "km_pro_jahr": "Kilometres per year agreed in the contract",
+          "km_gesamt": "Optional: the total of the whole term. Empty = kilometres per year times the term.",
+          "km_toleranz_oben": "Extra kilometres up to this value are not charged",
+          "km_toleranz_unten": "Kilometres not driven up to this value are not credited",
+          "preis_mehrkm": "Charged for each extra kilometre beyond the tolerance",
+          "preis_minderkm": "Credited for each kilometre not driven beyond the tolerance"
+        }
       }
     },
     "abort": {
@@ -674,7 +730,8 @@
         "insurance": "Insurance",
         "other": "Other",
         "electricity_ht_nt": "Electricity (dual tariff, HT/NT)",
-        "loan": "Loan / financing"
+        "loan": "Loan / financing",
+        "leasing": "Leasing"
       }
     },
     "erinnerung": {
@@ -862,6 +919,15 @@
       },
       "kredit_zinsen_bisher": {
         "name": "Interest paid so far"
+      },
+      "leasing_km_gefahren": {
+        "name": "Kilometres driven"
+      },
+      "leasing_km_hochgerechnet": {
+        "name": "Projected kilometres at return"
+      },
+      "leasing_km_kosten": {
+        "name": "Expected extra/shortfall kilometre cost"
       }
     },
     "button": {

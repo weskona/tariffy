@@ -282,6 +282,27 @@ The category **Loan / financing** is for annuity loans (mortgages), instalment l
 
 **Follow-up financing:** in the **Contracts** tab the loan has the icon **Renew contract**. The dialog suggests the remaining debt as the new amount, plus interest and term; the current term goes to the history. A loan has no icon for a next contract.
 
+## Leasing
+
+The category **Leasing** is for a car lease. The rate is a normal **flat-rate** contract (instalment, start, end = return date, reminder, notice period); on top of that Tariffy watches the **kilometres**. Everything about the kilometres is optional.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| Licence plate | – | Treated like the customer number: not shown in the side panel |
+| Odometer sensor | – | Sensor of the car with the odometer in km (miles are converted). It takes precedence over the value entered by hand. |
+| Current odometer | – | Only if there is no sensor: enter it by hand and update it from time to time (edit the contract) |
+| Odometer at contract start | – | The start of the lease. Empty = 0 |
+| Allowed kilometres per year | – | From the contract |
+| Allowed kilometres over the whole term | – | Optional. Empty = kilometres per year times the term. |
+| Tolerance upwards / downwards | – | Extra kilometres (kilometres not driven) up to this value are not charged (credited) |
+| Price per extra kilometre / credit per kilometre not driven | – | In € per km, for the expected balance |
+
+**Calculation:** the kilometres driven so far are the odometer minus the start. The **target by now** is the allowance spread over the term. The **projection at return** is the average per day so far, extended to the return date (from two weeks of driving on). `deviation = projection − allowed`; **extra kilometres** are what exceeds the tolerance upwards, **kilometres not driven** what exceeds the tolerance downwards. With the prices this gives the **expected extra payment or credit** at return. After the return date the kilometres driven are the result.
+
+**Shown:** in the contract card a line with the kilometres driven and what the pace means at return, in the details a block **Leasing kilometres** (odometer, driven, allowed, target by now, kilometres left and allowed per day from now, your average, projection, extra/shortfall kilometres and the expected balance). A leasing contract has three more sensors: **Kilometres driven**, **Projected kilometres at return**, **Expected extra/shortfall kilometre cost**, plus the car sensors of the insurance (licence plate, odometer at start, allowed per year). The kilometre cost is **not** part of the totals of the contract: it is an estimate for the return.
+
+**Good to know:** a **tariff switch** or a planned follow-up keeps the car, the sensor and the kilometre rules; the odometer at the start and the value entered by hand belong to the old term and are dropped. With **Renew contract** the figures stay as they are: check the start odometer and the allowance in **Edit** if the new lease is another car.
+
 ## One-time items (bonus and bill)
 
 In the **Contracts** tab of the panel every contract has a block **One-time items** in its details (only administrators can change it). Enter one-off amounts that are not part of the instalment, with a **description**, an **amount** and a **date**: a **positive** amount is a **credit** (e.g. a switching bonus), a **negative** amount is a **bill** (e.g. the fee of a broker looking after the contracts). An item counts from its date (at once without a date). It changes the **balance so far** and the **total cost** over all terms: a bonus lowers the cost, a bill raises it. The forecast at contract end and the low-instalment warning still depend on the consumption only. The items work for every kind of contract, survive renewal and a tariff change and are part of the backup. The field "New customer bonus" in the contract form is unchanged and only displayed.

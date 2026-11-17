@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.1] - 2026-11-17
+
+Erste Beta von 1.32.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Neue Sparte „Leasing“** (gewünscht in #90) für einen Auto-Leasingvertrag. Die Rate läuft wie ein normaler **Pauschalvertrag** (Rate, Beginn, Ende = Rückgabedatum, Erinnerung, Kündigungsfrist, Einmalposten); dazu behält Tariffy die **Kilometer** im Blick. Im Formular (alles freiwillig): ein **Kilometerzähler-Sensor** (Meilen werden umgerechnet) oder der **von Hand eingetragene** Kilometerstand, der Stand bei Beginn, die **erlaubten Kilometer pro Jahr** und/oder **über die ganze Laufzeit**, eine **Toleranz nach oben und unten** und ein **Preis je Mehrkilometer / Gutschrift je Minderkilometer**. Tariffy zeigt die gefahrenen Kilometer, das **Soll bis heute**, was **noch übrig** ist (und pro Tag ab jetzt erlaubt), deinen Schnitt pro Tag und die **Hochrechnung zum Rückgabedatum**; Mehr- und Minderkilometer über der Toleranz ergeben die **erwartete Nachzahlung oder Gutschrift**. Ein Leasingvertrag hat drei weitere Sensoren (**Gefahrene Kilometer**, **Kilometer bei Rückgabe (Hochrechnung)**, **Erwartete Mehr-/Minderkilometer-Kosten**) und die Fahrzeug-Sensoren der Versicherung; das Panel zeigt eine Zeile in der Karte und in den Details einen Block „Leasing-Kilometer“. Die Kilometerkosten sind eine Schätzung und zählen **nicht** in die Summen. Ein Tarifwechsel behält Fahrzeug, Sensor und Kilometerregeln; der Stand bei Beginn und der von Hand eingetragene Wert gehören zur alten Laufzeit. Andere Verträge bleiben unverändert.
+
 ## [1.31.0] - 2026-11-17
 
 Diese Version fasst alles zusammen, was in den Betas `1.31.0-beta.1` und `1.31.0-beta.2` getestet wurde. **Bestehende Verträge funktionieren ohne jede Änderung weiter.** Die neue Option ist standardmäßig aus.
