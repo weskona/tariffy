@@ -413,7 +413,7 @@ async def test_the_form_has_the_sensor_and_the_own_values(hass):
         for step in ("energie", "reconfigure_energie", "energie_ht_nt", "reconfigure_energie_ht_nt"):
             for key in ("autarkie_sensor", "autarkie_manuell"):
                 assert texts["step"][step]["data"][key] and texts["step"][step]["data_description"][key], (language, step, key)
-        assert texts["error"]["pv_manuell"]
+        assert texts["error"]["pv_manuell"] and texts["error"]["pv_manuell_gleich"]
 
 
 async def test_unusable_own_values_are_refused_and_good_ones_saved(hass):
@@ -424,6 +424,30 @@ async def test_unusable_own_values_are_refused_and_good_ones_saved(hass):
     assert bad["step_id"] == "energie"
     good = await hass.config_entries.flow.async_configure(bad["flow_id"], {**base, "autarkie_manuell": MANUELL})
     assert good["type"].value == "create_entry" and good["data"]["autarkie_manuell"] == MANUELL
+
+
+async def test_equal_own_values_without_a_sensor_are_refused_with_a_hint(hass):
+    """One value (or twelve equal ones) changes nothing on its own: the season factor is always 1 (Issue 86)."""
+    base = {"arbeitspreis": 0.3, "grundpreis": 10, "abschlag": 100, "pv_autarkie": True}
+    for text in ("40", "40,0", "40 40 40 40 40 40 40 40 40 40 40 40"):
+        result = await _start(hass, "electricity")
+        bad = await hass.config_entries.flow.async_configure(result["flow_id"], {**base, "autarkie_manuell": text})
+        assert bad["type"].value == "form", text
+        assert bad["errors"] == {"autarkie_manuell": "pv_manuell_gleich"}, text
+
+
+async def test_equal_own_values_stay_possible_with_a_sensor_or_when_off(hass):
+    base = {"arbeitspreis": 0.3, "grundpreis": 10, "abschlag": 100}
+    # next to a sensor a single value is a fallback for months without data
+    result = await _start(hass, "electricity")
+    good = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {**base, "pv_autarkie": True, "autarkie_sensor": "sensor.autarkie", "autarkie_manuell": "40"}
+    )
+    assert good["type"].value == "create_entry"
+    # switched off: nothing is checked beyond the format
+    result = await _start(hass, "electricity")
+    good = await hass.config_entries.flow.async_configure(result["flow_id"], {**base, "autarkie_manuell": "40"})
+    assert good["type"].value == "create_entry"
 
 
 async def test_editing_keeps_the_new_fields(frontend_env, contract, hass):  # noqa: F811

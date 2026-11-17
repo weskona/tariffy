@@ -115,7 +115,7 @@
           "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr. Gib unten den Gesamtverbrauch des Hauses an, einen Autarkie-Sensor oder eigene Werte. Aus = lineare Hochrechnung wie bisher.",
           "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
           "autarkie_sensor": "Alternative zum Gesamtverbrauch: ein Sensor mit dem Autarkiegrad in % und Statistik (state_class measurement), zum Beispiel die Autarkie der Fronius-Integration. Es wird der Monatsmittelwert des Vorjahres genommen. Wird nicht benutzt, wenn der Gesamtverbrauch angegeben ist.",
-          "autarkie_manuell": "Ein Wert für alle Monate oder zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage)."
+          "autarkie_manuell": "Zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage). Ein Wert für alle Monate wirkt nur neben einem Sensor als Ersatz."
         }
       },
       "reconfigure_energie": {
@@ -174,7 +174,7 @@
           "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr. Gib unten den Gesamtverbrauch des Hauses an, einen Autarkie-Sensor oder eigene Werte. Aus = lineare Hochrechnung wie bisher.",
           "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
           "autarkie_sensor": "Alternative zum Gesamtverbrauch: ein Sensor mit dem Autarkiegrad in % und Statistik (state_class measurement), zum Beispiel die Autarkie der Fronius-Integration. Es wird der Monatsmittelwert des Vorjahres genommen. Wird nicht benutzt, wenn der Gesamtverbrauch angegeben ist.",
-          "autarkie_manuell": "Ein Wert für alle Monate oder zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage)."
+          "autarkie_manuell": "Zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage). Ein Wert für alle Monate wirkt nur neben einem Sensor als Ersatz."
         }
       },
       "gas": {
@@ -502,7 +502,7 @@
           "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
           "gesamtverbrauch_sensor_nt": "Freiwillig, beim Zweizählertarif: der Gesamtverbrauch in der Niedertarif-Zeit. Ohne ihn wird die Autarkie über beide Tarife zusammen gerechnet und auf beide angewendet (eine Näherung).",
           "autarkie_sensor": "Alternative zum Gesamtverbrauch: ein Sensor mit dem Autarkiegrad in % und Statistik (state_class measurement), zum Beispiel die Autarkie der Fronius-Integration. Es wird der Monatsmittelwert des Vorjahres genommen. Wird nicht benutzt, wenn der Gesamtverbrauch angegeben ist.",
-          "autarkie_manuell": "Ein Wert für alle Monate oder zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage)."
+          "autarkie_manuell": "Zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage). Ein Wert für alle Monate wirkt nur neben einem Sensor als Ersatz."
         }
       },
       "reconfigure_energie_ht_nt": {
@@ -568,7 +568,7 @@
           "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
           "gesamtverbrauch_sensor_nt": "Freiwillig, beim Zweizählertarif: der Gesamtverbrauch in der Niedertarif-Zeit. Ohne ihn wird die Autarkie über beide Tarife zusammen gerechnet und auf beide angewendet (eine Näherung).",
           "autarkie_sensor": "Alternative zum Gesamtverbrauch: ein Sensor mit dem Autarkiegrad in % und Statistik (state_class measurement), zum Beispiel die Autarkie der Fronius-Integration. Es wird der Monatsmittelwert des Vorjahres genommen. Wird nicht benutzt, wenn der Gesamtverbrauch angegeben ist.",
-          "autarkie_manuell": "Ein Wert für alle Monate oder zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage)."
+          "autarkie_manuell": "Zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage). Ein Wert für alle Monate wirkt nur neben einem Sensor als Ersatz."
         }
       },
       "kredit": {
@@ -628,7 +628,8 @@
       "invalid_number": "Keine gültige Zahl. Bitte Punkt oder Komma als Dezimaltrennzeichen verwenden (z.B. 11.2 oder 11,2).",
       "kredit_summe": "Trage eine Kreditsumme über null ein.",
       "kredit_zins": "Trage den Sollzins oder den effektiven Jahreszins ein.",
-      "pv_manuell": "Trage einen Wert oder zwölf Werte zwischen 0 und 100 ein, getrennt durch Leerzeichen oder Semikolon."
+      "pv_manuell": "Trage einen Wert oder zwölf Werte zwischen 0 und 100 ein, getrennt durch Leerzeichen oder Semikolon.",
+      "pv_manuell_gleich": "Ohne Sensor ändert ein gleicher Wert für alle Monate nichts an der Prognose: Trage zwölf unterschiedliche Monatswerte (Januar bis Dezember) ein oder wähle einen Sensor."
     }
   },
   "options": {

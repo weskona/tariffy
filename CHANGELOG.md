@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.31.0-beta.2] - 2026-11-17
+
+### Fixed
+
+- **PV self-sufficiency with own values only: a single value changed nothing** (reported in #86). The forecast compares the self-sufficiency of every remaining month with that of the measured period; one value for all months is the same everywhere, so the factor is always 1 and the forecast stays linear. That was correct but misleading: the form now says so. **Without a sensor**, own values that are all equal are rejected with a hint to enter **twelve different monthly values** (January to December); a single value stays possible next to a sensor as a fallback for months without data. Contracts saved with beta.1 are not changed; they keep working as before. The description in the README and the wiki is corrected.
+
 ## [1.31.0-beta.1] - 2026-11-17
 
 First beta of 1.31.0. Please report problems with the bug report form and mention this exact version.
