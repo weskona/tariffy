@@ -514,6 +514,19 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
             ),
             "verbrauch_hochgerechnet": d.get("verbrauch_hochgerechnet"),
             "abschlag_warnung_aktiv": d.get("abschlag_warnung_aktiv"),
+            # PV-Autarkie (optional): nur wenn sie die Prognose bestimmt, bleiben die Attribute sonst wie bisher
+            **(
+                {
+                    "autarkie_variante": d.get("autarkie_variante"),
+                    "autarkie_monatswerte": d.get("autarkie_monatswerte"),
+                    "autarkie_bisher": d.get("autarkie_bisher"),
+                    "autarkie_bisher_nt": d.get("autarkie_bisher_nt"),
+                    "autarkie_naeherung": d.get("autarkie_naeherung"),
+                    "prognose_ohne_autarkie": d.get("prognose_ohne_autarkie"),
+                }
+                if d.get("autarkie_aktiv")
+                else {}
+            ),
         },
     ),
     VertragSensorDescription(
