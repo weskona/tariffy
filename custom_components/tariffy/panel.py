@@ -123,6 +123,7 @@ CONTRACT_FIELDS = (
     "einmalposten",
     "aussenzaehler",
     "autarkie_aktiv",
+    "autarkie_variante",
     "autarkie_bisher",
     "autarkie_bisher_nt",
     "autarkie_naeherung",

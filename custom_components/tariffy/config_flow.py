@@ -16,9 +16,12 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
 from homeassistant.util import dt as dt_util
 
+from . import autarkie as pv
 from .backup import BackupError, sanitize_contract
 from .const import (
     CONF_ABSCHLAG,
+    CONF_AUTARKIE_MANUELL,
+    CONF_AUTARKIE_SENSOR,
     CONF_GESAMTVERBRAUCH_SENSOR,
     CONF_GESAMTVERBRAUCH_SENSOR_NT,
     CONF_PV_AUTARKIE,
@@ -494,11 +497,21 @@ def _pv_autarkie_fields(d: dict[str, Any], ht_nt: bool = False) -> dict[Any, Any
             selector.EntitySelectorConfig(domain="sensor")
         ),
     }
+    fields[_opt(CONF_AUTARKIE_SENSOR, d.get(CONF_AUTARKIE_SENSOR))] = selector.EntitySelector(
+        selector.EntitySelectorConfig(domain="sensor")
+    )
+    fields[_opt(CONF_AUTARKIE_MANUELL, d.get(CONF_AUTARKIE_MANUELL))] = selector.TextSelector()
     if ht_nt:
         fields[_opt(CONF_GESAMTVERBRAUCH_SENSOR_NT, d.get(CONF_GESAMTVERBRAUCH_SENSOR_NT))] = selector.EntitySelector(
             selector.EntitySelectorConfig(domain="sensor")
         )
     return fields
+
+
+def _pv_fehler(user_input: dict[str, Any]) -> dict[str, str]:
+    """Die manuellen Autarkie-Werte muessen leer, ein Wert oder zwoelf Werte von 0 bis 100 sein."""
+    _werte, fehler = pv.parse_manuell(user_input.get(CONF_AUTARKIE_MANUELL))
+    return {CONF_AUTARKIE_MANUELL: "pv_manuell"} if fehler else {}
 
 
 def _energie_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
@@ -912,22 +925,27 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_energie(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        if user_input is not None:
+        errors = _pv_fehler(user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
             data = {**self._data, **user_input}
             return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(
-            step_id="energie", data_schema=_energie_schema({}, _country_features(self.hass))
+            step_id="energie",
+            data_schema=_energie_schema(dict(user_input or {}), _country_features(self.hass)),
+            errors=errors,
         )
 
     async def async_step_energie_ht_nt(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        if user_input is not None:
+        errors = _pv_fehler(user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
             data = {**self._data, **user_input}
             return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(
             step_id="energie_ht_nt",
-            data_schema=_energie_ht_nt_schema({}, _country_features(self.hass)),
+            data_schema=_energie_ht_nt_schema(dict(user_input or {}), _country_features(self.hass)),
+            errors=errors,
         )
 
     async def async_step_pauschal(
@@ -1031,7 +1049,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
-        if user_input is not None:
+        errors = _pv_fehler(user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
@@ -1040,14 +1059,16 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             )
         return self.async_show_form(
             step_id="reconfigure_energie",
-            data_schema=_energie_schema(dict(entry.data), _country_features(self.hass)),
+            data_schema=_energie_schema(dict(user_input or entry.data), _country_features(self.hass)),
+            errors=errors,
         )
 
     async def async_step_reconfigure_energie_ht_nt(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         entry = self._get_reconfigure_entry()
-        if user_input is not None:
+        errors = _pv_fehler(user_input) if user_input is not None else {}
+        if user_input is not None and not errors:
             neu = _keep_internal_state(
                 entry.data, _stamp_abschlag_change(entry.data, {**self._data, **user_input})
             )
@@ -1056,7 +1077,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             )
         return self.async_show_form(
             step_id="reconfigure_energie_ht_nt",
-            data_schema=_energie_ht_nt_schema(dict(entry.data), _country_features(self.hass)),
+            data_schema=_energie_ht_nt_schema(dict(user_input or entry.data), _country_features(self.hass)),
+            errors=errors,
         )
 
     async def async_step_reconfigure_pauschal(

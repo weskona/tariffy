@@ -18,6 +18,8 @@ from . import autarkie as pv
 from . import loan
 from .const import (
     BASIS_FELDER,
+    CONF_AUTARKIE_MANUELL,
+    CONF_AUTARKIE_SENSOR,
     CONF_GESAMTVERBRAUCH_SENSOR,
     CONF_GESAMTVERBRAUCH_SENSOR_NT,
     CONF_PV_AUTARKIE,
@@ -566,6 +568,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._aussen_offsets: dict[str, tuple[date, float, float | None]] = {}
         # PV-Autarkie: Monatsverbraeuche des Vorjahres je (Sensor, Monatsbeginn); Vergangenes aendert sich nicht
         self._pv_monate: dict[tuple[str, date], float] = {}
+        self._pv_mittelwerte: dict[tuple[str, date], float] = {}
         # Fuer den Diagnose-Download und die Warnung im Log: wie der
         # Verbrauch beim letzten Update ermittelt wurde (siehe diagnostics.py).
         self.verbrauch_diag: dict[str, Any] = {}
@@ -752,7 +755,13 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # PV-Autarkie: die Sensoren des Hauses bleiben beim Wechsel angeschlossen
             **{
                 key: self.entry.data[key]
-                for key in (CONF_PV_AUTARKIE, CONF_GESAMTVERBRAUCH_SENSOR, CONF_GESAMTVERBRAUCH_SENSOR_NT)
+                for key in (
+                    CONF_PV_AUTARKIE,
+                    CONF_GESAMTVERBRAUCH_SENSOR,
+                    CONF_GESAMTVERBRAUCH_SENSOR_NT,
+                    CONF_AUTARKIE_SENSOR,
+                    CONF_AUTARKIE_MANUELL,
+                )
                 if self.entry.data.get(key) not in (None, "")
             },
             # Einmalposten gehoeren zum Vertrag (auch in die Gesamtkosten ueber alle Laufzeiten)
@@ -1116,6 +1125,27 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._pv_monate[key] = delta
         return delta
 
+    async def _pv_mittel(self, sensor: str, start: date, ende: date, heute: date) -> float | None:
+        """Mittlere Autarkie (Anteil 0..1) eines Autarkie-Sensors in % zwischen zwei Tagen aus den
+        Langzeitstatistiken (Mittelwert, nicht Median: der Wert ist ein Momentanwert und im Tagesverlauf
+        zweigipflig). Vergangene Monate werden gecacht."""
+        key = (sensor, start)
+        if key in self._pv_mittelwerte:
+            return self._pv_mittelwerte[key]
+        zone = dt_util.get_default_time_zone()
+        mittel = await _get_average_price(
+            self.hass,
+            sensor,
+            datetime.combine(start, datetime.min.time()).replace(tzinfo=zone),
+            datetime.combine(ende, datetime.min.time()).replace(tzinfo=zone),
+        )
+        if mittel is None:
+            return None
+        anteil = min(1.0, max(0.0, mittel / 100.0))
+        if ende <= heute:
+            self._pv_mittelwerte[key] = anteil
+        return anteil
+
     async def _pv_autarkie(
         self,
         data: dict[str, Any],
@@ -1125,48 +1155,83 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         vertrag_gesamttage: int,
         register: list[dict[str, Any]],
     ) -> dict[str, Any] | None:
-        """Prognose des Netzbezugs der Restlaufzeit mit der PV-Autarkie des Vorjahres (siehe autarkie.py).
+        """Prognose des Netzbezugs der Restlaufzeit mit der PV-Autarkie (siehe autarkie.py).
+
+        Quelle der Autarkie je Monat: der Gesamtverbrauchs-Sensor (Variante 1, aus den Energiesummen des
+        Vorjahres), sonst der Autarkie-Sensor in % (Variante 2, Monatsmittel des Vorjahres); fehlt fuer einen
+        Monat der Wert, gilt der manuelle (Variante 3), sonst keine Anpassung. Nur manuelle Werte reichen auch.
 
         `register`: je Tarif Bezugssensor, bisheriger Bezug und Preis (ein Eintrag; beim Zweizaehlertarif
         Hoch- und Niedertarif). None, wenn die Autarkie nicht zu berechnen ist (dann bleibt es bei der
         linearen Hochrechnung)."""
         gesamt_ht = data.get(CONF_GESAMTVERBRAUCH_SENSOR)
         gesamt_nt = data.get(CONF_GESAMTVERBRAUCH_SENSOR_NT) if len(register) > 1 else None
-        if not gesamt_ht or any(r["bisher"] is None for r in register):
+        autarkie_sensor = data.get(CONF_AUTARKIE_SENSOR)
+        manuell, _fehler = pv.parse_manuell(data.get(CONF_AUTARKIE_MANUELL))
+        if gesamt_ht:
+            variante = "gesamtverbrauch"
+        elif autarkie_sensor:
+            variante = "entitaet"
+        elif manuell:
+            variante = "manuell"
+        else:
+            return None
+        if any(r["bisher"] is None for r in register):
             return None
         monate = pv.restmonate(heute, vertrag_gesamttage - vergangene_tage)
         if not monate:
             return None
         # Gruppen, die sich einen Gesamtverbrauchs-Sensor teilen: ein Tarif je Sensor, oder beide zusammen
-        # (nur ein Gesamtverbrauchs-Sensor: die Autarkie ueber beide Tarife, eine Naeherung)
-        if len(register) > 1 and not gesamt_nt:
+        # (nur ein Gesamtverbrauchs-Sensor: die Autarkie ueber beide Tarife, eine Naeherung). Die Autarkie
+        # eines Sensors in % oder manuelle Werte sind nicht tarifspezifisch und gelten fuer alle Tarife.
+        naeherung = False
+        if variante != "gesamtverbrauch":
+            gruppen: list[tuple[str | None, list[int]]] = [(None, list(range(len(register))))]
+        elif len(register) > 1 and not gesamt_nt:
             gruppen = [(gesamt_ht, [0, 1])]
             naeherung = True
         elif len(register) > 1:
             gruppen = [(gesamt_ht, [0]), (gesamt_nt, [1])]
-            naeherung = False
         else:
             gruppen = [(gesamt_ht, [0])]
-            naeherung = False
 
         faktoren: list[list[float]] = [[1.0] * len(monate) for _ in register]
         a_monate: list[list[float | None]] = [[None] * len(monate) for _ in register]
+        quellen: list[list[str | None]] = [[None] * len(monate) for _ in register]
         a_bisher_liste: list[float | None] = [None] * len(register)
         for gesamt_sensor, indizes in gruppen:
-            gesamt_bisher = await self._verbrauch_bisher_fuer_sensor(
-                gesamt_sensor, None, beginn, self._get_aussen_offset
-            )
-            a_bisher = pv.autarkie(sum(register[i]["bisher"] for i in indizes), gesamt_bisher)
+            # Autarkie im gemessenen Zeitraum
+            a_bisher = None
+            if variante == "gesamtverbrauch":
+                gesamt_bisher = await self._verbrauch_bisher_fuer_sensor(
+                    gesamt_sensor, None, beginn, self._get_aussen_offset
+                )
+                a_bisher = pv.autarkie(sum(register[i]["bisher"] for i in indizes), gesamt_bisher)
+            elif variante == "entitaet":
+                a_bisher = await self._pv_mittel(autarkie_sensor, beginn, heute, heute)
+            if a_bisher is None and manuell:
+                a_bisher = pv.manuell_zeitraum(manuell, beginn, heute)
             for lauf, (jahr, monat, _tage) in enumerate(monate):
                 start, ende = pv.vorjahresmonat(jahr, monat)
-                gesamt = await self._pv_monatsverbrauch(gesamt_sensor, start, ende, heute)
-                bezug_teile = [
-                    await self._pv_monatsverbrauch(register[i]["bezug"], start, ende, heute) for i in indizes
-                ]
-                bezug = None if any(t is None for t in bezug_teile) else sum(bezug_teile)
-                a_monat = pv.autarkie(bezug, gesamt)
+                a_monat = None
+                quelle = None
+                if variante == "gesamtverbrauch":
+                    gesamt = await self._pv_monatsverbrauch(gesamt_sensor, start, ende, heute)
+                    bezug_teile = [
+                        await self._pv_monatsverbrauch(register[i]["bezug"], start, ende, heute) for i in indizes
+                    ]
+                    bezug = None if any(t is None for t in bezug_teile) else sum(bezug_teile)
+                    a_monat = pv.autarkie(bezug, gesamt)
+                    quelle = "statistik"
+                elif variante == "entitaet":
+                    a_monat = await self._pv_mittel(autarkie_sensor, start, ende, heute)
+                    quelle = "statistik"
+                if a_monat is None and manuell:
+                    a_monat = manuell[monat - 1] / 100.0
+                    quelle = "manuell"
                 for i in indizes:
                     a_monate[i][lauf] = a_monat
+                    quellen[i][lauf] = quelle if a_monat is not None else None
                     faktoren[i][lauf] = pv.faktor(a_monat, a_bisher)
             for i in indizes:
                 a_bisher_liste[i] = a_bisher
@@ -1186,12 +1251,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "tage": tage,
                 "autarkie": None if a_monate[0][lauf] is None else round(a_monate[0][lauf] * 100, 1),
                 "faktor": round(faktoren[0][lauf], 3),
+                "quelle": quellen[0][lauf],
             }
             if len(register) > 1:
                 zeile["autarkie_nt"] = None if a_monate[1][lauf] is None else round(a_monate[1][lauf] * 100, 1)
                 zeile["faktor_nt"] = round(faktoren[1][lauf], 3)
             monatswerte.append(zeile)
         return {
+            "variante": variante,
             "verbrauch_hochgerechnet": round(gesamt_hoch, 1),
             "preis": round(gewichtet / gesamt_hoch, 6) if gesamt_hoch > 0 else None,
             "monate": monatswerte,
@@ -1860,7 +1927,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "arbeitspreis_gesamt_wasser": arbeitspreis_gesamt_wasser,
             "abwasser_pauschal_monat": abwasser_pauschal_monat,
             "autarkie_aktiv": autark is not None,
-            "autarkie_variante": "gesamtverbrauch" if autark is not None else None,
+            "autarkie_variante": autark["variante"] if autark is not None else None,
             "autarkie_monatswerte": autark["monate"] if autark is not None else [],
             "autarkie_bisher": autark["bisher"] if autark is not None else None,
             "autarkie_bisher_nt": autark["bisher_nt"] if autark is not None else None,

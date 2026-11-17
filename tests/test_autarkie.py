@@ -274,3 +274,160 @@ async def test_a_tariff_switch_keeps_the_option_and_the_sensors(contract):
         )
     assert entry.data["anbieter"] == "Neu"
     assert entry.data["pv_autarkie"] is True and entry.data["gesamtverbrauch_sensor"] == HAUS
+
+
+# ------------------------------------------------- variant 3 (own values) and variant 2 (a sensor in %)
+MANUELL = "10 10 20 40 60 70 80 75 50 30 15 10"  # January to December
+MANUELL_LISTE = [10, 10, 20, 40, 60, 70, 80, 75, 50, 30, 15, 10]
+
+
+@pytest.mark.parametrize(
+    ("text", "werte", "fehler"),
+    [
+        ("", None, False),
+        (None, None, False),
+        ("   ", None, False),
+        ("40", [40.0] * 12, False),
+        ("12,5", [12.5] * 12, False),  # decimal comma
+        (MANUELL, [float(v) for v in MANUELL_LISTE], False),
+        ("10;10;20;40;60;70;80;75;50;30;15;10", [float(v) for v in MANUELL_LISTE], False),  # semicolons
+        ("10 20 30", None, True),  # neither one nor twelve values
+        ("abc", None, True),
+        ("101", None, True),  # above 100 %
+        ("-1", None, True),
+        ("10 " * 11 + "x", None, True),
+    ],
+)
+def test_the_own_values_are_parsed_and_checked(text, werte, fehler):
+    assert pv.parse_manuell(text) == (werte, fehler)
+
+
+def test_the_own_values_over_the_measured_period():
+    liste = [float(v) for v in MANUELL_LISTE]
+    # 1 January to 30 June 2026: 181 days
+    erwartet = (10 * 31 + 10 * 28 + 20 * 31 + 40 * 30 + 60 * 31 + 70 * 30) / 181 / 100
+    assert pv.manuell_zeitraum(liste, date(2026, 1, 1), date(2026, 7, 1)) == pytest.approx(erwartet)
+    assert pv.manuell_zeitraum(liste, date(2026, 7, 1), date(2026, 7, 1)) is None  # empty period
+    assert pv.manuell_zeitraum([50.0] * 12, date(2026, 1, 1), date(2026, 3, 1)) == pytest.approx(0.5)
+
+
+def _projection(a_bisher, a_monate_prozent):
+    """By hand: 1800 kWh in 181 days; the months July to December with 31, 31, 30, 31, 30, 30 days left."""
+    tage = [31, 31, 30, 31, 30, 30]
+    faktoren = [(1 - a / 100) / (1 - a_bisher) for a in a_monate_prozent]
+    return 1800 + 1800 / 181 * sum(d * f for d, f in zip(tage, faktoren, strict=True))
+
+
+async def test_own_values_alone_are_enough_even_without_any_history(contract):
+    data = {**ELEKTRO, "pv_autarkie": True, "autarkie_manuell": MANUELL}
+    _, d = await _setup(contract, data, _stats(netz=None, haus=None))  # the first year of a PV system
+    assert d["autarkie_aktiv"] is True and d["autarkie_variante"] == "manuell"
+    a_bisher = (10 * 31 + 10 * 28 + 20 * 31 + 40 * 30 + 60 * 31 + 70 * 30) / 181 / 100
+    assert d["verbrauch_hochgerechnet"] == pytest.approx(_projection(a_bisher, MANUELL_LISTE[6:]), abs=0.5)
+    assert d["autarkie_bisher"] == pytest.approx(a_bisher * 100, abs=0.05)
+    assert [m["autarkie"] for m in d["autarkie_monatswerte"]] == [80.0, 75.0, 50.0, 30.0, 15.0, 10.0]
+    assert {m["quelle"] for m in d["autarkie_monatswerte"]} == {"manuell"}
+
+
+async def test_one_value_for_all_months_changes_nothing_in_the_season(contract):
+    # the same autarky in every month: no season, so the forecast is the linear one
+    data = {**ELEKTRO, "pv_autarkie": True, "autarkie_manuell": "40"}
+    _, d = await _setup(contract, data, _stats(netz=None, haus=None))
+    assert d["autarkie_aktiv"] is False
+    assert d["verbrauch_hochgerechnet"] == pytest.approx(1800 / 181 * 364, abs=0.1)
+
+
+async def test_own_values_fill_the_months_without_statistics(contract):
+    # September last year has no total consumption (0 kWh): that month takes the own value, the others the statistics
+    haus = list(HAUS_2025)
+    haus[8] = 0
+    data = {**PV, "autarkie_manuell": MANUELL}
+    _, d = await _setup(contract, data, _stats(haus=haus))
+    assert d["autarkie_variante"] == "gesamtverbrauch"
+    quellen = {m["monat"]: m["quelle"] for m in d["autarkie_monatswerte"]}
+    assert quellen["2026-09"] == "manuell" and quellen["2026-07"] == "statistik" and quellen["2026-12"] == "statistik"
+    sept = next(m for m in d["autarkie_monatswerte"] if m["monat"] == "2026-09")
+    assert sept["autarkie"] == 50.0  # the own value of September
+
+
+def _mittel(werte_2025, bisher):
+    async def fake(_hass, entity_id, start, end):
+        assert entity_id == "sensor.autarkie"
+        if start.year == 2026:
+            return bisher
+        return werte_2025.get(start.month)
+
+    return patch(f"{COORDINATOR}._get_average_price", fake)
+
+
+MITTEL_2025 = {7: 80.0, 8: 80.0, 9: 60.0, 10: 40.0, 11: 20.0, 12: 10.0}
+
+
+async def test_a_self_sufficiency_sensor_in_percent(contract):
+    data = {**ELEKTRO, "pv_autarkie": True, "autarkie_sensor": "sensor.autarkie"}
+    with _mittel(MITTEL_2025, 40.0):
+        _, d = await _setup(contract, data, _stats(netz=None, haus=None))
+    assert d["autarkie_aktiv"] is True and d["autarkie_variante"] == "entitaet"
+    assert d["verbrauch_hochgerechnet"] == pytest.approx(_projection(0.4, [80, 80, 60, 40, 20, 10]), abs=0.5)
+    assert d["autarkie_bisher"] == 40.0
+    assert {m["quelle"] for m in d["autarkie_monatswerte"]} == {"statistik"}
+
+
+async def test_the_sensor_values_are_clamped(contract):
+    data = {**ELEKTRO, "pv_autarkie": True, "autarkie_sensor": "sensor.autarkie"}
+    with _mittel({m: 140.0 for m in range(7, 13)}, 40.0):
+        _, d = await _setup(contract, data, _stats(netz=None, haus=None))
+    assert all(m["autarkie"] == 100.0 for m in d["autarkie_monatswerte"])  # more than 100 % cannot be
+
+
+async def test_a_month_without_sensor_data_takes_the_own_value(contract):
+    data = {**ELEKTRO, "pv_autarkie": True, "autarkie_sensor": "sensor.autarkie", "autarkie_manuell": MANUELL}
+    with _mittel({m: v for m, v in MITTEL_2025.items() if m != 9}, 40.0):
+        _, d = await _setup(contract, data, _stats(netz=None, haus=None))
+    quellen = {m["monat"]: m["quelle"] for m in d["autarkie_monatswerte"]}
+    assert quellen["2026-09"] == "manuell" and quellen["2026-08"] == "statistik"
+
+
+async def test_the_total_consumption_comes_first(contract):
+    data = {**PV, "autarkie_sensor": "sensor.autarkie", "autarkie_manuell": MANUELL}
+    with _mittel(MITTEL_2025, 40.0):
+        _, d = await _setup(contract, data)
+    assert d["autarkie_variante"] == "gesamtverbrauch"
+    assert d["verbrauch_hochgerechnet"] == pytest.approx(_expected_projection(), abs=0.5)  # not the sensor, not the own values
+
+
+async def test_a_sensor_or_own_values_apply_to_both_tariffs_alike(contract):
+    data = {**HT_NT, "gesamtverbrauch_sensor": None, "autarkie_manuell": MANUELL}
+    data.pop("gesamtverbrauch_sensor")
+    _, d = await _setup(contract, data, _stats(netz=None, haus=None, **{NT: None}))
+    assert d["autarkie_variante"] == "manuell" and d["autarkie_naeherung"] is False  # no approximation: same value by design
+    assert all(m["autarkie"] == m["autarkie_nt"] for m in d["autarkie_monatswerte"])
+
+
+# ------------------------------------------------------------------ form: the new fields
+async def test_the_form_has_the_sensor_and_the_own_values(hass):
+    for sparte in ("electricity", "electricity_ht_nt"):
+        assert {"autarkie_sensor", "autarkie_manuell"} <= _keys(await _start(hass, sparte))
+    for language in ("en", "de"):
+        texts = json.loads((TRANSLATIONS / f"{language}.json").read_text(encoding="utf-8"))["config"]
+        for step in ("energie", "reconfigure_energie", "energie_ht_nt", "reconfigure_energie_ht_nt"):
+            for key in ("autarkie_sensor", "autarkie_manuell"):
+                assert texts["step"][step]["data"][key] and texts["step"][step]["data_description"][key], (language, step, key)
+        assert texts["error"]["pv_manuell"]
+
+
+async def test_unusable_own_values_are_refused_and_good_ones_saved(hass):
+    base = {"arbeitspreis": 0.3, "grundpreis": 10, "abschlag": 100, "pv_autarkie": True}
+    result = await _start(hass, "electricity")
+    bad = await hass.config_entries.flow.async_configure(result["flow_id"], {**base, "autarkie_manuell": "10 20 30"})
+    assert bad["type"].value == "form" and bad["errors"] == {"autarkie_manuell": "pv_manuell"}
+    assert bad["step_id"] == "energie"
+    good = await hass.config_entries.flow.async_configure(bad["flow_id"], {**base, "autarkie_manuell": MANUELL})
+    assert good["type"].value == "create_entry" and good["data"]["autarkie_manuell"] == MANUELL
+
+
+async def test_editing_keeps_the_new_fields(frontend_env, contract, hass):  # noqa: F811
+    data = {**PV, "autarkie_sensor": "sensor.autarkie", "autarkie_manuell": MANUELL}
+    entry, _ = await _setup(contract, data)
+    new = await _reconfigure(hass, entry)
+    assert new["autarkie_sensor"] == "sensor.autarkie" and new["autarkie_manuell"] == MANUELL

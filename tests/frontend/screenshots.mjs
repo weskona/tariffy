@@ -1531,12 +1531,12 @@ for (const width of [1280, 900, 600, 390]) {
   check(!before.includes("ohne PV-Autarkie") && !before.includes("PV-Autarkie bisher"), "without the option nothing about self-sufficiency is shown");
   await page.evaluate(() => {
     const p = window.__panel;
-    p._contracts = p._contracts.map((c) => (c.title === "Strom Haus" ? { ...c, autarkie_aktiv: true, autarkie_bisher: 52.4, autarkie_bisher_nt: 31.0, autarkie_naeherung: true, prognose_ohne_autarkie: -612.5 } : c));
+    p._contracts = p._contracts.map((c) => (c.title === "Strom Haus" ? { ...c, autarkie_aktiv: true, autarkie_variante: "manuell", autarkie_bisher: 52.4, autarkie_bisher_nt: 31.0, autarkie_naeherung: true, prognose_ohne_autarkie: -612.5 } : c));
     p._render();
   });
   await page.waitForTimeout(100); // the row stays open over the new render
   const after = (await page.locator("details:has-text('Strom Haus')").first().innerText()).replace(/\u00a0/g, " ");
-  check(/Prognose zum Vertragsende ohne PV-Autarkie\s*−612,50 €/.test(after) && /PV-Autarkie bisher\s*52 % · Niedertarif 31 %/.test(after) && /Näherung/.test(after),
+  check(/Prognose zum Vertragsende ohne PV-Autarkie\s*−612,50 €/.test(after) && /PV-Autarkie bisher\s*52 % · Niedertarif 31 %/.test(after) && /Näherung/.test(after) && /Quelle der Autarkie\s*Eigene Werte/.test(after),
     `the forecast without self-sufficiency and the self-sufficiency so far are shown (${after.split("\n").filter((l) => /Autarkie/.test(l)).join(" | ")})`);
   await context.close();
 }

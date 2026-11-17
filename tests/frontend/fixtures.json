@@ -24,6 +24,7 @@
       "autarkie_bisher": null,
       "autarkie_bisher_nt": null,
       "autarkie_naeherung": null,
+      "autarkie_variante": null,
       "beginn": "2026-01-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -167,6 +168,7 @@
       "autarkie_bisher": null,
       "autarkie_bisher_nt": null,
       "autarkie_naeherung": null,
+      "autarkie_variante": null,
       "beginn": "2025-09-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -277,6 +279,7 @@
       "autarkie_bisher": null,
       "autarkie_bisher_nt": null,
       "autarkie_naeherung": null,
+      "autarkie_variante": null,
       "beginn": "2026-01-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -378,6 +381,7 @@
       "autarkie_bisher": null,
       "autarkie_bisher_nt": null,
       "autarkie_naeherung": null,
+      "autarkie_variante": null,
       "beginn": "2026-02-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -479,6 +483,7 @@
       "autarkie_bisher": null,
       "autarkie_bisher_nt": null,
       "autarkie_naeherung": null,
+      "autarkie_variante": null,
       "beginn": "2025-10-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -580,6 +585,7 @@
       "autarkie_bisher": null,
       "autarkie_bisher_nt": null,
       "autarkie_naeherung": null,
+      "autarkie_variante": null,
       "beginn": "2025-08-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -688,6 +694,7 @@
       "autarkie_bisher": null,
       "autarkie_bisher_nt": null,
       "autarkie_naeherung": null,
+      "autarkie_variante": null,
       "beginn": "2024-01-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -821,6 +828,7 @@
       "autarkie_bisher": null,
       "autarkie_bisher_nt": null,
       "autarkie_naeherung": null,
+      "autarkie_variante": null,
       "beginn": "2024-03-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -1211,6 +1219,31 @@
             }
           },
           {
+            "name": "autarkie_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "autarkie_manuell",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "name": "einspeiseverguetung",
             "optional": true,
             "required": false,
@@ -1274,7 +1307,7 @@
           }
         ],
         "description_placeholders": null,
-        "errors": null,
+        "errors": {},
         "flow_id": "cflow-1",
         "handler": "tariffy",
         "last_step": null,
@@ -1468,6 +1501,31 @@
             }
           },
           {
+            "name": "autarkie_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "autarkie_manuell",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "name": "gesamtverbrauch_sensor_nt",
             "optional": true,
             "required": false,
@@ -1556,7 +1614,7 @@
           }
         ],
         "description_placeholders": null,
-        "errors": null,
+        "errors": {},
         "flow_id": "cflow-1",
         "handler": "tariffy",
         "last_step": null,
@@ -3322,6 +3380,31 @@
             }
           },
           {
+            "name": "autarkie_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "autarkie_manuell",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "name": "einspeiseverguetung",
             "optional": true,
             "required": false,
@@ -3385,7 +3468,7 @@
           }
         ],
         "description_placeholders": null,
-        "errors": null,
+        "errors": {},
         "flow_id": "rflow-1",
         "handler": "tariffy",
         "last_step": null,
@@ -4490,6 +4573,31 @@
             }
           },
           {
+            "name": "autarkie_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "autarkie_manuell",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "name": "gesamtverbrauch_sensor_nt",
             "optional": true,
             "required": false,
@@ -4578,7 +4686,7 @@
           }
         ],
         "description_placeholders": null,
-        "errors": null,
+        "errors": {},
         "flow_id": "rflow-4",
         "handler": "tariffy",
         "last_step": null,
@@ -5393,6 +5501,31 @@
             }
           },
           {
+            "name": "autarkie_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "autarkie_manuell",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
             "name": "einspeiseverguetung",
             "optional": true,
             "required": false,
@@ -5456,7 +5589,7 @@
           }
         ],
         "description_placeholders": null,
-        "errors": null,
+        "errors": {},
         "flow_id": "rflow-7",
         "handler": "tariffy",
         "last_step": null,

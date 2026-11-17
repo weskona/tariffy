@@ -142,6 +142,9 @@ CONF_KUENDIGUNGSFRIST = "kuendigungsfrist"
 CONF_PV_AUTARKIE = "pv_autarkie"
 CONF_GESAMTVERBRAUCH_SENSOR = "gesamtverbrauch_sensor"
 CONF_GESAMTVERBRAUCH_SENSOR_NT = "gesamtverbrauch_sensor_nt"
+# Variante 2: Sensor mit dem Autarkiegrad in % (Monatsmittel der Statistik); Variante 3: manuelle Werte in %
+CONF_AUTARKIE_SENSOR = "autarkie_sensor"
+CONF_AUTARKIE_MANUELL = "autarkie_manuell"
 CONF_MINDESTLAUFZEIT = "mindestlaufzeit"
 CONF_NOTIFY_TARGET = "notify_target"
 ERINNERUNG_OPTIONS = ["0", "1", "2", "3", "4"]

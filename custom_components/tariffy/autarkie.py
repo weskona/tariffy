@@ -68,3 +68,39 @@ def rest_verbrauch(
         return 0.0
     je_tag = bisher / vergangene_tage
     return sum(je_tag * tage * f for (_, _, tage), f in zip(monate, faktoren, strict=True))
+
+
+# --------------------------------------------------------------- manuelle Werte (Variante 3)
+def parse_manuell(text: object) -> tuple[list[float] | None, bool]:
+    """Manuelle Autarkie in %: ein Wert (gilt fuer alle Monate) oder zwoelf Werte (Januar bis Dezember),
+    getrennt durch Leerzeichen oder Semikolon; Dezimalkomma oder -punkt. Gibt (Werte, Fehler) zurueck:
+    leer ist kein Fehler (dann None), alles andere Unbrauchbare ist einer."""
+    roh = str(text or "").replace(";", " ").strip()
+    if not roh:
+        return None, False
+    werte: list[float] = []
+    for teil in roh.split():
+        try:
+            wert = float(teil.replace(",", "."))
+        except ValueError:
+            return None, True
+        if not 0.0 <= wert <= 100.0:
+            return None, True
+        werte.append(wert)
+    if len(werte) == 1:
+        return werte * 12, False
+    if len(werte) == 12:
+        return werte, False
+    return None, True
+
+
+def manuell_zeitraum(werte: list[float], start: date, ende: date) -> float | None:
+    """Mittlere manuelle Autarkie (Anteil 0..1) ueber die Tage von `start` bis vor `ende`, nach Tagen
+    gewichtet. None, wenn der Zeitraum leer ist."""
+    tage = (ende - start).days
+    if tage <= 0:
+        return None
+    summe = 0.0
+    for i in range(tage):
+        summe += werte[(start + timedelta(days=i)).month - 1]
+    return summe / tage / 100.0

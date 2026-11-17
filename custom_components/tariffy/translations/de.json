@@ -94,7 +94,9 @@
           "jahresverbrauch_tag": "Jahresverbrauch Tag",
           "jahresverbrauch_nacht": "Jahresverbrauch Nacht",
           "pv_autarkie": "PV-Autarkie in der Prognose berücksichtigen",
-          "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)"
+          "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)",
+          "autarkie_sensor": "Autarkie-Sensor (%)",
+          "autarkie_manuell": "Autarkie, eigene Werte (%)"
         },
         "data_description": {
           "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt",
@@ -110,8 +112,10 @@
           "zaehlernummer": "Zählernummer auf deiner Stromrechnung",
           "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
           "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist",
-          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr; dafür braucht es unten den Gesamtverbrauch des Hauses. Aus = lineare Hochrechnung wie bisher.",
-          "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen."
+          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr. Gib unten den Gesamtverbrauch des Hauses an, einen Autarkie-Sensor oder eigene Werte. Aus = lineare Hochrechnung wie bisher.",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
+          "autarkie_sensor": "Alternative zum Gesamtverbrauch: ein Sensor mit dem Autarkiegrad in % und Statistik (state_class measurement), zum Beispiel die Autarkie der Fronius-Integration. Es wird der Monatsmittelwert des Vorjahres genommen. Wird nicht benutzt, wenn der Gesamtverbrauch angegeben ist.",
+          "autarkie_manuell": "Ein Wert für alle Monate oder zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage)."
         }
       },
       "reconfigure_energie": {
@@ -149,7 +153,9 @@
           "jahresverbrauch_tag": "Jahresverbrauch Tag",
           "jahresverbrauch_nacht": "Jahresverbrauch Nacht",
           "pv_autarkie": "PV-Autarkie in der Prognose berücksichtigen",
-          "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)"
+          "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)",
+          "autarkie_sensor": "Autarkie-Sensor (%)",
+          "autarkie_manuell": "Autarkie, eigene Werte (%)"
         },
         "data_description": {
           "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt",
@@ -165,8 +171,10 @@
           "zaehlernummer": "Zählernummer auf deiner Stromrechnung",
           "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
           "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist",
-          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr; dafür braucht es unten den Gesamtverbrauch des Hauses. Aus = lineare Hochrechnung wie bisher.",
-          "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen."
+          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr. Gib unten den Gesamtverbrauch des Hauses an, einen Autarkie-Sensor oder eigene Werte. Aus = lineare Hochrechnung wie bisher.",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
+          "autarkie_sensor": "Alternative zum Gesamtverbrauch: ein Sensor mit dem Autarkiegrad in % und Statistik (state_class measurement), zum Beispiel die Autarkie der Fronius-Integration. Es wird der Monatsmittelwert des Vorjahres genommen. Wird nicht benutzt, wenn der Gesamtverbrauch angegeben ist.",
+          "autarkie_manuell": "Ein Wert für alle Monate oder zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage)."
         }
       },
       "gas": {
@@ -468,7 +476,9 @@
           "tier_price_4": "Block 5 Preis",
           "pv_autarkie": "PV-Autarkie in der Prognose berücksichtigen",
           "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)",
-          "gesamtverbrauch_sensor_nt": "Gesamtverbrauch Niedertarif-Zeit (Sensor)"
+          "gesamtverbrauch_sensor_nt": "Gesamtverbrauch Niedertarif-Zeit (Sensor)",
+          "autarkie_sensor": "Autarkie-Sensor (%)",
+          "autarkie_manuell": "Autarkie, eigene Werte (%)"
         },
         "data_description": {
           "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt Das ist der Hochtarif (HT).",
@@ -488,9 +498,11 @@
           "zaehlernummer_nt": "Zählernummer des Niedertarif-Registers (NT), falls abweichend vom HT-Register.",
           "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
           "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist",
-          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr; dafür braucht es unten den Gesamtverbrauch des Hauses. Aus = lineare Hochrechnung wie bisher.",
+          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr. Gib unten den Gesamtverbrauch des Hauses an, einen Autarkie-Sensor oder eigene Werte. Aus = lineare Hochrechnung wie bisher.",
           "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
-          "gesamtverbrauch_sensor_nt": "Freiwillig, beim Zweizählertarif: der Gesamtverbrauch in der Niedertarif-Zeit. Ohne ihn wird die Autarkie über beide Tarife zusammen gerechnet und auf beide angewendet (eine Näherung)."
+          "gesamtverbrauch_sensor_nt": "Freiwillig, beim Zweizählertarif: der Gesamtverbrauch in der Niedertarif-Zeit. Ohne ihn wird die Autarkie über beide Tarife zusammen gerechnet und auf beide angewendet (eine Näherung).",
+          "autarkie_sensor": "Alternative zum Gesamtverbrauch: ein Sensor mit dem Autarkiegrad in % und Statistik (state_class measurement), zum Beispiel die Autarkie der Fronius-Integration. Es wird der Monatsmittelwert des Vorjahres genommen. Wird nicht benutzt, wenn der Gesamtverbrauch angegeben ist.",
+          "autarkie_manuell": "Ein Wert für alle Monate oder zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage)."
         }
       },
       "reconfigure_energie_ht_nt": {
@@ -530,7 +542,9 @@
           "tier_price_4": "Block 5 Preis",
           "pv_autarkie": "PV-Autarkie in der Prognose berücksichtigen",
           "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)",
-          "gesamtverbrauch_sensor_nt": "Gesamtverbrauch Niedertarif-Zeit (Sensor)"
+          "gesamtverbrauch_sensor_nt": "Gesamtverbrauch Niedertarif-Zeit (Sensor)",
+          "autarkie_sensor": "Autarkie-Sensor (%)",
+          "autarkie_manuell": "Autarkie, eigene Werte (%)"
         },
         "data_description": {
           "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt Das ist der Hochtarif (HT).",
@@ -550,9 +564,11 @@
           "zaehlernummer_nt": "Zählernummer des Niedertarif-Registers (NT), falls abweichend vom HT-Register.",
           "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
           "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist",
-          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr; dafür braucht es unten den Gesamtverbrauch des Hauses. Aus = lineare Hochrechnung wie bisher.",
+          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr. Gib unten den Gesamtverbrauch des Hauses an, einen Autarkie-Sensor oder eigene Werte. Aus = lineare Hochrechnung wie bisher.",
           "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
-          "gesamtverbrauch_sensor_nt": "Freiwillig, beim Zweizählertarif: der Gesamtverbrauch in der Niedertarif-Zeit. Ohne ihn wird die Autarkie über beide Tarife zusammen gerechnet und auf beide angewendet (eine Näherung)."
+          "gesamtverbrauch_sensor_nt": "Freiwillig, beim Zweizählertarif: der Gesamtverbrauch in der Niedertarif-Zeit. Ohne ihn wird die Autarkie über beide Tarife zusammen gerechnet und auf beide angewendet (eine Näherung).",
+          "autarkie_sensor": "Alternative zum Gesamtverbrauch: ein Sensor mit dem Autarkiegrad in % und Statistik (state_class measurement), zum Beispiel die Autarkie der Fronius-Integration. Es wird der Monatsmittelwert des Vorjahres genommen. Wird nicht benutzt, wenn der Gesamtverbrauch angegeben ist.",
+          "autarkie_manuell": "Ein Wert für alle Monate oder zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel 10 10 25 50 70 80 85 80 60 35 15 10). Gilt für Monate ohne Daten und allein, wenn es keinen Sensor gibt (zum Beispiel im ersten Jahr einer PV-Anlage)."
         }
       },
       "kredit": {
@@ -611,7 +627,8 @@
     "error": {
       "invalid_number": "Keine gültige Zahl. Bitte Punkt oder Komma als Dezimaltrennzeichen verwenden (z.B. 11.2 oder 11,2).",
       "kredit_summe": "Trage eine Kreditsumme über null ein.",
-      "kredit_zins": "Trage den Sollzins oder den effektiven Jahreszins ein."
+      "kredit_zins": "Trage den Sollzins oder den effektiven Jahreszins ein.",
+      "pv_manuell": "Trage einen Wert oder zwölf Werte zwischen 0 und 100 ein, getrennt durch Leerzeichen oder Semikolon."
     }
   },
   "options": {
