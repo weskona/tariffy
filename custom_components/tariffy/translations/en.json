@@ -92,7 +92,11 @@
           "tier_price_4": "Block 5 price",
           "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
           "jahresverbrauch_tag": "Annual daytime usage",
-          "jahresverbrauch_nacht": "Annual night-time usage"
+          "jahresverbrauch_nacht": "Annual night-time usage",
+          "pv_autarkie": "Take PV self-sufficiency into account",
+          "gesamtverbrauch_sensor": "Total consumption of the house (sensor)",
+          "autarkie_sensor": "Self-sufficiency sensor (%)",
+          "autarkie_manuell": "Self-sufficiency, own values (%)"
         },
         "data_description": {
           "arbeitspreis": "Price per kWh consumed — found on your electricity bill. Also used as a fallback while no statistics exist yet for the dynamic tariff sensor below",
@@ -107,7 +111,11 @@
           "bonus": "One-time sign-up or switch bonus from the provider",
           "zaehlernummer": "Meter number from your electricity bill",
           "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
-          "preisgarantie": "Date until which the unit price is guaranteed"
+          "preisgarantie": "Date until which the unit price is guaranteed",
+          "pv_autarkie": "Optional. Applies to the remaining term only: the forecast at contract end and the recommended instalment expect the grid draw of the coming months from the self-sufficiency of the same months last year. Give the total consumption of the house below, or a self-sufficiency sensor, or your own values. Off = the linear extrapolation as before.",
+          "gesamtverbrauch_sensor": "Total consumption in kWh as a sensor with a long-term statistic (total_increasing), for example the house consumption of the Energy dashboard. The consumption sensor of the contract must measure the grid draw.",
+          "autarkie_sensor": "Alternative to the total consumption: a sensor with the degree of self-sufficiency in % and a statistic (state class measurement), for example the autonomy of the Fronius integration. The monthly mean of last year is used. Not used if the total consumption is given.",
+          "autarkie_manuell": "One value for all months, or twelve values for January to December, separated by spaces or semicolons (for example 10 10 25 50 70 80 85 80 60 35 15 10). Used for months without data, and alone if there is no sensor (for example in the first year of a PV system)."
         }
       },
       "reconfigure_energie": {
@@ -143,7 +151,11 @@
           "tier_price_4": "Block 5 price",
           "arbeitspreis_nacht": "Night rate (e.g. Economy 7, TOU off-peak)",
           "jahresverbrauch_tag": "Annual daytime usage",
-          "jahresverbrauch_nacht": "Annual night-time usage"
+          "jahresverbrauch_nacht": "Annual night-time usage",
+          "pv_autarkie": "Take PV self-sufficiency into account",
+          "gesamtverbrauch_sensor": "Total consumption of the house (sensor)",
+          "autarkie_sensor": "Self-sufficiency sensor (%)",
+          "autarkie_manuell": "Self-sufficiency, own values (%)"
         },
         "data_description": {
           "arbeitspreis": "Price per kWh consumed — found on your electricity bill. Also used as a fallback while no statistics exist yet for the dynamic tariff sensor below",
@@ -158,7 +170,11 @@
           "bonus": "One-time sign-up or switch bonus from the provider",
           "zaehlernummer": "Meter number from your electricity bill",
           "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
-          "preisgarantie": "Date until which the unit price is guaranteed"
+          "preisgarantie": "Date until which the unit price is guaranteed",
+          "pv_autarkie": "Optional. Applies to the remaining term only: the forecast at contract end and the recommended instalment expect the grid draw of the coming months from the self-sufficiency of the same months last year. Give the total consumption of the house below, or a self-sufficiency sensor, or your own values. Off = the linear extrapolation as before.",
+          "gesamtverbrauch_sensor": "Total consumption in kWh as a sensor with a long-term statistic (total_increasing), for example the house consumption of the Energy dashboard. The consumption sensor of the contract must measure the grid draw.",
+          "autarkie_sensor": "Alternative to the total consumption: a sensor with the degree of self-sufficiency in % and a statistic (state class measurement), for example the autonomy of the Fronius integration. The monthly mean of last year is used. Not used if the total consumption is given.",
+          "autarkie_manuell": "One value for all months, or twelve values for January to December, separated by spaces or semicolons (for example 10 10 25 50 70 80 85 80 60 35 15 10). Used for months without data, and alone if there is no sensor (for example in the first year of a PV system)."
         }
       },
       "gas": {
@@ -457,7 +473,12 @@
           "tier_limit_3": "Block 4 limit",
           "tier_price_3": "Block 4 price",
           "tier_limit_4": "Block 5 limit",
-          "tier_price_4": "Block 5 price"
+          "tier_price_4": "Block 5 price",
+          "pv_autarkie": "Take PV self-sufficiency into account",
+          "gesamtverbrauch_sensor": "Total consumption of the house (sensor)",
+          "gesamtverbrauch_sensor_nt": "Total consumption, low-tariff period (sensor)",
+          "autarkie_sensor": "Self-sufficiency sensor (%)",
+          "autarkie_manuell": "Self-sufficiency, own values (%)"
         },
         "data_description": {
           "arbeitspreis": "Price per kWh consumed — found on your electricity bill. Also used as a fallback while no statistics exist yet for the dynamic tariff sensor below This is the HIGH tariff (HT) price.",
@@ -476,7 +497,12 @@
           "zaehlernummer": "Meter number for the high-tariff (HT) register, from your electricity bill.",
           "zaehlernummer_nt": "Meter number for the low-tariff (NT) register, if different from the HT one.",
           "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
-          "preisgarantie": "Date until which the unit price is guaranteed"
+          "preisgarantie": "Date until which the unit price is guaranteed",
+          "pv_autarkie": "Optional. Applies to the remaining term only: the forecast at contract end and the recommended instalment expect the grid draw of the coming months from the self-sufficiency of the same months last year. Give the total consumption of the house below, or a self-sufficiency sensor, or your own values. Off = the linear extrapolation as before.",
+          "gesamtverbrauch_sensor": "Total consumption in kWh as a sensor with a long-term statistic (total_increasing), for example the house consumption of the Energy dashboard. The consumption sensor of the contract must measure the grid draw.",
+          "gesamtverbrauch_sensor_nt": "Optional, for a dual-tariff meter: the total consumption in the low-tariff period. Without it, the self-sufficiency is calculated over both tariffs together and applied to both (an approximation).",
+          "autarkie_sensor": "Alternative to the total consumption: a sensor with the degree of self-sufficiency in % and a statistic (state class measurement), for example the autonomy of the Fronius integration. The monthly mean of last year is used. Not used if the total consumption is given.",
+          "autarkie_manuell": "One value for all months, or twelve values for January to December, separated by spaces or semicolons (for example 10 10 25 50 70 80 85 80 60 35 15 10). Used for months without data, and alone if there is no sensor (for example in the first year of a PV system)."
         }
       },
       "reconfigure_energie_ht_nt": {
@@ -513,7 +539,12 @@
           "tier_limit_3": "Block 4 limit",
           "tier_price_3": "Block 4 price",
           "tier_limit_4": "Block 5 limit",
-          "tier_price_4": "Block 5 price"
+          "tier_price_4": "Block 5 price",
+          "pv_autarkie": "Take PV self-sufficiency into account",
+          "gesamtverbrauch_sensor": "Total consumption of the house (sensor)",
+          "gesamtverbrauch_sensor_nt": "Total consumption, low-tariff period (sensor)",
+          "autarkie_sensor": "Self-sufficiency sensor (%)",
+          "autarkie_manuell": "Self-sufficiency, own values (%)"
         },
         "data_description": {
           "arbeitspreis": "Price per kWh consumed — found on your electricity bill. Also used as a fallback while no statistics exist yet for the dynamic tariff sensor below This is the HIGH tariff (HT) price.",
@@ -532,7 +563,12 @@
           "zaehlernummer": "Meter number for the high-tariff (HT) register, from your electricity bill.",
           "zaehlernummer_nt": "Meter number for the low-tariff (NT) register, if different from the HT one.",
           "marktlokation": "Market location ID (MaLo ID) or metering point ID from your bill",
-          "preisgarantie": "Date until which the unit price is guaranteed"
+          "preisgarantie": "Date until which the unit price is guaranteed",
+          "pv_autarkie": "Optional. Applies to the remaining term only: the forecast at contract end and the recommended instalment expect the grid draw of the coming months from the self-sufficiency of the same months last year. Give the total consumption of the house below, or a self-sufficiency sensor, or your own values. Off = the linear extrapolation as before.",
+          "gesamtverbrauch_sensor": "Total consumption in kWh as a sensor with a long-term statistic (total_increasing), for example the house consumption of the Energy dashboard. The consumption sensor of the contract must measure the grid draw.",
+          "gesamtverbrauch_sensor_nt": "Optional, for a dual-tariff meter: the total consumption in the low-tariff period. Without it, the self-sufficiency is calculated over both tariffs together and applied to both (an approximation).",
+          "autarkie_sensor": "Alternative to the total consumption: a sensor with the degree of self-sufficiency in % and a statistic (state class measurement), for example the autonomy of the Fronius integration. The monthly mean of last year is used. Not used if the total consumption is given.",
+          "autarkie_manuell": "One value for all months, or twelve values for January to December, separated by spaces or semicolons (for example 10 10 25 50 70 80 85 80 60 35 15 10). Used for months without data, and alone if there is no sensor (for example in the first year of a PV system)."
         }
       },
       "kredit": {
@@ -591,7 +627,8 @@
     "error": {
       "invalid_number": "Not a valid number. Use a dot or comma as the decimal separator (e.g. 11.2 or 11,2).",
       "kredit_summe": "Enter a loan amount above zero.",
-      "kredit_zins": "Enter the nominal or the effective interest rate."
+      "kredit_zins": "Enter the nominal or the effective interest rate.",
+      "pv_manuell": "Enter one value or twelve values between 0 and 100, separated by spaces or semicolons."
     }
   },
   "options": {

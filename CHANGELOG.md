@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.31.0-beta.1] - 2026-11-17
+
+First beta of 1.31.0. Please report problems with the bug report form and mention this exact version.
+
+### Added
+
+- **PV self-sufficiency in the forecast of the final cost** (requested in #86), for electricity contracts (also dual-tariff meters). Optional and **off by default: without it nothing changes**. In the contract form you switch it on and give the source of the self-sufficiency, in this order: **(1) the total consumption of the house** as a sensor (for a dual-tariff meter optionally a second one for the low-tariff period), **(2) a self-sufficiency sensor in %** (monthly mean of last year, for example Fronius) or **(3) own values in %** (one value or twelve, January to December; they also fill months without data and are enough on their own, for example in the first year of a PV system). For every month of the **remaining term** Tariffy takes the **same month of last year** and works out the self-sufficiency (for (1) `1 − grid draw / total consumption`, limited to 0–100 %). Because the consumption sensor of the contract measures the grid draw, the daily grid draw so far is **normalised for the season** (self-sufficiency of the month against the self-sufficiency in the measured period). The consumption so far stays as it is; the forecast at contract end, the recommended instalment and the projected consumption follow the remaining months. A dual-tariff meter is calculated per tariff (with one total sensor over both together, marked as an approximation). Missing data for a month keeps the linear extrapolation for that month, without any history nothing changes.
+- The sensor "Refund/balance due (contract end)" gets the attributes `autarkie_variante`, `autarkie_monatswerte`, `autarkie_bisher`, `autarkie_naeherung` and `prognose_ohne_autarkie` (only when the self-sufficiency applies); the panel shows the forecast without it and the self-sufficiency so far. `autarkie_variante` names the source (`gesamtverbrauch`, `entitaet`, `manuell`). No new sensors. A tariff switch keeps the setting. Not included: a consumption sensor that measures the total consumption instead of the grid draw.
+
 ## [1.30.0] - 2026-11-16
 
 This release brings together everything that was tested in the betas `1.30.0-beta.1` and `1.30.0-beta.2`. **Existing contracts keep working without any change.** The new category is optional; new sensors exist only for loans.

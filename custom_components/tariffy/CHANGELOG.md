@@ -7,6 +7,15 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.31.0-beta.1] - 2026-11-17
+
+Erste Beta von 1.31.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **PV-Autarkie in der Prognose der Endkosten** (gewünscht in #86) für Stromverträge (auch Zweizählertarif). Freiwillig und **standardmäßig aus: ohne sie ändert sich nichts**. Im Vertragsformular schaltest du sie ein und gibst die Quelle der Autarkie an, in dieser Reihenfolge: **(1) den Gesamtverbrauch des Hauses** als Sensor (beim Zweizählertarif freiwillig einen zweiten für die Niedertarif-Zeit), **(2) einen Autarkie-Sensor in %** (Monatsmittelwert des Vorjahres, zum Beispiel Fronius) oder **(3) eigene Werte in %** (ein Wert oder zwölf, Januar bis Dezember; sie füllen auch Monate ohne Daten und reichen allein, zum Beispiel im ersten Jahr einer PV-Anlage). Für jeden Monat der **Restlaufzeit** nimmt Tariffy den **gleichen Monat des Vorjahres** und rechnet die Autarkie aus (bei (1) `1 − Netzbezug / Gesamtverbrauch`, auf 0 bis 100 % begrenzt). Weil der Verbrauchssensor des Vertrags den Netzbezug misst, wird der tägliche Netzbezug bisher **saisonal normalisiert** (Autarkie des Monats gegen die Autarkie im gemessenen Zeitraum). Der bisherige Verbrauch bleibt unverändert; die Prognose zum Vertragsende, der empfohlene Abschlag und der hochgerechnete Verbrauch folgen den restlichen Monaten. Der Zweizählertarif wird je Tarif gerechnet (mit einem Gesamtverbrauchs-Sensor über beide zusammen, als Näherung gekennzeichnet). Fehlen die Daten für einen Monat, bleibt es für diesen Monat bei der linearen Hochrechnung; ohne jede Historie ändert sich nichts.
+- Der Sensor "Guthaben/Nachzahlung (Vertragsende)" bekommt die Attribute `autarkie_variante`, `autarkie_monatswerte`, `autarkie_bisher`, `autarkie_naeherung` und `prognose_ohne_autarkie` (nur wenn die Autarkie gilt); das Panel zeigt die Prognose ohne sie und die Autarkie bisher. `autarkie_variante` nennt die Quelle (`gesamtverbrauch`, `entitaet`, `manuell`). Keine neuen Sensoren. Ein Tarifwechsel behält die Einstellung. Nicht enthalten: ein Verbrauchssensor, der den Gesamtverbrauch statt des Netzbezugs misst.
+
 ## [1.30.0] - 2026-11-16
 
 Dieses Release fasst alles zusammen, was in den Betas `1.30.0-beta.1` und `1.30.0-beta.2` getestet wurde. **Bestehende Verträge laufen ohne jede Änderung weiter.** Die neue Sparte ist freiwillig; neue Sensoren gibt es nur für Kredite.
