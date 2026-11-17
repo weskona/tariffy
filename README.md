@@ -212,6 +212,16 @@ When contract end is set and the reminder period is reached:
 
 ---
 
+### PV self-sufficiency in the forecast (optional)
+
+With a PV system (also with a battery) the grid draw varies with the season: whoever looks in winter overestimates the rest of the term, whoever looks in summer underestimates it. For an **electricity contract** (also a dual-tariff meter) the **PV self-sufficiency** can be taken into account. It applies **to the remaining term only**; the consumption so far stays as it is. It goes into the **forecast at contract end**, the **recommended instalment** and the projected consumption. **Off by default; without the option nothing changes.**
+
+**Setup:** in the contract form switch on **Take PV self-sufficiency into account** and enter the **total consumption of the house** as a sensor (kWh, with a long-term statistic, for example the house consumption of the Energy dashboard). The **consumption sensor of the contract must measure the grid draw**. For a dual-tariff meter there is an optional second total-consumption sensor for the low-tariff period; without it the self-sufficiency is calculated over both tariffs together and applied to both (an approximation, marked in the attribute `autarkie_naeherung`).
+
+**Calculation:** for every month of the remaining term the long-term statistics of the **same month last year** are used: `self-sufficiency = 1 − grid draw / total consumption`, limited to 0–100 %. As the consumption sensor already measures the grid draw, the self-sufficiency is part of the values so far; the daily grid draw is therefore **normalised for the season**: `grid draw of the month = daily grid draw so far × days × (1 − self-sufficiency of the month) / (1 − self-sufficiency so far)`. A dual-tariff meter is calculated per tariff. If the data of a month (or of the measured period) is missing, that month keeps the linear extrapolation; without any history nothing changes and there is no error.
+
+**Display:** the sensor **Refund/balance due (contract end)** gets (only when the self-sufficiency determines the forecast) the attributes `autarkie_variante`, `autarkie_monatswerte` (per month self-sufficiency in % and factor, for a dual-tariff meter also for the low tariff), `autarkie_bisher`, `autarkie_naeherung` and `prognose_ohne_autarkie`. The panel shows the forecast without self-sufficiency and the self-sufficiency so far in the contract details. **Not included:** a self-sufficiency entity (for example Fronius) and manual monthly values.
+
 ### Low-instalment warning (optional)
 
 Opt-in per contract (electricity/gas/water with a configured consumption sensor): warns via persistent notification (+ optional push notification) when the contract-end forecast (`prognose_real`, see "Refund/balance due (contract end)" above) projects a balance due beyond a configurable threshold.
@@ -524,6 +534,16 @@ Wenn Vertragsende gesetzt und der Erinnerungszeitraum erreicht ist:
 **Mit Kündigungsfrist:** Trägst du beim Vertrag eine **Kündigungsfrist** (in Monaten) ein, bezieht sich die Erinnerung auf den **letzten Kündigungstag** (Vertragsende minus Frist) statt auf das Vertragsende. Beispiel: Vertragsende 31.12., Kündigungsfrist 3 Monate, Erinnerung „3 Monate vorher": Die Kündigung muss bis 30.09. vorliegen, die Meldung kommt am 30.06., also 6 Monate vor dem Vertragsende. Die Meldung nennt den letzten Kündigungstag. Ohne Kündigungsfrist ändert sich nichts. Die **Mindestlaufzeit** (in Monaten) zeigt das Panel als „bis <Beginn + Mindestlaufzeit>"; sie beeinflusst keine Erinnerung. Beide Felder sind freiwillig; der Sensor „Kündigungs-Erinnerung" hat dazu die Attribute `kuendigungsfrist_monate` und `kuendigung_bis`. Bei einem Tarifwechsel bleibt die Kündigungsfrist erhalten, die Mindestlaufzeit nicht.
 
 ---
+
+### PV-Autarkie in der Prognose (optional)
+
+Mit einer PV-Anlage (auch mit Batterie) schwankt der Netzbezug mit der Jahreszeit: Wer im Winter beobachtet, überschätzt die Restlaufzeit, wer im Sommer beobachtet, unterschätzt sie. Bei einem **Stromvertrag** (auch Zweizählertarif) lässt sich die **PV-Autarkie** berücksichtigen. Sie gilt **nur für die Restlaufzeit**; der bisherige Verbrauch bleibt unverändert. Sie fließt in die **Prognose zum Vertragsende**, den **empfohlenen Abschlag** und den hochgerechneten Verbrauch ein. **Standardmäßig aus; ohne die Option ändert sich nichts.**
+
+**Einrichtung:** Im Vertragsformular **PV-Autarkie in der Prognose berücksichtigen** einschalten und den **Gesamtverbrauch des Hauses** als Sensor angeben (kWh, mit Langzeitstatistik, zum Beispiel der Hausverbrauch aus dem Energie-Dashboard). Der **Verbrauchssensor des Vertrags muss den Netzbezug messen**. Beim Zweizählertarif gibt es optional einen zweiten Gesamtverbrauchs-Sensor für die Niedertarif-Zeit; ohne ihn wird die Autarkie über beide Tarife zusammen berechnet und auf beide angewendet (eine Näherung, im Attribut `autarkie_naeherung` gekennzeichnet).
+
+**Berechnung:** Aus den Langzeitstatistiken wird für jeden Monat der Restlaufzeit der **gleiche Monat des Vorjahres** genommen: `Autarkie = 1 − Netzbezug / Gesamtverbrauch`, auf 0 bis 100 % begrenzt. Da der Verbrauchssensor schon den Netzbezug misst, steckt die Autarkie in den bisherigen Messwerten; der tägliche Netzbezug wird deshalb **saisonal normalisiert**: `Netzbezug des Monats = Netzbezug je Tag bisher × Tage × (1 − Autarkie des Monats) / (1 − Autarkie bisher)`. Beim Zweizählertarif wird je Tarif gerechnet. Fehlen die Daten für einen Monat (oder für den gemessenen Zeitraum), bleibt es für diesen Monat bei der linearen Hochrechnung; fehlt jede Historie, ändert sich nichts und es gibt keinen Fehler.
+
+**Anzeige:** Der Sensor **Guthaben/Nachzahlung (Vertragsende)** bekommt (nur wenn die Autarkie die Prognose bestimmt) die Attribute `autarkie_variante`, `autarkie_monatswerte` (je Monat Autarkie in % und Faktor, beim Zweizählertarif auch für den Niedertarif), `autarkie_bisher`, `autarkie_naeherung` und `prognose_ohne_autarkie`. Das Panel zeigt in den Vertragsdetails die Prognose ohne Autarkie und die Autarkie bisher. **Nicht enthalten:** eine Autarkie-Entität (zum Beispiel Fronius) und manuelle Monatswerte.
 
 ### Abschlag-Warnung (optional)
 

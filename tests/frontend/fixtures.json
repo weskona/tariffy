@@ -20,6 +20,10 @@
       "archiviert": false,
       "archiviert_am": null,
       "aussenzaehler": [],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
       "beginn": "2026-01-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -120,6 +124,7 @@
       "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
+      "prognose_ohne_autarkie": null,
       "prognose_real": -495.29,
       "restlaufzeit": 172,
       "seit": "2024-01-01",
@@ -158,6 +163,10 @@
       "archiviert": false,
       "archiviert_am": null,
       "aussenzaehler": [],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
       "beginn": "2025-09-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -216,6 +225,7 @@
       "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
+      "prognose_ohne_autarkie": null,
       "prognose_real": 524.42,
       "restlaufzeit": 50,
       "seit": "2025-09-01",
@@ -263,6 +273,10 @@
           "verbrauch": 12.0
         }
       ],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
       "beginn": "2026-01-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -321,6 +335,7 @@
       "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
+      "prognose_ohne_autarkie": null,
       "prognose_real": 15.11,
       "restlaufzeit": 172,
       "seit": "2026-01-01",
@@ -359,6 +374,10 @@
       "archiviert": false,
       "archiviert_am": null,
       "aussenzaehler": [],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
       "beginn": "2026-02-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -417,6 +436,7 @@
       "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
+      "prognose_ohne_autarkie": null,
       "prognose_real": -421.8,
       "restlaufzeit": 203,
       "seit": "2026-02-01",
@@ -455,6 +475,10 @@
       "archiviert": false,
       "archiviert_am": null,
       "aussenzaehler": [],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
       "beginn": "2025-10-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -513,6 +537,7 @@
       "mindestlaufzeit_bis": "2026-10-01",
       "naechste_zahlung": null,
       "next": null,
+      "prognose_ohne_autarkie": null,
       "prognose_real": null,
       "restlaufzeit": 80,
       "seit": "2025-10-01",
@@ -551,6 +576,10 @@
       "archiviert": false,
       "archiviert_am": null,
       "aussenzaehler": [],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
       "beginn": "2025-08-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -616,6 +645,7 @@
         "ende": "2028-12-31",
         "tarif": "Flat 20 GB"
       },
+      "prognose_ohne_autarkie": null,
       "prognose_real": null,
       "restlaufzeit": 172,
       "seit": "2025-08-01",
@@ -654,6 +684,10 @@
       "archiviert": true,
       "archiviert_am": "2026-01-15",
       "aussenzaehler": [],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
       "beginn": "2024-01-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -744,6 +778,7 @@
       "mindestlaufzeit_bis": null,
       "naechste_zahlung": null,
       "next": null,
+      "prognose_ohne_autarkie": null,
       "prognose_real": null,
       "restlaufzeit": -193,
       "seit": "2022-01-01",
@@ -782,6 +817,10 @@
       "archiviert": false,
       "archiviert_am": null,
       "aussenzaehler": [],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
       "beginn": "2024-03-01",
       "currency": "EUR",
       "effektiver_arbeitspreis": null,
@@ -840,6 +879,7 @@
       "mindestlaufzeit_bis": null,
       "naechste_zahlung": "2026-08-01",
       "next": null,
+      "prognose_ohne_autarkie": null,
       "prognose_real": null,
       "restlaufzeit": 6442,
       "seit": "2024-03-01",
@@ -1149,6 +1189,28 @@
             }
           },
           {
+            "default": false,
+            "name": "pv_autarkie",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "gesamtverbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
             "name": "einspeiseverguetung",
             "optional": true,
             "required": false,
@@ -1380,6 +1442,42 @@
                 "min": 0.0,
                 "mode": "box",
                 "step": 1.0
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "pv_autarkie",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "gesamtverbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "gesamtverbrauch_sensor_nt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
               }
             }
           },
@@ -3202,6 +3300,28 @@
             }
           },
           {
+            "default": false,
+            "name": "pv_autarkie",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "gesamtverbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
             "name": "einspeiseverguetung",
             "optional": true,
             "required": false,
@@ -4348,6 +4468,42 @@
             }
           },
           {
+            "default": false,
+            "name": "pv_autarkie",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "gesamtverbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "name": "gesamtverbrauch_sensor_nt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
             "name": "einspeiseverguetung",
             "optional": true,
             "required": false,
@@ -5211,6 +5367,28 @@
                 "min": 0.0,
                 "mode": "box",
                 "step": 1.0
+              }
+            }
+          },
+          {
+            "default": false,
+            "name": "pv_autarkie",
+            "required": true,
+            "selector": {
+              "boolean": {}
+            }
+          },
+          {
+            "name": "gesamtverbrauch_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
               }
             }
           },

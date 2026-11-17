@@ -136,6 +136,12 @@ CONF_ERINNERUNG_MONATE = "erinnerung_monate"
 # Optional, in Monaten: Kuendigungsfrist (die Erinnerung bezieht sich dann auf den letzten
 # Kuendigungstag statt auf das Vertragsende) und Mindestvertragslaufzeit (nur Anzeige).
 CONF_KUENDIGUNGSFRIST = "kuendigungsfrist"
+
+# PV-Autarkie in der Prognose (nur Strom, optional, standardmaessig aus): der Gesamtverbrauch des Hauses
+# (und beim Zweizaehlertarif der des Niedertarifs) ergibt mit dem Bezugssensor des Vertrags die Autarkie je Monat.
+CONF_PV_AUTARKIE = "pv_autarkie"
+CONF_GESAMTVERBRAUCH_SENSOR = "gesamtverbrauch_sensor"
+CONF_GESAMTVERBRAUCH_SENSOR_NT = "gesamtverbrauch_sensor_nt"
 CONF_MINDESTLAUFZEIT = "mindestlaufzeit"
 CONF_NOTIFY_TARGET = "notify_target"
 ERINNERUNG_OPTIONS = ["0", "1", "2", "3", "4"]

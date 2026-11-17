@@ -129,6 +129,7 @@ const I18N = {
     lf_summe: "New loan amount (€)", lf_soll: "Nominal interest rate (% a year)", lf_effektiv: "Effective interest rate (%)", lf_laufzeit: "Term (months)",
     lf_rate: "Rate per payment (optional)", lf_schluss: "Final payment (optional)",
     termErr_invalid_kredit_summe: "Enter a loan amount above zero.", termErr_invalid_laufzeit_monate: "Enter a term of at least one month.", termErr_invalid_zins: "Enter the nominal or the effective interest rate.",
+    pvWithout: "Forecast at contract end without PV self-sufficiency", pvSoFar: "PV self-sufficiency so far", pvLowTariff: "low tariff {v} %", pvApprox: "Self-sufficiency over both tariffs (approximation)",
     chartBySparte: "By category", chartByContract: "By contract", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
     hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
     grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
@@ -282,6 +283,7 @@ const I18N = {
     lf_summe: "Neue Kreditsumme (€)", lf_soll: "Sollzins (% pro Jahr)", lf_effektiv: "Effektiver Jahreszins (%)", lf_laufzeit: "Laufzeit (Monate)",
     lf_rate: "Rate je Zahlung (freiwillig)", lf_schluss: "Schlussrate (freiwillig)",
     termErr_invalid_kredit_summe: "Trage eine Kreditsumme über null ein.", termErr_invalid_laufzeit_monate: "Trage eine Laufzeit von mindestens einem Monat ein.", termErr_invalid_zins: "Trage den Sollzins oder den effektiven Jahreszins ein.",
+    pvWithout: "Prognose zum Vertragsende ohne PV-Autarkie", pvSoFar: "PV-Autarkie bisher", pvLowTariff: "Niedertarif {v} %", pvApprox: "Autarkie über beide Tarife (Näherung)",
     chartBySparte: "Je Sparte", chartByContract: "Je Vertrag", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
     hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
     grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
@@ -2932,6 +2934,10 @@ class TariffyPanel extends HTMLElement {
         row(this._t("wwCost"), money(c.abwasser_kosten)),
         row(this._t("balanceSoFar"), isNum(c.guthaben_bisher) ? this._money(c.guthaben_bisher, c.currency, { sign: true, digits: 2 }) : null),
         row(this._t("endForecast"), isNum(c.prognose_real) ? this._money(c.prognose_real, c.currency, { sign: true, digits: 2 }) : null),
+        row(this._t("pvWithout"), c.autarkie_aktiv && isNum(c.prognose_ohne_autarkie) ? this._money(c.prognose_ohne_autarkie, c.currency, { sign: true, digits: 2 }) : null),
+        row(this._t("pvSoFar"), c.autarkie_aktiv && isNum(c.autarkie_bisher)
+          ? `${this._num(c.autarkie_bisher, 0)} %${isNum(c.autarkie_bisher_nt) ? ` · ${this._t("pvLowTariff", { v: this._num(c.autarkie_bisher_nt, 0) })}` : ""}` : null),
+        row(this._t("pvApprox"), c.autarkie_aktiv && c.autarkie_naeherung ? this._t("yes") : null),
       ]) : null,
       section(this._t("secAdvice"), [
         row(this._t("recommended"), isNum(c.empfohlener_abschlag) ? `${money(c.empfohlener_abschlag)} ${this._t("perMonth")}` : null),

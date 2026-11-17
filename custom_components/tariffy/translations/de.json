@@ -92,7 +92,9 @@
           "tier_price_4": "Block 5 Preis",
           "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
           "jahresverbrauch_tag": "Jahresverbrauch Tag",
-          "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
+          "jahresverbrauch_nacht": "Jahresverbrauch Nacht",
+          "pv_autarkie": "PV-Autarkie in der Prognose berücksichtigen",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)"
         },
         "data_description": {
           "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt",
@@ -107,7 +109,9 @@
           "bonus": "Einmaliger Wechsel- oder Neukundenbonus des Anbieters",
           "zaehlernummer": "Zählernummer auf deiner Stromrechnung",
           "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
-          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist",
+          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr; dafür braucht es unten den Gesamtverbrauch des Hauses. Aus = lineare Hochrechnung wie bisher.",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen."
         }
       },
       "reconfigure_energie": {
@@ -143,7 +147,9 @@
           "tier_price_4": "Block 5 Preis",
           "arbeitspreis_nacht": "Nachttarif (z.B. Economy 7, TOU Nebenzeit)",
           "jahresverbrauch_tag": "Jahresverbrauch Tag",
-          "jahresverbrauch_nacht": "Jahresverbrauch Nacht"
+          "jahresverbrauch_nacht": "Jahresverbrauch Nacht",
+          "pv_autarkie": "PV-Autarkie in der Prognose berücksichtigen",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)"
         },
         "data_description": {
           "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt",
@@ -158,7 +164,9 @@
           "bonus": "Einmaliger Wechsel- oder Neukundenbonus des Anbieters",
           "zaehlernummer": "Zählernummer auf deiner Stromrechnung",
           "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
-          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist",
+          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr; dafür braucht es unten den Gesamtverbrauch des Hauses. Aus = lineare Hochrechnung wie bisher.",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen."
         }
       },
       "gas": {
@@ -457,7 +465,10 @@
           "tier_limit_3": "Block 4 Obergrenze",
           "tier_price_3": "Block 4 Preis",
           "tier_limit_4": "Block 5 Obergrenze",
-          "tier_price_4": "Block 5 Preis"
+          "tier_price_4": "Block 5 Preis",
+          "pv_autarkie": "PV-Autarkie in der Prognose berücksichtigen",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)",
+          "gesamtverbrauch_sensor_nt": "Gesamtverbrauch Niedertarif-Zeit (Sensor)"
         },
         "data_description": {
           "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt Das ist der Hochtarif (HT).",
@@ -476,7 +487,10 @@
           "zaehlernummer": "Zählernummer des Hochtarif-Registers (HT), von deiner Stromrechnung.",
           "zaehlernummer_nt": "Zählernummer des Niedertarif-Registers (NT), falls abweichend vom HT-Register.",
           "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
-          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist",
+          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr; dafür braucht es unten den Gesamtverbrauch des Hauses. Aus = lineare Hochrechnung wie bisher.",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
+          "gesamtverbrauch_sensor_nt": "Freiwillig, beim Zweizählertarif: der Gesamtverbrauch in der Niedertarif-Zeit. Ohne ihn wird die Autarkie über beide Tarife zusammen gerechnet und auf beide angewendet (eine Näherung)."
         }
       },
       "reconfigure_energie_ht_nt": {
@@ -513,7 +527,10 @@
           "tier_limit_3": "Block 4 Obergrenze",
           "tier_price_3": "Block 4 Preis",
           "tier_limit_4": "Block 5 Obergrenze",
-          "tier_price_4": "Block 5 Preis"
+          "tier_price_4": "Block 5 Preis",
+          "pv_autarkie": "PV-Autarkie in der Prognose berücksichtigen",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch des Hauses (Sensor)",
+          "gesamtverbrauch_sensor_nt": "Gesamtverbrauch Niedertarif-Zeit (Sensor)"
         },
         "data_description": {
           "arbeitspreis": "Preis pro verbrauchter kWh — steht auf deiner Stromrechnung. Dient außerdem als Fallback, solange für den Preissensor unten noch keine Statistik vorliegt Das ist der Hochtarif (HT).",
@@ -532,7 +549,10 @@
           "zaehlernummer": "Zählernummer des Hochtarif-Registers (HT), von deiner Stromrechnung.",
           "zaehlernummer_nt": "Zählernummer des Niedertarif-Registers (NT), falls abweichend vom HT-Register.",
           "marktlokation": "Marktlokations-ID (MaLo-ID) oder Messlokations-ID — steht auf der Rechnung",
-          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist"
+          "preisgarantie": "Datum bis zu dem der Arbeitspreis garantiert ist",
+          "pv_autarkie": "Freiwillig. Gilt nur für die Restlaufzeit: Die Prognose zum Vertragsende und der empfohlene Abschlag erwarten den Netzbezug der kommenden Monate aus der Autarkie derselben Monate im Vorjahr; dafür braucht es unten den Gesamtverbrauch des Hauses. Aus = lineare Hochrechnung wie bisher.",
+          "gesamtverbrauch_sensor": "Gesamtverbrauch in kWh als Sensor mit Langzeitstatistik (total_increasing), zum Beispiel der Hausverbrauch aus dem Energie-Dashboard. Der Verbrauchssensor des Vertrags muss den Netzbezug messen.",
+          "gesamtverbrauch_sensor_nt": "Freiwillig, beim Zweizählertarif: der Gesamtverbrauch in der Niedertarif-Zeit. Ohne ihn wird die Autarkie über beide Tarife zusammen gerechnet und auf beide angewendet (eine Näherung)."
         }
       },
       "kredit": {
