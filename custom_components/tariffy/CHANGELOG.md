@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.31.0-beta.2] - 2026-11-17
+
+### Behoben
+
+- **PV-Autarkie nur mit eigenen Werten: ein einzelner Wert änderte nichts** (gemeldet in #86). Die Prognose vergleicht die Autarkie jedes Restmonats mit der des gemessenen Zeitraums; ein Wert für alle Monate ist überall gleich, der Faktor ist daher immer 1 und die Prognose bleibt linear. Das war rechnerisch richtig, aber irreführend: Das Formular weist jetzt darauf hin. **Ohne Sensor** werden eigene Werte, die alle gleich sind, mit dem Hinweis abgelehnt, **zwölf unterschiedliche Monatswerte** (Januar bis Dezember) einzutragen; ein einzelner Wert bleibt neben einem Sensor als Ersatz für Monate ohne Daten möglich. Mit beta.1 gespeicherte Verträge werden nicht verändert und funktionieren wie bisher. Die Beschreibung in README und Wiki ist korrigiert.
+
 ## [1.31.0-beta.1] - 2026-11-17
 
 Erste Beta von 1.31.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.

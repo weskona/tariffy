@@ -509,9 +509,22 @@ def _pv_autarkie_fields(d: dict[str, Any], ht_nt: bool = False) -> dict[Any, Any
 
 
 def _pv_fehler(user_input: dict[str, Any]) -> dict[str, str]:
-    """Die manuellen Autarkie-Werte muessen leer, ein Wert oder zwoelf Werte von 0 bis 100 sein."""
-    _werte, fehler = pv.parse_manuell(user_input.get(CONF_AUTARKIE_MANUELL))
-    return {CONF_AUTARKIE_MANUELL: "pv_manuell"} if fehler else {}
+    """Die manuellen Autarkie-Werte muessen leer, ein Wert oder zwoelf Werte von 0 bis 100 sein.
+
+    Sind sie die einzige Quelle und alle gleich, aendern sie die Prognose nie (der Saison-Faktor ist
+    dann immer 1): das Formular verlangt dann unterschiedliche Monatswerte oder einen Sensor."""
+    werte, fehler = pv.parse_manuell(user_input.get(CONF_AUTARKIE_MANUELL))
+    if fehler:
+        return {CONF_AUTARKIE_MANUELL: "pv_manuell"}
+    if (
+        user_input.get(CONF_PV_AUTARKIE)
+        and werte
+        and len(set(werte)) == 1
+        and not user_input.get(CONF_GESAMTVERBRAUCH_SENSOR)
+        and not user_input.get(CONF_AUTARKIE_SENSOR)
+    ):
+        return {CONF_AUTARKIE_MANUELL: "pv_manuell_gleich"}
+    return {}
 
 
 def _energie_schema(d: dict[str, Any], features: dict | None = None) -> vol.Schema:
