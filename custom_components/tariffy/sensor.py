@@ -574,6 +574,17 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
                     "autarkie_bisher_nt": d.get("autarkie_bisher_nt"),
                     "autarkie_naeherung": d.get("autarkie_naeherung"),
                     "prognose_ohne_autarkie": d.get("prognose_ohne_autarkie"),
+                    # Gesamtverbrauch des Hauses und was die PV deckt (nur mit einem Gesamtverbrauchs-Sensor)
+                    **(
+                        {
+                            "verbrauch_gesamt_bisher": d.get("verbrauch_gesamt_bisher"),
+                            "verbrauch_gesamt_hochgerechnet": d.get("verbrauch_gesamt_hochgerechnet"),
+                            "verbrauch_pv_gedeckt_bisher": d.get("verbrauch_pv_gedeckt_bisher"),
+                            "verbrauch_pv_gedeckt_hochgerechnet": d.get("verbrauch_pv_gedeckt_hochgerechnet"),
+                        }
+                        if d.get("verbrauch_gesamt_bisher") is not None
+                        else {}
+                    ),
                 }
                 if d.get("autarkie_aktiv")
                 else {}

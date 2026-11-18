@@ -126,6 +126,7 @@ const I18N = {
     leasingOver: "At this pace you will be about {k} km over the allowance at return.", leasingUnder: "At this pace you will be about {k} km under the allowance at return.",
     leasingFine: "At this pace you stay within the allowance at return.",
     customerNo: "Customer number", meterNo: "Meter number", meterNoLow: "Meter number (low tariff)", maloId: "Market location (MaLo ID)", copyValue: "Copy", copied: "Copied",
+    totalUse: "Total consumption", pvCovered: "Covered by PV", gridDraw: "Grid draw (billed)", gridColNow: "So far", gridColEnd: "Projected",
     groupLoans: "Loans / financing", secLoan: "Loan", loanDebt: "Remaining debt", loanPaid: "Paid so far", loanRemainingSum: "Remaining payments",
     loanNext: "Next payment", loanSplit: "interest {z} · principal {t}", loanRepaid: "Repaid", loanPayments: "Payments made", loanEffective: "effective {v} %",
     loanInterestOf: "of which interest {v}", loanInterestTotalOf: "interest over the term {v}", loanAmount: "Loan amount", loanNominal: "Nominal interest rate",
@@ -289,6 +290,7 @@ const I18N = {
     leasingOver: "In diesem Tempo liegst du bei Rückgabe etwa {k} km über der Erlaubnis.", leasingUnder: "In diesem Tempo liegst du bei Rückgabe etwa {k} km unter der Erlaubnis.",
     leasingFine: "In diesem Tempo bleibst du bei Rückgabe innerhalb der Erlaubnis.",
     customerNo: "Kundennummer", meterNo: "Zählernummer", meterNoLow: "Zählernummer (Niedertarif)", maloId: "Marktlokations-ID (MaLo-ID)", copyValue: "Kopieren", copied: "Kopiert",
+    totalUse: "Gesamtverbrauch", pvCovered: "Durch PV gedeckt", gridDraw: "Netzbezug (abgerechnet)", gridColNow: "Bisher", gridColEnd: "Hochgerechnet",
     groupLoans: "Kredite / Finanzierungen", secLoan: "Kredit", loanDebt: "Restschuld", loanPaid: "Gezahlt bisher", loanRemainingSum: "Restsumme",
     loanNext: "Nächste Rate", loanSplit: "Zinsen {z} · Tilgung {t}", loanRepaid: "Getilgt", loanPayments: "Raten gezahlt", loanEffective: "effektiv {v} %",
     loanInterestOf: "davon Zinsen {v}", loanInterestTotalOf: "Zinsen insgesamt {v}", loanAmount: "Kreditsumme", loanNominal: "Sollzins",
@@ -652,6 +654,12 @@ details.card.alert { border-color: rgba(248,113,113,.35); }
 details[open] summary .caret svg { transform: rotate(90deg); }
 .detail { padding: 4px 18px 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .sec h4 { margin: 8px 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.vgrid { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; column-gap: 10px; font-size: 13.5px; border-bottom: 1px solid var(--line); }
+.vgrid > span { padding: 7px 0; overflow-wrap: anywhere; border-bottom: 1px solid var(--line); }
+.vgrid > span:nth-last-child(-n+3) { border-bottom: 0; }
+.vgrid .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vgrid .h { color: var(--muted); font-size: 11px; white-space: nowrap; font-weight: 600; letter-spacing: .02em; }
+.vgrid .b { font-weight: 600; }
 .row .val { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; max-width: 66%; overflow-wrap: anywhere; text-align: right; }
 .copy { flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; }
 .copy:hover, .copy:focus-visible { background: var(--line); color: inherit; }
@@ -3005,6 +3013,14 @@ class TariffyPanel extends HTMLElement {
     const amount = (v) => (isNum(v) ? `${this._num(v, 0)} ${unit}` : null);
     const amount1 = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : null); // small amounts (outdoor water) need a decimal
     const nxt = c.next || {};
+    // with a total-consumption sensor (PV self-sufficiency): total, covered by PV and billed grid draw, so far and projected
+    const usageGrid = c.autarkie_aktiv && isNum(c.verbrauch_gesamt_bisher) && isNum(c.verbrauch_gesamt_hochgerechnet)
+      ? h("div", { class: "vgrid" },
+        h("span", { class: "h", text: unit }), h("span", { class: "h n", text: this._t("gridColNow") }), h("span", { class: "h n", text: this._t("gridColEnd") }),
+        h("span", { text: this._t("totalUse") }), h("span", { class: "n", text: this._num(c.verbrauch_gesamt_bisher, 0) }), h("span", { class: "n", text: this._num(c.verbrauch_gesamt_hochgerechnet, 0) }),
+        h("span", { text: this._t("pvCovered") }), h("span", { class: "n", text: this._num(c.verbrauch_pv_gedeckt_bisher, 0) }), h("span", { class: "n", text: this._num(c.verbrauch_pv_gedeckt_hochgerechnet, 0) }),
+        h("span", { class: "b", text: this._t("gridDraw") }), h("span", { class: "n b", text: this._num(c.verbrauch_bisher, 0) }), h("span", { class: "n b", text: this._num(c.verbrauch_hochgerechnet, 0) }))
+      : null;
 
     const sections = [
       section(this._t("secContract"), [
@@ -3048,12 +3064,12 @@ class TariffyPanel extends HTMLElement {
       ]),
       this._onceSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
-        row(this._t("soFar"), amount(c.verbrauch_bisher)),
+        usageGrid || row(this._t("soFar"), amount(c.verbrauch_bisher)),
         row(this._t("gardenUse"), amount1(c.garten_verbrauch)),
         row(this._t("wwUse"), amount1(c.abwasserpflichtiger_verbrauch)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),
         row(this._t("soFarLow"), amount(c.verbrauch_bisher_nt)),
-        row(this._t("projectedTerm"), amount(c.verbrauch_hochgerechnet)),
+        usageGrid ? null : row(this._t("projectedTerm"), amount(c.verbrauch_hochgerechnet)),
         row(this._t("lastPeriod"), amount(c.verbrauch_letzte_laufzeit)),
         row(this._t("costSoFar"), money(c.kosten_bisher)),
         row(this._t("gardenCost"), money(c.garten_kosten)),
