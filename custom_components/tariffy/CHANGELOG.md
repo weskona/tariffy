@@ -15,7 +15,9 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 - **Streaming: kein Block „Einmalposten“.** Die Details eines Streaming-Vertrags zeigen den leeren Block (und seine Schaltfläche zum Hinzufügen) nicht mehr; hat ein Streaming-Vertrag schon Einmalposten, bleibt der Block mit ihnen sichtbar.
 
-- **Streaming: Preis statt Abschlag.** Die Details, die Karte und der Block für die gezahlten Beträge eines Streaming-Vertrags sagen **Preis / Monat**, **Preis** und **Gezahlte Beträge** statt „Abschlag“ / „Gezahlte Abschläge“, und die Zeile „Abschlag / Jahr“ entfällt, weil „Kosten / Jahr“ dieselbe Zahl zeigt. Andere Sparten behalten ihre Texte.
+- **Streaming: Preis statt Abschlag.** Die Details, die Karte und der Block für die gezahlten Beträge eines Streaming-Vertrags sagen **Preis / Monat**, **Preis** und **Gezahlte Beträge** statt „Abschlag“ / „Gezahlte Abschläge“. Andere Sparten behalten ihre Texte.
+
+- **Keine doppelte Zeile „Abschlag / Jahr“.** Die Details eines Pauschalvertrags lassen „Abschlag / Jahr“ weg, wenn „Kosten / Jahr“ direkt darunter dieselbe Zahl zeigt (ohne Grundpreis sind sie immer gleich). Mit Grundpreis bleiben beide stehen, und Verbrauchsverträge behalten die Zeile.
 
 ### Fixed
 

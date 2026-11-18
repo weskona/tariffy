@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Streaming: no "One-time items" block.** The details of a streaming contract no longer show the empty block (and its add button); a streaming contract that already has one-time items keeps the block.
 
-- **Streaming: price instead of instalment.** The details, the card and the block for the amounts paid of a streaming contract say **Price / month**, **Price** and **Amounts paid** instead of "Instalment" / "Instalments paid", and the row "Instalment / year" is left out because "Cost / year" shows the same figure. Other categories keep their texts.
+- **Streaming: price instead of instalment.** The details, the card and the block for the amounts paid of a streaming contract say **Price / month**, **Price** and **Amounts paid** instead of "Instalment" / "Instalments paid". Other categories keep their texts.
+
+- **No duplicate "Instalment / year" row.** The details of a flat-rate contract leave out "Instalment / year" when "Cost / year" right below shows the same figure (without a base price they are always equal). With a base price both stay, and metered contracts keep the row.
 
 ### Fixed
 

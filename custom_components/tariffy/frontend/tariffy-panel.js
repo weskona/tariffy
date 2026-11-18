@@ -2547,6 +2547,7 @@ class TariffyPanel extends HTMLElement {
     const amount = (v) => (isNum(v) ? `${this._num(v, 0)} ${unit}` : null);
     const amount1 = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : null); // small amounts (outdoor water) need a decimal
     const nxt = c.next || {};
+    const sameAsYearCost = !METERED.has(c.sparte) && isNum(c.kosten_jahr) && isNum(c.abschlag_jahr) && Math.abs(c.kosten_jahr - c.abschlag_jahr) < 0.005;
     // with a total-consumption sensor (PV self-sufficiency): total, covered by PV and billed grid draw, so far and projected
     const usageGrid = c.autarkie_aktiv && isNum(c.verbrauch_gesamt_bisher) && isNum(c.verbrauch_gesamt_hochgerechnet)
       ? h("div", { class: "vgrid" },
@@ -2586,8 +2587,9 @@ class TariffyPanel extends HTMLElement {
         row(this._t("unitPriceWater"), isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
         row(this._t("basePrice"), isNum(c.grundpreis) ? `${money(c.grundpreis)} ${this._t("perMonth")}` : null),
         row(this._tc("instalment", c), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
-        // a streaming subscription has one amount: its price per year is the same figure as "cost per year" right below
-        row(this._tc("instalmentYear", c), c.sparte !== "streaming" && isNum(c.abschlag_jahr) ? money(c.abschlag_jahr) : null),
+        // a flat-rate contract with one amount: the instalment per year is the same figure as "cost per year" right below
+        // (they differ only when there is a base price, and a metered contract has no "cost per year" row)
+        row(this._tc("instalmentYear", c), isNum(c.abschlag_jahr) && !sameAsYearCost ? money(c.abschlag_jahr) : null),
         // flat-rate contracts: what the contract costs a year, and how it is paid when not monthly
         row(this._t("costYear"), !METERED.has(c.sparte) && isNum(c.kosten_jahr) ? money(c.kosten_jahr) : null),
         row(this._t("payment"), c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)

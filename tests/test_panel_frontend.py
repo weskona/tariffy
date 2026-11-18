@@ -98,11 +98,11 @@ def test_streaming_has_no_empty_one_time_items_block():
     assert 'c.sparte === "streaming"' in block and "!items.length" in block
 
 
-def test_streaming_says_price_not_instalment_and_has_no_duplicate_year_row():
-    """Texts of a streaming subscription: "price", the per-year row that repeats "cost per year" is left out."""
+def test_streaming_says_price_not_instalment_and_the_duplicate_year_row_is_left_out():
+    """Texts of a streaming subscription: "price"; the per-year row that repeats "cost per year" is left out (for every flat contract)."""
     for key in ("instalment", "nextInstalment", "secInstal", "instalEdit", "instalEnter", "instalTitle", "instalAmount", "instalNone", "instalHint"):
         assert TEXTS.count(f" {key}_streaming:") == 2, f"{key}_streaming must exist in English and German"
-    assert 'c.sparte !== "streaming" && isNum(c.abschlag_jahr)' in SOURCE
+    assert "isNum(c.abschlag_jahr) && !sameAsYearCost" in SOURCE
 
 
 def test_empty_overview_groups_are_not_appended():
