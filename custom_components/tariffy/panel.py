@@ -360,6 +360,7 @@ HISTORY_VALUES = vol.Schema({str: vol.Any(None, str, int, float)})
         vol.Required("type"): "tariffy/history_calc",
         vol.Required("entry_id"): str,
         vol.Required("values"): HISTORY_VALUES,
+        vol.Optional("rows"): [HISTORY_VALUES],
     }
 )
 @websocket_api.async_response
@@ -370,7 +371,7 @@ async def ws_history_calc(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
         return
     try:
-        result = await history.async_calc(hass, entry, msg["values"])
+        result = await history.async_calc(hass, entry, msg["values"], msg.get("rows"))
     except history.HistoryError as err:
         connection.send_error(msg["id"], err.code, err.code)
         return
@@ -384,6 +385,7 @@ async def ws_history_calc(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         vol.Required("entry_id"): str,
         vol.Required("values"): HISTORY_VALUES,
         vol.Optional("index"): vol.All(int, vol.Range(min=0)),
+        vol.Optional("rows"): [HISTORY_VALUES],
     }
 )
 @websocket_api.async_response
@@ -394,7 +396,7 @@ async def ws_history_save(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
         return
     try:
-        index = await history.async_save_term(hass, entry, msg["values"], msg.get("index"))
+        index = await history.async_save_term(hass, entry, msg["values"], msg.get("index"), msg.get("rows"))
     except history.HistoryError as err:
         connection.send_error(msg["id"], err.code, err.code)
         return

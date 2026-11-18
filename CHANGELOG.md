@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-beta.8] - 2026-11-18
+
+### Added
+
+- **Earlier terms: instalments by payment.** In the dialog for an earlier term (tab **History**, "Add old contract") there is a new section **Instalments by payment (optional)** with a field for every payment of the term (from its start and end and the payment interval of the contract). If you fill it in, **Paid** and the **balance** of the term are worked out from it (metered contracts prorated by days, flat-rate contracts payment by payment); a value typed in "Instalments paid" still takes precedence, and the amounts show again when the term is edited. Left empty, nothing changes.
+
+### Changed
+
+- **Instalments paid: the number of fields follows the payment interval.** The dialog **Edit instalments** has a field per payment: monthly one per month, quarterly four a year, half-yearly two, yearly one (with the date of the debit and the amount per payment). Payments that were not due yet stay locked. The stored history and the calculation are as before.
+
 ## [1.32.0-beta.7] - 2026-11-18
 
 ### Changed
