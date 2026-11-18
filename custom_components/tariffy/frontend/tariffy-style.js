@@ -199,6 +199,8 @@ tr.sub td:first-child { padding-left: 32px; }
 .instal-row { padding: 3px 0; font-size: 14px; }
 .instal-row .fld { margin: 0; display: block; }
 .instal-future { color: var(--dim); }
+.term-instal { margin: 10px 0; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+.term-instal summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
 .instal-future input { opacity: .55; cursor: not-allowed; }
 .once-add { margin-top: 8px; }
 .chart { margin-bottom: 22px; }

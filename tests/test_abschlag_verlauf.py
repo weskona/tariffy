@@ -6,7 +6,7 @@ from datetime import date
 
 import pytest
 
-from custom_components.tariffy import backup
+from custom_components.tariffy import backup, history
 from custom_components.tariffy import coordinator as coord
 
 from .test_coordinator import STROM
@@ -264,3 +264,109 @@ async def test_a_tariff_switch_starts_without_the_old_history(contract):
 def test_the_history_survives_a_backup():
     data = backup.sanitize_contract({"title": "Gas", "data": GAS})["data"]
     assert data["_abschlag_verlauf"] == VERLAUF
+
+
+# ---------------------------------------------------------------- an earlier term entered by hand, with its instalments by month
+ALT = {"beginn": "2025-03-01", "ende": "2026-02-28", "arbeitspreis": 0.30, "grundpreis": 10.0}  # 364 days
+ALT_ROWS = [
+    {"ab": "2025-03-01", "betrag": 178}, {"ab": "2025-08-01", "betrag": "174.41"}, {"ab": "2025-09-01", "betrag": 215},
+]
+
+
+def _alt_gezahlt() -> float:
+    """By hand (days / 30.44): 178 until 1 Aug, 174.41 until 1 Sep, 215 until the end after 364 days."""
+    a, b, v = 153 / 30.44, 184 / 30.44, 364 / 30.44
+    return 178 * a + 174.41 * (b - a) + 215 * (v - b)
+
+
+async def test_an_old_term_works_out_what_was_paid_from_the_months(contract, hass):
+    entry, _ = await contract.setup(GAS, **TAG)
+    calc = await history.async_calc(hass, entry, ALT, ALT_ROWS)
+    assert calc["values"]["abschlag_gezahlt"] == pytest.approx(_alt_gezahlt(), abs=0.01)
+    assert _alt_gezahlt() == pytest.approx(2343.6, abs=0.2)
+    # without the months the old calculation: the typed instalment for the whole term
+    plain = await history.async_calc(hass, entry, {**ALT, "abschlag": 215.0})
+    assert plain["values"]["abschlag_gezahlt"] == pytest.approx(215 * round(364 / 30.44, 2), abs=0.01)  # months rounded as before
+
+
+async def test_a_typed_amount_paid_wins_over_the_months(contract, hass):
+    entry, _ = await contract.setup(GAS, **TAG)
+    calc = await history.async_calc(hass, entry, {**ALT, "abschlag_gezahlt": 2000.0}, ALT_ROWS)
+    assert calc["values"]["abschlag_gezahlt"] == 2000.0
+
+
+async def test_the_balance_of_an_old_term_follows_the_months(contract, hass):
+    entry, _ = await contract.setup(GAS, **TAG)
+    calc = await history.async_calc(hass, entry, {**ALT, "kosten": 2000.0}, ALT_ROWS)
+    assert calc["values"]["saldo"] == pytest.approx(_alt_gezahlt() - 2000.0, abs=0.01)
+
+
+async def test_saving_an_old_term_keeps_the_months_for_editing(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    client = await hass_ws_client()
+    entry, _ = await contract.setup(GAS, **TAG)
+    reply = await _call(client, "history_save", entry_id=entry.entry_id, values=ALT, rows=ALT_ROWS)
+    assert reply["success"] is True
+    term = entry.data["_historie"][0]
+    assert term["abschlag_gezahlt"] == pytest.approx(_alt_gezahlt(), abs=0.01)
+    assert term["abschlag"] == 215.0  # the instalment at the end of the term
+    assert term["abschlag_verlauf"] == [
+        {"ab": "2025-03-01", "betrag": 178.0}, {"ab": "2025-08-01", "betrag": 174.41}, {"ab": "2025-09-01", "betrag": 215.0},
+    ]
+    assert term["eigene"] == []  # nothing typed: the paid amount is worked out again when it is edited
+    # the panel gets the stored months with the term
+    from custom_components.tariffy import panel
+
+    assert panel.contract_payload(hass, entry)["historie"][0]["abschlag_verlauf"][1]["betrag"] == 174.41
+    assert entry.data["_abschlag_verlauf"] == VERLAUF and entry.data["abschlag"] == 215.0  # the running contract is untouched
+
+
+async def test_a_term_without_months_is_as_before(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    client = await hass_ws_client()
+    entry, _ = await contract.setup(GAS, **TAG)
+    await _call(client, "history_save", entry_id=entry.entry_id, values={**ALT, "abschlag": 100.0})
+    term = entry.data["_historie"][0]
+    assert term["abschlag"] == 100.0 and "abschlag_verlauf" not in term
+    assert term["abschlag_gezahlt"] == pytest.approx(100 * round(364 / 30.44, 2), abs=0.01)
+
+
+@pytest.mark.parametrize(
+    ("rows", "code"),
+    [
+        ([{"ab": "2026-03-01", "betrag": 200}], "invalid_dates"),  # after the end of the term
+        ([{"ab": "kaputt", "betrag": 200}], "invalid_dates"),
+        ([{"ab": "2025-03-01", "betrag": 100}, {"ab": "2025-03-01", "betrag": 120}], "invalid_dates"),
+        ([{"ab": "2025-03-01", "betrag": 0}], "invalid_abschlag"),
+        ([{"ab": "2025-03-01", "betrag": "abc"}], "invalid_abschlag"),
+        ([{"ab": "2020-01-01", "betrag": 1}] * 61, "too_many"),
+    ],
+)
+async def test_bad_months_of_an_old_term_are_refused(frontend_env, contract, hass, hass_ws_client, rows, code):  # noqa: F811
+    client = await hass_ws_client()
+    entry, _ = await contract.setup(GAS, **TAG)
+    for kind in ("history_calc", "history_save"):
+        reply = await _call(client, kind, entry_id=entry.entry_id, values=ALT, rows=rows)
+        assert reply["success"] is False and reply["error"]["code"] == code, kind
+    assert "_historie" not in entry.data
+
+
+async def test_an_old_flat_term_counts_every_debit_with_its_amount(contract, hass):
+    """Debits on the 1st from March 2025 to February 2026 (12): five of 178, one of 174.41, six of 215."""
+    entry, _ = await contract.setup(INTERNET, **TAG)
+    calc = await history.async_calc(hass, entry, ALT, ALT_ROWS)
+    erwartet = 5 * 178 + 174.41 + 6 * 215
+    assert calc["values"]["kosten"] == calc["values"]["abschlag_gezahlt"] == pytest.approx(erwartet, abs=0.01)
+
+
+async def test_an_old_yearly_term_has_one_payment(contract, hass):
+    data = {**INTERNET, "zahlweise": "yearly", "abschlag": 100.0, "_abschlag_verlauf": [{"ab": "2025-01-01", "betrag": 100.0}]}
+    entry, _ = await contract.setup(data, **TAG)
+    calc = await history.async_calc(hass, entry, ALT, [{"ab": "2025-03-01", "betrag": 1200}])
+    assert calc["values"]["abschlag_gezahlt"] == 1200.0  # one debit of the year, not twelve months of 100 prorated
+
+
+async def test_an_old_quarterly_term_counts_four_payments(contract, hass):
+    data = {**INTERNET, "zahlweise": "quarterly", "abschlag": 100.0, "_abschlag_verlauf": [{"ab": "2025-01-01", "betrag": 100.0}]}
+    entry, _ = await contract.setup(data, **TAG)
+    rows = [{"ab": "2025-03-01", "betrag": 300}, {"ab": "2025-09-01", "betrag": 330}]  # debits 1 Mar, 1 Jun, 1 Sep, 1 Dec
+    calc = await history.async_calc(hass, entry, ALT, rows)
+    assert calc["values"]["abschlag_gezahlt"] == 2 * 300 + 2 * 330

@@ -379,7 +379,8 @@ Wie Strom, zusätzlich:
 | Zahlweise | ✅ | monatlich, vierteljährlich, halbjährlich oder jährlich |
 | Betrag pro Zahlung | ✅ | € pro Zahlung in der gewählten Zahlweise (zum Beispiel der Jahresbeitrag) |
 | Erste Abbuchung am | – | Nur bei nicht monatlicher Zahlweise; leer = Vertragsbeginn |
-| Grundpreis | – | €/Monat (falls separat ausgewiesen) |
+
+Ein Pauschalvertrag hat **nur einen Betrag**; das frühere Feld *Grundpreis* gibt es bei neuen Verträgen nicht mehr und erscheint nur noch beim Bearbeiten eines Vertrags, der schon einen hat.
 
 **Versicherungen** haben vor den Kosten einen eigenen Schritt **Art der Versicherung** (Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige). **Nur bei einer Kfz-Versicherung** folgt danach ein Schritt mit Angaben zum Auto; alle anderen Arten gehen gleich weiter zu den Kosten. Alle Versicherungsangaben sind optional und dienen der Dokumentation, es wird nichts berechnet.
 

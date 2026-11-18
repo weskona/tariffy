@@ -7,6 +7,18 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.8] - 2026-11-18
+
+### Added
+
+- **Frühere Laufzeiten: Abschläge nach Zahlungen.** Im Dialog für eine frühere Laufzeit (Tab **Historie**, „Alten Vertrag hinzufügen“) gibt es den neuen Bereich **Abschläge nach Zahlungen (freiwillig)** mit einem Feld für jede Zahlung der Laufzeit (aus Beginn und Ende der Laufzeit und der Zahlweise des Vertrags). Trägst du dort etwas ein, werden **Gezahlt** und der **Saldo** der Laufzeit daraus berechnet (Verbrauchsverträge anteilig nach Tagen, Pauschalverträge Zahlung für Zahlung); ein bei „Gezahlte Abschläge“ eingetragener Wert hat weiter Vorrang, und die Beträge erscheinen beim Bearbeiten der Laufzeit wieder. Bleibt der Bereich leer, ändert sich nichts.
+
+### Changed
+
+- **Pauschalverträge: ein Betrag genügt.** Das Kostenformular eines Pauschalvertrags (Internet, Mobilfunk, Streaming, Versicherung, Leasing, …) hat das zweite Feld **Grundpreis (€/Monat)** nicht mehr; es war verwirrend, weil beide Werte pro Monat gerechnet wurden. Das Feld bleibt nur beim Bearbeiten eines Vertrags, der schon einen Grundpreis hat (dessen Jahreskosten rechnen damit, beim Speichern geht also nichts verloren), und lässt sich dort leeren. Bestehende Verträge behalten ihre Werte.
+
+- **Gezahlte Abschläge: die Zahl der Felder richtet sich nach der Zahlweise.** Der Dialog **Abschläge bearbeiten** hat ein Feld je Zahlung: bei monatlicher Zahlweise eines je Monat, bei vierteljährlicher vier im Jahr, bei halbjährlicher zwei, bei jährlicher eines (mit dem Datum der Abbuchung und dem Betrag je Zahlung). Zahlungen, die noch nicht fällig waren, bleiben gesperrt. Der gespeicherte Verlauf und die Rechnung sind wie bisher.
+
 ## [1.32.0-beta.7] - 2026-11-18
 
 ### Changed

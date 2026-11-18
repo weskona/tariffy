@@ -2290,18 +2290,6 @@
             "selector": {
               "date": {}
             }
-          },
-          {
-            "name": "grundpreis",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 0.01
-              }
-            }
           }
         ],
         "description_placeholders": null,
@@ -5434,18 +5422,6 @@
             "selector": {
               "date": {}
             }
-          },
-          {
-            "name": "grundpreis",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 0.01
-              }
-            }
           }
         ],
         "description_placeholders": null,
@@ -5681,18 +5657,6 @@
             "required": false,
             "selector": {
               "date": {}
-            }
-          },
-          {
-            "name": "grundpreis",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 0.01
-              }
             }
           }
         ],

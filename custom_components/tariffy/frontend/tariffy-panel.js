@@ -1700,55 +1700,120 @@ class TariffyPanel extends HTMLElement {
       }, icon("plus"), this._t("onceAdd"))) : null);
   }
 
-  /* ----- instalments paid: one amount per month of the term, administrators only ----- */
-  // the months of the term (all of them when the contract has an end, else up to this month), each with the instalment that
-  // applied in it; months that have not begun are locked and show the current instalment
-  _instalMonths(c) {
-    const first = /^(\d{4})-(\d{2})/.exec(c.beginn || "");
-    if (!first) return [];
+  /* ----- instalments paid: one amount per payment of the term, administrators only ----- */
+  // the payments of a term, one per payment interval (monthly: a field per month, quarterly four a year, half-yearly two,
+  // yearly one); a payment that has not come yet is locked. Without an end the payments up to today.
+  _payRange(beginn, ende, first, interval) {
+    const parse = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ""); return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null; };
+    const start = parse(first) || parse(beginn);
+    if (!start) return [];
+    const pad = (n) => String(n).padStart(2, "0");
     const now = new Date();
-    const here = now.getFullYear() * 12 + now.getMonth();
-    const end = /^(\d{4})-(\d{2})/.exec(c.ende || "");
-    const last = end ? [Number(end[1]), Number(end[2])] : [now.getFullYear(), now.getMonth() + 1];
-    const entries = c.abschlagsverlauf || [];
-    const current = isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : null;
+    const todayIso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    const end = parse(ende);
+    const endIso = end ? `${end[0]}-${pad(end[1])}-${pad(end[2])}` : todayIso;
     const months = [];
-    let y = Number(first[1]);
-    let m = Number(first[2]);
-    while ((y < last[0] || (y === last[0] && m <= last[1])) && months.length < 600) {
-      const iso = `${y}-${String(m).padStart(2, "0")}-01`;
-      const lastDay = `${y}-${String(m).padStart(2, "0")}-31`; // an entry inside the month counts for the month
-      const valid = entries.filter((e) => e.ab <= lastDay);
-      const future = y * 12 + (m - 1) > here;
-      const value = future ? current : entries.length ? (valid.length ? valid[valid.length - 1] : entries[0]).betrag_je_zahlung : current;
-      months.push({ iso, future, label: new Intl.DateTimeFormat(this._locale, { month: "long", year: "numeric" }).format(new Date(y, m - 1, 1)),
-        betrag: isNum(value) ? String(value) : "" });
-      m += 1;
-      if (m > 12) { m = 1; y += 1; }
+    if (interval === 1) { // monthly: the months, from the month of the start
+      const here = now.getFullYear() * 12 + now.getMonth();
+      const last = end ? end[0] * 12 + end[1] - 1 : here;
+      for (let k = parse(beginn || first)[0] * 12 + parse(beginn || first)[1] - 1; k <= last && months.length < 600; k += 1) {
+        const y = Math.floor(k / 12);
+        const m = k % 12 + 1;
+        months.push({ iso: `${y}-${pad(m)}-01`, upto: `${y}-${pad(m)}-31`, future: k > here,
+          label: new Intl.DateTimeFormat(this._locale, { month: "long", year: "numeric" }).format(new Date(y, m - 1, 1)) });
+      }
+      return months;
+    }
+    for (let n = 0; n < 200; n += 1) {
+      const k = start[0] * 12 + start[1] - 1 + n * interval;
+      const y = Math.floor(k / 12);
+      const m = k % 12 + 1;
+      const day = Math.min(start[2], new Date(y, m, 0).getDate());
+      const iso = `${y}-${pad(m)}-${pad(day)}`;
+      if (iso > endIso) break;
+      months.push({ iso, upto: iso, future: iso > todayIso, label: this._date(iso) });
     }
     return months;
+  }
+
+  // fills the amounts: the entry that applied at the payment, the current instalment for the ones that have not come yet
+  _instalFill(range, entries, current) {
+    for (const x of range) {
+      const valid = entries.filter((e) => e.ab <= x.upto);
+      const value = x.future ? current : entries.length ? (valid.length ? valid[valid.length - 1] : entries[0]).betrag_je_zahlung : current;
+      x.betrag = isNum(value) ? String(value) : "";
+    }
+    return range;
+  }
+
+  _instalMonths(c) {
+    const interval = INTERVAL_MONTHS[c.zahlweise] || 1;
+    return this._instalFill(this._payRange(c.beginn, c.ende, c.erste_zahlung, interval), c.abschlagsverlauf || [],
+      isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : null);
+  }
+
+  // the changes to send: a blank amount takes the one before, only the payments where the amount changes; null = the first one is missing
+  _instalRows(months) {
+    const rows = [];
+    let before = null;
+    for (const month of months.filter((x) => !x.future)) {
+      const text = String(month.betrag || "").trim();
+      const value = text === "" ? before : text;
+      if (value === null) return null;
+      if (before === null || Number(value) !== Number(before) || Number.isNaN(Number(value))) rows.push({ ab: month.iso, betrag: value });
+      before = value;
+    }
+    return rows;
+  }
+
+  // the grid of amounts shared by the dialog of a contract and the one of an earlier term
+  _instalGrid(months, busy, interval) {
+    const inputs = [];
+    // the payments that have not come yet show the instalment of the last one that has (the current one)
+    const syncFuture = () => {
+      const began = months.filter((x) => !x.future);
+      const now = began.length ? began[began.length - 1].betrag : null;
+      months.forEach((x, j) => { if (x.future && now !== null) { x.betrag = now; if (inputs[j]) inputs[j].value = now; } });
+    };
+    const rows = months.map((month, i) => {
+      const input = h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: month.betrag, "aria-label": `${month.label}: ${this._t("instalAmount")}`,
+        disabled: busy || month.future ? "" : null, oninput: (ev) => { month.betrag = ev.target.value.replace(",", "."); },
+        // a finished edit also applies to the following payments that still had the old amount
+        onchange: (ev) => {
+          ev.target.value = month.betrag; // a comma typed as decimal separator is shown as the dot that is stored
+          const old = month.before;
+          month.before = month.betrag;
+          for (let j = i + 1; j < months.length; j += 1) {
+            if (months[j].future || months[j].betrag !== old) continue;
+            months[j].betrag = month.betrag;
+            months[j].before = month.betrag;
+            inputs[j].value = month.betrag;
+          }
+          syncFuture();
+        } });
+      month.before = month.betrag;
+      inputs.push(input);
+      return h("label", { class: `instal-row${month.future ? " instal-future" : ""}` }, h("span", { text: month.label }), h("span", { class: "fld" }, input));
+    });
+    syncFuture();
+    return h("div", { class: "instal-grid" },
+      h("div", { class: "instal-head" }, h("span", { text: this._t(interval === 1 ? "instalMonth" : "instalPayment") }),
+        h("span", { text: this._t(interval === 1 ? "instalAmount" : "instalAmountPay") })),
+      rows);
   }
 
   _openInstal(c) {
     this._closeFlow();
     const months = this._instalMonths(c);
     this._dlg = { mode: "instal", stage: "form", id: c.entry_id, name: c.title, flowId: null, localize: () => "", fields: [], values: {},
-      months, interval: c.zahlweise && c.zahlweise !== "monthly", message: null };
+      months, interval: INTERVAL_MONTHS[c.zahlweise] || 1, message: null };
     this._renderInstalDialog();
   }
 
   async _saveInstal() {
     const dlg = this._dlg;
-    // a month without an amount takes the one before; only the months where the amount changes are sent
-    const rows = [];
-    let before = null;
-    for (const month of dlg.months.filter((x) => !x.future)) {
-      const text = String(month.betrag || "").trim();
-      const value = text === "" ? before : text;
-      if (value === null) { dlg.message = this._t("instalErr_first"); this._renderInstalDialog(); return; }
-      if (before === null || Number(value) !== Number(before) || Number.isNaN(Number(value))) rows.push({ ab: month.iso, betrag: value });
-      before = value;
-    }
+    const rows = this._instalRows(dlg.months);
+    if (rows === null) { dlg.message = this._t("instalErr_first"); this._renderInstalDialog(); return; }
     dlg.stage = "saving";
     dlg.message = null;
     this._renderInstalDialog();
@@ -1771,43 +1836,11 @@ class TariffyPanel extends HTMLElement {
     const dlg = this._dlg;
     if (!dlg) return;
     const busy = dlg.stage === "saving";
-    const inputs = [];
-    // the months that have not begun show the instalment of the last month that has (the current one)
-    const syncFuture = () => {
-      const began = dlg.months.filter((x) => !x.future);
-      const now = began.length ? began[began.length - 1].betrag : null;
-      dlg.months.forEach((x, j) => { if (x.future && now !== null) { x.betrag = now; if (inputs[j]) inputs[j].value = now; } });
-    };
-    const rows = dlg.months.map((month, i) => {
-      const input = h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: month.betrag, "aria-label": `${month.label}: ${this._t("instalAmount")}`,
-        disabled: busy || month.future ? "" : null, oninput: (ev) => { month.betrag = ev.target.value.replace(",", "."); },
-        // a finished edit also applies to the following months that still had the old amount
-        onchange: (ev) => {
-          ev.target.value = month.betrag; // a comma typed as decimal separator is shown as the dot that is stored
-          const old = month.before;
-          month.before = month.betrag;
-          for (let j = i + 1; j < dlg.months.length; j += 1) {
-            if (dlg.months[j].future || dlg.months[j].betrag !== old) continue;
-            dlg.months[j].betrag = month.betrag;
-            dlg.months[j].before = month.betrag;
-            inputs[j].value = month.betrag;
-          }
-          syncFuture();
-        } });
-      month.before = month.betrag;
-      inputs.push(input);
-      return h("label", { class: `instal-row${month.future ? " instal-future" : ""}` }, h("span", { text: month.label }), h("span", { class: "fld" }, input));
-    });
-    syncFuture();
     const body = [
       h("h2", { id: "dlg-title", text: this._t("instalTitle") }),
       h("p", { class: "hint", text: dlg.name }),
       h("p", { class: "hint", text: this._t("instalHint") }),
-      dlg.months.length
-        ? h("div", { class: "instal-grid" },
-          h("div", { class: "instal-head" }, h("span", { text: this._t("instalMonth") }), h("span", { text: this._t(dlg.interval ? "instalAmountPay" : "instalAmount") })),
-          rows)
-        : h("p", { class: "hint", text: this._t("instalNoStart") }),
+      dlg.months.length ? this._instalGrid(dlg.months, busy, dlg.interval) : h("p", { class: "hint", text: this._t("instalNoStart") }),
     ];
     if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
     body.push(h("div", { class: "actions" },
@@ -1982,10 +2015,35 @@ class TariffyPanel extends HTMLElement {
     const dlg = {
       mode: "term", stage: "form", id: target.entry_id, name: target.title, index: term ? index : null, fields, values,
       fieldErrors: {}, message: null, asking: null, calc: null, calcSeq: 0, flowId: null, localize: () => "",
+      termMonths: [], termOpen: false,
     };
+    // the instalments by payment of the term, when it has them: the amounts show again for editing
+    const stored = term && Array.isArray(term.abschlag_verlauf) ? term.abschlag_verlauf : [];
+    if (stored.length) {
+      dlg.termOpen = true;
+      this._termRebuild(dlg, stored);
+    }
     this._dlg = dlg;
     this._renderTermDialog();
     this._termCalc(dlg);
+  }
+
+  // the payments of the term (from its two dates and the payment interval of the contract); amounts already typed stay
+  _termRebuild(dlg, stored) {
+    const contract = (this._contracts || []).find((x) => x.entry_id === dlg.values.entry_id);
+    const interval = (contract && INTERVAL_MONTHS[contract.zahlweise]) || 1;
+    const range = this._payRange(dlg.values.beginn, dlg.values.ende, dlg.values.beginn, interval);
+    const typed = new Map((dlg.termMonths || []).map((x) => [x.iso, x.betrag]));
+    const entries = (stored || []).map((e) => ({ ab: e.ab, betrag_je_zahlung: Math.round(e.betrag * interval * 100) / 100 }));
+    dlg.termInterval = interval;
+    dlg.termMonths = stored ? this._instalFill(range, entries, null) : range.map((x) => ({ ...x, betrag: typed.get(x.iso) || "" }));
+    for (const x of dlg.termMonths) x.future = false; // an earlier term is over
+  }
+
+  // the instalments of the term as the changes to send (nothing when no amount was typed); null = the first one is missing
+  _termRows(dlg) {
+    if (!(dlg.termMonths || []).some((x) => String(x.betrag || "").trim() !== "")) return [];
+    return this._instalRows(dlg.termMonths);
   }
 
   async _termCalc(dlg) {
@@ -1997,9 +2055,10 @@ class TariffyPanel extends HTMLElement {
     }
     const seq = ++dlg.calcSeq;
     const { entry_id: _id, ...rest } = values;
+    const rows = this._termRows(dlg) || [];
     let calc = null;
     try {
-      calc = await this._hass.callWS({ type: "tariffy/history_calc", entry_id: dlg.values.entry_id, values: rest });
+      calc = await this._hass.callWS({ type: "tariffy/history_calc", entry_id: dlg.values.entry_id, values: rest, ...(rows.length ? { rows } : {}) });
     } catch (_err) { /* invalid dates and the like: nothing to show yet */ }
     if (this._dlg !== dlg || seq !== dlg.calcSeq) return;
     dlg.calc = calc;
@@ -2048,10 +2107,13 @@ class TariffyPanel extends HTMLElement {
       this._renderTermDialog();
       return;
     }
+    const rows = this._termRows(dlg);
+    if (rows === null) { dlg.message = this._t("instalErr_first"); this._renderTermDialog(); return; }
     dlg.stage = "saving";
     this._renderTermDialog();
     const { entry_id: _id, ...rest } = values;
     const message = { type: "tariffy/history_save", entry_id: dlg.values.entry_id, values: rest };
+    if (rows.length) message.rows = rows;
     if (dlg.index !== null) message.index = dlg.index;
     try {
       await this._hass.callWS(message);
@@ -2084,6 +2146,10 @@ class TariffyPanel extends HTMLElement {
     this._render();
   }
 
+  _termGrid(dlg, busy) {
+    return dlg.termMonths.length ? this._instalGrid(dlg.termMonths, busy, dlg.termInterval || 1) : h("p", { class: "hint", text: this._t("termInstalWait") });
+  }
+
   _renderTermDialog() {
     const dlg = this._dlg;
     if (!dlg) return;
@@ -2098,6 +2164,10 @@ class TariffyPanel extends HTMLElement {
           f.auto ? h("div", { class: "fnote", "data-note": f.name }) : null,
           error ? h("div", { class: "ferr", text: error }) : null);
       })),
+      h("details", { class: "term-instal", open: dlg.termOpen ? "" : null, ontoggle: (ev) => { dlg.termOpen = ev.target.open; } },
+        h("summary", { text: this._t("termInstal") }),
+        h("p", { class: "hint", text: this._t("termInstalHint") }),
+        h("div", { class: "term-grid" }, this._termGrid(dlg, busy))),
     ];
     if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
     const buttons = [];
@@ -2119,7 +2189,16 @@ class TariffyPanel extends HTMLElement {
     this._mountDialog(dlg, body, busy);
     const el = this._dlgEl;
     // a finished edit of any field (blur, drop-down) works the automatic values out again
-    el.onchange = () => this._termCalc(dlg);
+    el.onchange = (ev) => {
+      const name = ev && ev.target && ev.target.name;
+      if (name === "beginn" || name === "ende" || name === "entry_id") {
+        if (name === "entry_id") dlg.values.entry_id = ev.target.value;
+        this._termRebuild(dlg, null);
+        const grid = el.querySelector(".term-grid");
+        if (grid) grid.replaceChildren(this._termGrid(dlg, false));
+      }
+      this._termCalc(dlg);
+    };
     if (dlg.index !== null) {
       const select = el.querySelector('[name="entry_id"]');
       if (select) select.disabled = true; // a term stays with its contract
