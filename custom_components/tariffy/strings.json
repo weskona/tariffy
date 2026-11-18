@@ -717,7 +717,7 @@
           "next_ende": "Contract end new / valid until"
         }
       },
-      "init_pauschal": {
+      "init_streaming": {
         "title": "Plan next contract",
         "description": "Enter the next term. On the start date Home Assistant takes it over automatically; empty fields keep the current value. The start is suggested as the day after the contract end. Leave 'Start' empty to remove a planned contract.",
         "data": {

@@ -717,7 +717,7 @@
           "next_ende": "Vertragsende neu / Laufzeit bis"
         }
       },
-      "init_pauschal": {
+      "init_streaming": {
         "title": "Folgevertrag planen",
         "description": "Trage die nächste Laufzeit ein. Zum Beginn übernimmt Home Assistant sie automatisch; nicht ausgefüllte Felder behalten den aktuellen Wert. Der Beginn ist der Tag nach dem Vertragsende vorgeschlagen. 'Beginn' leer lassen entfernt einen geplanten Vertrag.",
         "data": {

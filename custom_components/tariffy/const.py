@@ -271,6 +271,7 @@ BASIS_FELDER = [
 
 # Kredit / Finanzierung (Sparte "loan"): getrennt von den Vertraegen, zaehlt nicht in deren Summen.
 SPARTE_LOAN = "loan"
+SPARTE_STREAMING = "streaming"  # sein Folgevertrag hat ein eigenes, kurzes Formular (siehe config_flow._next_streaming_schema)
 CONF_KREDIT_SUMME = "kredit_summe"
 CONF_SOLLZINS = "sollzins"
 CONF_EFFEKTIVZINS = "effektivzins"
@@ -285,7 +286,7 @@ SPARTEN = [
     "water",
     "internet",
     "mobile",
-    "streaming",
+    SPARTE_STREAMING,
     SPARTE_LOAN,
     SPARTE_LEASING,
     SPARTE_INSURANCE,

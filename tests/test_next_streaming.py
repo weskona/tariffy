@@ -1,4 +1,4 @@
-"""Folgevertrag eines Pauschalvertrags: Beginn nach dem Vertragsende, Zahlweise und ein Betrag je Zahlung."""
+"""Folgevertrag der Sparte Streaming: Beginn nach dem Vertragsende, Zahlweise und ein Betrag je Zahlung."""
 
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def vol_missing():
 async def test_the_form_asks_for_what_a_flat_contract_changes(frontend_env, contract, hass):  # noqa: F811
     entry, _ = await contract.setup(STREAMING, **GOLDEN)
     result = await _form(hass, entry)
-    assert result["step_id"] == "init_pauschal"
+    assert result["step_id"] == "init_streaming"
     assert _names(result) == ["next_beginn", "next_tarif", "next_zahlweise", "next_abschlag", "next_ende"]
 
 
@@ -108,11 +108,15 @@ async def test_a_plan_with_a_provider_or_a_base_price_keeps_those_fields(fronten
     assert entry.options["next_anbieter"] == "Neu AG" and entry.options["next_grundpreis"] == 2.0
 
 
-@pytest.mark.parametrize("sparte", ["electricity", "gas", "water"])
-async def test_metered_contracts_keep_their_form(frontend_env, contract, hass, sparte):  # noqa: F811
-    entry, _ = await contract.setup({**STROM, "sparte": sparte}, **GOLDEN)
+@pytest.mark.parametrize("sparte", ["electricity", "gas", "water", "internet", "mobile", "insurance", "leasing", "other"])
+async def test_the_other_categories_keep_their_form(frontend_env, contract, hass, sparte):  # noqa: F811
+    """Only streaming has the short form: everything else is asked as before."""
+    data = {**STROM, "sparte": sparte} if sparte in ("electricity", "gas", "water") else {**STREAMING, "sparte": sparte}
+    entry, _ = await contract.setup(data, **GOLDEN)
     result = await _form(hass, entry)
-    assert result["step_id"] == "init" and {"next_anbieter", "next_kundennummer", "next_grundpreis"} <= set(_names(result))
+    assert result["step_id"] == "init"
+    assert {"next_anbieter", "next_kundennummer", "next_grundpreis", "next_abschlag", "next_ende"} <= set(_names(result))
+    assert "next_zahlweise" not in _names(result)
 
 
 # ------------------------------------------------------------- the switch itself

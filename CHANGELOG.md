@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Plan next contract (flat-rate contracts): a shorter form with the payment interval.** For streaming, internet, mobile, insurance, lease and the like the form now asks for **Start** (suggested as the day after the end of the current contract when you enter none), **Tariff name**, **Payment interval** (so you can change from yearly to monthly), **Amount per payment** and **End**. Provider, customer number and base price are only offered when an already planned contract has them. At the switch the new interval and amount are taken over (the amount per payment is stored per month, as everywhere); a value you do not change stays as in the current contract. Metered contracts (electricity, gas, water) keep their form.
+- **Plan next contract (category Streaming): a shorter form with the payment interval.** For streaming contracts the form now asks for **Start** (suggested as the day after the end of the current contract when you enter none), **Tariff name**, **Payment interval** (so you can change from yearly to monthly), **Amount per payment** and **End**. Provider, customer number and base price are only offered when an already planned contract has them. At the switch the new interval and amount are taken over (the amount per payment is stored per month, as everywhere); a value you do not change stays as in the current contract. All other categories (electricity, gas, water, internet, mobile, insurance, leasing, other) keep their form.
 
 ### Fixed
 

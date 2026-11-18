@@ -38,12 +38,12 @@ def test_every_field_can_be_drawn_by_the_panel(contract_id):
 def test_every_field_has_a_label_and_every_error_a_text(language):
     texts = json.loads((TRANSLATIONS / f"{language}.json").read_text(encoding="utf-8"))["options"]
     for form in FORMS.values():
-        step = texts["step"][form["step_id"]]  # "init" for metered contracts, "init_pauschal" for flat-rate ones
+        step = texts["step"][form["step_id"]]  # "init" for metered contracts, "init_streaming" for streaming
         assert step["title"] and step["description"], form["step_id"]
         for field in form["data_schema"]:
             assert field["name"] in step["data"], f"{form['step_id']}.{field['name']} has no {language} label"
     assert "invalid_number" in texts["error"]
-    assert {form["step_id"] for form in FORMS.values()} == {"init", "init_pauschal"}  # both forms are in the fixtures
+    assert {form["step_id"] for form in FORMS.values()} == {"init", "init_streaming"}  # both forms are in the fixtures
 
 
 @pytest.mark.parametrize("contract_id", sorted(RECONFIGURE))

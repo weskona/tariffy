@@ -32,8 +32,8 @@ from .const import (
     CONF_LAUFZEIT_MONATE,
     CONF_SCHLUSSRATE,
     CONF_SOLLZINS,
-    METERED_SPARTEN,
     SPARTE_LOAN,
+    SPARTE_STREAMING,
     CONF_AUSSENZAEHLER,
     CONF_EINMALPOSTEN,
     CONF_ABSCHLAG_AB_DATUM,
@@ -947,10 +947,10 @@ def _next_schema(d: dict[str, Any], *, energie: bool, gas: bool = False, ht_nt: 
     return vol.Schema(fields)
 
 
-def _next_pauschal_schema(
+def _next_streaming_schema(
     d: dict[str, Any], *, ende: str | None, zahlweise: str, aus_optionen: bool
 ) -> vol.Schema:
-    """Folgevertrag eines Pauschalvertrags (Streaming, Internet, Versicherung, ...): Beginn (ohne eigene Angabe der Tag
+    """Folgevertrag der Sparte Streaming: Beginn (ohne eigene Angabe der Tag
     nach dem Ende des laufenden Vertrags), Tarifname, Zahlweise und ein Betrag je Zahlung, dazu das Ende. Anbieter,
     Kundennummer und Grundpreis gibt es nur noch, wenn der geplante Vertrag sie schon hat."""
 
@@ -1323,13 +1323,13 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
 class TariffyOptionsFlow(OptionsFlowWithReload):
     """Den nächsten/zukünftigen Vertrag pflegen."""
 
-    async def async_step_init_pauschal(
+    async def async_step_init_streaming(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        return await self._async_step_pauschal(user_input)
+        return await self._async_step_streaming(user_input)
 
-    async def _async_step_pauschal(self, user_input: dict[str, Any] | None) -> ConfigFlowResult:
-        """Folgevertrag eines Pauschalvertrags: ein Betrag je Zahlung und die Zahlweise (siehe _next_pauschal_schema)."""
+    async def _async_step_streaming(self, user_input: dict[str, Any] | None) -> ConfigFlowResult:
+        """Folgevertrag der Sparte Streaming: ein Betrag je Zahlung und die Zahlweise (siehe _next_streaming_schema)."""
         aktuell = _zahlweise_von(self.config_entry.data)
         if user_input is not None:
             if not user_input.get(NEXT_PREFIX + CONF_BEGINN):
@@ -1342,8 +1342,8 @@ class TariffyOptionsFlow(OptionsFlowWithReload):
                 )
             return self.async_create_entry(title="", data=cleaned)
         return self.async_show_form(
-            step_id="init_pauschal",
-            data_schema=_next_pauschal_schema(
+            step_id="init_streaming",
+            data_schema=_next_streaming_schema(
                 dict(self.config_entry.options),
                 ende=self.config_entry.data.get(CONF_ENDE),
                 zahlweise=aktuell,
@@ -1355,9 +1355,8 @@ class TariffyOptionsFlow(OptionsFlowWithReload):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         gas = self.config_entry.data.get(CONF_SPARTE) == GAS_SPARTE
-        sparte = self.config_entry.data.get(CONF_SPARTE)
-        if sparte not in METERED_SPARTEN and sparte != SPARTE_LOAN:
-            return await self._async_step_pauschal(user_input)
+        if self.config_entry.data.get(CONF_SPARTE) == SPARTE_STREAMING:
+            return await self._async_step_streaming(user_input)
         errors: dict[str, str] = {}
         if user_input is not None:
             if gas:

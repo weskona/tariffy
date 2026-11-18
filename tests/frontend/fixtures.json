@@ -723,6 +723,137 @@
       "zahlweise": "monthly"
     },
     {
+      "abschlag": 17.99,
+      "abschlag_anpassung_empfohlen": null,
+      "abschlag_bisher_gezahlt": 71.96,
+      "abschlag_jahr": 215.88,
+      "abschlag_je_zahlung": 17.99,
+      "abschlag_warnung_aktiv": false,
+      "abschlag_warnung_zu_bestaetigen": false,
+      "abschlagsverlauf": [],
+      "abwasser_kosten": null,
+      "abwasserpflichtiger_verbrauch": null,
+      "anbieter": "Streamingdienst",
+      "arbeitspreis": null,
+      "arbeitspreis_gesamt_wasser": null,
+      "arbeitspreis_ht": null,
+      "arbeitspreis_nacht": null,
+      "arbeitspreis_nt": null,
+      "archivierbar": false,
+      "archiviert": false,
+      "archiviert_am": null,
+      "aussenzaehler": [],
+      "autarkie_aktiv": false,
+      "autarkie_bisher": null,
+      "autarkie_bisher_nt": null,
+      "autarkie_naeherung": null,
+      "autarkie_variante": null,
+      "beginn": "2026-04-01",
+      "currency": "EUR",
+      "effektiver_arbeitspreis": null,
+      "einmal_summe": 0.0,
+      "einmalposten": [],
+      "empfohlener_abschlag": null,
+      "ende": "2027-03-31",
+      "entry_id": "contract-6",
+      "erinnerung_aktiv": false,
+      "erinnerung_bestaetigt": false,
+      "erinnerung_datum": null,
+      "erinnerung_monate": 0,
+      "erste_zahlung": null,
+      "garten_kosten": null,
+      "garten_verbrauch": null,
+      "grundpreis": null,
+      "guthaben_bisher": null,
+      "historie": [],
+      "icon": null,
+      "jahreskosten": 215.12,
+      "km_aktuell": null,
+      "km_gesamt": null,
+      "km_pro_jahr": null,
+      "km_sensor": null,
+      "km_start": null,
+      "km_toleranz_oben": null,
+      "km_toleranz_unten": null,
+      "kosten_bisher": null,
+      "kosten_gesamt": 71.96,
+      "kosten_gesamt_vollstaendig": true,
+      "kosten_ht_bisher": null,
+      "kosten_jahr": 215.88,
+      "kosten_nt_bisher": null,
+      "kredit_effektivzins": null,
+      "kredit_erste_zahlung": null,
+      "kredit_gesamtkosten": null,
+      "kredit_gezahlt": null,
+      "kredit_naechste_betrag": null,
+      "kredit_naechste_zahlung": null,
+      "kredit_rate": null,
+      "kredit_rate_abweichung": null,
+      "kredit_rate_berechnet": null,
+      "kredit_rate_passt": null,
+      "kredit_restschuld": null,
+      "kredit_restsumme": null,
+      "kredit_schlussrate": null,
+      "kredit_sollzins": null,
+      "kredit_summe": null,
+      "kredit_tilgung_anteil": null,
+      "kredit_tilgung_bisher": null,
+      "kredit_tilgung_prozent": null,
+      "kredit_zahlungen_geleistet": null,
+      "kredit_zahlungen_gesamt": null,
+      "kredit_zins_anteil": null,
+      "kredit_zinsen_bisher": null,
+      "kredit_zinsen_gesamt": null,
+      "kuendigung_bis": null,
+      "kuendigungsfrist": null,
+      "laufzeit_monate": null,
+      "laufzeiten_anzahl": 1,
+      "leasing_gutschrift": null,
+      "leasing_km_abweichung": null,
+      "leasing_km_abweichung_ende": null,
+      "leasing_km_erlaubt": null,
+      "leasing_km_gefahren": null,
+      "leasing_km_hochgerechnet": null,
+      "leasing_km_je_tag": null,
+      "leasing_km_kosten": null,
+      "leasing_km_prozent": null,
+      "leasing_km_rest": null,
+      "leasing_km_rest_je_tag": null,
+      "leasing_km_soll": null,
+      "leasing_km_stand": null,
+      "leasing_mehr_km": null,
+      "leasing_minder_km": null,
+      "leasing_nachzahlung": null,
+      "mindestlaufzeit": null,
+      "mindestlaufzeit_bis": null,
+      "naechste_zahlung": null,
+      "next": null,
+      "preis_mehrkm": null,
+      "preis_minderkm": null,
+      "prognose_ohne_autarkie": null,
+      "prognose_real": null,
+      "restlaufzeit": 262,
+      "seit": "2026-04-01",
+      "sparte": "streaming",
+      "tarif": "Standard",
+      "title": "Streaming",
+      "verbrauch_bisher": null,
+      "verbrauch_bisher_ht": null,
+      "verbrauch_bisher_nt": null,
+      "verbrauch_einheit": null,
+      "verbrauch_gesamt_bisher": null,
+      "verbrauch_gesamt_hochgerechnet": null,
+      "verbrauch_hochgerechnet": null,
+      "verbrauch_letzte_laufzeit": null,
+      "verbrauch_letzte_laufzeit_monate": null,
+      "verbrauch_pv_gedeckt_bisher": null,
+      "verbrauch_pv_gedeckt_hochgerechnet": null,
+      "verlaengerbar": true,
+      "versicherungsart": null,
+      "wechsel": null,
+      "zahlweise": "monthly"
+    },
+    {
       "abschlag": 19.99,
       "abschlag_anpassung_empfohlen": null,
       "abschlag_bisher_gezahlt": 239.88,
@@ -755,7 +886,7 @@
       "einmalposten": [],
       "empfohlener_abschlag": null,
       "ende": "2026-12-31",
-      "entry_id": "contract-6",
+      "entry_id": "contract-7",
       "erinnerung_aktiv": false,
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
@@ -893,7 +1024,7 @@
       "einmalposten": [],
       "empfohlener_abschlag": null,
       "ende": "2025-12-31",
-      "entry_id": "contract-7",
+      "entry_id": "contract-8",
       "erinnerung_aktiv": false,
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
@@ -1056,7 +1187,7 @@
       "einmalposten": [],
       "empfohlener_abschlag": null,
       "ende": "2044-03-01",
-      "entry_id": "contract-8",
+      "entry_id": "contract-9",
       "erinnerung_aktiv": false,
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
@@ -1187,7 +1318,7 @@
       "einmalposten": [],
       "empfohlener_abschlag": null,
       "ende": "2028-10-31",
-      "entry_id": "contract-9",
+      "entry_id": "contract-10",
       "erinnerung_aktiv": false,
       "erinnerung_bestaetigt": false,
       "erinnerung_datum": null,
@@ -2609,6 +2740,91 @@
       "step_id": "init",
       "type": "form"
     },
+    "contract-10": {
+      "data_schema": [
+        {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-10",
+      "handler": "contract-10",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
     "contract-2": {
       "data_schema": [
         {
@@ -3026,8 +3242,93 @@
     "contract-5": {
       "data_schema": [
         {
+          "name": "next_beginn",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        },
+        {
+          "name": "next_anbieter",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_kundennummer",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "name": "next_abschlag",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_grundpreis",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
+            }
+          }
+        },
+        {
+          "name": "next_ende",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "date": {}
+          }
+        }
+      ],
+      "description_placeholders": null,
+      "errors": {},
+      "flow_id": "flow-5",
+      "handler": "contract-5",
+      "last_step": null,
+      "preview": null,
+      "step_id": "init",
+      "type": "form"
+    },
+    "contract-6": {
+      "data_schema": [
+        {
           "description": {
-            "suggested_value": "2026-10-01"
+            "suggested_value": "2027-04-01"
           },
           "name": "next_beginn",
           "optional": true,
@@ -3091,14 +3392,14 @@
       ],
       "description_placeholders": null,
       "errors": null,
-      "flow_id": "flow-5",
-      "handler": "contract-5",
+      "flow_id": "flow-6",
+      "handler": "contract-6",
       "last_step": null,
       "preview": null,
-      "step_id": "init_pauschal",
+      "step_id": "init_streaming",
       "type": "form"
     },
-    "contract-6": {
+    "contract-7": {
       "data_schema": [
         {
           "description": {
@@ -3113,9 +3414,9 @@
         },
         {
           "description": {
-            "suggested_value": "Flat 20 GB"
+            "suggested_value": "Mobil Plus"
           },
-          "name": "next_tarif",
+          "name": "next_anbieter",
           "optional": true,
           "required": false,
           "selector": {
@@ -3126,23 +3427,27 @@
           }
         },
         {
-          "default": "monthly",
-          "name": "next_zahlweise",
+          "name": "next_kundennummer",
           "optional": true,
           "required": false,
           "selector": {
-            "select": {
-              "custom_value": false,
-              "mode": "dropdown",
-              "multiple": false,
-              "options": [
-                "monthly",
-                "quarterly",
-                "halfyearly",
-                "yearly"
-              ],
-              "sort": false,
-              "translation_key": "zahlweise"
+            "text": {
+              "multiline": false,
+              "multiple": false
+            }
+          }
+        },
+        {
+          "description": {
+            "suggested_value": "Flat 20 GB"
+          },
+          "name": "next_tarif",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "text": {
+              "multiline": false,
+              "multiple": false
             }
           }
         },
@@ -3162,16 +3467,14 @@
           }
         },
         {
-          "description": {
-            "suggested_value": "Mobil Plus"
-          },
-          "name": "next_anbieter",
+          "name": "next_grundpreis",
           "optional": true,
           "required": false,
           "selector": {
-            "text": {
-              "multiline": false,
-              "multiple": false
+            "number": {
+              "min": 0.0,
+              "mode": "box",
+              "step": 0.01
             }
           }
         },
@@ -3188,15 +3491,15 @@
         }
       ],
       "description_placeholders": null,
-      "errors": null,
-      "flow_id": "flow-6",
-      "handler": "contract-6",
+      "errors": {},
+      "flow_id": "flow-7",
+      "handler": "contract-7",
       "last_step": null,
       "preview": null,
-      "step_id": "init_pauschal",
+      "step_id": "init",
       "type": "form"
     },
-    "contract-7": {
+    "contract-8": {
       "data_schema": [
         {
           "name": "next_beginn",
@@ -3325,14 +3628,14 @@
       ],
       "description_placeholders": null,
       "errors": {},
-      "flow_id": "flow-7",
-      "handler": "contract-7",
+      "flow_id": "flow-8",
+      "handler": "contract-8",
       "last_step": null,
       "preview": null,
       "step_id": "init",
       "type": "form"
     },
-    "contract-8": {
+    "contract-9": {
       "data_schema": [
         {
           "name": "next_beginn",
@@ -3410,86 +3713,11 @@
       ],
       "description_placeholders": null,
       "errors": {},
-      "flow_id": "flow-8",
-      "handler": "contract-8",
-      "last_step": null,
-      "preview": null,
-      "step_id": "init",
-      "type": "form"
-    },
-    "contract-9": {
-      "data_schema": [
-        {
-          "description": {
-            "suggested_value": "2028-11-01"
-          },
-          "name": "next_beginn",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "date": {}
-          }
-        },
-        {
-          "name": "next_tarif",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "text": {
-              "multiline": false,
-              "multiple": false
-            }
-          }
-        },
-        {
-          "default": "monthly",
-          "name": "next_zahlweise",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "select": {
-              "custom_value": false,
-              "mode": "dropdown",
-              "multiple": false,
-              "options": [
-                "monthly",
-                "quarterly",
-                "halfyearly",
-                "yearly"
-              ],
-              "sort": false,
-              "translation_key": "zahlweise"
-            }
-          }
-        },
-        {
-          "name": "next_abschlag",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "number": {
-              "min": 0.0,
-              "mode": "box",
-              "step": 0.01
-            }
-          }
-        },
-        {
-          "name": "next_ende",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "date": {}
-          }
-        }
-      ],
-      "description_placeholders": null,
-      "errors": null,
       "flow_id": "flow-9",
       "handler": "contract-9",
       "last_step": null,
       "preview": null,
-      "step_id": "init_pauschal",
+      "step_id": "init",
       "type": "form"
     }
   },
@@ -3922,6 +4150,356 @@
         "last_step": null,
         "preview": null,
         "step_id": "reconfigure_energie",
+        "type": "form"
+      }
+    },
+    "contract-10": {
+      "first": {
+        "data_schema": [
+          {
+            "default": "Auto-Leasing",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "default": "leasing",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "streaming",
+                  "loan",
+                  "leasing",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Autobank",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "Leasing Kompakt"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "mdi:car-side"
+            },
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2025-11-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2028-10-31"
+            },
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "default": "0",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-10",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "description": {
+              "suggested_value": "B-XY 123"
+            },
+            "name": "kennzeichen",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "km_sensor",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "entity": {
+                "domain": [
+                  "sensor"
+                ],
+                "multiple": false,
+                "reorder": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 21500.0
+            },
+            "name": "km_aktuell",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0,
+                "unit_of_measurement": "km"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 12000.0
+            },
+            "name": "km_start",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0,
+                "unit_of_measurement": "km"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 10000.0
+            },
+            "name": "km_pro_jahr",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0,
+                "unit_of_measurement": "km"
+              }
+            }
+          },
+          {
+            "name": "km_gesamt",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0,
+                "unit_of_measurement": "km"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 2500.0
+            },
+            "name": "km_toleranz_oben",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0,
+                "unit_of_measurement": "km"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 1000.0
+            },
+            "name": "km_toleranz_unten",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0,
+                "unit_of_measurement": "km"
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 0.1
+            },
+            "name": "preis_mehrkm",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.001
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": 0.06
+            },
+            "name": "preis_minderkm",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.001
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-10",
+        "handler": "tariffy",
+        "last_step": false,
+        "preview": null,
+        "step_id": "reconfigure_leasing",
         "type": "form"
       }
     },
@@ -5416,6 +5994,242 @@
       "first": {
         "data_schema": [
           {
+            "default": "Streaming",
+            "name": "name",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "default": "streaming",
+            "name": "sparte",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "electricity",
+                  "electricity_ht_nt",
+                  "gas",
+                  "water",
+                  "internet",
+                  "mobile",
+                  "streaming",
+                  "loan",
+                  "leasing",
+                  "insurance",
+                  "other"
+                ],
+                "sort": false,
+                "translation_key": "sparte"
+              }
+            }
+          },
+          {
+            "default": "Streamingdienst",
+            "name": "anbieter",
+            "required": true,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "kundennummer",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "Standard"
+            },
+            "name": "tarif",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "text": {
+                "multiline": false,
+                "multiple": false
+              }
+            }
+          },
+          {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2026-04-01"
+            },
+            "name": "beginn",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "2027-03-31"
+            },
+            "name": "ende",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          },
+          {
+            "name": "mindestlaufzeit",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "name": "kuendigungsfrist",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "number": {
+                "max": 120.0,
+                "min": 0.0,
+                "mode": "box",
+                "step": 1.0
+              }
+            }
+          },
+          {
+            "default": "0",
+            "name": "erinnerung_monate",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "0",
+                  "1",
+                  "2",
+                  "3",
+                  "4"
+                ],
+                "sort": false,
+                "translation_key": "erinnerung"
+              }
+            }
+          },
+          {
+            "name": "notify_target",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "select": {
+                "custom_value": true,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  {
+                    "label": "notify.mobile_app_pixel",
+                    "value": "mobile_app_pixel"
+                  }
+                ],
+                "sort": false
+              }
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-6",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure",
+        "type": "form"
+      },
+      "second": {
+        "data_schema": [
+          {
+            "default": "monthly",
+            "name": "zahlweise",
+            "required": true,
+            "selector": {
+              "select": {
+                "custom_value": false,
+                "mode": "dropdown",
+                "multiple": false,
+                "options": [
+                  "monthly",
+                  "quarterly",
+                  "halfyearly",
+                  "yearly"
+                ],
+                "sort": false,
+                "translation_key": "zahlweise"
+              }
+            }
+          },
+          {
+            "default": 17.99,
+            "name": "abschlag",
+            "required": true,
+            "selector": {
+              "number": {
+                "min": 0.0,
+                "mode": "box",
+                "step": 0.01
+              }
+            }
+          },
+          {
+            "name": "erste_zahlung",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "date": {}
+            }
+          }
+        ],
+        "description_placeholders": null,
+        "errors": null,
+        "flow_id": "rflow-6",
+        "handler": "tariffy",
+        "last_step": null,
+        "preview": null,
+        "step_id": "reconfigure_pauschal",
+        "type": "form"
+      }
+    },
+    "contract-7": {
+      "first": {
+        "data_schema": [
+          {
             "default": "Mobilfunk",
             "name": "name",
             "required": true,
@@ -5588,7 +6402,7 @@
         ],
         "description_placeholders": null,
         "errors": null,
-        "flow_id": "rflow-6",
+        "flow_id": "rflow-7",
         "handler": "tariffy",
         "last_step": null,
         "preview": null,
@@ -5640,7 +6454,7 @@
         ],
         "description_placeholders": null,
         "errors": null,
-        "flow_id": "rflow-6",
+        "flow_id": "rflow-7",
         "handler": "tariffy",
         "last_step": null,
         "preview": null,
@@ -5648,7 +6462,7 @@
         "type": "form"
       }
     },
-    "contract-7": {
+    "contract-8": {
       "first": {
         "data_schema": [
           {
@@ -5824,7 +6638,7 @@
         ],
         "description_placeholders": null,
         "errors": null,
-        "flow_id": "rflow-7",
+        "flow_id": "rflow-8",
         "handler": "tariffy",
         "last_step": null,
         "preview": null,
@@ -6068,7 +6882,7 @@
         ],
         "description_placeholders": null,
         "errors": {},
-        "flow_id": "rflow-7",
+        "flow_id": "rflow-8",
         "handler": "tariffy",
         "last_step": null,
         "preview": null,
@@ -6076,7 +6890,7 @@
         "type": "form"
       }
     },
-    "contract-8": {
+    "contract-9": {
       "first": {
         "data_schema": [
           {
@@ -6249,7 +7063,7 @@
         ],
         "description_placeholders": null,
         "errors": null,
-        "flow_id": "rflow-8",
+        "flow_id": "rflow-9",
         "handler": "tariffy",
         "last_step": null,
         "preview": null,
@@ -6370,361 +7184,11 @@
         ],
         "description_placeholders": null,
         "errors": {},
-        "flow_id": "rflow-8",
+        "flow_id": "rflow-9",
         "handler": "tariffy",
         "last_step": null,
         "preview": null,
         "step_id": "reconfigure_kredit",
-        "type": "form"
-      }
-    },
-    "contract-9": {
-      "first": {
-        "data_schema": [
-          {
-            "default": "Auto-Leasing",
-            "name": "name",
-            "required": true,
-            "selector": {
-              "text": {
-                "multiline": false,
-                "multiple": false
-              }
-            }
-          },
-          {
-            "default": "leasing",
-            "name": "sparte",
-            "required": true,
-            "selector": {
-              "select": {
-                "custom_value": false,
-                "mode": "dropdown",
-                "multiple": false,
-                "options": [
-                  "electricity",
-                  "electricity_ht_nt",
-                  "gas",
-                  "water",
-                  "internet",
-                  "mobile",
-                  "streaming",
-                  "loan",
-                  "leasing",
-                  "insurance",
-                  "other"
-                ],
-                "sort": false,
-                "translation_key": "sparte"
-              }
-            }
-          },
-          {
-            "default": "Autobank",
-            "name": "anbieter",
-            "required": true,
-            "selector": {
-              "text": {
-                "multiline": false,
-                "multiple": false
-              }
-            }
-          },
-          {
-            "name": "kundennummer",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "text": {
-                "multiline": false,
-                "multiple": false
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": "Leasing Kompakt"
-            },
-            "name": "tarif",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "text": {
-                "multiline": false,
-                "multiple": false
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": "mdi:car-side"
-            },
-            "name": "icon",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "icon": {}
-            }
-          },
-          {
-            "description": {
-              "suggested_value": "2025-11-01"
-            },
-            "name": "beginn",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "date": {}
-            }
-          },
-          {
-            "description": {
-              "suggested_value": "2028-10-31"
-            },
-            "name": "ende",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "date": {}
-            }
-          },
-          {
-            "name": "mindestlaufzeit",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "max": 120.0,
-                "min": 0.0,
-                "mode": "box",
-                "step": 1.0
-              }
-            }
-          },
-          {
-            "name": "kuendigungsfrist",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "max": 120.0,
-                "min": 0.0,
-                "mode": "box",
-                "step": 1.0
-              }
-            }
-          },
-          {
-            "default": "0",
-            "name": "erinnerung_monate",
-            "required": true,
-            "selector": {
-              "select": {
-                "custom_value": false,
-                "mode": "dropdown",
-                "multiple": false,
-                "options": [
-                  "0",
-                  "1",
-                  "2",
-                  "3",
-                  "4"
-                ],
-                "sort": false,
-                "translation_key": "erinnerung"
-              }
-            }
-          },
-          {
-            "name": "notify_target",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "select": {
-                "custom_value": true,
-                "mode": "dropdown",
-                "multiple": false,
-                "options": [
-                  {
-                    "label": "notify.mobile_app_pixel",
-                    "value": "mobile_app_pixel"
-                  }
-                ],
-                "sort": false
-              }
-            }
-          }
-        ],
-        "description_placeholders": null,
-        "errors": null,
-        "flow_id": "rflow-9",
-        "handler": "tariffy",
-        "last_step": null,
-        "preview": null,
-        "step_id": "reconfigure",
-        "type": "form"
-      },
-      "second": {
-        "data_schema": [
-          {
-            "description": {
-              "suggested_value": "B-XY 123"
-            },
-            "name": "kennzeichen",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "text": {
-                "multiline": false,
-                "multiple": false
-              }
-            }
-          },
-          {
-            "name": "km_sensor",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "entity": {
-                "domain": [
-                  "sensor"
-                ],
-                "multiple": false,
-                "reorder": false
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": 21500.0
-            },
-            "name": "km_aktuell",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 1.0,
-                "unit_of_measurement": "km"
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": 12000.0
-            },
-            "name": "km_start",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 1.0,
-                "unit_of_measurement": "km"
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": 10000.0
-            },
-            "name": "km_pro_jahr",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 1.0,
-                "unit_of_measurement": "km"
-              }
-            }
-          },
-          {
-            "name": "km_gesamt",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 1.0,
-                "unit_of_measurement": "km"
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": 2500.0
-            },
-            "name": "km_toleranz_oben",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 1.0,
-                "unit_of_measurement": "km"
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": 1000.0
-            },
-            "name": "km_toleranz_unten",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 1.0,
-                "unit_of_measurement": "km"
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": 0.1
-            },
-            "name": "preis_mehrkm",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 0.001
-              }
-            }
-          },
-          {
-            "description": {
-              "suggested_value": 0.06
-            },
-            "name": "preis_minderkm",
-            "optional": true,
-            "required": false,
-            "selector": {
-              "number": {
-                "min": 0.0,
-                "mode": "box",
-                "step": 0.001
-              }
-            }
-          }
-        ],
-        "description_placeholders": null,
-        "errors": null,
-        "flow_id": "rflow-9",
-        "handler": "tariffy",
-        "last_step": false,
-        "preview": null,
-        "step_id": "reconfigure_leasing",
         "type": "form"
       }
     }
