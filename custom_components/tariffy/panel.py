@@ -145,6 +145,7 @@ CONTRACT_FIELDS = (
     "verlaengerbar",
     "historie",
     "einmalposten",
+    "abschlagsverlauf",
     "aussenzaehler",
     "autarkie_aktiv",
     "autarkie_variante",
@@ -452,6 +453,30 @@ async def ws_history_delete(hass: HomeAssistant, connection, msg: dict[str, Any]
 @websocket_api.require_admin
 @websocket_api.websocket_command(
     {
+        vol.Required("type"): "tariffy/abschlag_verlauf_save",
+        vol.Required("entry_id"): str,
+        vol.Required("rows"): [HISTORY_VALUES],
+    }
+)
+@websocket_api.async_response
+async def ws_abschlag_verlauf_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Setzt den Abschlagsverlauf eines Vertrags (was wann tatsaechlich gezahlt wurde)."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        history.save_abschlag_verlauf(hass, entry, msg["rows"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
         vol.Required("type"): "tariffy/einmal_save",
         vol.Required("entry_id"): str,
         vol.Required("values"): HISTORY_VALUES,
@@ -647,6 +672,7 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             websocket_api.async_register_command(hass, ws_history_save)
             websocket_api.async_register_command(hass, ws_history_delete)
             websocket_api.async_register_command(hass, ws_renew)
+            websocket_api.async_register_command(hass, ws_abschlag_verlauf_save)
             websocket_api.async_register_command(hass, ws_einmal_save)
             websocket_api.async_register_command(hass, ws_einmal_delete)
             websocket_api.async_register_command(hass, ws_aussen_save)

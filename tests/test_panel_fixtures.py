@@ -64,6 +64,9 @@ CONTRACTS = [
             "beginn": "2025-09-01", "ende": "2026-08-31", "erinnerung_monate": "0",
             "gas_einheit": "m³", "brennwert": "11.2", "zustandszahl": "0.95",
             "verbrauch_sensor": "sensor.gas_heizung",
+            "_abschlag_verlauf": [
+                {"ab": "2025-09-01", "betrag": 125.0}, {"ab": "2026-02-01", "betrag": 132.5}, {"ab": "2026-05-01", "betrag": 140.0},
+            ],
         },
         {"sensor.gas_heizung": ((1800.0, 1800.0), (1000.0, 1000.0), "m³")},
         {},

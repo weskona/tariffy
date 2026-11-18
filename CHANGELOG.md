@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-beta.6] - 2026-11-18
+
+### Added
+
+- **Instalments paid: correct what was really charged** (the supplier changed the instalment by itself, for example gas months 1–7 178 €, month 8 174.41 €, months 9–11 215 €). In the **Contracts** tab every contract with an instalment has a block **Instalments paid**; the dialog **Edit instalments** (administrators) takes rows "from date, instalment", each valid until the next one begins, the newest row is the current instalment (past dates only, a day once, 60 rows at most; with a payment interval other than monthly the amount per payment). **Paid so far**, the **balance so far**, the **forecast at contract end** and the **recommended instalment** then use the amounts that really applied. **Without rows nothing changes** (the current instalment counts as before, with the single change that Tariffy remembers when you edit). With a history, a new instalment in the contract form appends an entry with today's date. A renewed term and a tariff switch start without the old history. No new sensors.
+
 ## [1.32.0-beta.5] - 2026-11-18
 
 ### Changed

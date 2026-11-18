@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.6] - 2026-11-18
+
+### Added
+
+- **Gezahlte Abschläge: korrigieren, was wirklich abgebucht wurde** (der Versorger hat den Abschlag selbst geändert, zum Beispiel Gas Monat 1–7 178 €, Monat 8 174,41 €, Monat 9–11 215 €). Im Tab **Verträge** hat jeder Vertrag mit Abschlag den Block **Gezahlte Abschläge**; der Dialog **Abschläge bearbeiten** (Administratoren) nimmt Zeilen „ab Datum, Abschlag“, jede gilt, bis die nächste beginnt, die neueste Zeile ist der aktuelle Abschlag (nur Daten in der Vergangenheit, jeder Tag einmal, höchstens 60 Zeilen; bei nicht monatlicher Zahlweise der Betrag je Zahlung). **Gezahlt bisher**, das **Guthaben/die Nachzahlung bisher**, die **Prognose zum Vertragsende** und der **empfohlene Abschlag** rechnen dann mit den Beträgen, die wirklich galten. **Ohne Zeilen ändert sich nichts** (der aktuelle Abschlag zählt wie bisher, mit der einzelnen Änderung, die Tariffy beim Bearbeiten selbst merkt). Mit Verlauf hängt ein neuer Abschlag im Vertragsformular einen Eintrag mit dem heutigen Datum an. Eine verlängerte Laufzeit und ein Tarifwechsel beginnen ohne den alten Verlauf. Keine neuen Sensoren.
+
 ## [1.32.0-beta.5] - 2026-11-18
 
 ### Changed

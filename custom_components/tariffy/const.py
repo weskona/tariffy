@@ -196,6 +196,12 @@ HISTORIE_MAX = 50
 CONF_EINMALPOSTEN = "_einmalposten"
 EINMALPOSTEN_MAX = 50
 
+# Abschlagsverlauf: hat der Versorger den Abschlag selbst geaendert, traegt man hier ein, was wann gezahlt
+# wurde. Liste von {"ab": Datum, "betrag": Monatsbetrag}; der Betrag gilt ab diesem Tag, bis der naechste
+# Eintrag beginnt; der letzte Eintrag ist der aktuelle Abschlag. Ohne Liste bleibt alles wie bisher.
+CONF_ABSCHLAG_VERLAUF = "_abschlag_verlauf"
+ABSCHLAG_VERLAUF_MAX = 60
+
 # Aussenzaehler eines Wasservertrags (interner Schluessel, nur Wasser): Liste aus
 # {name, sensor, start_wert, preis}. Ihr Verbrauch ist im Hauptzaehler enthalten und ist nicht
 # abwasserpflichtig (Garten, Pool, Bewaesserung).
