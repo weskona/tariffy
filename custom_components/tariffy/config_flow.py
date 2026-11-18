@@ -35,6 +35,7 @@ from .const import (
     CONF_AUSSENZAEHLER,
     CONF_EINMALPOSTEN,
     CONF_ABSCHLAG_AB_DATUM,
+    CONF_ABSCHLAG_VERLAUF,
     CONF_ABSCHLAG_VORHERIGER_WERT,
     CONF_ABSCHLAG_WARNUNG,
     CONF_ABSCHLAG_WARNUNG_BESTAETIGT,
@@ -193,6 +194,18 @@ def _stamp_abschlag_change(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str
     alter_abschlag = alt.get(CONF_ABSCHLAG)
     neuer_abschlag = neu.get(CONF_ABSCHLAG)
     heute = dt_util.now().date().isoformat()
+    verlauf = alt.get(CONF_ABSCHLAG_VERLAUF)
+    if isinstance(verlauf, list) and verlauf:
+        # Hat der Vertrag einen Abschlagsverlauf, haengt eine Aenderung des Abschlags einen Eintrag an
+        # (am selben Tag ersetzt sie den letzten) statt den einzelnen Stempel zu setzen.
+        if neuer_abschlag is None or alter_abschlag is None or round(float(alter_abschlag), 6) == round(float(neuer_abschlag), 6):
+            return neu
+        liste = [dict(e) for e in verlauf if isinstance(e, dict)]
+        if liste and liste[-1].get("ab") == heute:
+            liste[-1]["betrag"] = round(float(neuer_abschlag), 6)
+        else:
+            liste.append({"ab": heute, "betrag": round(float(neuer_abschlag), 6)})
+        return {**neu, CONF_ABSCHLAG_VERLAUF: liste}
     bereits_heute_gestempelt = alt.get(CONF_ABSCHLAG_AB_DATUM) == heute
     if (
         alter_abschlag is not None
@@ -248,6 +261,7 @@ _INTERNER_ZUSTAND = (
     CONF_ARCHIVIERT,
     CONF_EINMALPOSTEN,
     CONF_AUSSENZAEHLER,
+    CONF_ABSCHLAG_VERLAUF,
 )
 
 

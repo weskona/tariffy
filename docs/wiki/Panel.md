@@ -74,6 +74,22 @@ Bei Pauschalverträgen (Internet, Mobilfunk, Versicherung, Abos, ...) sind die *
 
 Hat ein Vertrag eine **Historie** (zum Beispiel weil du ihn jährlich **verlängerst** oder weil der Folgevertrag übernommen hat), zeigt Tariffy die **Kosten gesamt** über alle Laufzeiten: die früheren Laufzeiten aus der Historie plus die laufende. Bei Pauschalverträgen ist das eine eigene Kachel auf der Karte, bei Verbrauchsverträgen eine Zeile unter der Restlaufzeit; dazu stehen sie in den Vertragsdetails und im Tab **Historie** unter den früheren Laufzeiten, jeweils mit „seit <Datum> · n Laufzeiten“. Für eine frühere Laufzeit zählen ihre Kosten, wenn es sie gibt, sonst die gezahlten Abschläge. Fehlt bei einer Laufzeit beides, steht „mindestens …“, weil die Summe dann nicht vollständig ist. Bei einem archivierten Vertrag steht seine letzte Laufzeit schon in der Historie und wird nicht doppelt gezählt. Ohne Historie und ohne Einmalposten gibt es keine zusätzliche Anzeige. Einmalposten (siehe unten) fließen in die Kosten gesamt ein.
 
+## Gezahlte Abschläge (wenn der Versorger den Abschlag ändert)
+
+Ändert der Versorger den Abschlag von sich aus, rechnet Tariffy mit dem neuen Betrag rückwirkend, solange du nichts einträgst. Im Tab **Verträge** hat jeder Vertrag mit Abschlag (nicht der Kredit) den Block **Gezahlte Abschläge** (Änderungen nur für Administratoren). Dort trägst du ein, **was ab wann gezahlt wurde**, zum Beispiel bei Gas Monat 1–7 178 €, Monat 8 174,41 €, Monat 9–11 215 €:
+
+| Ab | Abschlag |
+|----|----------|
+| 01.01.2026 | 178,00 € |
+| 01.08.2026 | 174,41 € |
+| 01.09.2026 | 215,00 € |
+
+- Der Dialog **Abschläge bearbeiten** zeigt alle Zeilen auf einmal; du kannst Zeilen hinzufügen, ändern und entfernen und speicherst alles zusammen.
+- Jede Zeile gilt **ab ihrem Datum, bis die nächste beginnt**. Die **neueste Zeile ist der aktuelle Abschlag**: Tariffy übernimmt ihren Betrag als Abschlag des Vertrags. Vor der ersten Zeile gilt deren Betrag. Es sind nur Daten in der Vergangenheit möglich, jeder Tag nur einmal, höchstens 60 Zeilen. Bei nicht monatlicher Zahlweise gibst du den Betrag **je Zahlung** ein.
+- Mit dem Verlauf rechnen **Gezahlt bisher**, **Guthaben/Nachzahlung bisher**, die **Prognose zum Vertragsende** und der **empfohlene Abschlag** mit den Beträgen, die wirklich galten. Bei Verbrauchsverträgen zählt jeder Betrag für die Monate (Tage durch 30,44, wie sonst auch) zwischen seinem Datum und dem nächsten; bei Pauschalverträgen zählt jede Abbuchung mit dem Betrag ihres Termins.
+- **Ohne Zeilen** ändert sich nichts: Es gilt wie bisher der aktuelle Abschlag (mit der einzelnen Änderung, die Tariffy beim Bearbeiten selbst merkt). Mit Verlauf hängt eine Änderung des Abschlags im Vertragsformular einen Eintrag mit dem heutigen Datum an.
+- Beim **Verlängern** eines Pauschalvertrags und bei einem **Tarifwechsel** beginnt die neue Laufzeit ohne den alten Verlauf; die alte Laufzeit steht mit ihren Werten in der Historie.
+
 ## Einmalposten (Bonus und Rechnung)
 
 Im Tab **Verträge** hat jeder Vertrag in den Details den Block **Einmalposten** (nur Administratoren können ihn ändern). Dort trägst du einmalige Beträge ein, die nicht zum Abschlag gehören, mit **Bezeichnung**, **Betrag** und **Datum**:

@@ -23,7 +23,9 @@ from homeassistant.util import dt as dt_util
 
 from . import coordinator as coord
 from .const import (
+    ABSCHLAG_VERLAUF_MAX,
     CONF_ABSCHLAG,
+    CONF_ABSCHLAG_VERLAUF,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
     AUSSENZAEHLER_MAX,
@@ -264,6 +266,7 @@ _RENEW_RESET = (
     "_notify_gesendet",
     "_abschlag_ab_datum",
     "_abschlag_vorheriger_wert",
+    CONF_ABSCHLAG_VERLAUF,  # der Verlauf gehoert zur alten Laufzeit
     "_abschlag_warnung_bestaetigt",
     "_abschlag_warnung_notify_gesendet",
     CONF_ARCHIVIERT,
@@ -369,6 +372,44 @@ async def _renew_kredit(hass: HomeAssistant, entry: ConfigEntry, values: dict[st
         if wert is not None:
             data[key] = wert
     await coordinator._dismiss_notifications()
+    hass.config_entries.async_update_entry(entry, data=data)
+
+
+# ------------------------------------------------------------ Abschlagsverlauf
+def save_abschlag_verlauf(hass: HomeAssistant, entry: ConfigEntry, rows: Any) -> None:
+    """Setzt den Abschlagsverlauf (siehe const.CONF_ABSCHLAG_VERLAUF) auf die uebergebenen Zeilen
+    `{"ab": Datum, "betrag": Betrag je Zahlung}`; eine leere Liste entfernt ihn. Der Betrag der letzten
+    Zeile ist danach der aktuelle Abschlag des Vertrags."""
+    if entry.data.get(CONF_SPARTE) == SPARTE_LOAN:
+        raise HistoryError("not_available")
+    if not isinstance(rows, list):
+        raise HistoryError("invalid_dates")
+    if len(rows) > ABSCHLAG_VERLAUF_MAX:
+        raise HistoryError("too_many")
+    zahlweise = entry.data.get(CONF_ZAHLWEISE)
+    intervall = ZAHLWEISE_MONATE.get(zahlweise, ZAHLWEISE_MONATE["monthly"])
+    heute = dt_util.now().date()
+    je_tag: dict[date, float] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            raise HistoryError("invalid_dates")
+        try:
+            tag = date.fromisoformat(str(row.get("ab")))
+        except ValueError as err:
+            raise HistoryError("invalid_dates") from err
+        if tag > heute or tag in je_tag:  # nur Vergangenes (die Zukunft ist der aktuelle Abschlag), jeder Tag einmal
+            raise HistoryError("invalid_dates")
+        betrag = _number(row.get("betrag"), "abschlag")
+        if betrag is None or betrag <= 0:
+            raise HistoryError("invalid_abschlag")
+        je_tag[tag] = round(betrag / intervall, 6)
+    data = dict(entry.data)
+    if not je_tag:
+        data.pop(CONF_ABSCHLAG_VERLAUF, None)
+    else:
+        plan = sorted(je_tag.items())
+        data[CONF_ABSCHLAG_VERLAUF] = [{"ab": tag.isoformat(), "betrag": betrag} for tag, betrag in plan]
+        data[CONF_ABSCHLAG] = plan[-1][1]
     hass.config_entries.async_update_entry(entry, data=data)
 
 

@@ -310,6 +310,22 @@ The category **Leasing** is for a car lease. The rate is a normal **flat-rate** 
 
 **Good to know:** a **tariff switch** or a planned follow-up keeps the car, the sensor and the kilometre rules; the odometer at the start and the value entered by hand belong to the old term and are dropped. With **Renew contract** the figures stay as they are: check the start odometer and the allowance in **Edit** if the new lease is another car.
 
+## Instalments paid (when the supplier changes the instalment)
+
+If the supplier changes the instalment by itself, Tariffy calculates with the new amount retroactively until you enter something. In the **Contracts** tab every contract with an instalment (not the loan) has a block **Instalments paid** (administrators can change it). There you enter **what was paid from when**, for example for gas months 1–7 178 €, month 8 174.41 €, months 9–11 215 €:
+
+| From | Instalment |
+|------|------------|
+| 01.01.2026 | 178.00 € |
+| 01.08.2026 | 174.41 € |
+| 01.09.2026 | 215.00 € |
+
+- The dialog **Edit instalments** shows all rows at once; you can add, change and remove rows and save everything together.
+- Every row is valid **from its date until the next one begins**. The **newest row is the current instalment**: Tariffy takes its amount as the instalment of the contract. Before the first row its amount applies. Only past dates are possible, each day once, 60 rows at most. With a payment interval other than monthly you enter the amount **per payment**.
+- With the history, **paid so far**, **balance so far**, the **forecast at contract end** and the **recommended instalment** use the amounts that really applied. For metered contracts every amount counts for the months (days divided by 30.44, as elsewhere) between its date and the next; for flat-rate contracts every debit counts with the amount of its date.
+- **Without rows** nothing changes: the current instalment applies as before (with the single change Tariffy remembers when you edit). With a history, a change of the instalment in the contract form appends an entry with today's date.
+- When a flat-rate contract is **renewed** and at a **tariff switch** the new term starts without the old history; the old term stays in the history with its values.
+
 ## One-time items (bonus and bill)
 
 In the **Contracts** tab of the panel every contract has a block **One-time items** in its details (only administrators can change it). Enter one-off amounts that are not part of the instalment, with a **description**, an **amount** and a **date**: a **positive** amount is a **credit** (e.g. a switching bonus), a **negative** amount is a **bill** (e.g. the fee of a broker looking after the contracts). An item counts from its date (at once without a date). It changes the **balance so far** and the **total cost** over all terms: a bonus lowers the cost, a bill raises it. The forecast at contract end and the low-instalment warning still depend on the consumption only. The items work for every kind of contract, survive renewal and a tariff change and are part of the backup. The field "New customer bonus" in the contract form is unchanged and only displayed.

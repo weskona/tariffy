@@ -1210,6 +1210,7 @@ class TariffyPanel extends HTMLElement {
     if (dlg.mode === "term") { this._renderTermDialog(); return; }
     if (dlg.mode === "renew") { this._renderRenewDialog(); return; }
     if (dlg.mode === "once") { this._renderOnceDialog(); return; }
+    if (dlg.mode === "instal") { this._renderInstalDialog(); return; }
     if (dlg.mode === "aussen") { this._renderAussenDialog(); return; }
     const busy = dlg.stage === "saving";
     const body = [h("h2", { id: "dlg-title", text: this._t({ edit: "dlgTitleEdit", create: "dlgTitleCreate", next: "dlgTitle" }[dlg.mode], { name: dlg.name }) })];
@@ -1697,6 +1698,82 @@ class TariffyPanel extends HTMLElement {
       this._isAdmin ? h("div", { class: "once-add" }, h("button", {
         class: "btn", type: "button", onclick: () => this._openOnce(c, null),
       }, icon("plus"), this._t("onceAdd"))) : null);
+  }
+
+  /* ----- instalments paid: what the supplier really charged and from when, administrators only ----- */
+  _openInstal(c) {
+    this._closeFlow();
+    const je = (e) => (isNum(e.betrag_je_zahlung) ? String(e.betrag_je_zahlung) : "");
+    const rows = (c.abschlagsverlauf || []).length
+      ? c.abschlagsverlauf.map((e) => ({ ab: e.ab, betrag: je(e) }))
+      : [{ ab: c.beginn || "", betrag: isNum(c.abschlag_je_zahlung) ? String(c.abschlag_je_zahlung) : "" }];
+    this._dlg = { mode: "instal", stage: "form", id: c.entry_id, name: c.title, flowId: null, localize: () => "", fields: [], values: {}, rows, message: null };
+    this._renderInstalDialog();
+  }
+
+  async _saveInstal() {
+    const dlg = this._dlg;
+    const rows = dlg.rows.filter((r) => r.ab || r.betrag).map((r) => ({ ab: r.ab, betrag: r.betrag }));
+    dlg.stage = "saving";
+    dlg.message = null;
+    this._renderInstalDialog();
+    try {
+      await this._hass.callWS({ type: "tariffy/abschlag_verlauf_save", entry_id: dlg.id, rows });
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      const code = String((err && (err.code || (err.body && err.body.code))) || "");
+      const key = `instalErr_${code}`;
+      dlg.stage = "form";
+      dlg.message = I18N[this._lang][key] || I18N.en[key] ? this._t(key) : this._termError(err);
+      this._renderInstalDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderInstalDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const rows = dlg.rows.map((r, i) => h("div", { class: "instal-row" },
+      h("label", { class: "fld" }, h("input", { type: "date", value: r.ab, "aria-label": this._t("instalFrom"), disabled: busy ? "" : null,
+        oninput: (ev) => { r.ab = ev.target.value; } })),
+      h("label", { class: "fld" }, h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: r.betrag, placeholder: this._t("instalAmount"),
+        "aria-label": this._t("instalAmount"), disabled: busy ? "" : null, oninput: (ev) => { r.betrag = ev.target.value.replace(",", "."); } })),
+      h("button", { class: "icon-btn", type: "button", title: this._t("instalRemove"), "aria-label": this._t("instalRemove"), disabled: busy ? "" : null,
+        onclick: () => { dlg.rows.splice(i, 1); this._renderInstalDialog(); } }, icon("close"))));
+    const body = [
+      h("h2", { id: "dlg-title", text: this._t("instalTitle") }),
+      h("p", { class: "hint", text: dlg.name }),
+      h("p", { class: "hint", text: this._t("instalHint") }),
+      h("div", { class: "instal-head" }, h("span", { text: this._t("instalFrom") }), h("span", { text: this._t("instalAmount") }), h("span")),
+      ...rows,
+      dlg.rows.length ? null : h("p", { class: "hint", text: this._t("instalEmptyHint") }),
+      h("button", { class: "btn", type: "button", disabled: busy ? "" : null, onclick: () => { dlg.rows.push({ ab: "", betrag: "" }); this._renderInstalDialog(); } },
+        icon("plus"), this._t("instalAddRow")),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    body.push(h("div", { class: "actions" },
+      h("button", { class: "btn go", type: "button", disabled: busy ? "" : null, text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveInstal() }),
+      h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() })));
+    this._mountDialog(dlg, body, busy);
+  }
+
+  /* the "instalments paid" block of a contract */
+  _instalSection(c) {
+    if (c.sparte === "loan" || !isNum(c.abschlag)) return null;
+    const items = c.abschlagsverlauf || [];
+    if (!items.length && !this._isAdmin) return null;
+    // monthly (the usual case) needs no word, another interval is named
+    const iv = c.zahlweise && c.zahlweise !== "monthly" ? this._t("interval")[c.zahlweise] || "" : "";
+    const rows = items.map((e, i) => h("div", { class: "row once-row" },
+      h("span", {}, `${this._t("instalFrom")} ${this._date(e.ab)}`, i === items.length - 1 ? h("span", { class: "t2", text: this._t("instalNow") }) : null),
+      h("span", { text: `${this._money(e.betrag_je_zahlung, c.currency, { digits: 2 })}${iv ? ` ${iv}` : ""}` })));
+    return h("div", { class: "sec" }, h("h4", { text: this._t("secInstal") }),
+      rows.length ? rows : h("div", { class: "hint", text: this._t("instalNone") }),
+      this._isAdmin ? h("div", { class: "once-add" }, h("button", { class: "btn", type: "button", onclick: () => this._openInstal(c) },
+        icon("edit"), this._t(items.length ? "instalEdit" : "instalEnter"))) : null);
   }
 
   /* ----- outdoor meters of a water contract (garden, pool, ...): not charged wastewater, administrators only ----- */
@@ -2378,6 +2455,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),
       this._onceSection(c),
+      this._instalSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
         usageGrid || row(this._t("soFar"), amount(c.verbrauch_bisher)),
         row(this._t("gardenUse"), amount1(c.garten_verbrauch)),

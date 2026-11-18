@@ -30,6 +30,7 @@ from .const import (
     SPARTE_LOAN,
     CONF_ABSCHLAG,
     CONF_ABSCHLAG_AB_DATUM,
+    CONF_ABSCHLAG_VERLAUF,
     CONF_ABSCHLAG_VORHERIGER_WERT,
     CONF_ABSCHLAG_WARNUNG,
     CONF_ABSCHLAG_WARNUNG_BESTAETIGT,
@@ -177,6 +178,54 @@ def _parse_date(value: Any) -> date | None:
         return None
 
 
+def abschlag_plan(data: dict[str, Any]) -> list[tuple[date, float]]:
+    """Der Abschlagsverlauf des Vertrags (siehe const.CONF_ABSCHLAG_VERLAUF): aufsteigend nach Datum, je
+    Tag ein Eintrag (der spaetere gilt). Unbrauchbare Eintraege (aus einer Sicherung) werden uebergangen;
+    ohne Verlauf eine leere Liste, dann gilt die Rechnung wie bisher."""
+    roh = data.get(CONF_ABSCHLAG_VERLAUF)
+    if not isinstance(roh, list):
+        return []
+    je_tag: dict[date, float] = {}
+    for eintrag in roh:
+        if not isinstance(eintrag, dict):
+            continue
+        tag = _parse_date(eintrag.get("ab"))
+        betrag = _f(eintrag.get("betrag"))
+        if tag is None or betrag is None or betrag <= 0 or betrag != betrag:
+            continue
+        je_tag[tag] = betrag
+    return sorted(je_tag.items())
+
+
+def _abschlag_am(plan: list[tuple[date, float]], abschlag: float, tag: date) -> float:
+    """Monatlicher Abschlag, der am `tag` galt. Vor dem ersten Eintrag gilt dessen Betrag; ab dem letzten
+    Eintrag der aktuelle Abschlag."""
+    gueltig = [i for i, (ab, _betrag) in enumerate(plan) if ab <= tag]
+    if not gueltig:
+        return plan[0][1]
+    i = gueltig[-1]
+    return abschlag if i == len(plan) - 1 else plan[i][1]
+
+
+def _abschlag_aus_plan(
+    plan: list[tuple[date, float]], abschlag: float, vergangene_monate: float, beginn: date
+) -> float:
+    """Bis heute gezahlter Abschlag nach dem Abschlagsverlauf: jeder Betrag gilt fuer die Monate (Tage durch
+    30,44, wie sonst auch) zwischen seinem Datum und dem naechsten."""
+    grenzen = [max(0.0, (ab - beginn).days / 30.44) for ab, _betrag in plan]
+    schnitte = sorted({g for g in grenzen if 0.0 < g < vergangene_monate})
+    summe = 0.0
+    start = 0.0
+    for ende in [*schnitte, vergangene_monate]:
+        if ende > start:
+            gueltig = [i for i, g in enumerate(grenzen) if g <= start]
+            i = gueltig[-1] if gueltig else None
+            betrag = plan[0][1] if i is None else (abschlag if i == len(plan) - 1 else plan[i][1])
+            summe += betrag * (ende - start)
+        start = max(start, ende)
+    return summe
+
+
 def _abschlag_bisher_gezahlt(
     abschlag: float, vergangene_monate: float, beginn: date, data: dict[str, Any]
 ) -> float:
@@ -188,6 +237,9 @@ def _abschlag_bisher_gezahlt(
     (Anpassung empfohlen)" faelschlich optimistischer/pessimistischer
     ausfallen, als tatsaechlich gezahlt wurde).
     """
+    plan = abschlag_plan(data)
+    if plan:  # der Abschlagsverlauf, den der Nutzer eingetragen hat, ersetzt die einzelne Aenderung unten
+        return _abschlag_aus_plan(plan, abschlag, vergangene_monate, beginn)
     ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
     vorheriger_wert = data.get(CONF_ABSCHLAG_VORHERIGER_WERT)
     # Ein vorheriger Wert von 0 heisst: vorher war kein Abschlag eingetragen (aeltere Staende haben
@@ -296,6 +348,7 @@ def _abschlag_nach_zahlungen(
     monat_heute = (heute.year, heute.month)
     ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
     vorher = _f(data.get(CONF_ABSCHLAG_VORHERIGER_WERT))
+    plan = abschlag_plan(data)
     summe = 0.0
     zahlung = 0
     naechste: date | None = None
@@ -311,7 +364,10 @@ def _abschlag_nach_zahlungen(
             intervall != 1 and termin > heute
         ):
             break
-        monatlich = vorher if (ab_datum is not None and vorher and termin < ab_datum) else abschlag
+        if plan:
+            monatlich = _abschlag_am(plan, abschlag, termin)
+        else:
+            monatlich = vorher if (ab_datum is not None and vorher and termin < ab_datum) else abschlag
         summe += round(monatlich * intervall, 2)
         zahlung += 1
     if naechste is None:  # die naechste Abbuchung nach heute, falls der Vertrag dann noch laeuft
@@ -2073,6 +2129,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "guthaben_bisher": (
                 round(guthaben_bisher + einmal_laufend, 2) if guthaben_bisher is not None else None
             ),
+            "abschlagsverlauf": [
+                {"ab": tag.isoformat(), "betrag": round(betrag, 6), "betrag_je_zahlung": round(betrag * ZAHLWEISE_MONATE[zahlweise], 2)}
+                for tag, betrag in abschlag_plan(data)
+            ],
             "einmalposten": einmal_liste,
             "einmal_summe": einmal_gesamt,
             "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,
