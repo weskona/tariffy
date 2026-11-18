@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.5] - 2026-11-18
+
+### Changed
+
+- **Das Panel ist in mehrere Dateien aufgeteilt** (intern, für dich ändert sich nichts): der Code (`tariffy-panel.js`), die Texte (`tariffy-i18n.js`), die Icons (`tariffy-icons.js`) und die Styles (`tariffy-style.js`) liegen jetzt in eigenen Dateien im Ordner `frontend/`. Die Teile werden mit der Version der Panel-Datei in der URL geladen, damit ein Browser nach einem Update nie neuen Code mit alten Texten mischt. Was das Panel zeigt, ist identisch (Ansicht für Ansicht gegen die vorige Version geprüft); das Größenlimit gilt jetzt je Datei. Nach dem Update die Browserseite einmal neu laden (Strg+F5).
+
 ## [1.32.0-beta.4] - 2026-11-18
 
 ### Added
