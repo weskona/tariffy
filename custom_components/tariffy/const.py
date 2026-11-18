@@ -230,6 +230,7 @@ NEXT_PREFIX = "next_"
 
 # Felder die beim Wechsel übernommen werden
 BASIS_FELDER = [
+    CONF_ZAHLWEISE,
     CONF_ANBIETER,
     CONF_KUNDENNUMMER,
     CONF_TARIF,

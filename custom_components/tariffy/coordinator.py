@@ -878,6 +878,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for feld in BASIS_FELDER:
             wert = nxt.get(NEXT_PREFIX + feld)
             new_data[feld] = wert if wert not in (None, "") else self.entry.data.get(feld)
+        if new_data.get(CONF_ZAHLWEISE) is None:  # Verbrauchsvertraege haben keine Zahlweise
+            new_data.pop(CONF_ZAHLWEISE, None)
         # Verbrauch der letzten Laufzeit einfrieren — inkl. ihrer tatsächlichen
         # Dauer in Monaten, damit empfohlener_abschlag nicht von einem festen
         # 12-Monats-Jahr ausgehen muss.

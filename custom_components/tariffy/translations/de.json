@@ -716,6 +716,20 @@
           "next_zustandszahl": "Zustandszahl neu",
           "next_ende": "Vertragsende neu / Laufzeit bis"
         }
+      },
+      "init_pauschal": {
+        "title": "Folgevertrag planen",
+        "description": "Trage die nächste Laufzeit ein. Zum Beginn übernimmt Home Assistant sie automatisch; nicht ausgefüllte Felder behalten den aktuellen Wert. Der Beginn ist der Tag nach dem Vertragsende vorgeschlagen. 'Beginn' leer lassen entfernt einen geplanten Vertrag.",
+        "data": {
+          "next_beginn": "Beginn der neuen Laufzeit",
+          "next_tarif": "Tarifname (neu)",
+          "next_zahlweise": "Zahlweise (neu)",
+          "next_abschlag": "Betrag pro Zahlung (neu, €)",
+          "next_ende": "Ende der neuen Laufzeit / gültig bis",
+          "next_anbieter": "Anbieter (neu)",
+          "next_kundennummer": "Kundennummer (neu)",
+          "next_grundpreis": "Grundpreis neu (€/Monat)"
+        }
       }
     },
     "error": {

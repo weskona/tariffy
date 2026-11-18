@@ -7,6 +7,16 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.9] - 2026-11-19
+
+### Changed
+
+- **Folgevertrag planen (Pauschalverträge): ein kürzeres Formular mit der Zahlweise.** Bei Streaming, Internet, Mobilfunk, Versicherung, Leasing und Ähnlichem fragt das Formular jetzt nach **Beginn** (ohne Eingabe der Tag nach dem Ende des laufenden Vertrags vorgeschlagen), **Tarifname**, **Zahlweise** (so lässt sich von jährlich auf monatlich wechseln), **Betrag pro Zahlung** und **Ende**. Anbieter, Kundennummer und Grundpreis gibt es nur noch, wenn ein schon geplanter Vertrag sie hat. Beim Wechsel werden die neue Zahlweise und der neue Betrag übernommen (der Betrag je Zahlung wird wie überall als Monatsbetrag gespeichert); ein Wert, den du nicht änderst, bleibt wie im laufenden Vertrag. Verbrauchsverträge (Strom, Gas, Wasser) behalten ihr Formular.
+
+### Fixed
+
+- **Ein Pauschalvertrag mit jährlicher, halbjährlicher oder vierteljährlicher Zahlung fiel beim automatischen Wechsel auf monatlich zurück.** Die Zahlweise wird jetzt in die neue Laufzeit übernommen (oder durch die geplante ersetzt).
+
 ## [1.32.0-beta.8] - 2026-11-18
 
 ### Added

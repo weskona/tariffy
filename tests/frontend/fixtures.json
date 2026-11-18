@@ -3026,33 +3026,14 @@
     "contract-5": {
       "data_schema": [
         {
+          "description": {
+            "suggested_value": "2026-10-01"
+          },
           "name": "next_beginn",
           "optional": true,
           "required": false,
           "selector": {
             "date": {}
-          }
-        },
-        {
-          "name": "next_anbieter",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "text": {
-              "multiline": false,
-              "multiple": false
-            }
-          }
-        },
-        {
-          "name": "next_kundennummer",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "text": {
-              "multiline": false,
-              "multiple": false
-            }
           }
         },
         {
@@ -3067,19 +3048,28 @@
           }
         },
         {
-          "name": "next_abschlag",
+          "default": "monthly",
+          "name": "next_zahlweise",
           "optional": true,
           "required": false,
           "selector": {
-            "number": {
-              "min": 0.0,
-              "mode": "box",
-              "step": 0.01
+            "select": {
+              "custom_value": false,
+              "mode": "dropdown",
+              "multiple": false,
+              "options": [
+                "monthly",
+                "quarterly",
+                "halfyearly",
+                "yearly"
+              ],
+              "sort": false,
+              "translation_key": "zahlweise"
             }
           }
         },
         {
-          "name": "next_grundpreis",
+          "name": "next_abschlag",
           "optional": true,
           "required": false,
           "selector": {
@@ -3100,12 +3090,12 @@
         }
       ],
       "description_placeholders": null,
-      "errors": {},
+      "errors": null,
       "flow_id": "flow-5",
       "handler": "contract-5",
       "last_step": null,
       "preview": null,
-      "step_id": "init",
+      "step_id": "init_pauschal",
       "type": "form"
     },
     "contract-6": {
@@ -3123,31 +3113,6 @@
         },
         {
           "description": {
-            "suggested_value": "Mobil Plus"
-          },
-          "name": "next_anbieter",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "text": {
-              "multiline": false,
-              "multiple": false
-            }
-          }
-        },
-        {
-          "name": "next_kundennummer",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "text": {
-              "multiline": false,
-              "multiple": false
-            }
-          }
-        },
-        {
-          "description": {
             "suggested_value": "Flat 20 GB"
           },
           "name": "next_tarif",
@@ -3157,6 +3122,27 @@
             "text": {
               "multiline": false,
               "multiple": false
+            }
+          }
+        },
+        {
+          "default": "monthly",
+          "name": "next_zahlweise",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "select": {
+              "custom_value": false,
+              "mode": "dropdown",
+              "multiple": false,
+              "options": [
+                "monthly",
+                "quarterly",
+                "halfyearly",
+                "yearly"
+              ],
+              "sort": false,
+              "translation_key": "zahlweise"
             }
           }
         },
@@ -3176,14 +3162,16 @@
           }
         },
         {
-          "name": "next_grundpreis",
+          "description": {
+            "suggested_value": "Mobil Plus"
+          },
+          "name": "next_anbieter",
           "optional": true,
           "required": false,
           "selector": {
-            "number": {
-              "min": 0.0,
-              "mode": "box",
-              "step": 0.01
+            "text": {
+              "multiline": false,
+              "multiple": false
             }
           }
         },
@@ -3200,12 +3188,12 @@
         }
       ],
       "description_placeholders": null,
-      "errors": {},
+      "errors": null,
       "flow_id": "flow-6",
       "handler": "contract-6",
       "last_step": null,
       "preview": null,
-      "step_id": "init",
+      "step_id": "init_pauschal",
       "type": "form"
     },
     "contract-7": {
@@ -3432,33 +3420,14 @@
     "contract-9": {
       "data_schema": [
         {
+          "description": {
+            "suggested_value": "2028-11-01"
+          },
           "name": "next_beginn",
           "optional": true,
           "required": false,
           "selector": {
             "date": {}
-          }
-        },
-        {
-          "name": "next_anbieter",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "text": {
-              "multiline": false,
-              "multiple": false
-            }
-          }
-        },
-        {
-          "name": "next_kundennummer",
-          "optional": true,
-          "required": false,
-          "selector": {
-            "text": {
-              "multiline": false,
-              "multiple": false
-            }
           }
         },
         {
@@ -3473,19 +3442,28 @@
           }
         },
         {
-          "name": "next_abschlag",
+          "default": "monthly",
+          "name": "next_zahlweise",
           "optional": true,
           "required": false,
           "selector": {
-            "number": {
-              "min": 0.0,
-              "mode": "box",
-              "step": 0.01
+            "select": {
+              "custom_value": false,
+              "mode": "dropdown",
+              "multiple": false,
+              "options": [
+                "monthly",
+                "quarterly",
+                "halfyearly",
+                "yearly"
+              ],
+              "sort": false,
+              "translation_key": "zahlweise"
             }
           }
         },
         {
-          "name": "next_grundpreis",
+          "name": "next_abschlag",
           "optional": true,
           "required": false,
           "selector": {
@@ -3506,12 +3484,12 @@
         }
       ],
       "description_placeholders": null,
-      "errors": {},
+      "errors": null,
       "flow_id": "flow-9",
       "handler": "contract-9",
       "last_step": null,
       "preview": null,
-      "step_id": "init",
+      "step_id": "init_pauschal",
       "type": "form"
     }
   },
