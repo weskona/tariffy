@@ -1701,14 +1701,15 @@ class TariffyPanel extends HTMLElement {
   }
 
   /* ----- instalments paid: one amount per month of the term, administrators only ----- */
-  // the months of the term up to this month, each with the instalment that applied in it
+  // the months of the term (all of them when the contract has an end, else up to this month), each with the instalment that
+  // applied in it; months that have not begun are locked and show the current instalment
   _instalMonths(c) {
     const first = /^(\d{4})-(\d{2})/.exec(c.beginn || "");
     if (!first) return [];
     const now = new Date();
-    let last = [now.getFullYear(), now.getMonth() + 1];
+    const here = now.getFullYear() * 12 + now.getMonth();
     const end = /^(\d{4})-(\d{2})/.exec(c.ende || "");
-    if (end && (Number(end[1]) < last[0] || (Number(end[1]) === last[0] && Number(end[2]) < last[1]))) last = [Number(end[1]), Number(end[2])];
+    const last = end ? [Number(end[1]), Number(end[2])] : [now.getFullYear(), now.getMonth() + 1];
     const entries = c.abschlagsverlauf || [];
     const current = isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : null;
     const months = [];
@@ -1718,8 +1719,9 @@ class TariffyPanel extends HTMLElement {
       const iso = `${y}-${String(m).padStart(2, "0")}-01`;
       const lastDay = `${y}-${String(m).padStart(2, "0")}-31`; // an entry inside the month counts for the month
       const valid = entries.filter((e) => e.ab <= lastDay);
-      const value = entries.length ? (valid.length ? valid[valid.length - 1] : entries[0]).betrag_je_zahlung : current;
-      months.push({ iso, label: new Intl.DateTimeFormat(this._locale, { month: "long", year: "numeric" }).format(new Date(y, m - 1, 1)),
+      const future = y * 12 + (m - 1) > here;
+      const value = future ? current : entries.length ? (valid.length ? valid[valid.length - 1] : entries[0]).betrag_je_zahlung : current;
+      months.push({ iso, future, label: new Intl.DateTimeFormat(this._locale, { month: "long", year: "numeric" }).format(new Date(y, m - 1, 1)),
         betrag: isNum(value) ? String(value) : "" });
       m += 1;
       if (m > 12) { m = 1; y += 1; }
@@ -1740,7 +1742,7 @@ class TariffyPanel extends HTMLElement {
     // a month without an amount takes the one before; only the months where the amount changes are sent
     const rows = [];
     let before = null;
-    for (const month of dlg.months) {
+    for (const month of dlg.months.filter((x) => !x.future)) {
       const text = String(month.betrag || "").trim();
       const value = text === "" ? before : text;
       if (value === null) { dlg.message = this._t("instalErr_first"); this._renderInstalDialog(); return; }
@@ -1770,25 +1772,33 @@ class TariffyPanel extends HTMLElement {
     if (!dlg) return;
     const busy = dlg.stage === "saving";
     const inputs = [];
+    // the months that have not begun show the instalment of the last month that has (the current one)
+    const syncFuture = () => {
+      const began = dlg.months.filter((x) => !x.future);
+      const now = began.length ? began[began.length - 1].betrag : null;
+      dlg.months.forEach((x, j) => { if (x.future && now !== null) { x.betrag = now; if (inputs[j]) inputs[j].value = now; } });
+    };
     const rows = dlg.months.map((month, i) => {
       const input = h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: month.betrag, "aria-label": `${month.label}: ${this._t("instalAmount")}`,
-        disabled: busy ? "" : null, oninput: (ev) => { month.betrag = ev.target.value.replace(",", "."); },
+        disabled: busy || month.future ? "" : null, oninput: (ev) => { month.betrag = ev.target.value.replace(",", "."); },
         // a finished edit also applies to the following months that still had the old amount
         onchange: (ev) => {
           ev.target.value = month.betrag; // a comma typed as decimal separator is shown as the dot that is stored
           const old = month.before;
           month.before = month.betrag;
           for (let j = i + 1; j < dlg.months.length; j += 1) {
-            if (dlg.months[j].betrag !== old) continue;
+            if (dlg.months[j].future || dlg.months[j].betrag !== old) continue;
             dlg.months[j].betrag = month.betrag;
             dlg.months[j].before = month.betrag;
             inputs[j].value = month.betrag;
           }
+          syncFuture();
         } });
       month.before = month.betrag;
       inputs.push(input);
-      return h("label", { class: "instal-row" }, h("span", { text: month.label }), h("span", { class: "fld" }, input));
+      return h("label", { class: `instal-row${month.future ? " instal-future" : ""}` }, h("span", { text: month.label }), h("span", { class: "fld" }, input));
     });
+    syncFuture();
     const body = [
       h("h2", { id: "dlg-title", text: this._t("instalTitle") }),
       h("p", { class: "hint", text: dlg.name }),
@@ -1801,7 +1811,7 @@ class TariffyPanel extends HTMLElement {
     ];
     if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
     body.push(h("div", { class: "actions" },
-      h("button", { class: "btn go", type: "button", disabled: busy || !dlg.months.length ? "" : null, text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveInstal() }),
+      h("button", { class: "btn go", type: "button", disabled: busy || !dlg.months.some((x) => !x.future) ? "" : null, text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveInstal() }),
       h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() })));
     this._mountDialog(dlg, body, busy);
   }

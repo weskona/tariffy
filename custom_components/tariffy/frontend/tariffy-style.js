@@ -198,6 +198,8 @@ tr.sub td:first-child { padding-left: 32px; }
 .instal-head { color: var(--muted); font-size: 12px; font-weight: 600; padding-bottom: 4px; position: sticky; top: 0; background: var(--panel); }
 .instal-row { padding: 3px 0; font-size: 14px; }
 .instal-row .fld { margin: 0; display: block; }
+.instal-future { color: var(--dim); }
+.instal-future input { opacity: .55; cursor: not-allowed; }
 .once-add { margin-top: 8px; }
 .chart { margin-bottom: 22px; }
 .chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }

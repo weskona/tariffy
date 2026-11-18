@@ -84,7 +84,7 @@ Hat ein Vertrag eine **Historie** (zum Beispiel weil du ihn jährlich **verläng
 | August | 174,41 € |
 | September bis heute | 215,00 € |
 
-- Der Dialog **Abschläge bearbeiten** listet **jeden Monat der Laufzeit bis heute** (bei einem Vertrag von März bis Februar also März, April, … bis zum laufenden Monat), jeweils mit einem Feld für den Abschlag. Speichern gilt für alle Monate zusammen.
+- Der Dialog **Abschläge bearbeiten** listet **jeden Monat der Laufzeit** (bei einem Vertrag von März bis Februar also März, April, … Februar), jeweils mit einem Feld für den Abschlag. Monate, die **noch nicht begonnen haben, sind gesperrt** und zeigen den aktuellen Abschlag; erst wenn der Monat beginnt, lässt er sich bearbeiten. Hat der Vertrag kein Ende, stehen die Monate bis zum laufenden Monat da. Speichern gilt für alle Monate zusammen.
 - Eine Änderung gilt **auch für die folgenden Monate, die noch denselben Betrag haben**: Du trägst 178 im März ein, 174,41 im August und 215 im September; mehr ist nicht zu tun. Ein leeres Feld übernimmt den Betrag des Vormonats.
 - Der **letzte Monat ist der aktuelle Abschlag**: Tariffy übernimmt seinen Betrag als Abschlag des Vertrags. Bei nicht monatlicher Zahlweise gibst du den Betrag **je Zahlung** ein. Der Vertrag braucht einen Beginn.
 - Gespeichert werden nur die Monate, in denen sich der Betrag ändert, jeweils ab dem Ersten des Monats (höchstens 60). Eine Änderung mitten im Monat, die Tariffy beim Bearbeiten selbst vermerkt hat, zählt beim Speichern ab dem Monatsersten.

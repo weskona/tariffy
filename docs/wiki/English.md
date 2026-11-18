@@ -320,7 +320,7 @@ If the supplier changes the instalment by itself, Tariffy calculates with the ne
 | August | 174.41 € |
 | September until today | 215.00 € |
 
-- The dialog **Edit instalments** lists **every month of the term up to today** (for a contract from March to February: March, April, … up to the current month), each with a field for the instalment. Saving applies to all months together.
+- The dialog **Edit instalments** lists **every month of the term** (for a contract from March to February: March, April, … February), each with a field for the instalment. Months that **have not begun yet are locked** and show the current instalment; a month can be edited once it has begun. A contract without an end shows the months up to the current one. Saving applies to all months together.
 - A change also applies to **the following months that still have the same amount**: enter 178 for March, 174.41 for August and 215 for September, nothing more. An empty field takes the amount of the month before.
 - The **last month is the current instalment**: Tariffy takes its amount as the instalment of the contract. With a payment interval other than monthly you enter the amount **per payment**. The contract needs a start date.
 - Only the months where the amount changes are stored, each from the first of the month (60 at most). A change in the middle of a month that Tariffy noted itself when you edited counts from the first of the month once you save.
