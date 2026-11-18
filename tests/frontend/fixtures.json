@@ -85,6 +85,7 @@
           "verbrauch": 3340.0
         }
       ],
+      "icon": null,
       "jahreskosten": 478.32,
       "km_aktuell": null,
       "km_gesamt": null,
@@ -210,6 +211,7 @@
       "grundpreis": 9.5,
       "guthaben_bisher": 452.39,
       "historie": [],
+      "icon": null,
       "jahreskosten": 1674.11,
       "km_aktuell": null,
       "km_gesamt": null,
@@ -344,6 +346,7 @@
       "grundpreis": 6.0,
       "guthaben_bisher": 7.92,
       "historie": [],
+      "icon": null,
       "jahreskosten": 334.82,
       "km_aktuell": null,
       "km_gesamt": null,
@@ -469,6 +472,7 @@
       "grundpreis": 12.0,
       "guthaben_bisher": -186.57,
       "historie": [],
+      "icon": null,
       "jahreskosten": 657.69,
       "km_aktuell": null,
       "km_gesamt": null,
@@ -594,6 +598,7 @@
       "grundpreis": null,
       "guthaben_bisher": null,
       "historie": [],
+      "icon": null,
       "jahreskosten": 478.2,
       "km_aktuell": null,
       "km_gesamt": null,
@@ -719,6 +724,7 @@
       "grundpreis": null,
       "guthaben_bisher": null,
       "historie": [],
+      "icon": null,
       "jahreskosten": 339.51,
       "km_aktuell": null,
       "km_gesamt": null,
@@ -883,6 +889,7 @@
           "verbrauch": 2890.0
         }
       ],
+      "icon": null,
       "jahreskosten": 839.36,
       "km_aktuell": null,
       "km_gesamt": null,
@@ -1008,6 +1015,7 @@
       "grundpreis": null,
       "guthaben_bisher": null,
       "historie": [],
+      "icon": null,
       "jahreskosten": null,
       "km_aktuell": null,
       "km_gesamt": null,
@@ -1133,6 +1141,7 @@
       "grundpreis": null,
       "guthaben_bisher": null,
       "historie": [],
+      "icon": "mdi:car-side",
       "jahreskosten": 10396.02,
       "km_aktuell": 21500.0,
       "km_gesamt": null,
@@ -1286,6 +1295,14 @@
               "multiline": false,
               "multiple": false
             }
+          }
+        },
+        {
+          "name": "icon",
+          "optional": true,
+          "required": false,
+          "selector": {
+            "icon": {}
           }
         },
         {
@@ -3528,6 +3545,14 @@
             }
           },
           {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
+            }
+          },
+          {
             "description": {
               "suggested_value": "2026-01-01"
             },
@@ -3951,6 +3976,14 @@
             }
           },
           {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
+            }
+          },
+          {
             "description": {
               "suggested_value": "2025-09-01"
             },
@@ -4332,6 +4365,14 @@
             }
           },
           {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
+            }
+          },
+          {
             "description": {
               "suggested_value": "2026-01-01"
             },
@@ -4680,6 +4721,14 @@
                 "multiline": false,
                 "multiple": false
               }
+            }
+          },
+          {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
             }
           },
           {
@@ -5172,6 +5221,14 @@
             }
           },
           {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
+            }
+          },
+          {
             "description": {
               "suggested_value": "2025-10-01"
             },
@@ -5418,6 +5475,14 @@
             }
           },
           {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
+            }
+          },
+          {
             "description": {
               "suggested_value": "2025-08-01"
             },
@@ -5655,6 +5720,14 @@
                 "multiline": false,
                 "multiple": false
               }
+            }
+          },
+          {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
             }
           },
           {
@@ -6078,6 +6151,14 @@
             }
           },
           {
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
+            }
+          },
+          {
             "description": {
               "suggested_value": "2024-03-01"
             },
@@ -6369,6 +6450,17 @@
                 "multiline": false,
                 "multiple": false
               }
+            }
+          },
+          {
+            "description": {
+              "suggested_value": "mdi:car-side"
+            },
+            "name": "icon",
+            "optional": true,
+            "required": false,
+            "selector": {
+              "icon": {}
             }
           },
           {

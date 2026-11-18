@@ -101,6 +101,9 @@ VERSICHERUNGSARTEN = [
     "other",
 ]
 
+# Eigenes Icon eines Vertrags (mdi:...): gilt im Panel und fuer die Sensoren des Vertrags
+CONF_ICON = "icon"
+
 # Leasing (Sparte "leasing"): ein Pauschalvertrag (Rate, Beginn, Ende) mit Kilometern. Der Kilometerstand
 # kommt aus einem Sensor oder wird von Hand eingetragen; die erlaubten Kilometer ergeben sich aus
 # km_pro_jahr (mit Laufzeit) oder aus dem Gesamtwert. Mehr-/Minderkilometer ausserhalb der Toleranz

@@ -32,6 +32,7 @@ from .const import (
     CONF_ENDE,
     CONF_GRUNDPREIS,
     CONF_JAHRESVERBRAUCH,
+    CONF_ICON,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
     CONF_KM_START,
@@ -786,6 +787,9 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
     def icon(self) -> str | None:
         if self.entity_description.icon_fn is not None:
             return self.entity_description.icon_fn(self.coordinator.data or {})
+        eigenes = (self.coordinator.data or {}).get(CONF_ICON)
+        if eigenes:  # das eigene Icon des Vertrags; Sensoren mit Statusicon (Guthaben/Nachzahlung) behalten ihres
+            return str(eigenes)
         if self.entity_description.currency_icon:
             currency = (self.coordinator.data or {}).get("currency", "EUR")
             return _CURRENCY_ICON.get(currency, "mdi:cash")

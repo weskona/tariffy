@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-beta.2] - 2026-11-18
+
+### Added
+
+- **Own icon for every contract** (requested in #93). The first step of the contract form (create and edit) has an optional field **Icon** (for example `mdi:car`, with the icon picker of Home Assistant). The icon is used in the **panel** (cards and lists, the category icon is the fallback) and for the **sensors of the contract**; sensors with a status symbol (balance with thumb up/down, price) keep theirs. Empty = the icon of the category, nothing changes for existing contracts. A tariff switch keeps the icon.
+
+### Changed
+
+- **Leasing contracts stand in the group "Loans / financing"** of the overview and the list of contracts (reported in #90). They still count in the totals and in the cost split like any flat-rate contract.
+
 ## [1.32.0-beta.1] - 2026-11-17
 
 First beta of 1.32.0. Please report problems with the bug report form and mention this exact version.

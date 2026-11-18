@@ -282,9 +282,13 @@ The category **Loan / financing** is for annuity loans (mortgages), instalment l
 
 **Follow-up financing:** in the **Contracts** tab the loan has the icon **Renew contract**. The dialog suggests the remaining debt as the new amount, plus interest and term; the current term goes to the history. A loan has no icon for a next contract.
 
+## Own icon of a contract
+
+In the first step of the contract form (create and edit) the optional field **Icon** takes an icon name such as `mdi:car` or `mdi:router-wireless`. It is used in the **panel** (cards and lists) and for the **sensors of the contract** in Home Assistant. Sensors with a status symbol (balance: thumb up/down, price: fixed or dynamic) keep theirs. Empty = the icon of the category, as before. A tariff switch keeps the icon.
+
 ## Leasing
 
-The category **Leasing** is for a car lease. The rate is a normal **flat-rate** contract (instalment, start, end = return date, reminder, notice period); on top of that Tariffy watches the **kilometres**. Everything about the kilometres is optional.
+The category **Leasing** is for a car lease. The rate is a normal **flat-rate** contract (instalment, start, end = return date, reminder, notice period) and counts in the totals; in the panel the contract stands in the group **Loans / financing**. On top of that Tariffy watches the **kilometres**. Everything about the kilometres is optional.
 
 | Field | Required | Description |
 |-------|----------|-------------|

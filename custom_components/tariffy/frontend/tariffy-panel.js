@@ -475,6 +475,7 @@ section.card .foot { padding-top: 12px; }
 .foot b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
 .badge { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
   background: var(--tile); border: 1px solid var(--tile-line); color: var(--blue); }
+.badge ha-icon { --mdc-icon-size: 22px; width: 22px; height: 22px; display: block; }
 .badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .badge.gas { color: var(--orange); } .badge.water { color: #38bdf8; } .badge.electricity,
 .badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); } .badge.streaming { color: #f472b6; } .badge.loan { color: #fbbf24; } .badge.leasing { color: #38bdf8; }
@@ -999,8 +1000,8 @@ class TariffyPanel extends HTMLElement {
       // and leaves the whole panel empty for anyone who has only metered or only flat-rate contracts)
       for (const section of [
         group("groupMetered", this._live.filter((c) => METERED.has(c.sparte)), "metered"),
-        group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte)), "flat"),
-        group("groupLoans", this._loans, "flat"),
+        group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte) && c.sparte !== "leasing"), "flat"),
+        group("groupLoans", this._financing, "flat"),
       ]) {
         if (section) wrap.appendChild(section);
       }
@@ -1038,9 +1039,24 @@ class TariffyPanel extends HTMLElement {
     );
   }
 
+  /* the group "Loans / financing" of the overview and the list: the loans (kept apart from the totals) and the
+     leases, which stand there too but count in the totals like any flat-rate contract */
+  get _financing() {
+    return [...this._loans, ...this._live.filter((c) => c.sparte === "leasing")];
+  }
+
   /* ----- loans / financing (kept apart from the contracts and their totals) ----- */
   get _loans() {
     return (this._contracts || []).filter((c) => c.sparte === "loan" && !c.archiviert);
+  }
+
+  /* the badge icon: the own icon of the contract (mdi:...) when HA can draw it, else the one of the category */
+  _icon(c) {
+    const own = typeof c.icon === "string" && /^[a-z0-9_-]+:[a-z0-9_-]+$/i.test(c.icon) ? c.icon : null;
+    if (own && customElements.get("ha-icon")) {
+      return Object.assign(document.createElement("ha-icon"), { icon: own, className: "own-icon" });
+    }
+    return icon(c.sparte);
   }
 
   _loanSub(c) {
@@ -1104,7 +1120,7 @@ class TariffyPanel extends HTMLElement {
     if (this._compact) {
       const card = h("details", { class: "card compact tone-none".replace(" tone-none", ""), "data-id": c.entry_id },
         h("summary", {},
-          h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+          h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
           this._who(c),
           h("div", { class: "end", text: isNum(c.kredit_restschuld) ? this._money(c.kredit_restschuld, c.currency) : "–" }),
           h("span", { class: "caret", "aria-hidden": "true" }, icon("chevron")),
@@ -1118,7 +1134,7 @@ class TariffyPanel extends HTMLElement {
       return card;
     }
     return h("section", { class: "card flat", "data-id": c.entry_id },
-      h("div", { class: "head" }, h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)), this._who(c), this._chips(d.chips)),
+      h("div", { class: "head" }, h("div", { class: `badge ${c.sparte}` }, this._icon(c)), this._who(c), this._chips(d.chips)),
       body.map((part) => part || h("div", { class: "slot" })));
   }
 
@@ -1487,7 +1503,7 @@ class TariffyPanel extends HTMLElement {
       const card = h(
         "details", { class: `card compact${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", ""), "data-id": c.entry_id },
         h("summary", {},
-          h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+          h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
           this._who(c),
           h("div", { class: `end ${heroTone}`, text: flat
             ? `${this._money(heroValue, c.currency, { digits: 2 })} ${this._t("perMonth")}`
@@ -1505,7 +1521,7 @@ class TariffyPanel extends HTMLElement {
     return h(
       "section", { class: `card${flat ? " flat" : ""}${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", "") },
       h("div", { class: "head" },
-        h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+        h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
         this._who(c),
         this._chips(d.chips)),
       // always six blocks: cards in one row share their rows (subgrid), so the figures line up across the cards
@@ -1593,7 +1609,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   _fieldSpec(raw, dlg, step) {
-    const kind = ["date", "text", "number", "select", "entity", "boolean"].find((k) => raw.selector && k in raw.selector) || null;
+    const kind = ["date", "text", "number", "select", "entity", "boolean", "icon"].find((k) => raw.selector && k in raw.selector) || null;
     const sel = kind === "select" ? raw.selector.select : {};
     const suggested = raw.description && raw.description.suggested_value;
     const initial = suggested !== undefined && suggested !== null ? suggested : raw.default;
@@ -2888,7 +2904,7 @@ class TariffyPanel extends HTMLElement {
       }, icon("edit"))) : null);
     const contractBlock = (c) => h("div", { class: "hist", "data-id": c.entry_id },
       h("div", { class: "hist-head" },
-        h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+        h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
         this._who(c),
         c.archiviert ? h("span", { class: "chip", text: this._t("archived") }) : null),
       h("table", {},
@@ -2917,8 +2933,8 @@ class TariffyPanel extends HTMLElement {
       list.map((c) => this._detail(c))) : null);
     return h("div", {}, head,
       group("groupMetered", this._live.filter((c) => METERED.has(c.sparte))),
-      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte))),
-      group("groupLoans", this._loans));
+      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte) && c.sparte !== "leasing")),
+      group("groupLoans", this._financing));
   }
 
   /* Everything that changes a contract lives here, in the list of contracts (administrators only). */
@@ -3031,7 +3047,7 @@ class TariffyPanel extends HTMLElement {
     const details = h(
       "details", { "data-id": c.entry_id },
       h("summary", {},
-        h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+        h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
         this._who(c),
         this._chips(d.chips),
         h("div", { class: `end ${!flat && d.hasMetering ? (c.prognose_real < 0 ? "red-t" : "green-t") : ""}`, text: endValue }),

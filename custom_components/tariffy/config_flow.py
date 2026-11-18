@@ -60,6 +60,7 @@ from .const import (
     CONF_JAHRESVERBRAUCH,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
+    CONF_ICON,
     CONF_KM_AKTUELL,
     CONF_KM_GESAMT,
     CONF_KM_SENSOR,
@@ -482,6 +483,7 @@ def _common_schema(
         fields[vol.Required(CONF_ANBIETER)] = selector.TextSelector()
     fields[_opt(CONF_KUNDENNUMMER, d.get(CONF_KUNDENNUMMER))] = selector.TextSelector()
     fields[_opt(CONF_TARIF, d.get(CONF_TARIF))] = selector.TextSelector()
+    fields[_opt(CONF_ICON, d.get(CONF_ICON))] = selector.IconSelector()
     fields[_opt(CONF_BEGINN, d.get(CONF_BEGINN))] = selector.DateSelector()
     fields[_opt(CONF_ENDE, d.get(CONF_ENDE))] = selector.DateSelector()
     fields[_opt(CONF_MINDESTLAUFZEIT, d.get(CONF_MINDESTLAUFZEIT))] = _monate_feld()

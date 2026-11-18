@@ -7,6 +7,16 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.2] - 2026-11-18
+
+### Added
+
+- **Eigenes Icon für jeden Vertrag** (gewünscht in #93). Der erste Schritt des Vertragsformulars (Anlegen und Bearbeiten) hat ein freiwilliges Feld **Icon** (zum Beispiel `mdi:car`, mit der Icon-Auswahl von Home Assistant). Das Icon gilt im **Panel** (Karten und Listen, ersatzweise das Icon der Sparte) und für die **Sensoren des Vertrags**; Sensoren mit Statussymbol (Guthaben mit Daumen hoch/runter, Preis) behalten ihres. Leer = das Icon der Sparte, bei bestehenden Verträgen ändert sich nichts. Ein Tarifwechsel behält das Icon.
+
+### Changed
+
+- **Leasingverträge stehen in der Gruppe „Kredite / Finanzierungen“** der Übersicht und der Vertragsliste (gemeldet in #90). Sie zählen weiter wie jeder Pauschalvertrag in den Summen und der Kostenaufteilung mit.
+
 ## [1.32.0-beta.1] - 2026-11-17
 
 Erste Beta von 1.32.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
