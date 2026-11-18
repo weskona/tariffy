@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date, timedelta
 from typing import Any
 
 import voluptuous as vol
@@ -32,6 +33,7 @@ from .const import (
     CONF_SCHLUSSRATE,
     CONF_SOLLZINS,
     SPARTE_LOAN,
+    SPARTE_STREAMING,
     CONF_AUSSENZAEHLER,
     CONF_EINMALPOSTEN,
     CONF_ABSCHLAG_AB_DATUM,
@@ -945,6 +947,43 @@ def _next_schema(d: dict[str, Any], *, energie: bool, gas: bool = False, ht_nt: 
     return vol.Schema(fields)
 
 
+def _next_streaming_schema(
+    d: dict[str, Any], *, ende: str | None, zahlweise: str, aus_optionen: bool
+) -> vol.Schema:
+    """Folgevertrag der Sparte Streaming: Beginn (ohne eigene Angabe der Tag
+    nach dem Ende des laufenden Vertrags), Tarifname, Zahlweise und ein Betrag je Zahlung, dazu das Ende. Anbieter,
+    Kundennummer und Grundpreis gibt es nur noch, wenn der geplante Vertrag sie schon hat."""
+
+    def k(b: str) -> str:
+        return NEXT_PREFIX + b
+
+    gewaehlt = d.get(k(CONF_ZAHLWEISE)) if d.get(k(CONF_ZAHLWEISE)) in ZAHLWEISE_MONATE else zahlweise
+    beginn = d.get(k(CONF_BEGINN))
+    if not beginn and ende:
+        try:
+            beginn = (date.fromisoformat(str(ende)) + timedelta(days=1)).isoformat()
+        except ValueError:
+            beginn = None
+    betrag = d.get(k(CONF_ABSCHLAG))
+    if aus_optionen and betrag not in (None, ""):  # gespeichert wird der Monatsbetrag, gezeigt der Betrag je Zahlung
+        betrag = round(float(betrag) * ZAHLWEISE_MONATE[gewaehlt], 2)
+    fields: dict[Any, Any] = {
+        _opt(k(CONF_BEGINN), beginn): selector.DateSelector(),
+        _opt(k(CONF_TARIF), d.get(k(CONF_TARIF))): selector.TextSelector(),
+        vol.Optional(k(CONF_ZAHLWEISE), default=gewaehlt): _select(list(ZAHLWEISE_MONATE), translation_key="zahlweise"),
+        _opt(k(CONF_ABSCHLAG), betrag): _preis(0.01),
+    }
+    for geerbt, selektor in (
+        (CONF_ANBIETER, selector.TextSelector()),
+        (CONF_KUNDENNUMMER, selector.TextSelector()),
+        (CONF_GRUNDPREIS, _preis(0.01)),
+    ):
+        if d.get(k(geerbt)) not in (None, ""):
+            fields[_opt(k(geerbt), d.get(k(geerbt)))] = selektor
+    fields[_opt(k(CONF_ENDE), d.get(k(CONF_ENDE)))] = selector.DateSelector()
+    return vol.Schema(fields)
+
+
 # ------------------------------------------------------------------- flows
 class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     """Anlegen eines Vertrags in zwei Schritten."""
@@ -1284,10 +1323,40 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
 class TariffyOptionsFlow(OptionsFlowWithReload):
     """Den nächsten/zukünftigen Vertrag pflegen."""
 
+    async def async_step_init_streaming(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self._async_step_streaming(user_input)
+
+    async def _async_step_streaming(self, user_input: dict[str, Any] | None) -> ConfigFlowResult:
+        """Folgevertrag der Sparte Streaming: ein Betrag je Zahlung und die Zahlweise (siehe _next_streaming_schema)."""
+        aktuell = _zahlweise_von(self.config_entry.data)
+        if user_input is not None:
+            if not user_input.get(NEXT_PREFIX + CONF_BEGINN):
+                return self.async_create_entry(title="", data={})
+            cleaned = {key: val for key, val in user_input.items() if val not in (None, "")}
+            zahlweise = cleaned.get(NEXT_PREFIX + CONF_ZAHLWEISE, aktuell)
+            if NEXT_PREFIX + CONF_ABSCHLAG in cleaned:  # der Betrag je Zahlung wird als Monatsbetrag gespeichert
+                cleaned[NEXT_PREFIX + CONF_ABSCHLAG] = round(
+                    float(cleaned[NEXT_PREFIX + CONF_ABSCHLAG]) / ZAHLWEISE_MONATE[zahlweise], 6
+                )
+            return self.async_create_entry(title="", data=cleaned)
+        return self.async_show_form(
+            step_id="init_streaming",
+            data_schema=_next_streaming_schema(
+                dict(self.config_entry.options),
+                ende=self.config_entry.data.get(CONF_ENDE),
+                zahlweise=aktuell,
+                aus_optionen=True,
+            ),
+        )
+
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         gas = self.config_entry.data.get(CONF_SPARTE) == GAS_SPARTE
+        if self.config_entry.data.get(CONF_SPARTE) == SPARTE_STREAMING:
+            return await self._async_step_streaming(user_input)
         errors: dict[str, str] = {}
         if user_input is not None:
             if gas:

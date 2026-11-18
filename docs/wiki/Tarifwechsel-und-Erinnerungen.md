@@ -16,6 +16,8 @@ Unter **Einstellungen → Integrationen → Tariffy → [Vertrag] → Optionen**
 - Wechseldatum, neuer Anbieter, Kundennummer, Tarifname
 - Neue Preise und Verbrauchswerte
 
+Die Sparte **Streaming** hat ein eigenes, kürzeres Formular **Folgevertrag planen**: **Beginn** (ohne Eingabe der Tag nach dem Vertragsende vorgeschlagen), **Tarifname**, **Zahlweise** (zum Beispiel von jährlich auf monatlich wechseln), **Betrag pro Zahlung** und **Ende**. Anbieter, Kundennummer und Grundpreis gibt es dort nur noch, wenn ein schon geplanter Vertrag sie hat. Ein nicht geänderter Wert bleibt wie im laufenden Vertrag, auch die Zahlweise. Die erste Abbuchung der neuen Laufzeit ist ihr Beginn. Alle anderen Sparten (Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Leasing, Sonstiges) behalten ihr Formular.
+
 Am Wechseldatum übernimmt HA den neuen Tarif automatisch — geprüft täglich exakt um 00:00:01 Uhr, zusätzlich beim regulären 6h-Poll und beim HA-Start als Fallback. Nicht angegebene Felder behalten ihren aktuellen Wert.
 
 

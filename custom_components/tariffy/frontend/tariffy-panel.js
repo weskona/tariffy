@@ -181,6 +181,12 @@ class TariffyPanel extends HTMLElement {
     return text;
   }
 
+  // a text that depends on the contract: a streaming subscription has a price, not an instalment (key + "_streaming")
+  _tc(key, c, vars) {
+    const alt = `${key}_streaming`;
+    return c && c.sparte === "streaming" && (I18N[this._lang][alt] || I18N.en[alt]) ? this._t(alt, vars) : this._t(key, vars);
+  }
+
   get _locale() {
     return (this._hass && this._hass.locale && this._hass.locale.language) ||
       (this._hass && this._hass.language) || "en";
@@ -731,7 +737,7 @@ class TariffyPanel extends HTMLElement {
 
     // flat-rate contracts lead with the monthly amount: it exists always, a total over the term only with an end date
     const heroValue = flat ? c.abschlag : d.hasMetering ? c.prognose_real : c.jahreskosten;
-    const heroLabel = flat ? this._t("instalment") : d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
+    const heroLabel = flat ? this._tc("instalment", c) : d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
     const heroTone = !flat && d.hasMetering ? (heroValue < 0 ? "red-t" : "green-t") : "";
     const heroSub = flat
       ? [
@@ -741,7 +747,7 @@ class TariffyPanel extends HTMLElement {
         c.ende && isNum(c.jahreskosten) ? this._t("overTerm", { v: this._money(c.jahreskosten, c.currency) }) : null,
       ].filter(Boolean).join(" · ") || null
       : isNum(c.abschlag)
-      ? `${this._t("instalment")}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
+      ? `${this._tc("instalment", c)}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
         (isNum(c.abschlag_anpassung_empfohlen)
           ? ` · ${this._advice(c)}`
           : "")
@@ -771,7 +777,7 @@ class TariffyPanel extends HTMLElement {
           isNum(c.verbrauch_hochgerechnet) ? this._t("projected", { v: `${this._num(c.verbrauch_hochgerechnet, 0)} ${unit}` }) : null),
       ]
       : [
-        this._tile(this._t("instalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
+        this._tile(this._tc("instalment", c), this._money(c.abschlag, c.currency, { digits: 2 })),
         c.ende ? this._tile(this._t("contractEnd"), this._date(c.ende)) : null,
       ];
     const foot = [];
@@ -1684,6 +1690,7 @@ class TariffyPanel extends HTMLElement {
   _onceSection(c) {
     const items = c.einmalposten || [];
     if (!items.length && !this._isAdmin) return null;
+    if (!items.length && c.sparte === "streaming") return null; // a streaming subscription has none; one that already has items keeps the block
     const rows = items.map((item, index) => h("div", { class: "row once-row" },
       h("span", {}, item.bezeichnung, item.datum ? h("span", { class: "t2", text: this._date(item.datum) }) : null),
       h("span", { class: item.betrag < 0 ? "red-t" : "green-t", text: this._money(item.betrag, c.currency, { sign: true, digits: 2 }) }),
@@ -1767,7 +1774,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   // the grid of amounts shared by the dialog of a contract and the one of an earlier term
-  _instalGrid(months, busy, interval) {
+  _instalGrid(months, busy, interval, c) {
     const inputs = [];
     // the payments that have not come yet show the instalment of the last one that has (the current one)
     const syncFuture = () => {
@@ -1776,7 +1783,7 @@ class TariffyPanel extends HTMLElement {
       months.forEach((x, j) => { if (x.future && now !== null) { x.betrag = now; if (inputs[j]) inputs[j].value = now; } });
     };
     const rows = months.map((month, i) => {
-      const input = h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: month.betrag, "aria-label": `${month.label}: ${this._t("instalAmount")}`,
+      const input = h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: month.betrag, "aria-label": `${month.label}: ${this._tc("instalAmount", c)}`,
         disabled: busy || month.future ? "" : null, oninput: (ev) => { month.betrag = ev.target.value.replace(",", "."); },
         // a finished edit also applies to the following payments that still had the old amount
         onchange: (ev) => {
@@ -1798,7 +1805,7 @@ class TariffyPanel extends HTMLElement {
     syncFuture();
     return h("div", { class: "instal-grid" },
       h("div", { class: "instal-head" }, h("span", { text: this._t(interval === 1 ? "instalMonth" : "instalPayment") }),
-        h("span", { text: this._t(interval === 1 ? "instalAmount" : "instalAmountPay") })),
+        h("span", { text: interval === 1 ? this._tc("instalAmount", c) : this._t("instalAmountPay") })),
       rows);
   }
 
@@ -1806,7 +1813,7 @@ class TariffyPanel extends HTMLElement {
     this._closeFlow();
     const months = this._instalMonths(c);
     this._dlg = { mode: "instal", stage: "form", id: c.entry_id, name: c.title, flowId: null, localize: () => "", fields: [], values: {},
-      months, interval: INTERVAL_MONTHS[c.zahlweise] || 1, message: null };
+      months, interval: INTERVAL_MONTHS[c.zahlweise] || 1, sparte: c.sparte, message: null };
     this._renderInstalDialog();
   }
 
@@ -1837,10 +1844,10 @@ class TariffyPanel extends HTMLElement {
     if (!dlg) return;
     const busy = dlg.stage === "saving";
     const body = [
-      h("h2", { id: "dlg-title", text: this._t("instalTitle") }),
+      h("h2", { id: "dlg-title", text: this._tc("instalTitle", dlg) }),
       h("p", { class: "hint", text: dlg.name }),
-      h("p", { class: "hint", text: this._t("instalHint") }),
-      dlg.months.length ? this._instalGrid(dlg.months, busy, dlg.interval) : h("p", { class: "hint", text: this._t("instalNoStart") }),
+      h("p", { class: "hint", text: this._tc("instalHint", dlg) }),
+      dlg.months.length ? this._instalGrid(dlg.months, busy, dlg.interval, dlg) : h("p", { class: "hint", text: this._t("instalNoStart") }),
     ];
     if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
     body.push(h("div", { class: "actions" },
@@ -1859,10 +1866,10 @@ class TariffyPanel extends HTMLElement {
     const rows = items.map((e, i) => h("div", { class: "row once-row" },
       h("span", {}, `${this._t("instalFrom")} ${this._date(e.ab)}`, i === items.length - 1 ? h("span", { class: "t2", text: this._t("instalNow") }) : null),
       h("span", { text: `${this._money(e.betrag_je_zahlung, c.currency, { digits: 2 })}${iv ? ` ${iv}` : ""}` })));
-    return h("div", { class: "sec" }, h("h4", { text: this._t("secInstal") }),
-      rows.length ? rows : h("div", { class: "hint", text: this._t("instalNone") }),
+    return h("div", { class: "sec" }, h("h4", { text: this._tc("secInstal", c) }),
+      rows.length ? rows : h("div", { class: "hint", text: this._tc("instalNone", c) }),
       this._isAdmin ? h("div", { class: "once-add" }, h("button", { class: "btn", type: "button", onclick: () => this._openInstal(c) },
-        icon("edit"), this._t(items.length ? "instalEdit" : "instalEnter"))) : null);
+        icon("edit"), this._tc(items.length ? "instalEdit" : "instalEnter", c))) : null);
   }
 
   /* ----- outdoor meters of a water contract (garden, pool, ...): not charged wastewater, administrators only ----- */
@@ -2147,7 +2154,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   _termGrid(dlg, busy) {
-    return dlg.termMonths.length ? this._instalGrid(dlg.termMonths, busy, dlg.termInterval || 1) : h("p", { class: "hint", text: this._t("termInstalWait") });
+    return dlg.termMonths.length ? this._instalGrid(dlg.termMonths, busy, dlg.termInterval || 1, (this._contracts || []).find((x) => x.entry_id === dlg.values.entry_id)) : h("p", { class: "hint", text: this._t("termInstalWait") });
   }
 
   _renderTermDialog() {
@@ -2540,6 +2547,7 @@ class TariffyPanel extends HTMLElement {
     const amount = (v) => (isNum(v) ? `${this._num(v, 0)} ${unit}` : null);
     const amount1 = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : null); // small amounts (outdoor water) need a decimal
     const nxt = c.next || {};
+    const sameAsYearCost = !METERED.has(c.sparte) && isNum(c.kosten_jahr) && isNum(c.abschlag_jahr) && Math.abs(c.kosten_jahr - c.abschlag_jahr) < 0.005;
     // with a total-consumption sensor (PV self-sufficiency): total, covered by PV and billed grid draw, so far and projected
     const usageGrid = c.autarkie_aktiv && isNum(c.verbrauch_gesamt_bisher) && isNum(c.verbrauch_gesamt_hochgerechnet)
       ? h("div", { class: "vgrid" },
@@ -2578,8 +2586,10 @@ class TariffyPanel extends HTMLElement {
         row(this._t("unitPriceEff"), isNum(c.effektiver_arbeitspreis) ? this._price(c.effektiver_arbeitspreis, c.currency, pu) : null),
         row(this._t("unitPriceWater"), isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
         row(this._t("basePrice"), isNum(c.grundpreis) ? `${money(c.grundpreis)} ${this._t("perMonth")}` : null),
-        row(this._t("instalment"), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
-        row(this._t("instalmentYear"), isNum(c.abschlag_jahr) ? money(c.abschlag_jahr) : null),
+        row(this._tc("instalment", c), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
+        // a flat-rate contract with one amount: the instalment per year is the same figure as "cost per year" right below
+        // (they differ only when there is a base price, and a metered contract has no "cost per year" row)
+        row(this._tc("instalmentYear", c), isNum(c.abschlag_jahr) && !sameAsYearCost ? money(c.abschlag_jahr) : null),
         // flat-rate contracts: what the contract costs a year, and how it is paid when not monthly
         row(this._t("costYear"), !METERED.has(c.sparte) && isNum(c.kosten_jahr) ? money(c.kosten_jahr) : null),
         row(this._t("payment"), c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)
@@ -2619,7 +2629,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("nextEnd"), nxt.ende ? this._date(nxt.ende) : null),
         row(this._t("nextProvider"), nxt.anbieter), row(this._t("nextTariff"), nxt.tarif),
         row(this._t("nextPrice"), isNum(nxt.arbeitspreis) ? this._price(nxt.arbeitspreis, c.currency, pu) : null),
-        row(this._t("nextInstalment"), isNum(nxt.abschlag) ? `${money(nxt.abschlag)} ${this._t("perMonth")}` : null),
+        row(this._tc("nextInstalment", c), isNum(nxt.abschlag) ? `${money(nxt.abschlag)} ${this._t("perMonth")}` : null),
       ]) : null,
       this._aussenSection(c), // over the whole width below the other blocks: up to ten meters fit side by side
     ];

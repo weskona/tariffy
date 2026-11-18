@@ -112,6 +112,15 @@ CONTRACTS = [
         {},
     ),
     (
+        "Streaming",
+        {
+            "sparte": "streaming", "anbieter": "Streamingdienst", "tarif": "Standard", "abschlag": 17.99,
+            "zahlweise": "monthly", "beginn": "2026-04-01", "ende": "2027-03-31", "erinnerung_monate": "0",
+        },
+        {},
+        {},
+    ),
+    (
         "Mobilfunk",
         {
             "sparte": "mobile", "anbieter": "Mobil Eins", "tarif": "Flat 10 GB",

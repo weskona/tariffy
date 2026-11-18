@@ -7,6 +7,22 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.9] - 2026-11-19
+
+### Changed
+
+- **Folgevertrag planen (Sparte Streaming): ein kürzeres Formular mit der Zahlweise.** Bei Streaming-Verträgen fragt das Formular jetzt nach **Beginn** (ohne Eingabe der Tag nach dem Ende des laufenden Vertrags vorgeschlagen), **Tarifname**, **Zahlweise** (so lässt sich von jährlich auf monatlich wechseln), **Betrag pro Zahlung** und **Ende**. Anbieter, Kundennummer und Grundpreis gibt es nur noch, wenn ein schon geplanter Vertrag sie hat. Beim Wechsel werden die neue Zahlweise und der neue Betrag übernommen (der Betrag je Zahlung wird wie überall als Monatsbetrag gespeichert); ein Wert, den du nicht änderst, bleibt wie im laufenden Vertrag. Alle anderen Sparten (Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Leasing, Sonstiges) behalten ihr Formular.
+
+- **Streaming: kein Block „Einmalposten“.** Die Details eines Streaming-Vertrags zeigen den leeren Block (und seine Schaltfläche zum Hinzufügen) nicht mehr; hat ein Streaming-Vertrag schon Einmalposten, bleibt der Block mit ihnen sichtbar.
+
+- **Streaming: Preis statt Abschlag.** Die Details, die Karte und der Block für die gezahlten Beträge eines Streaming-Vertrags sagen **Preis / Monat**, **Preis** und **Gezahlte Beträge** statt „Abschlag“ / „Gezahlte Abschläge“. Andere Sparten behalten ihre Texte.
+
+- **Keine doppelte Zeile „Abschlag / Jahr“.** Die Details eines Pauschalvertrags lassen „Abschlag / Jahr“ weg, wenn „Kosten / Jahr“ direkt darunter dieselbe Zahl zeigt (ohne Grundpreis sind sie immer gleich). Mit Grundpreis bleiben beide stehen, und Verbrauchsverträge behalten die Zeile.
+
+### Fixed
+
+- **Ein Pauschalvertrag mit jährlicher, halbjährlicher oder vierteljährlicher Zahlung fiel beim automatischen Wechsel auf monatlich zurück.** Die Zahlweise wird jetzt in die neue Laufzeit übernommen (oder durch die geplante ersetzt).
+
 ## [1.32.0-beta.8] - 2026-11-18
 
 ### Added
