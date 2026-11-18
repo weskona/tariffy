@@ -9,7 +9,10 @@ import pytest
 
 ROOT = Path(__file__).parent.parent
 WIKI = ROOT / "docs" / "wiki"
-PANEL_JS = (ROOT / "custom_components" / "tariffy" / "frontend" / "tariffy-panel.js").read_text(encoding="utf-8")
+# the panel is split into several files (code, texts, icons, styles): the texts it shows are in all of them together
+PANEL_JS = "\n".join(
+    path.read_text(encoding="utf-8") for path in sorted((ROOT / "custom_components" / "tariffy" / "frontend").glob("*.js"))
+)
 PAGES = [ROOT / "README.md", *sorted(WIKI.glob("*.md"))]
 
 

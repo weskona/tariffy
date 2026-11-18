@@ -74,6 +74,19 @@ class TestPanelRegistration:
         assert response.status == 200
         assert "tariffy-panel" in await response.text()
 
+    async def test_the_parts_of_the_panel_are_served_too(self, frontend_env, contract, hass_client):
+        """The panel imports its texts, icons and styles from the same folder (with its version in the URL)."""
+        await contract.setup(STROM, **GOLDEN)
+        client = await hass_client()
+        for part, marker in (
+            ("tariffy-i18n.js", "export const I18N"),
+            ("tariffy-icons.js", "export const ICONS"),
+            ("tariffy-style.js", "export const STYLE"),
+        ):
+            response = await client.get(f"/tariffy_static/{part}?v=1.2.3")
+            assert response.status == 200, part
+            assert marker in await response.text()
+
     async def test_panel_is_removed_with_the_last_contract(self, frontend_env, contract, hass):
         entry, _ = await contract.setup(STROM, **GOLDEN)
         assert "tariffy" in hass.data["frontend_panels"]

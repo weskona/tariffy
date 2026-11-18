@@ -9,9 +9,11 @@ import pytest
 
 from custom_components.tariffy.panel import PANEL_ELEMENT, PANEL_FILE
 
-SOURCE = (
-    Path(__file__).parent.parent / "custom_components" / "tariffy" / "frontend" / PANEL_FILE
-).read_text(encoding="utf-8")
+FRONTEND = Path(__file__).parent.parent / "custom_components" / "tariffy" / "frontend"
+# the panel is split into the code (SOURCE) and the files with its texts, icons and styles
+SOURCE = (FRONTEND / PANEL_FILE).read_text(encoding="utf-8")
+TEXTS = (FRONTEND / "tariffy-i18n.js").read_text(encoding="utf-8")
+FILES = sorted(FRONTEND.glob("*.js"))
 
 # Contract names, providers and tariffs are typed in by the user. They must only
 # ever reach the page as text, never as HTML.
@@ -22,27 +24,49 @@ FORBIDDEN = (
 
 
 @pytest.mark.parametrize("sink", FORBIDDEN)
-def test_no_html_sinks(sink):
-    assert sink not in SOURCE
+@pytest.mark.parametrize("path", FILES, ids=lambda p: p.name)
+def test_no_html_sinks(sink, path):
+    assert sink not in path.read_text(encoding="utf-8")
 
 
 def test_registers_the_element_the_backend_announces():
     assert f'customElements.define("{PANEL_ELEMENT}"' in SOURCE
 
 
-def test_is_small_enough_to_ship():
-    assert len(SOURCE.encode("utf-8")) < 190_000
+@pytest.mark.parametrize("path", FILES, ids=lambda p: p.name)
+def test_every_file_is_small_enough_to_ship(path):
+    assert len(path.read_bytes()) < 190_000
+
+
+def test_the_panel_loads_its_parts_with_its_own_version():
+    """The static path is cached for a long time: the texts, icons and styles must be requested with the
+    `?v=` of the panel file, or a browser could mix new code with old texts after an update."""
+    assert "new URL(import.meta.url).search" in SOURCE
+    for part in ("tariffy-i18n.js", "tariffy-icons.js", "tariffy-style.js"):
+        assert f"import(`./{part}${{VERSION}}`)" in SOURCE
+        assert (FRONTEND / part).is_file()
+    # nothing is imported without the version
+    assert not re.search(r"^\s*import\s.*from\s", SOURCE, flags=re.M)
+    assert not re.search(r"import\(\"", SOURCE)
+
+
+@pytest.mark.parametrize("path", [p for p in FILES if p.name != PANEL_FILE], ids=lambda p: p.name)
+def test_the_parts_export_what_the_panel_imports(path):
+    text = path.read_text(encoding="utf-8")
+    name = {"tariffy-i18n.js": "I18N", "tariffy-icons.js": "ICONS", "tariffy-style.js": "STYLE"}[path.name]
+    assert f"export const {name} =" in text
+    assert "customElements.define" not in text
 
 
 def _block(language: str) -> str:
-    start = SOURCE.index(f"  {language}: {{")
+    start = TEXTS.index(f"  {language}: {{")
     other = {"en": "de", "de": "en"}[language]
     # the two language blocks follow each other, the second ends at the first "};"
-    if SOURCE.index(f"  {other}: {{") > start:
-        end = SOURCE.index(f"  {other}: {{")
+    if TEXTS.index(f"  {other}: {{") > start:
+        end = TEXTS.index(f"  {other}: {{")
     else:
-        end = SOURCE.index("};", start)
-    return SOURCE[start:end]
+        end = TEXTS.index("};", start)
+    return TEXTS[start:end]
 
 
 def _keys(block: str) -> set[str]:
