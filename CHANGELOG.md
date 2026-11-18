@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Streaming: no "One-time items" block.** The details of a streaming contract no longer show the empty block (and its add button); a streaming contract that already has one-time items keeps the block.
 
+- **Streaming: price instead of instalment.** The details, the card and the block for the amounts paid of a streaming contract say **Price / month**, **Price** and **Amounts paid** instead of "Instalment" / "Instalments paid", and the row "Instalment / year" is left out because "Cost / year" shows the same figure. Other categories keep their texts.
+
 ### Fixed
 
 - **A flat-rate contract with a yearly, half-yearly or quarterly payment fell back to monthly at an automatic switch.** The payment interval is now taken over into the new term (or replaced by the one you planned).
