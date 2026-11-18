@@ -131,8 +131,10 @@ class TestContractData:
         assert c["guthaben_bisher"] == pytest.approx(-261.24, abs=0.02)
         assert c["next"] is None
 
-    async def test_private_data_is_not_sent(self, frontend_env, contract, hass_ws_client):
-        client = await hass_ws_client()
+    async def test_private_data_is_not_sent(self, frontend_env, contract, hass_ws_client, hass_read_only_access_token):
+        """Customer number, meter number and market location go to administrators only; the notification
+        target to nobody."""
+        client = await hass_ws_client(access_token=hass_read_only_access_token)
         await contract.setup(SECRET, **GOLDEN)
         await client.send_json_auto_id({"type": "tariffy/contracts"})
         contracts = (await client.receive_json())["result"]["contracts"]
@@ -140,6 +142,29 @@ class TestContractData:
         for secret in ("K-12345", "Z-999", "DE0001", "mobile_app_secret"):
             assert secret not in raw
         assert not any(key.startswith("_") for key in contracts[0])
+        assert not {"kundennummer", "zaehlernummer", "zaehlernummer_nt", "marktlokation"} & set(contracts[0])
+
+    async def test_an_administrator_sees_the_personal_details(self, frontend_env, contract, hass_ws_client):
+        client = await hass_ws_client()
+        await contract.setup({**SECRET, "zaehlernummer_nt": "Z-NT-1"}, **GOLDEN)
+        await client.send_json_auto_id({"type": "tariffy/contracts"})
+        c = (await client.receive_json())["result"]["contracts"][0]
+        assert (c["kundennummer"], c["zaehlernummer"], c["zaehlernummer_nt"], c["marktlokation"]) == (
+            "K-12345", "Z-999", "Z-NT-1", "DE0001",
+        )
+        assert "mobile_app_secret" not in str(c)  # the notification target is never sent
+
+    @pytest.mark.parametrize("admin", [True, False])
+    async def test_the_live_updates_follow_the_same_rule(
+        self, admin, frontend_env, contract, hass_ws_client, hass_read_only_access_token
+    ):
+        client = await hass_ws_client() if admin else await hass_ws_client(access_token=hass_read_only_access_token)
+        await contract.setup(SECRET, **GOLDEN)
+        await client.send_json_auto_id({"type": "tariffy/subscribe"})
+        assert (await client.receive_json())["success"] is True
+        event = str((await client.receive_json())["event"])
+        assert ("K-12345" in event and "DE0001" in event) is admin
+        assert ("Z-999" in event) is admin
 
     async def test_consumption_unit_comes_from_the_meter_sensor(self, frontend_env, contract, hass, hass_ws_client):
         client = await hass_ws_client()

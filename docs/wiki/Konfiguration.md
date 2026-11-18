@@ -119,7 +119,7 @@ Die Sparte **Leasing** ist für einen Auto-Leasingvertrag. Die Rate läuft wie j
 
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|
-| Kennzeichen | – | Gilt wie die Kundennummer als persönlich: wird im Seitenpanel nicht angezeigt |
+| Kennzeichen | – | Gilt als persönlich: wird im Seitenpanel nicht angezeigt |
 | Kilometerzähler-Sensor | – | Sensor des Fahrzeugs mit dem Kilometerstand in km (Meilen werden umgerechnet). Er hat Vorrang vor dem von Hand eingetragenen Wert. |
 | Aktueller Kilometerstand | – | Nur wenn es keinen Sensor gibt: von Hand eintragen und ab und zu aktualisieren (Vertrag bearbeiten) |
 | Kilometerstand bei Vertragsbeginn | – | Beginn des Leasings. Leer = 0 |

@@ -125,6 +125,7 @@ const I18N = {
     leasingNoOdo: "No odometer yet: choose a sensor or enter the odometer in the contract.", leasingEarly: "The projection needs at least two weeks of driving.",
     leasingOver: "At this pace you will be about {k} km over the allowance at return.", leasingUnder: "At this pace you will be about {k} km under the allowance at return.",
     leasingFine: "At this pace you stay within the allowance at return.",
+    customerNo: "Customer number", meterNo: "Meter number", meterNoLow: "Meter number (low tariff)", maloId: "Market location (MaLo ID)", copyValue: "Copy", copied: "Copied",
     groupLoans: "Loans / financing", secLoan: "Loan", loanDebt: "Remaining debt", loanPaid: "Paid so far", loanRemainingSum: "Remaining payments",
     loanNext: "Next payment", loanSplit: "interest {z} · principal {t}", loanRepaid: "Repaid", loanPayments: "Payments made", loanEffective: "effective {v} %",
     loanInterestOf: "of which interest {v}", loanInterestTotalOf: "interest over the term {v}", loanAmount: "Loan amount", loanNominal: "Nominal interest rate",
@@ -287,6 +288,7 @@ const I18N = {
     leasingNoOdo: "Noch kein Kilometerstand: Wähle einen Sensor oder trage den Stand im Vertrag ein.", leasingEarly: "Die Hochrechnung braucht mindestens zwei Wochen Fahrt.",
     leasingOver: "In diesem Tempo liegst du bei Rückgabe etwa {k} km über der Erlaubnis.", leasingUnder: "In diesem Tempo liegst du bei Rückgabe etwa {k} km unter der Erlaubnis.",
     leasingFine: "In diesem Tempo bleibst du bei Rückgabe innerhalb der Erlaubnis.",
+    customerNo: "Kundennummer", meterNo: "Zählernummer", meterNoLow: "Zählernummer (Niedertarif)", maloId: "Marktlokations-ID (MaLo-ID)", copyValue: "Kopieren", copied: "Kopiert",
     groupLoans: "Kredite / Finanzierungen", secLoan: "Kredit", loanDebt: "Restschuld", loanPaid: "Gezahlt bisher", loanRemainingSum: "Restsumme",
     loanNext: "Nächste Rate", loanSplit: "Zinsen {z} · Tilgung {t}", loanRepaid: "Getilgt", loanPayments: "Raten gezahlt", loanEffective: "effektiv {v} %",
     loanInterestOf: "davon Zinsen {v}", loanInterestTotalOf: "Zinsen insgesamt {v}", loanAmount: "Kreditsumme", loanNominal: "Sollzins",
@@ -375,6 +377,7 @@ const ICONS = {
   ],
   insurance: [["path", { d: "M12 2.500 20 5.500v6c0 5-3.500 8.500-8 10.500-4.500-2-8-5.500-8-10.500v-6z" }]],
   // actions of the contract list
+  copy: [["rect", { x: "9", y: "9", width: "11", height: "11", rx: "2" }], ["path", { d: "M5 15V6a2 2 0 0 1 2-2h8" }]],
   edit: [["path", { d: "M12 20h9" }], ["path", { d: "M16.500 3.500a2.100 2.100 0 0 1 3 3L7 19l-4 1 1-4z" }]],
   plan: [
     ["rect", { x: "3", y: "4", width: "18", height: "18", rx: "2" }],
@@ -649,6 +652,11 @@ details.card.alert { border-color: rgba(248,113,113,.35); }
 details[open] summary .caret svg { transform: rotate(90deg); }
 .detail { padding: 4px 18px 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
 .sec h4 { margin: 8px 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.row .val { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; max-width: 66%; overflow-wrap: anywhere; text-align: right; }
+.copy { flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; }
+.copy:hover, .copy:focus-visible { background: var(--line); color: inherit; }
+.copy svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.copy.done { color: var(--green); }
 .row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .row span:first-child { color: var(--muted); } .row span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
 
@@ -2954,12 +2962,41 @@ class TariffyPanel extends HTMLElement {
       button("edit", this._t("actEdit"), "edit"));
   }
 
+  /* copies a value to the clipboard (HA may be opened over plain http, where the clipboard API is missing) */
+  async _copy(text, button) {
+    let ok = false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); ok = true; }
+    } catch (_err) { /* fall back below */ }
+    if (!ok) {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.cssText = "position:fixed;top:-1000px;opacity:0";
+      document.body.appendChild(area);
+      area.select();
+      try { ok = document.execCommand("copy"); } catch (_err) { ok = false; }
+      area.remove();
+    }
+    if (ok && button) {
+      button.classList.add("done");
+      button.title = this._t("copied");
+      setTimeout(() => { button.classList.remove("done"); button.title = this._t("copyValue"); }, 1600);
+    }
+  }
+
   _detail(c) {
     const d = this._derive(c);
     const unit = this._unit(c);
     const pu = this._priceUnit(c);
     const row = (label, value) => (value === null || value === undefined || value === "–" ? null
       : h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value })));
+    // personal details (only administrators receive them): the value with a button to copy it
+    const copyRow = (label, value) => (!value ? null
+      : h("div", { class: "row" }, h("span", { text: label }),
+        h("span", { class: "val" }, h("span", { text: value }),
+          h("button", { class: "copy", type: "button", title: this._t("copyValue"), "aria-label": `${this._t("copyValue")}: ${label}`,
+            onclick: (ev) => this._copy(value, ev.currentTarget) }, icon("copy")))));
     const section = (title, rows) => {
       const filled = rows.filter(Boolean);
       return filled.length ? h("div", { class: "sec" }, h("h4", { text: title }), filled) : null;
@@ -2972,6 +3009,9 @@ class TariffyPanel extends HTMLElement {
     const sections = [
       section(this._t("secContract"), [
         row(this._t("provider"), c.anbieter), row(this._t("tariff"), c.tarif),
+        copyRow(this._t("customerNo"), c.kundennummer),
+        copyRow(this._t("meterNo"), c.zaehlernummer), copyRow(this._t("meterNoLow"), c.zaehlernummer_nt),
+        copyRow(this._t("maloId"), c.marktlokation),
         row(this._t("insuranceType"), c.versicherungsart ? this._insuranceType(c.versicherungsart) : null),
         row(this._t("kmStart"), isNum(c.km_start) ? `${this._num(c.km_start, 0)} km` : null),
         row(this._t("kmPerYear"), isNum(c.km_pro_jahr) ? `${this._num(c.km_pro_jahr, 0)} km` : null),

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-beta.3] - 2026-11-18
+
+### Added
+
+- **Customer number, meter number(s) and MaLo ID in the contract details** of the panel. Until now they could only be seen in the edit form. **Administrators** now see them in the block **Contract** (tab **Contracts**), each with a symbol to **copy** the value. They are sent to administrators only: other users' browsers never receive them, and the licence plate and the notification target stay hidden for everyone. Nothing changes for contracts and sensors.
+
 ## [1.32.0-beta.2] - 2026-11-18
 
 ### Added
