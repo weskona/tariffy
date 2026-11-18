@@ -126,4 +126,34 @@ async def test_the_form_has_the_field_for_the_first_debit(frontend_env, contract
     while result["step_id"].startswith("reconfigure_versicherung"):
         result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
     names = [str(key) for key in result["data_schema"].schema]
-    assert names.index("abschlag") < names.index("erste_zahlung") < names.index("grundpreis")
+    assert names.index("abschlag") < names.index("erste_zahlung")
+    assert "grundpreis" not in names  # one amount is enough for a flat-rate contract
+
+
+async def test_a_flat_contract_that_has_a_base_price_keeps_the_field(frontend_env, contract, hass):  # noqa: F811
+    """Its yearly cost counts the base price: the field stays so nothing is lost, and it can be emptied."""
+    entry, base = await contract.setup({**INSURANCE, "grundpreis": 4.0}, **GOLDEN)
+    assert base["kosten_jahr"] == round((INSURANCE["abschlag"] + 4.0) * 12, 2)
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": "reconfigure", "entry_id": entry.entry_id}
+    )
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
+    while result["step_id"].startswith("reconfigure_versicherung"):
+        result = await hass.config_entries.flow.async_configure(result["flow_id"], _form_defaults(result))
+    assert "grundpreis" in [str(key) for key in result["data_schema"].schema]
+    data = await _reconfigure(hass, entry)
+    assert data["grundpreis"] == 4.0  # saved unchanged: kept
+    data = await _reconfigure(hass, entry, drop=("grundpreis",))
+    assert "grundpreis" not in data  # emptied: gone
+    assert entry.runtime_data.data["kosten_jahr"] == round(INSURANCE["abschlag"] * 12, 2)
+
+
+async def test_a_new_flat_contract_asks_for_one_amount(hass):
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"name": "Netflix", "sparte": "streaming", "anbieter": "Netflix", "erinnerung_monate": "0"}
+    )
+    assert result["step_id"] == "pauschal"
+    assert [str(key) for key in result["data_schema"].schema] == ["zahlweise", "abschlag", "erste_zahlung"]
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"zahlweise": "monthly", "abschlag": 17.99})
+    assert result["type"].value == "create_entry" and "grundpreis" not in result["data"]

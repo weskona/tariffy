@@ -82,7 +82,8 @@ Bei einem **Wasservertrag** können im Tab **Verträge** des Panels (Block **Au�
 | Zahlweise | ✅ | monatlich, vierteljährlich, halbjährlich oder jährlich |
 | Betrag pro Zahlung | ✅ | € pro Zahlung in der gewählten Zahlweise (zum Beispiel der Jahresbeitrag) |
 | Erste Abbuchung am | – | Leer = Vertragsbeginn |
-| Grundpreis | – | €/Monat (falls separat ausgewiesen) |
+
+Ein Pauschalvertrag hat **nur einen Betrag**. Das frühere Feld **Grundpreis** gibt es bei neuen Verträgen nicht mehr; es erscheint nur noch beim Bearbeiten eines Vertrags, der schon einen Grundpreis hat (dessen Kosten rechnen damit, sonst würde beim Speichern etwas wegfallen). Dort lässt sich der Wert leeren.
 
 **Versicherungen** haben vor den Kosten einen eigenen Schritt **Art der Versicherung** (Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige). **Nur bei einer Kfz-Versicherung** folgt danach ein Schritt mit Angaben zum Auto; alle anderen Arten gehen gleich weiter zu den Kosten. Alle Versicherungsangaben sind optional und dienen der Dokumentation, es wird nichts berechnet.
 

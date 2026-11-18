@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Flat-rate contracts: one amount is enough.** The cost form of a flat-rate contract (internet, mobile, streaming, insurance, lease, ...) no longer has the second field **Base price (€/month)**; it was confusing, because both values were counted per month. The field stays only when editing a contract that already has a base price (its yearly cost counts it, so nothing is lost when you save) and can be emptied there. Existing contracts keep their figures.
+
 - **Instalments paid: the number of fields follows the payment interval.** The dialog **Edit instalments** has a field per payment: monthly one per month, quarterly four a year, half-yearly two, yearly one (with the date of the debit and the amount per payment). Payments that were not due yet stay locked. The stored history and the calculation are as before.
 
 ## [1.32.0-beta.7] - 2026-11-18

@@ -756,16 +756,18 @@ def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
     jährlich); gespeichert wird weiter der Betrag pro Monat (siehe _pauschal_monatlich)."""
     zahlweise = _zahlweise_von(d)
     betrag = round(float(d.get(CONF_ABSCHLAG) or 0.0) * ZAHLWEISE_MONATE[zahlweise], 2)
-    return vol.Schema(
-        {
-            vol.Required(CONF_ZAHLWEISE, default=zahlweise): _select(
-                list(ZAHLWEISE_MONATE), translation_key="zahlweise"
-            ),
-            vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
-            _opt(CONF_ERSTE_ZAHLUNG, d.get(CONF_ERSTE_ZAHLUNG)): selector.DateSelector(),
-            _opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS)): _preis(0.01),
-        }
-    )
+    felder: dict[Any, Any] = {
+        vol.Required(CONF_ZAHLWEISE, default=zahlweise): _select(
+            list(ZAHLWEISE_MONATE), translation_key="zahlweise"
+        ),
+        vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
+        _opt(CONF_ERSTE_ZAHLUNG, d.get(CONF_ERSTE_ZAHLUNG)): selector.DateSelector(),
+    }
+    # Ein Pauschalvertrag hat meist nur einen Betrag. Das Feld Grundpreis gibt es nur noch bei einem Vertrag, der
+    # schon einen hat (dessen Kosten rechnen damit): so geht nichts verloren, und es laesst sich leeren.
+    if float(d.get(CONF_GRUNDPREIS) or 0.0) > 0:
+        felder[_opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS))] = _preis(0.01)
+    return vol.Schema(felder)
 
 
 def _prozent() -> selector.NumberSelector:
