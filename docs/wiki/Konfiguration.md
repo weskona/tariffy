@@ -9,6 +9,7 @@
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
+| Icon | – | Eigenes Icon des Vertrags, z. B. `mdi:car`. Gilt im Panel und für die Sensoren des Vertrags (Sensoren mit Statussymbol wie Guthaben/Nachzahlung behalten ihres). Leer = das Icon der Sparte. |
 | Vertragsbeginn | – | Startdatum des Vertrags |
 | Vertragsende | – | Enddatum / Laufzeit bis |
 | Mindestlaufzeit (Monate) | – | Das Panel zeigt, bis wann der Vertrag mindestens läuft |
@@ -114,7 +115,7 @@ Die Sparte **Kredit / Finanzierung** ist für Annuitätendarlehen (Baufinanzieru
 
 ## Leasing
 
-Die Sparte **Leasing** ist für einen Auto-Leasingvertrag. Die Rate läuft wie jeder **Pauschalvertrag** (Rate, Beginn, Ende = Rückgabedatum, Erinnerung, Kündigungsfrist); dazu behält Tariffy die **Kilometer** im Blick. Alle Angaben zu den Kilometern sind freiwillig.
+Die Sparte **Leasing** ist für einen Auto-Leasingvertrag. Die Rate läuft wie jeder **Pauschalvertrag** (Rate, Beginn, Ende = Rückgabedatum, Erinnerung, Kündigungsfrist) und zählt in den Summen mit; im Panel steht der Vertrag in der Gruppe **Kredite / Finanzierungen**. Dazu behält Tariffy die **Kilometer** im Blick. Alle Angaben zu den Kilometern sind freiwillig.
 
 | Feld | Pflicht | Beschreibung |
 |------|---------|-------------|

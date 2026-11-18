@@ -313,6 +313,7 @@ Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
 | Anbieter | ✅ | Name des Anbieters |
 | Kundennummer | – | Kundennummer beim Anbieter |
 | Tarifname | – | Bezeichnung des Tarifs |
+| Icon | – | Eigenes Icon des Vertrags, z. B. `mdi:car`. Gilt im Panel und für die Sensoren des Vertrags (Sensoren mit Statussymbol wie Guthaben/Nachzahlung behalten ihres). Leer = das Icon der Sparte. |
 | Vertragsbeginn | – | Startdatum des Vertrags |
 | Vertragsende | – | Enddatum / Laufzeit bis |
 | Mindestlaufzeit (Monate) | – | Das Panel zeigt, bis wann der Vertrag mindestens läuft |

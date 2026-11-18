@@ -68,6 +68,7 @@ CONTRACT_FIELDS = (
     "sparte",
     "anbieter",
     "tarif",
+    "icon",
     "versicherungsart",
     "km_start",
     "km_pro_jahr",

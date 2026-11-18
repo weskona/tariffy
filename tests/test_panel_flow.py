@@ -20,7 +20,7 @@ from .test_panel import GOLDEN, frontend_env  # noqa: F401  (fixture)
 FIXTURES = json.loads((Path(__file__).parent / "frontend" / "fixtures.json").read_text(encoding="utf-8"))
 FORMS = FIXTURES["flows"]
 TRANSLATIONS = Path(__file__).parent.parent / "custom_components" / "tariffy" / "translations"
-PANEL_KINDS = {"date", "text", "number", "select", "entity", "boolean"}  # keep in sync with _fieldSpec()
+PANEL_KINDS = {"date", "text", "number", "select", "entity", "boolean", "icon"}  # keep in sync with _fieldSpec()
 RECONFIGURE = FIXTURES["reconfigure"]
 
 

@@ -60,6 +60,7 @@ from .const import (
     CONF_KUENDIGUNG_BESTAETIGT,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
+    CONF_ICON,
     CONF_KM_AKTUELL,
     CONF_KM_GESAMT,
     CONF_KM_SENSOR,
@@ -791,6 +792,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if self.entry.data.get(CONF_SPARTE) == SPARTE_LEASING
                 else {}
             ),
+            # das eigene Icon gehoert zum Vertrag
+            **({CONF_ICON: self.entry.data[CONF_ICON]} if self.entry.data.get(CONF_ICON) else {}),
             # Einmalposten gehoeren zum Vertrag (auch in die Gesamtkosten ueber alle Laufzeiten)
             **(
                 {CONF_EINMALPOSTEN: self.entry.data[CONF_EINMALPOSTEN]}
@@ -1996,6 +1999,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ANBIETER: data.get(CONF_ANBIETER),
             CONF_KUNDENNUMMER: data.get(CONF_KUNDENNUMMER),
             CONF_TARIF: data.get(CONF_TARIF),
+            CONF_ICON: data.get(CONF_ICON) or None,
             CONF_ARBEITSPREIS: arbeitspreis,
             CONF_ARBEITSPREIS_SENSOR: arbeitspreis_sensor,
             CONF_ARBEITSPREIS_AUFSCHLAG: arbeitspreis_aufschlag,

@@ -24,7 +24,7 @@ from .test_reconfigure import _form_defaults
 FIXTURES = json.loads((Path(__file__).parent / "frontend" / "fixtures.json").read_text(encoding="utf-8"))
 CREATE = FIXTURES["create"]
 TRANSLATIONS = Path(__file__).parent.parent / "custom_components" / "tariffy" / "translations"
-PANEL_KINDS = {"date", "text", "number", "select", "entity", "boolean"}  # keep in sync with _fieldSpec()
+PANEL_KINDS = {"date", "text", "number", "select", "entity", "boolean", "icon"}  # keep in sync with _fieldSpec()
 
 
 def _forms():
