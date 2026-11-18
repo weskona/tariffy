@@ -1684,6 +1684,7 @@ class TariffyPanel extends HTMLElement {
   _onceSection(c) {
     const items = c.einmalposten || [];
     if (!items.length && !this._isAdmin) return null;
+    if (!items.length && c.sparte === "streaming") return null; // a streaming subscription has none; one that already has items keeps the block
     const rows = items.map((item, index) => h("div", { class: "row once-row" },
       h("span", {}, item.bezeichnung, item.datum ? h("span", { class: "t2", text: this._date(item.datum) }) : null),
       h("span", { class: item.betrag < 0 ? "red-t" : "green-t", text: this._money(item.betrag, c.currency, { sign: true, digits: 2 }) }),

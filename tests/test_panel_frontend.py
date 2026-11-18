@@ -91,6 +91,13 @@ def test_every_used_text_exists():
     assert missing == set(), f"used but not defined: {missing}"
 
 
+def test_streaming_has_no_empty_one_time_items_block():
+    """A streaming subscription needs no one-time items; one that already has some keeps the block."""
+    block = SOURCE[SOURCE.index("  _onceSection(c) {"):]
+    block = block[: block.index("\n  }\n")]
+    assert 'c.sparte === "streaming"' in block and "!items.length" in block
+
+
 def test_empty_overview_groups_are_not_appended():
     """Issue #50: with only metered or only flat-rate contracts one group is null.
     `appendChild(null)` throws and leaves the whole panel empty, so the overview

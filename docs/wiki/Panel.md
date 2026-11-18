@@ -95,6 +95,8 @@ Hat ein Vertrag eine **Historie** (zum Beispiel weil du ihn jährlich **verläng
 
 ## Einmalposten (Bonus und Rechnung)
 
+Bei der Sparte **Streaming** erscheint der Block nicht, solange der Vertrag keine Einmalposten hat (ein Abo braucht sie meist nicht); hat ein Streaming-Vertrag schon welche, bleibt der Block mit ihnen sichtbar.
+
 Im Tab **Verträge** hat jeder Vertrag in den Details den Block **Einmalposten** (nur Administratoren können ihn ändern). Dort trägst du einmalige Beträge ein, die nicht zum Abschlag gehören, mit **Bezeichnung**, **Betrag** und **Datum**:
 
 - ein **positiver** Betrag ist eine **Gutschrift**, zum Beispiel ein Wechselbonus,

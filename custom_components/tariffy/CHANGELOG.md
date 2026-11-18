@@ -13,6 +13,8 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 - **Folgevertrag planen (Sparte Streaming): ein kürzeres Formular mit der Zahlweise.** Bei Streaming-Verträgen fragt das Formular jetzt nach **Beginn** (ohne Eingabe der Tag nach dem Ende des laufenden Vertrags vorgeschlagen), **Tarifname**, **Zahlweise** (so lässt sich von jährlich auf monatlich wechseln), **Betrag pro Zahlung** und **Ende**. Anbieter, Kundennummer und Grundpreis gibt es nur noch, wenn ein schon geplanter Vertrag sie hat. Beim Wechsel werden die neue Zahlweise und der neue Betrag übernommen (der Betrag je Zahlung wird wie überall als Monatsbetrag gespeichert); ein Wert, den du nicht änderst, bleibt wie im laufenden Vertrag. Alle anderen Sparten (Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Leasing, Sonstiges) behalten ihr Formular.
 
+- **Streaming: kein Block „Einmalposten“.** Die Details eines Streaming-Vertrags zeigen den leeren Block (und seine Schaltfläche zum Hinzufügen) nicht mehr; hat ein Streaming-Vertrag schon Einmalposten, bleibt der Block mit ihnen sichtbar.
+
 ### Fixed
 
 - **Ein Pauschalvertrag mit jährlicher, halbjährlicher oder vierteljährlicher Zahlung fiel beim automatischen Wechsel auf monatlich zurück.** Die Zahlweise wird jetzt in die neue Laufzeit übernommen (oder durch die geplante ersetzt).
