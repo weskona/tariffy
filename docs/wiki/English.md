@@ -314,14 +314,16 @@ The category **Leasing** is for a car lease. The rate is a normal **flat-rate** 
 
 If the supplier changes the instalment by itself, Tariffy calculates with the new amount retroactively until you enter something. In the **Contracts** tab every contract with an instalment (not the loan) has a block **Instalments paid** (administrators can change it). There you enter **what was paid from when**, for example for gas months 1–7 178 €, month 8 174.41 €, months 9–11 215 €:
 
-| From | Instalment |
-|------|------------|
-| 01.01.2026 | 178.00 € |
-| 01.08.2026 | 174.41 € |
-| 01.09.2026 | 215.00 € |
+| Month | Instalment |
+|-------|------------|
+| March to July | 178.00 € |
+| August | 174.41 € |
+| September until today | 215.00 € |
 
-- The dialog **Edit instalments** shows all rows at once; you can add, change and remove rows and save everything together.
-- Every row is valid **from its date until the next one begins**. The **newest row is the current instalment**: Tariffy takes its amount as the instalment of the contract. Before the first row its amount applies. Only past dates are possible, each day once, 60 rows at most. With a payment interval other than monthly you enter the amount **per payment**.
+- The dialog **Edit instalments** lists **every month of the term** (for a contract from March to February: March, April, … February), each with a field for the instalment. Months that **have not begun yet are locked** and show the current instalment; a month can be edited once it has begun. A contract without an end shows the months up to the current one. Saving applies to all months together.
+- A change also applies to **the following months that still have the same amount**: enter 178 for March, 174.41 for August and 215 for September, nothing more. An empty field takes the amount of the month before.
+- The **last month is the current instalment**: Tariffy takes its amount as the instalment of the contract. With a payment interval other than monthly you enter the amount **per payment**. The contract needs a start date.
+- Only the months where the amount changes are stored, each from the first of the month (60 at most). A change in the middle of a month that Tariffy noted itself when you edited counts from the first of the month once you save.
 - With the history, **paid so far**, **balance so far**, the **forecast at contract end** and the **recommended instalment** use the amounts that really applied. For metered contracts every amount counts for the months (days divided by 30.44, as elsewhere) between its date and the next; for flat-rate contracts every debit counts with the amount of its date.
 - **Without rows** nothing changes: the current instalment applies as before (with the single change Tariffy remembers when you edit). With a history, a change of the instalment in the contract form appends an entry with today's date.
 - When a flat-rate contract is **renewed** and at a **tariff switch** the new term starts without the old history; the old term stays in the history with its values.
