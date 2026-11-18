@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-beta.7] - 2026-11-18
+
+### Changed
+
+- **Instalments paid: one field per month of the term.** The dialog **Edit instalments** now lists every month of the term up to today (a contract from March to February: March, April, … up to the current month) with a field for the instalment, instead of free rows with dates. A change also applies to the following months that still have the same amount, so you enter the months where the amount changed (for example March 178, August 174.41, September 215). The last month is the current instalment. Stored are only the months where the amount changes, each from the first of the month; the calculation and the stored history are as in 1.32.0-beta.6 (a change in the middle of a month that Tariffy noted itself when you edited counts from the first of the month once you save).
+
 ## [1.32.0-beta.6] - 2026-11-18
 
 ### Added

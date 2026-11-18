@@ -78,14 +78,16 @@ Hat ein Vertrag eine **Historie** (zum Beispiel weil du ihn jährlich **verläng
 
 Ändert der Versorger den Abschlag von sich aus, rechnet Tariffy mit dem neuen Betrag rückwirkend, solange du nichts einträgst. Im Tab **Verträge** hat jeder Vertrag mit Abschlag (nicht der Kredit) den Block **Gezahlte Abschläge** (Änderungen nur für Administratoren). Dort trägst du ein, **was ab wann gezahlt wurde**, zum Beispiel bei Gas Monat 1–7 178 €, Monat 8 174,41 €, Monat 9–11 215 €:
 
-| Ab | Abschlag |
-|----|----------|
-| 01.01.2026 | 178,00 € |
-| 01.08.2026 | 174,41 € |
-| 01.09.2026 | 215,00 € |
+| Monat | Abschlag |
+|-------|----------|
+| März bis Juli | 178,00 € |
+| August | 174,41 € |
+| September bis heute | 215,00 € |
 
-- Der Dialog **Abschläge bearbeiten** zeigt alle Zeilen auf einmal; du kannst Zeilen hinzufügen, ändern und entfernen und speicherst alles zusammen.
-- Jede Zeile gilt **ab ihrem Datum, bis die nächste beginnt**. Die **neueste Zeile ist der aktuelle Abschlag**: Tariffy übernimmt ihren Betrag als Abschlag des Vertrags. Vor der ersten Zeile gilt deren Betrag. Es sind nur Daten in der Vergangenheit möglich, jeder Tag nur einmal, höchstens 60 Zeilen. Bei nicht monatlicher Zahlweise gibst du den Betrag **je Zahlung** ein.
+- Der Dialog **Abschläge bearbeiten** listet **jeden Monat der Laufzeit bis heute** (bei einem Vertrag von März bis Februar also März, April, … bis zum laufenden Monat), jeweils mit einem Feld für den Abschlag. Speichern gilt für alle Monate zusammen.
+- Eine Änderung gilt **auch für die folgenden Monate, die noch denselben Betrag haben**: Du trägst 178 im März ein, 174,41 im August und 215 im September; mehr ist nicht zu tun. Ein leeres Feld übernimmt den Betrag des Vormonats.
+- Der **letzte Monat ist der aktuelle Abschlag**: Tariffy übernimmt seinen Betrag als Abschlag des Vertrags. Bei nicht monatlicher Zahlweise gibst du den Betrag **je Zahlung** ein. Der Vertrag braucht einen Beginn.
+- Gespeichert werden nur die Monate, in denen sich der Betrag ändert, jeweils ab dem Ersten des Monats (höchstens 60). Eine Änderung mitten im Monat, die Tariffy beim Bearbeiten selbst vermerkt hat, zählt beim Speichern ab dem Monatsersten.
 - Mit dem Verlauf rechnen **Gezahlt bisher**, **Guthaben/Nachzahlung bisher**, die **Prognose zum Vertragsende** und der **empfohlene Abschlag** mit den Beträgen, die wirklich galten. Bei Verbrauchsverträgen zählt jeder Betrag für die Monate (Tage durch 30,44, wie sonst auch) zwischen seinem Datum und dem nächsten; bei Pauschalverträgen zählt jede Abbuchung mit dem Betrag ihres Termins.
 - **Ohne Zeilen** ändert sich nichts: Es gilt wie bisher der aktuelle Abschlag (mit der einzelnen Änderung, die Tariffy beim Bearbeiten selbst merkt). Mit Verlauf hängt eine Änderung des Abschlags im Vertragsformular einen Eintrag mit dem heutigen Datum an.
 - Beim **Verlängern** eines Pauschalvertrags und bei einem **Tarifwechsel** beginnt die neue Laufzeit ohne den alten Verlauf; die alte Laufzeit steht mit ihren Werten in der Historie.

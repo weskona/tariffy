@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.7] - 2026-11-18
+
+### Changed
+
+- **Gezahlte Abschläge: ein Feld pro Monat der Laufzeit.** Der Dialog **Abschläge bearbeiten** listet jetzt jeden Monat der Laufzeit bis heute (bei einem Vertrag von März bis Februar: März, April, … bis zum laufenden Monat) mit einem Feld für den Abschlag, statt freier Zeilen mit Datum. Eine Änderung gilt auch für die folgenden Monate, die noch denselben Betrag haben; du trägst also die Monate ein, in denen sich der Betrag geändert hat (zum Beispiel März 178, August 174,41, September 215). Der letzte Monat ist der aktuelle Abschlag. Gespeichert werden nur die Monate, in denen sich der Betrag ändert, jeweils ab dem Ersten des Monats; die Rechnung und der gespeicherte Verlauf sind wie in 1.32.0-beta.6 (eine Änderung mitten im Monat, die Tariffy beim Bearbeiten selbst vermerkt hat, zählt beim Speichern ab dem Monatsersten).
+
 ## [1.32.0-beta.6] - 2026-11-18
 
 ### Added

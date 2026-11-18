@@ -193,10 +193,11 @@ tr.sub td:first-child { padding-left: 32px; }
 .sec { min-width: 0; }
 .aussen-sec { grid-column: 1 / -1; }
 .aussen-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 18px; }
-.instal-head, .instal-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 32px; gap: 8px; align-items: center; }
-.instal-head { color: var(--muted); font-size: 12px; font-weight: 600; margin-bottom: 4px; }
-.instal-row { margin-bottom: 8px; }
-.instal-row .fld { margin: 0; }
+.instal-grid { max-height: 46vh; overflow-y: auto; margin: 4px 0 10px; padding-right: 4px; }
+.instal-head, .instal-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 150px); gap: 10px; align-items: center; }
+.instal-head { color: var(--muted); font-size: 12px; font-weight: 600; padding-bottom: 4px; position: sticky; top: 0; background: var(--panel); }
+.instal-row { padding: 3px 0; font-size: 14px; }
+.instal-row .fld { margin: 0; display: block; }
 .once-add { margin-top: 8px; }
 .chart { margin-bottom: 22px; }
 .chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }

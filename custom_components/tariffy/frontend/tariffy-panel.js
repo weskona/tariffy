@@ -1700,20 +1700,53 @@ class TariffyPanel extends HTMLElement {
       }, icon("plus"), this._t("onceAdd"))) : null);
   }
 
-  /* ----- instalments paid: what the supplier really charged and from when, administrators only ----- */
+  /* ----- instalments paid: one amount per month of the term, administrators only ----- */
+  // the months of the term up to this month, each with the instalment that applied in it
+  _instalMonths(c) {
+    const first = /^(\d{4})-(\d{2})/.exec(c.beginn || "");
+    if (!first) return [];
+    const now = new Date();
+    let last = [now.getFullYear(), now.getMonth() + 1];
+    const end = /^(\d{4})-(\d{2})/.exec(c.ende || "");
+    if (end && (Number(end[1]) < last[0] || (Number(end[1]) === last[0] && Number(end[2]) < last[1]))) last = [Number(end[1]), Number(end[2])];
+    const entries = c.abschlagsverlauf || [];
+    const current = isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : null;
+    const months = [];
+    let y = Number(first[1]);
+    let m = Number(first[2]);
+    while ((y < last[0] || (y === last[0] && m <= last[1])) && months.length < 600) {
+      const iso = `${y}-${String(m).padStart(2, "0")}-01`;
+      const lastDay = `${y}-${String(m).padStart(2, "0")}-31`; // an entry inside the month counts for the month
+      const valid = entries.filter((e) => e.ab <= lastDay);
+      const value = entries.length ? (valid.length ? valid[valid.length - 1] : entries[0]).betrag_je_zahlung : current;
+      months.push({ iso, label: new Intl.DateTimeFormat(this._locale, { month: "long", year: "numeric" }).format(new Date(y, m - 1, 1)),
+        betrag: isNum(value) ? String(value) : "" });
+      m += 1;
+      if (m > 12) { m = 1; y += 1; }
+    }
+    return months;
+  }
+
   _openInstal(c) {
     this._closeFlow();
-    const je = (e) => (isNum(e.betrag_je_zahlung) ? String(e.betrag_je_zahlung) : "");
-    const rows = (c.abschlagsverlauf || []).length
-      ? c.abschlagsverlauf.map((e) => ({ ab: e.ab, betrag: je(e) }))
-      : [{ ab: c.beginn || "", betrag: isNum(c.abschlag_je_zahlung) ? String(c.abschlag_je_zahlung) : "" }];
-    this._dlg = { mode: "instal", stage: "form", id: c.entry_id, name: c.title, flowId: null, localize: () => "", fields: [], values: {}, rows, message: null };
+    const months = this._instalMonths(c);
+    this._dlg = { mode: "instal", stage: "form", id: c.entry_id, name: c.title, flowId: null, localize: () => "", fields: [], values: {},
+      months, interval: c.zahlweise && c.zahlweise !== "monthly", message: null };
     this._renderInstalDialog();
   }
 
   async _saveInstal() {
     const dlg = this._dlg;
-    const rows = dlg.rows.filter((r) => r.ab || r.betrag).map((r) => ({ ab: r.ab, betrag: r.betrag }));
+    // a month without an amount takes the one before; only the months where the amount changes are sent
+    const rows = [];
+    let before = null;
+    for (const month of dlg.months) {
+      const text = String(month.betrag || "").trim();
+      const value = text === "" ? before : text;
+      if (value === null) { dlg.message = this._t("instalErr_first"); this._renderInstalDialog(); return; }
+      if (before === null || Number(value) !== Number(before) || Number.isNaN(Number(value))) rows.push({ ab: month.iso, betrag: value });
+      before = value;
+    }
     dlg.stage = "saving";
     dlg.message = null;
     this._renderInstalDialog();
@@ -1736,26 +1769,39 @@ class TariffyPanel extends HTMLElement {
     const dlg = this._dlg;
     if (!dlg) return;
     const busy = dlg.stage === "saving";
-    const rows = dlg.rows.map((r, i) => h("div", { class: "instal-row" },
-      h("label", { class: "fld" }, h("input", { type: "date", value: r.ab, "aria-label": this._t("instalFrom"), disabled: busy ? "" : null,
-        oninput: (ev) => { r.ab = ev.target.value; } })),
-      h("label", { class: "fld" }, h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: r.betrag, placeholder: this._t("instalAmount"),
-        "aria-label": this._t("instalAmount"), disabled: busy ? "" : null, oninput: (ev) => { r.betrag = ev.target.value.replace(",", "."); } })),
-      h("button", { class: "icon-btn", type: "button", title: this._t("instalRemove"), "aria-label": this._t("instalRemove"), disabled: busy ? "" : null,
-        onclick: () => { dlg.rows.splice(i, 1); this._renderInstalDialog(); } }, icon("close"))));
+    const inputs = [];
+    const rows = dlg.months.map((month, i) => {
+      const input = h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: month.betrag, "aria-label": `${month.label}: ${this._t("instalAmount")}`,
+        disabled: busy ? "" : null, oninput: (ev) => { month.betrag = ev.target.value.replace(",", "."); },
+        // a finished edit also applies to the following months that still had the old amount
+        onchange: (ev) => {
+          ev.target.value = month.betrag; // a comma typed as decimal separator is shown as the dot that is stored
+          const old = month.before;
+          month.before = month.betrag;
+          for (let j = i + 1; j < dlg.months.length; j += 1) {
+            if (dlg.months[j].betrag !== old) continue;
+            dlg.months[j].betrag = month.betrag;
+            dlg.months[j].before = month.betrag;
+            inputs[j].value = month.betrag;
+          }
+        } });
+      month.before = month.betrag;
+      inputs.push(input);
+      return h("label", { class: "instal-row" }, h("span", { text: month.label }), h("span", { class: "fld" }, input));
+    });
     const body = [
       h("h2", { id: "dlg-title", text: this._t("instalTitle") }),
       h("p", { class: "hint", text: dlg.name }),
       h("p", { class: "hint", text: this._t("instalHint") }),
-      h("div", { class: "instal-head" }, h("span", { text: this._t("instalFrom") }), h("span", { text: this._t("instalAmount") }), h("span")),
-      ...rows,
-      dlg.rows.length ? null : h("p", { class: "hint", text: this._t("instalEmptyHint") }),
-      h("button", { class: "btn", type: "button", disabled: busy ? "" : null, onclick: () => { dlg.rows.push({ ab: "", betrag: "" }); this._renderInstalDialog(); } },
-        icon("plus"), this._t("instalAddRow")),
+      dlg.months.length
+        ? h("div", { class: "instal-grid" },
+          h("div", { class: "instal-head" }, h("span", { text: this._t("instalMonth") }), h("span", { text: this._t(dlg.interval ? "instalAmountPay" : "instalAmount") })),
+          rows)
+        : h("p", { class: "hint", text: this._t("instalNoStart") }),
     ];
     if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
     body.push(h("div", { class: "actions" },
-      h("button", { class: "btn go", type: "button", disabled: busy ? "" : null, text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveInstal() }),
+      h("button", { class: "btn go", type: "button", disabled: busy || !dlg.months.length ? "" : null, text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveInstal() }),
       h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() })));
     this._mountDialog(dlg, body, busy);
   }
