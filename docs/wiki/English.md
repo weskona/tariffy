@@ -214,7 +214,8 @@ Plus is credit, minus is balance due. When the credit already covers the costs u
 
 **Who sees and may do what**
 
-- **All users** see the contracts, but only selected values. Customer number, meter numbers, MaLo ID, notification target and internal markers are **not** sent to the panel.
+- **All users** see the contracts, but only selected values. Customer number, meter numbers, MaLo ID, licence plate, notification target and internal markers are **not** sent to the panel.
+- **Administrators only** also see the **customer number, meter number(s) and MaLo ID** in the block **Contract** of the contract details (tab **Contracts**), each with a symbol to **copy** it. They are only sent to administrators, other browsers never receive them. The licence plate and the notification target stay hidden for them too.
 - **Administrators only** get the buttons and dialogs below. The backend checks this again, so a non-administrator cannot trigger the actions through the API either.
 
 **Acknowledging:** planning, editing, creating and deleting are in the **Contracts** tab (icons in the row, button at the top). The overview is read-only and has no buttons. "Acknowledge warning" and "Acknowledge cancellation" appear in the expanded details of the contract in the **Contracts** tab, depending on the situation; the card in the overview keeps the note with the reason. They do the same as the buttons of the contract and ask a second time before anything happens.
@@ -292,7 +293,7 @@ The category **Leasing** is for a car lease. The rate is a normal **flat-rate** 
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Licence plate | – | Treated like the customer number: not shown in the side panel |
+| Licence plate | – | Personal: not shown in the side panel |
 | Odometer sensor | – | Sensor of the car with the odometer in km (miles are converted). It takes precedence over the value entered by hand. |
 | Current odometer | – | Only if there is no sensor: enter it by hand and update it from time to time (edit the contract) |
 | Odometer at contract start | – | The start of the lease. Empty = 0 |

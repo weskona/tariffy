@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.3] - 2026-11-18
+
+### Added
+
+- **Kundennummer, Zählernummer(n) und MaLo-ID in den Vertragsdetails** des Panels. Bisher waren sie nur im Bearbeiten-Formular zu sehen. **Administratoren** sehen sie jetzt im Block **Vertrag** (Tab **Verträge**), jeweils mit einem Symbol zum **Kopieren** des Werts. Sie werden nur an Administratoren gesendet: Die Browser anderer Nutzer bekommen sie nie, und Kennzeichen und Benachrichtigungs-Ziel bleiben für alle verborgen. An Verträgen und Sensoren ändert sich nichts.
+
 ## [1.32.0-beta.2] - 2026-11-18
 
 ### Added

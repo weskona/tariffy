@@ -318,7 +318,7 @@
           "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)"
         },
         "data_description": {
-          "kennzeichen": "Wird wie die Kundennummer behandelt: im Seitenleisten-Panel nicht sichtbar",
+          "kennzeichen": "Gilt als persönlich: im Seitenleisten-Panel nicht sichtbar",
           "km_start": "Kilometerstand zu Beginn des Vertrags",
           "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr"
         }
@@ -358,7 +358,7 @@
           "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)"
         },
         "data_description": {
-          "kennzeichen": "Wird wie die Kundennummer behandelt: im Seitenleisten-Panel nicht sichtbar",
+          "kennzeichen": "Gilt als persönlich: im Seitenleisten-Panel nicht sichtbar",
           "km_start": "Kilometerstand zu Beginn des Vertrags",
           "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr"
         }
@@ -639,7 +639,7 @@
           "preis_minderkm": "Gutschrift je Minderkilometer (€)"
         },
         "data_description": {
-          "kennzeichen": "Gilt wie die Kundennummer als persönlich: wird im Seitenpanel nicht angezeigt",
+          "kennzeichen": "Gilt als persönlich: wird im Seitenpanel nicht angezeigt",
           "km_sensor": "Sensor des Fahrzeugs mit dem Kilometerstand in km. Er hat Vorrang vor dem von Hand eingetragenen Wert.",
           "km_aktuell": "Nur wenn du keinen Sensor hast: Trage den Kilometerstand von Hand ein und aktualisiere ihn ab und zu (Vertrag bearbeiten).",
           "km_start": "Kilometerstand bei Beginn des Leasings",
@@ -667,7 +667,7 @@
           "preis_minderkm": "Gutschrift je Minderkilometer (€)"
         },
         "data_description": {
-          "kennzeichen": "Gilt wie die Kundennummer als persönlich: wird im Seitenpanel nicht angezeigt",
+          "kennzeichen": "Gilt als persönlich: wird im Seitenpanel nicht angezeigt",
           "km_sensor": "Sensor des Fahrzeugs mit dem Kilometerstand in km. Er hat Vorrang vor dem von Hand eingetragenen Wert.",
           "km_aktuell": "Nur wenn du keinen Sensor hast: Trage den Kilometerstand von Hand ein und aktualisiere ihn ab und zu (Vertrag bearbeiten).",
           "km_start": "Kilometerstand bei Beginn des Leasings",

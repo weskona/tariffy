@@ -186,6 +186,8 @@ CONTRACT_FIELDS = (
     "laufzeiten_anzahl",
     "seit",
 )
+# Persoenliche Angaben: gehen nur an Administratoren (siehe contract_payload); das Benachrichtigungsziel nie
+PERSOENLICH = ("kundennummer", "zaehlernummer", "zaehlernummer_nt", "marktlokation")
 NEXT_FIELDS = ("beginn", "ende", "anbieter", "tarif", "arbeitspreis", "abschlag")
 
 
@@ -202,12 +204,16 @@ def _json_safe(value: Any) -> Any:
     return value
 
 
-def contract_payload(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
-    """Data of one contract as shown by the panel."""
+def contract_payload(hass: HomeAssistant, entry: ConfigEntry, admin: bool = False) -> dict[str, Any]:
+    """Data of one contract as shown by the panel. The personal details (customer number, meter numbers,
+    market location) are only part of it for an administrator: everyone else's browser never receives them."""
     data = entry.runtime_data.data or {}
     payload: dict[str, Any] = {"entry_id": entry.entry_id, "title": entry.title}
     for key in CONTRACT_FIELDS:
         payload[key] = _json_safe(data.get(key))
+    if admin:
+        for key in PERSOENLICH:
+            payload[key] = _json_safe(entry.data.get(key)) or None
 
     nxt = data.get("next") or {}
     payload["next"] = (
@@ -226,7 +232,7 @@ def contract_payload(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
 
 
 @callback
-def async_contracts(hass: HomeAssistant) -> list[dict[str, Any]]:
+def async_contracts(hass: HomeAssistant, admin: bool = False) -> list[dict[str, Any]]:
     """All loaded contracts."""
     contracts = []
     for entry in hass.config_entries.async_entries(DOMAIN):
@@ -234,7 +240,7 @@ def async_contracts(hass: HomeAssistant) -> list[dict[str, Any]]:
             continue
         if getattr(entry, "runtime_data", None) is None:
             continue
-        contracts.append(contract_payload(hass, entry))
+        contracts.append(contract_payload(hass, entry, admin))
     return contracts
 
 
@@ -254,7 +260,7 @@ def async_attach_entry(hass: HomeAssistant, entry: ConfigEntry, coordinator) -> 
 @callback
 def ws_contracts(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     """Return all contracts."""
-    connection.send_result(msg["id"], {"contracts": async_contracts(hass)})
+    connection.send_result(msg["id"], {"contracts": async_contracts(hass, connection.user.is_admin)})
 
 
 @websocket_api.websocket_command({vol.Required("type"): "tariffy/subscribe"})
@@ -265,7 +271,7 @@ def ws_subscribe(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     @callback
     def _push() -> None:
         connection.send_message(
-            websocket_api.event_message(msg["id"], {"contracts": async_contracts(hass)})
+            websocket_api.event_message(msg["id"], {"contracts": async_contracts(hass, connection.user.is_admin)})
         )
 
     connection.subscriptions[msg["id"]] = async_dispatcher_connect(

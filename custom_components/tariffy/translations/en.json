@@ -318,7 +318,7 @@
           "km_pro_jahr": "Allowed kilometres per year (km)"
         },
         "data_description": {
-          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "kennzeichen": "Personal: not shown in the side panel",
           "km_start": "Odometer reading at the start of the contract",
           "km_pro_jahr": "Kilometres per year agreed in the contract"
         }
@@ -358,7 +358,7 @@
           "km_pro_jahr": "Allowed kilometres per year (km)"
         },
         "data_description": {
-          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "kennzeichen": "Personal: not shown in the side panel",
           "km_start": "Odometer reading at the start of the contract",
           "km_pro_jahr": "Kilometres per year agreed in the contract"
         }
@@ -639,7 +639,7 @@
           "preis_minderkm": "Credit per kilometre not driven (€)"
         },
         "data_description": {
-          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "kennzeichen": "Personal: not shown in the side panel",
           "km_sensor": "Sensor of the car with the odometer in km. It takes precedence over the value entered by hand.",
           "km_aktuell": "Only if you have no sensor: enter the odometer by hand and update it from time to time (edit the contract).",
           "km_start": "Odometer reading at the start of the lease",
@@ -667,7 +667,7 @@
           "preis_minderkm": "Credit per kilometre not driven (€)"
         },
         "data_description": {
-          "kennzeichen": "Treated like the customer number: not shown in the side panel",
+          "kennzeichen": "Personal: not shown in the side panel",
           "km_sensor": "Sensor of the car with the odometer in km. It takes precedence over the value entered by hand.",
           "km_aktuell": "Only if you have no sensor: enter the odometer by hand and update it from time to time (edit the contract).",
           "km_start": "Odometer reading at the start of the lease",

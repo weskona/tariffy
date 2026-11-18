@@ -28,7 +28,8 @@ Vorzeichen: **Plus** ist Guthaben, **Minus** ist Nachzahlung. „Zum Vertragsend
 
 ## Wer sieht und darf was
 
-- **Alle Benutzer** sehen die Verträge, aber nur ausgewählte Werte. Kundennummer, Zählernummern, Marktlokations-ID, Benachrichtigungs-Ziel und interne Markierungen werden **nicht** ans Panel geschickt.
+- **Alle Benutzer** sehen die Verträge, aber nur ausgewählte Werte. Kundennummer, Zählernummern, Marktlokations-ID, Kennzeichen, Benachrichtigungs-Ziel und interne Markierungen werden **nicht** ans Panel geschickt.
+- **Nur Administratoren** sehen zusätzlich **Kundennummer, Zählernummer(n) und Marktlokations-ID** im Block **Vertrag** der Vertragsdetails (Tab **Verträge**), jeweils mit einem Symbol zum **Kopieren**. Die Angaben werden nur an Administratoren gesendet, andere Browser bekommen sie nie. Kennzeichen und Benachrichtigungs-Ziel bleiben auch für sie verborgen.
 - **Nur Administratoren** sehen die Buttons und Dialoge zum Bestätigen, Bearbeiten, Anlegen und Löschen. Das prüft zusätzlich das Backend: Ein Nicht-Administrator kann die Aktionen auch über die Schnittstelle nicht auslösen.
 
 ## Bestätigen

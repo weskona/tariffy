@@ -383,7 +383,7 @@ Wie Strom, zusätzlich:
 
 | Feld (nur Kfz) | Pflicht | Beschreibung |
 |------|---------|-------------|
-| Kennzeichen | – | Wie die Kundennummer persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
+| Kennzeichen | – | Persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
 | Kilometerstand bei Vertragsbeginn | – | in km |
 | Erlaubte Kilometer pro Jahr | – | in km |
 
