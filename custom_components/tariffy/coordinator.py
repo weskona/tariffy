@@ -1240,6 +1240,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         a_monate: list[list[float | None]] = [[None] * len(monate) for _ in register]
         quellen: list[list[str | None]] = [[None] * len(monate) for _ in register]
         a_bisher_liste: list[float | None] = [None] * len(register)
+        gesamt_teile: list[float | None] = []  # Gesamtverbrauch bisher je Gruppe (nur Variante 1), fuer die Anzeige
         for gesamt_sensor, indizes in gruppen:
             # Autarkie im gemessenen Zeitraum
             a_bisher = None
@@ -1248,6 +1249,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     gesamt_sensor, None, beginn, self._get_aussen_offset
                 )
                 a_bisher = pv.autarkie(sum(register[i]["bisher"] for i in indizes), gesamt_bisher)
+                gesamt_teile.append(gesamt_bisher)
             elif variante == "entitaet":
                 a_bisher = await self._pv_mittel(autarkie_sensor, beginn, heute, heute)
             if a_bisher is None and manuell:
@@ -1298,8 +1300,29 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 zeile["autarkie_nt"] = None if a_monate[1][lauf] is None else round(a_monate[1][lauf] * 100, 1)
                 zeile["faktor_nt"] = round(faktoren[1][lauf], 3)
             monatswerte.append(zeile)
+        # Anzeige (Variante 1): Gesamtverbrauch des Hauses und der Teil, den die PV deckt. Der Gesamtverbrauch wird
+        # linear fortgeschrieben (die Saison steckt nur im Netzbezug); bei HT/NT die Summe beider Tarife.
+        gesamt_bisher_summe: float | None = None
+        gesamt_hoch_summe: float | None = None
+        pv_bisher: float | None = None
+        pv_hoch: float | None = None
+        netz_bisher = sum(r["bisher"] for r in register)
+        if (
+            variante == "gesamtverbrauch"
+            and gesamt_teile
+            and all(t is not None and t >= 0 for t in gesamt_teile)
+            and vergangene_tage > 0
+        ):
+            gesamt_bisher_summe = round(sum(gesamt_teile), 1)  # type: ignore[arg-type]
+            gesamt_hoch_summe = round(sum(gesamt_teile) / vergangene_tage * vertrag_gesamttage, 1)  # type: ignore[arg-type]
+            pv_bisher = round(max(gesamt_bisher_summe - netz_bisher, 0.0), 1)
+            pv_hoch = round(max(gesamt_hoch_summe - gesamt_hoch, 0.0), 1)
         return {
             "variante": variante,
+            "gesamt_bisher": gesamt_bisher_summe,
+            "gesamt_hochgerechnet": gesamt_hoch_summe,
+            "pv_bisher": pv_bisher,
+            "pv_hochgerechnet": pv_hoch,
             "verbrauch_hochgerechnet": round(gesamt_hoch, 1),
             "preis": round(gewichtet / gesamt_hoch, 6) if gesamt_hoch > 0 else None,
             "monate": monatswerte,
@@ -1978,6 +2001,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "autarkie_bisher": autark["bisher"] if autark is not None else None,
             "autarkie_bisher_nt": autark["bisher_nt"] if autark is not None else None,
             "autarkie_naeherung": autark["naeherung"] if autark is not None else None,
+            "verbrauch_gesamt_bisher": autark["gesamt_bisher"] if autark is not None else None,
+            "verbrauch_gesamt_hochgerechnet": autark["gesamt_hochgerechnet"] if autark is not None else None,
+            "verbrauch_pv_gedeckt_bisher": autark["pv_bisher"] if autark is not None else None,
+            "verbrauch_pv_gedeckt_hochgerechnet": autark["pv_hochgerechnet"] if autark is not None else None,
             "prognose_ohne_autarkie": prognose_ohne_autarkie,
             "aussenzaehler": aussen.get("liste") or [],
             "garten_verbrauch": aussen.get("garten_verbrauch"),

@@ -220,6 +220,80 @@ async def test_dual_tariff_with_two_total_sensors_is_worked_out_per_tariff(contr
     assert d["autarkie_bisher"] == 50.0 and d["autarkie_bisher_nt"] == pytest.approx(60.0, abs=0.05)  # 1 - 600/1500
 
 
+# --------------------------------------- the total consumption and what the PV covers (follow-up of Issue 86)
+async def test_the_total_consumption_and_the_pv_share_are_worked_out(contract):
+    """By hand: house 3600 kWh in 181 of 364 days; grid draw 1800 so far."""
+    _, d = await _setup(contract, PV)
+    assert d["verbrauch_gesamt_bisher"] == 3600.0
+    assert d["verbrauch_pv_gedeckt_bisher"] == 1800.0  # total - grid draw
+    gesamt_hoch = 3600 / 181 * 364  # the total is extended linearly
+    assert d["verbrauch_gesamt_hochgerechnet"] == pytest.approx(gesamt_hoch, abs=0.1)
+    # what the PV covers by the end: the linear total minus the season-normalised grid draw
+    assert d["verbrauch_pv_gedeckt_hochgerechnet"] == pytest.approx(gesamt_hoch - _expected_projection(), abs=0.2)
+    assert d["verbrauch_hochgerechnet"] == pytest.approx(_expected_projection(), abs=0.1)  # the grid draw is as before
+    assert (d["verbrauch_gesamt_bisher"] - d["verbrauch_pv_gedeckt_bisher"]) == d["verbrauch_bisher"]
+
+
+async def test_the_figures_of_the_grid_draw_and_the_costs_do_not_change(contract):
+    """The follow-up only adds figures: the forecast is the one of 1.31.0 (hand-calculated above)."""
+    _, d = await _setup(contract, PV)
+    assert d["verbrauch_hochgerechnet"] == pytest.approx(_expected_projection(), abs=0.1)
+    assert d["verbrauch_bisher"] == 1800.0 and d["kosten_bisher"] == pytest.approx(1800 * 0.30 + 10 * 181 / 30.44, abs=3.0)
+
+
+@pytest.mark.parametrize(
+    "data", [{**ELEKTRO, "pv_autarkie": True, "autarkie_manuell": "10 10 20 40 60 70 80 75 50 30 15 10"}, ELEKTRO]
+)
+async def test_without_a_total_sensor_or_the_option_there_is_no_total(contract, data):
+    _, d = await _setup(contract, data)
+    for key in ("verbrauch_gesamt_bisher", "verbrauch_gesamt_hochgerechnet", "verbrauch_pv_gedeckt_bisher", "verbrauch_pv_gedeckt_hochgerechnet"):
+        assert d[key] is None, key
+
+
+async def test_dual_tariff_adds_both_tariffs_with_two_total_sensors(contract):
+    data = {**HT_NT, "gesamtverbrauch_sensor_nt": HAUS_NT}
+    _, d = await _setup(contract, data, _stats(**{NT: NT_2025, HAUS_NT: HAUS_NT_2025}))
+    assert d["verbrauch_gesamt_bisher"] == 3600.0 + 1500.0  # high and low tariff added
+    assert d["verbrauch_pv_gedeckt_bisher"] == (3600 - 1800) + (1500 - 600)
+    assert d["verbrauch_gesamt_hochgerechnet"] == pytest.approx(5100 / 181 * 364, abs=0.2)
+
+
+async def test_dual_tariff_with_one_total_sensor_counts_it_once(contract):
+    _, d = await _setup(contract, HT_NT, _stats(**{NT: NT_2025}))
+    assert d["verbrauch_gesamt_bisher"] == 3600.0  # the one sensor covers both tariffs
+    assert d["verbrauch_pv_gedeckt_bisher"] == 3600 - 2400
+
+
+async def test_more_grid_draw_than_total_consumption_gives_no_negative_pv_share(contract):
+    stats = _stats()
+    stats.bisher[HAUS] = 1000.0  # less than the 1800 kWh of grid draw: nonsense, but never negative
+    _, d = await _setup(contract, PV, stats)
+    assert d["verbrauch_pv_gedeckt_bisher"] == 0.0 and d["verbrauch_pv_gedeckt_hochgerechnet"] >= 0.0
+
+
+async def test_a_total_of_zero_shows_zero_pv(contract):
+    stats = _stats()
+    stats.bisher[HAUS] = 0.0
+    _, d = await _setup(contract, PV, stats)
+    # no self-sufficiency can be worked out without a total: no option effect, no figures, no error
+    assert d["autarkie_aktiv"] is False and d["verbrauch_gesamt_bisher"] is None and d["prognose_real"] is not None
+
+
+async def test_the_sensor_carries_the_new_attributes_only_with_a_total_sensor(contract, hass):
+    await _setup(contract, PV)
+    attrs = [hass.states.get(e).attributes for e in hass.states.async_entity_ids("sensor") if "refund_balance_due_contract_end" in e][0]
+    assert attrs["verbrauch_gesamt_bisher"] == 3600.0 and attrs["verbrauch_pv_gedeckt_bisher"] == 1800.0
+    assert "verbrauch_gesamt_hochgerechnet" in attrs and "verbrauch_pv_gedeckt_hochgerechnet" in attrs
+
+
+async def test_the_panel_gets_the_new_figures(frontend_env, contract, hass):  # noqa: F811
+    from custom_components.tariffy import panel
+
+    entry, _ = await _setup(contract, PV)
+    payload = panel.contract_payload(hass, entry)
+    assert payload["verbrauch_gesamt_bisher"] == 3600.0 and payload["verbrauch_pv_gedeckt_bisher"] == 1800.0
+
+
 # ------------------------------------------------------------------- the sensor
 async def test_the_sensor_shows_the_attributes_only_when_it_applies(contract, hass):
     await _setup(contract, PV)
@@ -371,6 +445,7 @@ async def test_a_self_sufficiency_sensor_in_percent(contract):
     assert d["verbrauch_hochgerechnet"] == pytest.approx(_projection(0.4, [80, 80, 60, 40, 20, 10]), abs=0.5)
     assert d["autarkie_bisher"] == 40.0
     assert {m["quelle"] for m in d["autarkie_monatswerte"]} == {"statistik"}
+    assert d["verbrauch_gesamt_bisher"] is None and d["verbrauch_pv_gedeckt_hochgerechnet"] is None  # no total consumption
 
 
 async def test_the_sensor_values_are_clamped(contract):

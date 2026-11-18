@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-beta.4] - 2026-11-18
+
+### Added
+
+- **Total consumption and "covered by PV" in the panel** (requested in #86). With PV self-sufficiency and a **total-consumption sensor**, the block **Consumption** of an electricity contract shows a small grid with **So far** and **Projected**: **total consumption** of the house, **covered by PV** (total minus grid draw) and **grid draw (billed)**. The total is extended linearly (the season only sits in the grid draw, as in 1.31.0); a dual-tariff meter adds both tariffs. The grid draw and all costs stay as they are; without the option, or with a self-sufficiency sensor in % or own values (no total consumption), the panel is unchanged. The figures are also attributes of the sensor "Refund/balance due (contract end)": `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet`. Missing data hides the rows; the share covered by PV is never negative.
+
 ## [1.32.0-beta.3] - 2026-11-18
 
 ### Added

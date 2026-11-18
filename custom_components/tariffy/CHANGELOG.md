@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-beta.4] - 2026-11-18
+
+### Added
+
+- **Gesamtverbrauch und „durch PV gedeckt“ im Panel** (gewünscht in #86). Mit PV-Autarkie und einem **Gesamtverbrauchs-Sensor** zeigt der Block **Verbrauch** eines Stromvertrags ein kleines Raster mit **Bisher** und **Hochgerechnet**: **Gesamtverbrauch** des Hauses, **durch PV gedeckt** (Gesamtverbrauch minus Netzbezug) und **Netzbezug (abgerechnet)**. Der Gesamtverbrauch wird linear fortgeschrieben (die Saison steckt nur im Netzbezug, wie in 1.31.0); beim Zweizählertarif werden beide Tarife addiert. Netzbezug und alle Kosten bleiben unverändert; ohne die Option oder mit einem Autarkie-Sensor in % bzw. eigenen Werten (kein Gesamtverbrauch) bleibt das Panel wie bisher. Die Werte stehen auch als Attribute am Sensor „Guthaben/Nachzahlung (Vertragsende)“: `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet`. Fehlen Daten, bleiben die Zeilen weg; der Anteil durch PV wird nie negativ.
+
 ## [1.32.0-beta.3] - 2026-11-18
 
 ### Added
