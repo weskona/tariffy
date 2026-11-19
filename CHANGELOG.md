@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0] - 2026-11-19
+
+This release brings together everything that was tested in the betas `1.32.0-beta.1` to `1.32.0-beta.9` and the release candidates `1.32.0-rc.1` to `1.32.0-rc.3`. **Existing contracts keep working without any change.** All new functions are optional or only add something.
+
+### Added
+
+- **New category "Leasing"** (requested in #90) for a car lease. The rate is a normal **flat-rate contract**; on top of that Tariffy watches the **kilometres**: an **odometer sensor** (miles are converted) or the odometer entered by hand, the odometer at the start, the **allowed kilometres per year** and/or over the whole term, a **tolerance upwards and downwards** and a **price per extra kilometre / credit per kilometre not driven**. Tariffy shows the kilometres driven, the target by now, what is left, your average per day and the **projection at the return date** with the **expected extra payment or credit**. Three more sensors (**Kilometres driven**, **Projected kilometres at return**, **Expected extra/shortfall kilometre cost**); the kilometre cost is an estimate and not part of the totals. Leasing contracts stand in the group **"Loans / financing"** of the overview and the list and count in the totals like any flat-rate contract.
+- **Own icon for every contract** (requested in #93). Optional field **Icon** (for example `mdi:car`) in the contract form; used in the panel and for the sensors of the contract. Empty = the icon of the category.
+- **Light design.** The panel follows the design of Home Assistant (light, dark or automatic, no setting of its own); the dark design is unchanged.
+- **Customer number, meter number(s) and MaLo ID in the contract details** of the panel, for administrators only, each with a symbol to copy the value.
+- **Total consumption and "covered by PV"** (requested in #86): with PV self-sufficiency and a total-consumption sensor the block **Consumption** shows total consumption, share covered by PV and grid draw (billed), so far and projected. Also attributes of the sensor "Refund/balance due (contract end)".
+- **Instalments paid: correct what was really charged.** In the **Contracts** tab the dialog **Edit instalments** has a field per payment of the term (monthly one per month, quarterly four a year, half-yearly two, yearly one); payments that were not due yet stay locked. **Paid so far**, the balance, the forecast at contract end and the recommended instalment use the amounts that really applied. Without entries nothing changes.
+- **Earlier terms: instalments by payment.** The dialog for an earlier term (tab **History**) has an optional section with a field for every payment of the term; **Paid** and the balance are worked out from it.
+- **Renew a contract without an end date** (requested in #103): the icon **Renew contract** is also shown for flat-rate contracts without a contract end; the end in the dialog is optional.
+
+### Changed
+
+- **Flat-rate contracts: one amount is enough.** The cost form no longer has the second field **Base price (€/month)**; it stays only for contracts that already have one. Existing contracts keep their figures.
+- **Plan next contract (category Streaming): a shorter form** with start (suggested as the day after the current end), tariff name, payment interval, amount per payment and end. Streaming contracts say **Price** instead of "Instalment", have no empty "One-time items" block and no duplicate "Instalment / year" row. All other categories keep their form.
+- The panel is split into several files (internal); after the update reload the browser page once (Ctrl+F5).
+
+### Fixed
+
+- **The panel stayed empty after a contract was created or changed** (reported in #102): a contract that is being set up is now part of the list sent to the panel.
+- **The panel stayed black when it was opened** until another dashboard was opened and back: the panel now defines itself at once, takes back values that were set earlier and draws itself when its parts have arrived; if a part cannot be loaded, an error is shown.
+- **A flat-rate contract with a yearly, half-yearly or quarterly payment fell back to monthly at an automatic switch.** The payment interval is now taken over into the new term.
+
 ## [1.31.0] - 2026-11-17
 
 This release brings together everything that was tested in the betas `1.31.0-beta.1` and `1.31.0-beta.2`. **Existing contracts keep working without any change.** The new option is off by default.

@@ -68,9 +68,33 @@ CONTRACT_FIELDS = (
     "sparte",
     "anbieter",
     "tarif",
+    "icon",
     "versicherungsart",
     "km_start",
     "km_pro_jahr",
+    "km_sensor",
+    "km_aktuell",
+    "km_gesamt",
+    "km_toleranz_oben",
+    "km_toleranz_unten",
+    "preis_mehrkm",
+    "preis_minderkm",
+    "leasing_km_erlaubt",
+    "leasing_km_stand",
+    "leasing_km_gefahren",
+    "leasing_km_soll",
+    "leasing_km_abweichung",
+    "leasing_km_rest",
+    "leasing_km_rest_je_tag",
+    "leasing_km_je_tag",
+    "leasing_km_prozent",
+    "leasing_km_hochgerechnet",
+    "leasing_km_abweichung_ende",
+    "leasing_mehr_km",
+    "leasing_minder_km",
+    "leasing_nachzahlung",
+    "leasing_gutschrift",
+    "leasing_km_kosten",
     "currency",
     "beginn",
     "ende",
@@ -121,12 +145,17 @@ CONTRACT_FIELDS = (
     "verlaengerbar",
     "historie",
     "einmalposten",
+    "abschlagsverlauf",
     "aussenzaehler",
     "autarkie_aktiv",
     "autarkie_variante",
     "autarkie_bisher",
     "autarkie_bisher_nt",
     "autarkie_naeherung",
+    "verbrauch_gesamt_bisher",
+    "verbrauch_gesamt_hochgerechnet",
+    "verbrauch_pv_gedeckt_bisher",
+    "verbrauch_pv_gedeckt_hochgerechnet",
     "prognose_ohne_autarkie",
     "laufzeit_monate",
     "kredit_summe",
@@ -162,6 +191,8 @@ CONTRACT_FIELDS = (
     "laufzeiten_anzahl",
     "seit",
 )
+# Persoenliche Angaben: gehen nur an Administratoren (siehe contract_payload); das Benachrichtigungsziel nie
+PERSOENLICH = ("kundennummer", "zaehlernummer", "zaehlernummer_nt", "marktlokation")
 NEXT_FIELDS = ("beginn", "ende", "anbieter", "tarif", "arbeitspreis", "abschlag")
 
 
@@ -178,12 +209,16 @@ def _json_safe(value: Any) -> Any:
     return value
 
 
-def contract_payload(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
-    """Data of one contract as shown by the panel."""
+def contract_payload(hass: HomeAssistant, entry: ConfigEntry, admin: bool = False) -> dict[str, Any]:
+    """Data of one contract as shown by the panel. The personal details (customer number, meter numbers,
+    market location) are only part of it for an administrator: everyone else's browser never receives them."""
     data = entry.runtime_data.data or {}
     payload: dict[str, Any] = {"entry_id": entry.entry_id, "title": entry.title}
     for key in CONTRACT_FIELDS:
         payload[key] = _json_safe(data.get(key))
+    if admin:
+        for key in PERSOENLICH:
+            payload[key] = _json_safe(entry.data.get(key)) or None
 
     nxt = data.get("next") or {}
     payload["next"] = (
@@ -202,15 +237,18 @@ def contract_payload(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, Any]:
 
 
 @callback
-def async_contracts(hass: HomeAssistant) -> list[dict[str, Any]]:
+def async_contracts(hass: HomeAssistant, admin: bool = False) -> list[dict[str, Any]]:
     """All loaded contracts."""
     contracts = []
     for entry in hass.config_entries.async_entries(DOMAIN):
-        if entry.state is not ConfigEntryState.LOADED:
+        # A contract that is being set up counts: it tells the panel about itself from inside async_setup_entry, when
+        # its state is not yet LOADED. Leaving it out sent an empty list after every creation and every reload (Issue
+        # 102). One that is being unloaded or failed has no coordinator to show.
+        if entry.state not in (ConfigEntryState.LOADED, ConfigEntryState.SETUP_IN_PROGRESS):
             continue
         if getattr(entry, "runtime_data", None) is None:
             continue
-        contracts.append(contract_payload(hass, entry))
+        contracts.append(contract_payload(hass, entry, admin))
     return contracts
 
 
@@ -230,7 +268,7 @@ def async_attach_entry(hass: HomeAssistant, entry: ConfigEntry, coordinator) -> 
 @callback
 def ws_contracts(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     """Return all contracts."""
-    connection.send_result(msg["id"], {"contracts": async_contracts(hass)})
+    connection.send_result(msg["id"], {"contracts": async_contracts(hass, connection.user.is_admin)})
 
 
 @websocket_api.websocket_command({vol.Required("type"): "tariffy/subscribe"})
@@ -241,7 +279,7 @@ def ws_subscribe(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
     @callback
     def _push() -> None:
         connection.send_message(
-            websocket_api.event_message(msg["id"], {"contracts": async_contracts(hass)})
+            websocket_api.event_message(msg["id"], {"contracts": async_contracts(hass, connection.user.is_admin)})
         )
 
     connection.subscriptions[msg["id"]] = async_dispatcher_connect(
@@ -325,6 +363,7 @@ HISTORY_VALUES = vol.Schema({str: vol.Any(None, str, int, float)})
         vol.Required("type"): "tariffy/history_calc",
         vol.Required("entry_id"): str,
         vol.Required("values"): HISTORY_VALUES,
+        vol.Optional("rows"): [HISTORY_VALUES],
     }
 )
 @websocket_api.async_response
@@ -335,7 +374,7 @@ async def ws_history_calc(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
         return
     try:
-        result = await history.async_calc(hass, entry, msg["values"])
+        result = await history.async_calc(hass, entry, msg["values"], msg.get("rows"))
     except history.HistoryError as err:
         connection.send_error(msg["id"], err.code, err.code)
         return
@@ -349,6 +388,7 @@ async def ws_history_calc(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         vol.Required("entry_id"): str,
         vol.Required("values"): HISTORY_VALUES,
         vol.Optional("index"): vol.All(int, vol.Range(min=0)),
+        vol.Optional("rows"): [HISTORY_VALUES],
     }
 )
 @websocket_api.async_response
@@ -359,7 +399,7 @@ async def ws_history_save(hass: HomeAssistant, connection, msg: dict[str, Any]) 
         connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
         return
     try:
-        index = await history.async_save_term(hass, entry, msg["values"], msg.get("index"))
+        index = await history.async_save_term(hass, entry, msg["values"], msg.get("index"), msg.get("rows"))
     except history.HistoryError as err:
         connection.send_error(msg["id"], err.code, err.code)
         return
@@ -408,6 +448,30 @@ async def ws_history_delete(hass: HomeAssistant, connection, msg: dict[str, Any]
         return
     try:
         history.delete_term(hass, entry, msg["index"])
+    except history.HistoryError as err:
+        connection.send_error(msg["id"], err.code, err.code)
+        return
+    await entry.runtime_data.async_refresh()
+    connection.send_result(msg["id"], {"ok": True})
+
+
+@websocket_api.require_admin
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): "tariffy/abschlag_verlauf_save",
+        vol.Required("entry_id"): str,
+        vol.Required("rows"): [HISTORY_VALUES],
+    }
+)
+@websocket_api.async_response
+async def ws_abschlag_verlauf_save(hass: HomeAssistant, connection, msg: dict[str, Any]) -> None:
+    """Setzt den Abschlagsverlauf eines Vertrags (was wann tatsaechlich gezahlt wurde)."""
+    entry = _loaded_entry(hass, msg["entry_id"])
+    if entry is None:
+        connection.send_error(msg["id"], "not_found", "Contract not found or not loaded")
+        return
+    try:
+        history.save_abschlag_verlauf(hass, entry, msg["rows"])
     except history.HistoryError as err:
         connection.send_error(msg["id"], err.code, err.code)
         return
@@ -613,6 +677,7 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
             websocket_api.async_register_command(hass, ws_history_save)
             websocket_api.async_register_command(hass, ws_history_delete)
             websocket_api.async_register_command(hass, ws_renew)
+            websocket_api.async_register_command(hass, ws_abschlag_verlauf_save)
             websocket_api.async_register_command(hass, ws_einmal_save)
             websocket_api.async_register_command(hass, ws_einmal_delete)
             websocket_api.async_register_command(hass, ws_aussen_save)

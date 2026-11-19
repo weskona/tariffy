@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date, timedelta
 from typing import Any
 
 import voluptuous as vol
@@ -32,9 +33,11 @@ from .const import (
     CONF_SCHLUSSRATE,
     CONF_SOLLZINS,
     SPARTE_LOAN,
+    SPARTE_STREAMING,
     CONF_AUSSENZAEHLER,
     CONF_EINMALPOSTEN,
     CONF_ABSCHLAG_AB_DATUM,
+    CONF_ABSCHLAG_VERLAUF,
     CONF_ABSCHLAG_VORHERIGER_WERT,
     CONF_ABSCHLAG_WARNUNG,
     CONF_ABSCHLAG_WARNUNG_BESTAETIGT,
@@ -60,7 +63,16 @@ from .const import (
     CONF_JAHRESVERBRAUCH,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
+    CONF_ICON,
+    CONF_KM_AKTUELL,
+    CONF_KM_GESAMT,
+    CONF_KM_SENSOR,
     CONF_KM_START,
+    CONF_KM_TOL_OBEN,
+    CONF_KM_TOL_UNTEN,
+    CONF_PREIS_MEHRKM,
+    CONF_PREIS_MINDERKM,
+    SPARTE_LEASING,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_TARGET,
@@ -184,6 +196,18 @@ def _stamp_abschlag_change(alt: dict[str, Any], neu: dict[str, Any]) -> dict[str
     alter_abschlag = alt.get(CONF_ABSCHLAG)
     neuer_abschlag = neu.get(CONF_ABSCHLAG)
     heute = dt_util.now().date().isoformat()
+    verlauf = alt.get(CONF_ABSCHLAG_VERLAUF)
+    if isinstance(verlauf, list) and verlauf:
+        # Hat der Vertrag einen Abschlagsverlauf, haengt eine Aenderung des Abschlags einen Eintrag an
+        # (am selben Tag ersetzt sie den letzten) statt den einzelnen Stempel zu setzen.
+        if neuer_abschlag is None or alter_abschlag is None or round(float(alter_abschlag), 6) == round(float(neuer_abschlag), 6):
+            return neu
+        liste = [dict(e) for e in verlauf if isinstance(e, dict)]
+        if liste and liste[-1].get("ab") == heute:
+            liste[-1]["betrag"] = round(float(neuer_abschlag), 6)
+        else:
+            liste.append({"ab": heute, "betrag": round(float(neuer_abschlag), 6)})
+        return {**neu, CONF_ABSCHLAG_VERLAUF: liste}
     bereits_heute_gestempelt = alt.get(CONF_ABSCHLAG_AB_DATUM) == heute
     if (
         alter_abschlag is not None
@@ -239,6 +263,7 @@ _INTERNER_ZUSTAND = (
     CONF_ARCHIVIERT,
     CONF_EINMALPOSTEN,
     CONF_AUSSENZAEHLER,
+    CONF_ABSCHLAG_VERLAUF,
 )
 
 
@@ -474,6 +499,7 @@ def _common_schema(
         fields[vol.Required(CONF_ANBIETER)] = selector.TextSelector()
     fields[_opt(CONF_KUNDENNUMMER, d.get(CONF_KUNDENNUMMER))] = selector.TextSelector()
     fields[_opt(CONF_TARIF, d.get(CONF_TARIF))] = selector.TextSelector()
+    fields[_opt(CONF_ICON, d.get(CONF_ICON))] = selector.IconSelector()
     fields[_opt(CONF_BEGINN, d.get(CONF_BEGINN))] = selector.DateSelector()
     fields[_opt(CONF_ENDE, d.get(CONF_ENDE))] = selector.DateSelector()
     fields[_opt(CONF_MINDESTLAUFZEIT, d.get(CONF_MINDESTLAUFZEIT))] = _monate_feld()
@@ -697,6 +723,33 @@ def _kfz_schema(d: dict[str, Any]) -> vol.Schema:
     )
 
 
+def _leasing_schema(d: dict[str, Any]) -> vol.Schema:
+    """Leasing: Kilometer. Alles optional. Die Rate steht im Kosten-Schritt danach, Beginn und Ende
+    (= Rueckgabe) im ersten Schritt. Die erlaubten Kilometer ergeben sich aus Kilometern pro Jahr und
+    Laufzeit, oder aus dem Gesamtwert, wenn er eingetragen ist."""
+    km = selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            min=0, step=1, mode=selector.NumberSelectorMode.BOX, unit_of_measurement="km"
+        )
+    )
+    return vol.Schema(
+        {
+            _opt(CONF_KENNZEICHEN, d.get(CONF_KENNZEICHEN)): selector.TextSelector(),
+            _opt(CONF_KM_SENSOR, d.get(CONF_KM_SENSOR)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            _opt(CONF_KM_AKTUELL, d.get(CONF_KM_AKTUELL)): km,
+            _opt(CONF_KM_START, d.get(CONF_KM_START)): km,
+            _opt(CONF_KM_PRO_JAHR, d.get(CONF_KM_PRO_JAHR)): km,
+            _opt(CONF_KM_GESAMT, d.get(CONF_KM_GESAMT)): km,
+            _opt(CONF_KM_TOL_OBEN, d.get(CONF_KM_TOL_OBEN)): km,
+            _opt(CONF_KM_TOL_UNTEN, d.get(CONF_KM_TOL_UNTEN)): km,
+            _opt(CONF_PREIS_MEHRKM, d.get(CONF_PREIS_MEHRKM)): _preis(0.001),
+            _opt(CONF_PREIS_MINDERKM, d.get(CONF_PREIS_MINDERKM)): _preis(0.001),
+        }
+    )
+
+
 def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
     """Kosten-Schritt für Pauschalverträge (Internet, Mobilfunk, Versicherung, …); bei einer
     Versicherung kommen die Versicherungsangaben in eigenen Schritten davor.
@@ -705,16 +758,18 @@ def _pauschal_schema(d: dict[str, Any]) -> vol.Schema:
     jährlich); gespeichert wird weiter der Betrag pro Monat (siehe _pauschal_monatlich)."""
     zahlweise = _zahlweise_von(d)
     betrag = round(float(d.get(CONF_ABSCHLAG) or 0.0) * ZAHLWEISE_MONATE[zahlweise], 2)
-    return vol.Schema(
-        {
-            vol.Required(CONF_ZAHLWEISE, default=zahlweise): _select(
-                list(ZAHLWEISE_MONATE), translation_key="zahlweise"
-            ),
-            vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
-            _opt(CONF_ERSTE_ZAHLUNG, d.get(CONF_ERSTE_ZAHLUNG)): selector.DateSelector(),
-            _opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS)): _preis(0.01),
-        }
-    )
+    felder: dict[Any, Any] = {
+        vol.Required(CONF_ZAHLWEISE, default=zahlweise): _select(
+            list(ZAHLWEISE_MONATE), translation_key="zahlweise"
+        ),
+        vol.Required(CONF_ABSCHLAG, default=betrag): _preis(0.01),
+        _opt(CONF_ERSTE_ZAHLUNG, d.get(CONF_ERSTE_ZAHLUNG)): selector.DateSelector(),
+    }
+    # Ein Pauschalvertrag hat meist nur einen Betrag. Das Feld Grundpreis gibt es nur noch bei einem Vertrag, der
+    # schon einen hat (dessen Kosten rechnen damit): so geht nichts verloren, und es laesst sich leeren.
+    if float(d.get(CONF_GRUNDPREIS) or 0.0) > 0:
+        felder[_opt(CONF_GRUNDPREIS, d.get(CONF_GRUNDPREIS))] = _preis(0.01)
+    return vol.Schema(felder)
 
 
 def _prozent() -> selector.NumberSelector:
@@ -892,6 +947,43 @@ def _next_schema(d: dict[str, Any], *, energie: bool, gas: bool = False, ht_nt: 
     return vol.Schema(fields)
 
 
+def _next_streaming_schema(
+    d: dict[str, Any], *, ende: str | None, zahlweise: str, aus_optionen: bool
+) -> vol.Schema:
+    """Folgevertrag der Sparte Streaming: Beginn (ohne eigene Angabe der Tag
+    nach dem Ende des laufenden Vertrags), Tarifname, Zahlweise und ein Betrag je Zahlung, dazu das Ende. Anbieter,
+    Kundennummer und Grundpreis gibt es nur noch, wenn der geplante Vertrag sie schon hat."""
+
+    def k(b: str) -> str:
+        return NEXT_PREFIX + b
+
+    gewaehlt = d.get(k(CONF_ZAHLWEISE)) if d.get(k(CONF_ZAHLWEISE)) in ZAHLWEISE_MONATE else zahlweise
+    beginn = d.get(k(CONF_BEGINN))
+    if not beginn and ende:
+        try:
+            beginn = (date.fromisoformat(str(ende)) + timedelta(days=1)).isoformat()
+        except ValueError:
+            beginn = None
+    betrag = d.get(k(CONF_ABSCHLAG))
+    if aus_optionen and betrag not in (None, ""):  # gespeichert wird der Monatsbetrag, gezeigt der Betrag je Zahlung
+        betrag = round(float(betrag) * ZAHLWEISE_MONATE[gewaehlt], 2)
+    fields: dict[Any, Any] = {
+        _opt(k(CONF_BEGINN), beginn): selector.DateSelector(),
+        _opt(k(CONF_TARIF), d.get(k(CONF_TARIF))): selector.TextSelector(),
+        vol.Optional(k(CONF_ZAHLWEISE), default=gewaehlt): _select(list(ZAHLWEISE_MONATE), translation_key="zahlweise"),
+        _opt(k(CONF_ABSCHLAG), betrag): _preis(0.01),
+    }
+    for geerbt, selektor in (
+        (CONF_ANBIETER, selector.TextSelector()),
+        (CONF_KUNDENNUMMER, selector.TextSelector()),
+        (CONF_GRUNDPREIS, _preis(0.01)),
+    ):
+        if d.get(k(geerbt)) not in (None, ""):
+            fields[_opt(k(geerbt), d.get(k(geerbt)))] = selektor
+    fields[_opt(k(CONF_ENDE), d.get(k(CONF_ENDE)))] = selector.DateSelector()
+    return vol.Schema(fields)
+
+
 # ------------------------------------------------------------------- flows
 class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
     """Anlegen eines Vertrags in zwei Schritten."""
@@ -920,6 +1012,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_versicherung()
             if user_input[CONF_SPARTE] == SPARTE_LOAN:
                 return await self.async_step_kredit()
+            if user_input[CONF_SPARTE] == SPARTE_LEASING:
+                return await self.async_step_leasing()
             return await self.async_step_pauschal()
         return self.async_show_form(
             step_id="user", data_schema=_common_schema(self.hass, {}, mit_name=True)
@@ -968,6 +1062,17 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             data = {**self._data, **_pauschal_monatlich(user_input)}
             return self.async_create_entry(title=self._entry_title, data=data)
         return self.async_show_form(step_id="pauschal", data_schema=_pauschal_schema({}))
+
+    async def async_step_leasing(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Kilometer eines Leasingvertrags; danach der Kosten-Schritt wie bei jedem Pauschalvertrag."""
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_pauschal()
+        return self.async_show_form(
+            step_id="leasing", data_schema=_leasing_schema({}), last_step=False
+        )
 
     async def async_step_kredit(
         self, user_input: dict[str, Any] | None = None
@@ -1052,6 +1157,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_reconfigure_versicherung()
             if user_input[CONF_SPARTE] == SPARTE_LOAN:
                 return await self.async_step_reconfigure_kredit()
+            if user_input[CONF_SPARTE] == SPARTE_LEASING:
+                return await self.async_step_reconfigure_leasing()
             return await self.async_step_reconfigure_pauschal()
         return self.async_show_form(
             step_id="reconfigure",
@@ -1158,6 +1265,19 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             last_step=False,
         )
 
+    async def async_step_reconfigure_leasing(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_reconfigure_pauschal()
+        return self.async_show_form(
+            step_id="reconfigure_leasing",
+            data_schema=_leasing_schema(dict(entry.data)),
+            last_step=False,
+        )
+
     async def async_step_reconfigure_gas(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -1203,10 +1323,40 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
 class TariffyOptionsFlow(OptionsFlowWithReload):
     """Den nächsten/zukünftigen Vertrag pflegen."""
 
+    async def async_step_init_streaming(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return await self._async_step_streaming(user_input)
+
+    async def _async_step_streaming(self, user_input: dict[str, Any] | None) -> ConfigFlowResult:
+        """Folgevertrag der Sparte Streaming: ein Betrag je Zahlung und die Zahlweise (siehe _next_streaming_schema)."""
+        aktuell = _zahlweise_von(self.config_entry.data)
+        if user_input is not None:
+            if not user_input.get(NEXT_PREFIX + CONF_BEGINN):
+                return self.async_create_entry(title="", data={})
+            cleaned = {key: val for key, val in user_input.items() if val not in (None, "")}
+            zahlweise = cleaned.get(NEXT_PREFIX + CONF_ZAHLWEISE, aktuell)
+            if NEXT_PREFIX + CONF_ABSCHLAG in cleaned:  # der Betrag je Zahlung wird als Monatsbetrag gespeichert
+                cleaned[NEXT_PREFIX + CONF_ABSCHLAG] = round(
+                    float(cleaned[NEXT_PREFIX + CONF_ABSCHLAG]) / ZAHLWEISE_MONATE[zahlweise], 6
+                )
+            return self.async_create_entry(title="", data=cleaned)
+        return self.async_show_form(
+            step_id="init_streaming",
+            data_schema=_next_streaming_schema(
+                dict(self.config_entry.options),
+                ende=self.config_entry.data.get(CONF_ENDE),
+                zahlweise=aktuell,
+                aus_optionen=True,
+            ),
+        )
+
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         gas = self.config_entry.data.get(CONF_SPARTE) == GAS_SPARTE
+        if self.config_entry.data.get(CONF_SPARTE) == SPARTE_STREAMING:
+            return await self._async_step_streaming(user_input)
         errors: dict[str, str] = {}
         if user_input is not None:
             if gas:

@@ -10,6 +10,7 @@
           "anbieter": "Anbieter",
           "kundennummer": "Kundennummer",
           "tarif": "Tarifname",
+          "icon": "Icon",
           "beginn": "Vertragsbeginn",
           "ende": "Vertragsende / Laufzeit bis",
           "mindestlaufzeit": "Mindestlaufzeit (Monate)",
@@ -22,6 +23,7 @@
           "anbieter": "Name des Energieversorgers oder Anbieters",
           "kundennummer": "Deine Kundennummer aus den Vertragsunterlagen",
           "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
+          "icon": "Eigenes Icon für diesen Vertrag (z. B. mdi:car). Gilt im Panel und für die Sensoren des Vertrags. Leer = das Icon der Sparte.",
           "beginn": "Datum, ab dem der Vertrag gilt",
           "ende": "Letzter Gültigkeitstag des Vertrags",
           "mindestlaufzeit": "Optional. Das Panel zeigt, bis wann der Vertrag mindestens läuft (Beginn + Mindestlaufzeit).",
@@ -39,6 +41,7 @@
           "anbieter": "Anbieter",
           "kundennummer": "Kundennummer",
           "tarif": "Tarifname",
+          "icon": "Icon",
           "beginn": "Vertragsbeginn",
           "ende": "Vertragsende / Laufzeit bis",
           "mindestlaufzeit": "Mindestlaufzeit (Monate)",
@@ -51,6 +54,7 @@
           "anbieter": "Name des Energieversorgers oder Anbieters",
           "kundennummer": "Deine Kundennummer aus den Vertragsunterlagen",
           "tarif": "Bezeichnung des Tarifs, z. B. 'Ökostrom Plus'",
+          "icon": "Eigenes Icon für diesen Vertrag (z. B. mdi:car). Gilt im Panel und für die Sensoren des Vertrags. Leer = das Icon der Sparte.",
           "beginn": "Datum, ab dem der Vertrag gilt",
           "ende": "Letzter Gültigkeitstag des Vertrags",
           "mindestlaufzeit": "Optional. Das Panel zeigt, bis wann der Vertrag mindestens läuft (Beginn + Mindestlaufzeit).",
@@ -314,7 +318,7 @@
           "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)"
         },
         "data_description": {
-          "kennzeichen": "Wird wie die Kundennummer behandelt: im Seitenleisten-Panel nicht sichtbar",
+          "kennzeichen": "Gilt als persönlich: im Seitenleisten-Panel nicht sichtbar",
           "km_start": "Kilometerstand zu Beginn des Vertrags",
           "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr"
         }
@@ -354,7 +358,7 @@
           "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)"
         },
         "data_description": {
-          "kennzeichen": "Wird wie die Kundennummer behandelt: im Seitenleisten-Panel nicht sichtbar",
+          "kennzeichen": "Gilt als persönlich: im Seitenleisten-Panel nicht sichtbar",
           "km_start": "Kilometerstand zu Beginn des Vertrags",
           "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr"
         }
@@ -618,6 +622,62 @@
           "schlussrate": "Freiwillig: ein Betrag, der am Ende noch offen ist und mit der letzten Rate gezahlt wird (Autofinanzierung, Restwert)",
           "erste_zahlung": "Leer = ein Zahlungsintervall nach dem Beginn (bei monatlicher Zahlung: Ende des ersten Monats). Die weiteren Raten folgen im Abstand der Zahlweise."
         }
+      },
+      "leasing": {
+        "title": "Leasing",
+        "description": "Kilometer des Leasingvertrags. Alles freiwillig. Die Rate folgt im nächsten Schritt, Beginn und Rückgabedatum wurden vorher angegeben. Ohne Gesamtwert ergeben sich die erlaubten Kilometer aus den Kilometern pro Jahr und der Laufzeit.",
+        "data": {
+          "kennzeichen": "Kennzeichen",
+          "km_sensor": "Kilometerzähler-Sensor",
+          "km_aktuell": "Aktueller Kilometerstand (km)",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)",
+          "km_gesamt": "Erlaubte Kilometer über die ganze Laufzeit (km)",
+          "km_toleranz_oben": "Toleranz nach oben (km)",
+          "km_toleranz_unten": "Toleranz nach unten (km)",
+          "preis_mehrkm": "Preis je Mehrkilometer (€)",
+          "preis_minderkm": "Gutschrift je Minderkilometer (€)"
+        },
+        "data_description": {
+          "kennzeichen": "Gilt als persönlich: wird im Seitenpanel nicht angezeigt",
+          "km_sensor": "Sensor des Fahrzeugs mit dem Kilometerstand in km. Er hat Vorrang vor dem von Hand eingetragenen Wert.",
+          "km_aktuell": "Nur wenn du keinen Sensor hast: Trage den Kilometerstand von Hand ein und aktualisiere ihn ab und zu (Vertrag bearbeiten).",
+          "km_start": "Kilometerstand bei Beginn des Leasings",
+          "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr",
+          "km_gesamt": "Freiwillig: die Summe der ganzen Laufzeit. Leer = Kilometer pro Jahr mal Laufzeit.",
+          "km_toleranz_oben": "Mehrkilometer bis zu diesem Wert werden nicht berechnet",
+          "km_toleranz_unten": "Minderkilometer bis zu diesem Wert werden nicht gutgeschrieben",
+          "preis_mehrkm": "Wird für jeden Mehrkilometer über der Toleranz berechnet",
+          "preis_minderkm": "Wird für jeden Minderkilometer über der Toleranz gutgeschrieben"
+        }
+      },
+      "reconfigure_leasing": {
+        "title": "Leasing",
+        "description": "Kilometer des Leasingvertrags. Alles freiwillig. Die Rate folgt im nächsten Schritt, Beginn und Rückgabedatum wurden vorher angegeben. Ohne Gesamtwert ergeben sich die erlaubten Kilometer aus den Kilometern pro Jahr und der Laufzeit.",
+        "data": {
+          "kennzeichen": "Kennzeichen",
+          "km_sensor": "Kilometerzähler-Sensor",
+          "km_aktuell": "Aktueller Kilometerstand (km)",
+          "km_start": "Kilometerstand bei Vertragsbeginn (km)",
+          "km_pro_jahr": "Erlaubte Kilometer pro Jahr (km)",
+          "km_gesamt": "Erlaubte Kilometer über die ganze Laufzeit (km)",
+          "km_toleranz_oben": "Toleranz nach oben (km)",
+          "km_toleranz_unten": "Toleranz nach unten (km)",
+          "preis_mehrkm": "Preis je Mehrkilometer (€)",
+          "preis_minderkm": "Gutschrift je Minderkilometer (€)"
+        },
+        "data_description": {
+          "kennzeichen": "Gilt als persönlich: wird im Seitenpanel nicht angezeigt",
+          "km_sensor": "Sensor des Fahrzeugs mit dem Kilometerstand in km. Er hat Vorrang vor dem von Hand eingetragenen Wert.",
+          "km_aktuell": "Nur wenn du keinen Sensor hast: Trage den Kilometerstand von Hand ein und aktualisiere ihn ab und zu (Vertrag bearbeiten).",
+          "km_start": "Kilometerstand bei Beginn des Leasings",
+          "km_pro_jahr": "Im Vertrag vereinbarte Kilometer pro Jahr",
+          "km_gesamt": "Freiwillig: die Summe der ganzen Laufzeit. Leer = Kilometer pro Jahr mal Laufzeit.",
+          "km_toleranz_oben": "Mehrkilometer bis zu diesem Wert werden nicht berechnet",
+          "km_toleranz_unten": "Minderkilometer bis zu diesem Wert werden nicht gutgeschrieben",
+          "preis_mehrkm": "Wird für jeden Mehrkilometer über der Toleranz berechnet",
+          "preis_minderkm": "Wird für jeden Minderkilometer über der Toleranz gutgeschrieben"
+        }
       }
     },
     "abort": {
@@ -656,6 +716,20 @@
           "next_zustandszahl": "Zustandszahl neu",
           "next_ende": "Vertragsende neu / Laufzeit bis"
         }
+      },
+      "init_streaming": {
+        "title": "Folgevertrag planen",
+        "description": "Trage die nächste Laufzeit ein. Zum Beginn übernimmt Home Assistant sie automatisch; nicht ausgefüllte Felder behalten den aktuellen Wert. Der Beginn ist der Tag nach dem Vertragsende vorgeschlagen. 'Beginn' leer lassen entfernt einen geplanten Vertrag.",
+        "data": {
+          "next_beginn": "Beginn der neuen Laufzeit",
+          "next_tarif": "Tarifname (neu)",
+          "next_zahlweise": "Zahlweise (neu)",
+          "next_abschlag": "Betrag pro Zahlung (neu, €)",
+          "next_ende": "Ende der neuen Laufzeit / gültig bis",
+          "next_anbieter": "Anbieter (neu)",
+          "next_kundennummer": "Kundennummer (neu)",
+          "next_grundpreis": "Grundpreis neu (€/Monat)"
+        }
       }
     },
     "error": {
@@ -674,7 +748,8 @@
         "insurance": "Versicherung",
         "other": "Sonstiges",
         "electricity_ht_nt": "Strom (Zweizählertarif, Hoch-/Niedertarif)",
-        "loan": "Kredit / Finanzierung"
+        "loan": "Kredit / Finanzierung",
+        "leasing": "Leasing"
       }
     },
     "erinnerung": {
@@ -862,6 +937,15 @@
       },
       "kredit_zinsen_bisher": {
         "name": "Zinsen bisher"
+      },
+      "leasing_km_gefahren": {
+        "name": "Gefahrene Kilometer"
+      },
+      "leasing_km_hochgerechnet": {
+        "name": "Kilometer bei Rückgabe (Hochrechnung)"
+      },
+      "leasing_km_kosten": {
+        "name": "Erwartete Mehr-/Minderkilometer-Kosten"
       }
     },
     "button": {

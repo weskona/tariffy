@@ -23,7 +23,9 @@ from homeassistant.util import dt as dt_util
 
 from . import coordinator as coord
 from .const import (
+    ABSCHLAG_VERLAUF_MAX,
     CONF_ABSCHLAG,
+    CONF_ABSCHLAG_VERLAUF,
     CONF_ANBIETER,
     CONF_ARBEITSPREIS,
     AUSSENZAEHLER_MAX,
@@ -131,7 +133,7 @@ async def _verbrauch_aus_statistik(
 
 
 async def async_calc(
-    hass: HomeAssistant, entry: ConfigEntry, values: dict[str, Any]
+    hass: HomeAssistant, entry: ConfigEntry, values: dict[str, Any], rows: Any = None
 ) -> dict[str, Any]:
     """Alle Werte einer Laufzeit: eingetragene bleiben, leere werden berechnet.
 
@@ -153,8 +155,23 @@ async def async_calc(
         verbrauch = None
         source = None
 
+    # Abschlaege nach Monaten (optional): was in der alten Laufzeit wann wirklich gezahlt wurde
+    plan = _verlauf_zeilen(rows, _intervall(entry), ende) if rows else []
     abschlag_gezahlt = number["abschlag_gezahlt"]
-    if abschlag_gezahlt is None and number["abschlag"] is not None:
+    if abschlag_gezahlt is None and plan and not metered:
+        # Pauschalvertrag: gezaehlt wird jede Abbuchung der alten Laufzeit (ab dem Beginn, im Zahlungsrhythmus) mit
+        # dem Betrag, der an ihrem Tag galt
+        intervall = _intervall(entry)
+        summe = 0.0
+        for n in range(1200):
+            termin = coord._plus_months(beginn, n * intervall)
+            if termin > ende:
+                break
+            summe += round(coord._abschlag_am(plan, plan[-1][1], termin) * intervall, 2)
+        abschlag_gezahlt = round(summe, 2)
+    elif abschlag_gezahlt is None and plan:
+        abschlag_gezahlt = round(coord._abschlag_aus_plan(plan, plan[-1][1], (ende - beginn).days / 30.44, beginn), 2)
+    elif abschlag_gezahlt is None and number["abschlag"] is not None:
         abschlag_gezahlt = round(number["abschlag"] * months, 2)
 
     kosten = number["kosten"]
@@ -189,10 +206,11 @@ async def async_calc(
 
 
 async def async_build_term(
-    hass: HomeAssistant, entry: ConfigEntry, values: dict[str, Any]
+    hass: HomeAssistant, entry: ConfigEntry, values: dict[str, Any], rows: Any = None
 ) -> dict[str, Any]:
     """Der Eintrag fuer die Historie aus den eingegebenen und berechneten Werten."""
-    calc = await async_calc(hass, entry, values)
+    calc = await async_calc(hass, entry, values, rows)
+    plan = _verlauf_zeilen(rows, _intervall(entry), date.fromisoformat(str(values["ende"]))) if rows else []
     number = {name: _number(values.get(name), name, negative=name == "saldo") for name in NUMBER_FIELDS}
     text = {name: str(values.get(name) or "").strip()[:100] or None for name in TEXT_FIELDS}
     term = {
@@ -203,7 +221,7 @@ async def async_build_term(
         CONF_ENDE: str(values["ende"]),
         CONF_ARBEITSPREIS: number["arbeitspreis"],
         CONF_GRUNDPREIS: number["grundpreis"],
-        CONF_ABSCHLAG: number["abschlag"],
+        CONF_ABSCHLAG: number["abschlag"] if number["abschlag"] is not None or not plan else plan[-1][1],
         "kosten": calc["values"]["kosten"],
         "abschlag_gezahlt": calc["values"]["abschlag_gezahlt"],
         "saldo": calc["values"]["saldo"],
@@ -213,6 +231,8 @@ async def async_build_term(
         # was der Nutzer selbst eingetragen hat (der Rest wird beim Bearbeiten neu berechnet)
         "eigene": [name for name in AUTO_FIELDS if number[name] is not None],
     }
+    if plan:  # damit sich die Abschlaege nach Monaten beim Bearbeiten wieder zeigen
+        term["abschlag_verlauf"] = [{"ab": tag.isoformat(), "betrag": betrag} for tag, betrag in plan]
     return term
 
 
@@ -225,9 +245,10 @@ async def async_save_term(
     entry: ConfigEntry,
     values: dict[str, Any],
     index: int | None = None,
+    rows: Any = None,
 ) -> int:
     """Legt eine Laufzeit an oder ersetzt die mit `index`. Gibt ihre Position zurueck."""
-    term = await async_build_term(hass, entry, values)
+    term = await async_build_term(hass, entry, values, rows)
     historie = list(entry.data.get(CONF_HISTORIE) or [])
     if index is not None:
         if not 0 <= index < len(historie):
@@ -264,6 +285,7 @@ _RENEW_RESET = (
     "_notify_gesendet",
     "_abschlag_ab_datum",
     "_abschlag_vorheriger_wert",
+    CONF_ABSCHLAG_VERLAUF,  # der Verlauf gehoert zur alten Laufzeit
     "_abschlag_warnung_bestaetigt",
     "_abschlag_warnung_notify_gesendet",
     CONF_ARCHIVIERT,
@@ -280,9 +302,15 @@ async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str,
     if entry.data.get(CONF_SPARTE) == SPARTE_LOAN:
         await _renew_kredit(hass, entry, values)
         return
-    beginn, ende = _dates(values)
-    if ende <= beginn:
-        raise HistoryError("invalid_dates")
+    if values.get("ende") in (None, ""):  # unbefristet weiter (Issue 103): das Ende bleibt leer
+        try:
+            beginn, ende = date.fromisoformat(str(values.get("beginn"))), None
+        except ValueError as err:
+            raise HistoryError("invalid_dates") from err
+    else:
+        beginn, ende = _dates(values)
+        if ende <= beginn:
+            raise HistoryError("invalid_dates")
     betrag = _number(values.get("abschlag"), "abschlag")
     if betrag is None or betrag <= 0:
         raise HistoryError("invalid_abschlag")
@@ -305,12 +333,15 @@ async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str,
     data.update(
         {
             CONF_BEGINN: beginn.isoformat(),
-            CONF_ENDE: ende.isoformat(),
             CONF_ABSCHLAG: round(betrag / ZAHLWEISE_MONATE[zahlweise], 6),
             CONF_ZAHLWEISE: zahlweise,
             CONF_HISTORIE: _sorted(historie)[-HISTORIE_MAX:],
         }
     )
+    if ende is None:
+        data.pop(CONF_ENDE, None)
+    else:
+        data[CONF_ENDE] = ende.isoformat()
     await coordinator._dismiss_notifications()
     hass.config_entries.async_update_entry(entry, data=data)
 
@@ -369,6 +400,50 @@ async def _renew_kredit(hass: HomeAssistant, entry: ConfigEntry, values: dict[st
         if wert is not None:
             data[key] = wert
     await coordinator._dismiss_notifications()
+    hass.config_entries.async_update_entry(entry, data=data)
+
+
+# ------------------------------------------------------------ Abschlagsverlauf
+def _verlauf_zeilen(rows: Any, intervall: int, bis: date) -> list[tuple[date, float]]:
+    """Die Zeilen `{"ab": Datum, "betrag": Betrag je Zahlung}` eines Abschlagsverlaufs, aufsteigend nach Datum, mit
+    dem Betrag je Monat. Nur Tage bis `bis`, jeder Tag einmal, Betrag ueber null, hoechstens ABSCHLAG_VERLAUF_MAX."""
+    if not isinstance(rows, list):
+        raise HistoryError("invalid_dates")
+    if len(rows) > ABSCHLAG_VERLAUF_MAX:
+        raise HistoryError("too_many")
+    je_tag: dict[date, float] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            raise HistoryError("invalid_dates")
+        try:
+            tag = date.fromisoformat(str(row.get("ab")))
+        except ValueError as err:
+            raise HistoryError("invalid_dates") from err
+        if tag > bis or tag in je_tag:
+            raise HistoryError("invalid_dates")
+        betrag = _number(row.get("betrag"), "abschlag")
+        if betrag is None or betrag <= 0:
+            raise HistoryError("invalid_abschlag")
+        je_tag[tag] = round(betrag / intervall, 6)
+    return sorted(je_tag.items())
+
+
+def _intervall(entry: ConfigEntry) -> int:
+    return ZAHLWEISE_MONATE.get(entry.data.get(CONF_ZAHLWEISE), ZAHLWEISE_MONATE["monthly"])
+
+
+def save_abschlag_verlauf(hass: HomeAssistant, entry: ConfigEntry, rows: Any) -> None:
+    """Setzt den Abschlagsverlauf (siehe const.CONF_ABSCHLAG_VERLAUF) auf die uebergebenen Zeilen; eine leere
+    Liste entfernt ihn. Der Betrag der letzten Zeile ist danach der aktuelle Abschlag des Vertrags."""
+    if entry.data.get(CONF_SPARTE) == SPARTE_LOAN:
+        raise HistoryError("not_available")
+    plan = _verlauf_zeilen(rows, _intervall(entry), dt_util.now().date())  # nur Vergangenes
+    data = dict(entry.data)
+    if not plan:
+        data.pop(CONF_ABSCHLAG_VERLAUF, None)
+    else:
+        data[CONF_ABSCHLAG_VERLAUF] = [{"ab": tag.isoformat(), "betrag": betrag} for tag, betrag in plan]
+        data[CONF_ABSCHLAG] = plan[-1][1]
     hass.config_entries.async_update_entry(entry, data=data)
 
 

@@ -101,6 +101,22 @@ VERSICHERUNGSARTEN = [
     "other",
 ]
 
+# Eigenes Icon eines Vertrags (mdi:...): gilt im Panel und fuer die Sensoren des Vertrags
+CONF_ICON = "icon"
+
+# Leasing (Sparte "leasing"): ein Pauschalvertrag (Rate, Beginn, Ende) mit Kilometern. Der Kilometerstand
+# kommt aus einem Sensor oder wird von Hand eingetragen; die erlaubten Kilometer ergeben sich aus
+# km_pro_jahr (mit Laufzeit) oder aus dem Gesamtwert. Mehr-/Minderkilometer ausserhalb der Toleranz
+# werden mit den Preisen je Kilometer zu einer erwarteten Nach- bzw. Gutschrift hochgerechnet.
+SPARTE_LEASING = "leasing"
+CONF_KM_SENSOR = "km_sensor"
+CONF_KM_AKTUELL = "km_aktuell"
+CONF_KM_GESAMT = "km_gesamt"
+CONF_KM_TOL_OBEN = "km_toleranz_oben"
+CONF_KM_TOL_UNTEN = "km_toleranz_unten"
+CONF_PREIS_MEHRKM = "preis_mehrkm"
+CONF_PREIS_MINDERKM = "preis_minderkm"
+
 # Einspeiseverguetung (nur Strom)
 CONF_EINSPEISEVERGUETUNG = "einspeiseverguetung"
 
@@ -180,6 +196,12 @@ HISTORIE_MAX = 50
 CONF_EINMALPOSTEN = "_einmalposten"
 EINMALPOSTEN_MAX = 50
 
+# Abschlagsverlauf: hat der Versorger den Abschlag selbst geaendert, traegt man hier ein, was wann gezahlt
+# wurde. Liste von {"ab": Datum, "betrag": Monatsbetrag}; der Betrag gilt ab diesem Tag, bis der naechste
+# Eintrag beginnt; der letzte Eintrag ist der aktuelle Abschlag. Ohne Liste bleibt alles wie bisher.
+CONF_ABSCHLAG_VERLAUF = "_abschlag_verlauf"
+ABSCHLAG_VERLAUF_MAX = 60
+
 # Aussenzaehler eines Wasservertrags (interner Schluessel, nur Wasser): Liste aus
 # {name, sensor, start_wert, preis}. Ihr Verbrauch ist im Hauptzaehler enthalten und ist nicht
 # abwasserpflichtig (Garten, Pool, Bewaesserung).
@@ -208,6 +230,7 @@ NEXT_PREFIX = "next_"
 
 # Felder die beim Wechsel übernommen werden
 BASIS_FELDER = [
+    CONF_ZAHLWEISE,
     CONF_ANBIETER,
     CONF_KUNDENNUMMER,
     CONF_TARIF,
@@ -248,6 +271,7 @@ BASIS_FELDER = [
 
 # Kredit / Finanzierung (Sparte "loan"): getrennt von den Vertraegen, zaehlt nicht in deren Summen.
 SPARTE_LOAN = "loan"
+SPARTE_STREAMING = "streaming"  # sein Folgevertrag hat ein eigenes, kurzes Formular (siehe config_flow._next_streaming_schema)
 CONF_KREDIT_SUMME = "kredit_summe"
 CONF_SOLLZINS = "sollzins"
 CONF_EFFEKTIVZINS = "effektivzins"
@@ -262,8 +286,9 @@ SPARTEN = [
     "water",
     "internet",
     "mobile",
-    "streaming",
+    SPARTE_STREAMING,
     SPARTE_LOAN,
+    SPARTE_LEASING,
     SPARTE_INSURANCE,
     "other",
 ]

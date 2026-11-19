@@ -175,6 +175,8 @@ With a PV system (also with a battery) the grid draw varies with the season: who
 
 **Setup:** in the contract form switch on **Take PV self-sufficiency into account** and give the source of the self-sufficiency. There are three, used in this order: **(1) the total consumption of the house** as a sensor (kWh, with a long-term statistic, for example the house consumption of the Energy dashboard; the most exact source, because it is based on energy sums and works with a battery), **(2) a self-sufficiency sensor in %** (with a statistic, for example the autonomy of the Fronius integration; the **monthly mean** of last year is used) or **(3) own values in %**: twelve values for January to December, separated by spaces or semicolons (for example `10 10 25 50 70 80 85 80 60 35 15 10`), or one value for all months. Own values also apply to months for which the statistics are missing and are enough on their own (for example in the first year of a PV system without history). **Note:** the forecast compares the self-sufficiency of each remaining month with that of the measured period; a single value is the same in every month, so on its own it changes nothing. Without a sensor the form therefore asks for twelve different monthly values; one value only makes sense as a fallback for months without data next to a sensor. The **consumption sensor of the contract must measure the grid draw**. For a dual-tariff meter there is, for (1), an optional second total-consumption sensor for the low-tariff period; without it the self-sufficiency is calculated over both tariffs together and applied to both (an approximation, marked in the attribute `autarkie_naeherung`). A self-sufficiency sensor (2) and own values (3) apply to both tariffs alike.
 
+**Total consumption in the panel:** with a total-consumption sensor (1) the block **Consumption** shows a small grid with **So far** and **Projected**: the **total consumption** of the house, what is **covered by PV** (total minus grid draw) and the **grid draw (billed)**. The total is extended linearly (the season only sits in the grid draw); with a dual-tariff meter both tariffs are added. The grid draw and all costs are as before. The figures are also attributes of the sensor "Refund/balance due (contract end)": `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet`. With a self-sufficiency sensor in % or own values there is no total consumption, so the grid is not shown.
+
 **Calculation:** for every month of the remaining term the **same month last year** is used: for (1) from the long-term statistics `self-sufficiency = 1 − grid draw / total consumption`, for (2) the monthly mean of the sensor, for (3) your own value; limited to 0–100 %. If the value of a month is missing, that month takes your own value (3), otherwise no adjustment. The self-sufficiency in the measured period comes from the same source (for (3) from your own values of the months already measured, weighted by days). As the consumption sensor already measures the grid draw, the self-sufficiency is part of the values so far; the daily grid draw is therefore **normalised for the season**: `grid draw of the month = daily grid draw so far × days × (1 − self-sufficiency of the month) / (1 − self-sufficiency so far)`. A dual-tariff meter is calculated per tariff. If the data of a month (or of the measured period) is missing, that month keeps the linear extrapolation; without any history nothing changes and there is no error.
 
 **Display:** the sensor **Refund/balance due (contract end)** gets (only when the self-sufficiency determines the forecast) the attributes `autarkie_variante`, `autarkie_monatswerte` (per month self-sufficiency in % and factor, for a dual-tariff meter also for the low tariff), `autarkie_bisher`, `autarkie_naeherung` and `prognose_ohne_autarkie`. The panel shows the forecast without self-sufficiency and the self-sufficiency so far in the contract details. The attribute `autarkie_variante` names the source (`gesamtverbrauch`, `entitaet` or `manuell`), `autarkie_monatswerte` says per month whether the value came from the statistics or from you. **Not included:** a consumption sensor that measures the total consumption instead of the grid draw.
@@ -214,7 +216,8 @@ Plus is credit, minus is balance due. When the credit already covers the costs u
 
 **Who sees and may do what**
 
-- **All users** see the contracts, but only selected values. Customer number, meter numbers, MaLo ID, notification target and internal markers are **not** sent to the panel.
+- **All users** see the contracts, but only selected values. Customer number, meter numbers, MaLo ID, licence plate, notification target and internal markers are **not** sent to the panel.
+- **Administrators only** also see the **customer number, meter number(s) and MaLo ID** in the block **Contract** of the contract details (tab **Contracts**), each with a symbol to **copy** it. They are only sent to administrators, other browsers never receive them. The licence plate and the notification target stay hidden for them too.
 - **Administrators only** get the buttons and dialogs below. The backend checks this again, so a non-administrator cannot trigger the actions through the API either.
 
 **Acknowledging:** planning, editing, creating and deleting are in the **Contracts** tab (icons in the row, button at the top). The overview is read-only and has no buttons. "Acknowledge warning" and "Acknowledge cancellation" appear in the expanded details of the contract in the **Contracts** tab, depending on the situation; the card in the overview keeps the note with the reason. They do the same as the buttons of the contract and ask a second time before anything happens.
@@ -230,7 +233,7 @@ A contract whose end has passed and that has no next contract gets the badge **E
 - **Deleted contracts:** when a contract is deleted (in the panel or in Home Assistant), Tariffy keeps it for **30 days** (at most the last 20) and offers it in the **Backup** tab to **bring back**, after a confirmation. That is not possible if a contract with the same name and kind exists meanwhile. The data are in Home Assistant's storage (`.storage/tariffy.deleted`) and removed after 30 days; **Forget now** (asks first) removes an entry at once, including its personal data.
 - **Limit:** the panel exists only while there is at least one contract. If the last contract was deleted, add any new contract first and the panel is back.
 
-**Renew a flat-rate contract:** for contracts without consumption (insurance, internet, mobile, other) that have a **contract end**, every row of the **Contracts** tab has an icon **Renew contract** (two arrows in a circle, administrators only). The dialog suggests: start the day after the current end, new end one year later, interval and amount as before. You enter for example the new premium, and the dialog shows at once by how many percent the contract gets dearer or cheaper (compared per month). With **Renew**:
+**Renew a flat-rate contract:** for contracts without consumption (insurance, internet, mobile, other) every row of the **Contracts** tab has an icon **Renew contract** (two arrows in a circle, administrators only). The dialog suggests: start the day after the current end, new end one year later (for a contract **without an end**: start today, end empty; the contract then runs on without an end after a price adjustment), interval and amount as before. You enter for example the new premium, and the dialog shows at once by how many percent the contract gets dearer or cheaper (compared per month). With **Renew**:
 
 - The current term goes to the **history** (term, provider, tariff, instalment, instalments paid). So there is one entry per year and you see how the premium rises.
 - The contract runs on with the new start, end and amount. Provider, tariff, customer number and everything else stay.
@@ -281,6 +284,50 @@ The category **Loan / financing** is for annuity loans (mortgages), instalment l
 **Shown** are the **remaining debt**, **paid so far** (interest and principal), the **remaining payments** (still to pay until the end), interest so far and over the term, the payments made, the next rate split into interest and principal and the progress of the repayment. Every loan has four sensors: **Remaining debt**, **Paid so far**, **Remaining payments** and **Interest paid so far**.
 
 **Follow-up financing:** in the **Contracts** tab the loan has the icon **Renew contract**. The dialog suggests the remaining debt as the new amount, plus interest and term; the current term goes to the history. A loan has no icon for a next contract.
+
+## Own icon of a contract
+
+In the first step of the contract form (create and edit) the optional field **Icon** takes an icon name such as `mdi:car` or `mdi:router-wireless`. It is used in the **panel** (cards and lists) and for the **sensors of the contract** in Home Assistant. Sensors with a status symbol (balance: thumb up/down, price: fixed or dynamic) keep theirs. Empty = the icon of the category, as before. A tariff switch keeps the icon.
+
+## Leasing
+
+The category **Leasing** is for a car lease. The rate is a normal **flat-rate** contract (instalment, start, end = return date, reminder, notice period) and counts in the totals; in the panel the contract stands in the group **Loans / financing**. On top of that Tariffy watches the **kilometres**. Everything about the kilometres is optional.
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| Licence plate | – | Personal: not shown in the side panel |
+| Odometer sensor | – | Sensor of the car with the odometer in km (miles are converted). It takes precedence over the value entered by hand. |
+| Current odometer | – | Only if there is no sensor: enter it by hand and update it from time to time (edit the contract) |
+| Odometer at contract start | – | The start of the lease. Empty = 0 |
+| Allowed kilometres per year | – | From the contract |
+| Allowed kilometres over the whole term | – | Optional. Empty = kilometres per year times the term. |
+| Tolerance upwards / downwards | – | Extra kilometres (kilometres not driven) up to this value are not charged (credited) |
+| Price per extra kilometre / credit per kilometre not driven | – | In € per km, for the expected balance |
+
+**Calculation:** the kilometres driven so far are the odometer minus the start. The **target by now** is the allowance spread over the term. The **projection at return** is the average per day so far, extended to the return date (from two weeks of driving on). `deviation = projection − allowed`; **extra kilometres** are what exceeds the tolerance upwards, **kilometres not driven** what exceeds the tolerance downwards. With the prices this gives the **expected extra payment or credit** at return. After the return date the kilometres driven are the result.
+
+**Shown:** in the contract card a line with the kilometres driven and what the pace means at return, in the details a block **Leasing kilometres** (odometer, driven, allowed, target by now, kilometres left and allowed per day from now, your average, projection, extra/shortfall kilometres and the expected balance). A leasing contract has three more sensors: **Kilometres driven**, **Projected kilometres at return**, **Expected extra/shortfall kilometre cost**, plus the car sensors of the insurance (licence plate, odometer at start, allowed per year). The kilometre cost is **not** part of the totals of the contract: it is an estimate for the return.
+
+**Good to know:** a **tariff switch** or a planned follow-up keeps the car, the sensor and the kilometre rules; the odometer at the start and the value entered by hand belong to the old term and are dropped. With **Renew contract** the figures stay as they are: check the start odometer and the allowance in **Edit** if the new lease is another car.
+
+## Instalments paid (when the supplier changes the instalment)
+
+If the supplier changes the instalment by itself, Tariffy calculates with the new amount retroactively until you enter something. In the **Contracts** tab every contract with an instalment (not the loan) has a block **Instalments paid** (administrators can change it). There you enter **what was paid from when**, for example for gas months 1–7 178 €, month 8 174.41 €, months 9–11 215 €:
+
+| Month | Instalment |
+|-------|------------|
+| March to July | 178.00 € |
+| August | 174.41 € |
+| September until today | 215.00 € |
+
+- The dialog **Edit instalments** has **one field per payment of the term**, matching the **payment interval** of the contract: **monthly** a field per month (for a contract from March to February: March, April, … February), **quarterly** four a year, **half-yearly** two, **yearly** one. For the intervals other than monthly the date of the debit stands before the field (the start or the first debit, then every interval) and you enter the amount **per payment**. Payments that **were not due yet are locked** and show the current instalment; a payment can be edited once it is due. A contract without an end shows the payments up to today. Saving applies to all payments together.
+- A change also applies to **the following payments that still have the same amount**: enter 178 for March, 174.41 for August and 215 for September, nothing more. An empty field takes the amount of the payment before.
+- The **last payment is the current instalment**: Tariffy takes its amount as the instalment of the contract. The contract needs a start date.
+- Only the payments where the amount changes are stored, each from the first of the month or the day of the debit (60 at most). A change in the middle of a month that Tariffy noted itself when you edited counts from the first of the month once you save.
+- **Earlier term (tab History, "Add old contract"):** under the fields there is the section **Instalments by payment (optional)** with the same fields for the payments of the term (from its start and end and the payment interval of the contract). If you enter something there, **Paid** and the **balance** of the term are worked out from it (metered contracts prorated by days, flat-rate contracts payment by payment); a value you type yourself in "Instalments paid" takes precedence. The amounts stay stored and show again when you edit the term. If the section stays empty, the term is calculated with the single instalment as before.
+- With the history, **paid so far**, **balance so far**, the **forecast at contract end** and the **recommended instalment** use the amounts that really applied. For metered contracts every amount counts for the months (days divided by 30.44, as elsewhere) between its date and the next; for flat-rate contracts every debit counts with the amount of its date.
+- **Without rows** nothing changes: the current instalment applies as before (with the single change Tariffy remembers when you edit). With a history, a change of the instalment in the contract form appends an entry with today's date.
+- When a flat-rate contract is **renewed** and at a **tariff switch** the new term starts without the old history; the old term stays in the history with its values.
 
 ## One-time items (bonus and bill)
 

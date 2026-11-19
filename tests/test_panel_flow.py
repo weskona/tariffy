@@ -20,7 +20,7 @@ from .test_panel import GOLDEN, frontend_env  # noqa: F401  (fixture)
 FIXTURES = json.loads((Path(__file__).parent / "frontend" / "fixtures.json").read_text(encoding="utf-8"))
 FORMS = FIXTURES["flows"]
 TRANSLATIONS = Path(__file__).parent.parent / "custom_components" / "tariffy" / "translations"
-PANEL_KINDS = {"date", "text", "number", "select", "entity", "boolean"}  # keep in sync with _fieldSpec()
+PANEL_KINDS = {"date", "text", "number", "select", "entity", "boolean", "icon"}  # keep in sync with _fieldSpec()
 RECONFIGURE = FIXTURES["reconfigure"]
 
 
@@ -37,12 +37,13 @@ def test_every_field_can_be_drawn_by_the_panel(contract_id):
 @pytest.mark.parametrize("language", ["de", "en"])
 def test_every_field_has_a_label_and_every_error_a_text(language):
     texts = json.loads((TRANSLATIONS / f"{language}.json").read_text(encoding="utf-8"))["options"]
-    labels = texts["step"]["init"]["data"]
     for form in FORMS.values():
+        step = texts["step"][form["step_id"]]  # "init" for metered contracts, "init_streaming" for streaming
+        assert step["title"] and step["description"], form["step_id"]
         for field in form["data_schema"]:
-            assert field["name"] in labels, f"{field['name']} has no {language} label"
+            assert field["name"] in step["data"], f"{form['step_id']}.{field['name']} has no {language} label"
     assert "invalid_number" in texts["error"]
-    assert texts["step"]["init"]["description"]
+    assert {form["step_id"] for form in FORMS.values()} == {"init", "init_streaming"}  # both forms are in the fixtures
 
 
 @pytest.mark.parametrize("contract_id", sorted(RECONFIGURE))

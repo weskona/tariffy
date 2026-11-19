@@ -32,6 +32,7 @@ from .const import (
     CONF_ENDE,
     CONF_GRUNDPREIS,
     CONF_JAHRESVERBRAUCH,
+    CONF_ICON,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
     CONF_KM_START,
@@ -53,6 +54,7 @@ from .const import (
     WASSER_SPARTE,
     SPARTE_ELECTRICITY_HT_NT,
     SPARTE_INSURANCE,
+    SPARTE_LEASING,
     SPARTE_LOAN,
     VERSICHERUNGSARTEN,
     CONF_ARBEITSPREIS_NT,
@@ -145,6 +147,8 @@ class VertragSensorDescription(SensorEntityDescription):
     versicherung_only: bool = False
     aussen_only: bool = False
     loan_only: bool = False
+    leasing_only: bool = False
+    leasing_too: bool = False  # Fahrzeugsensor der Versicherung, den auch ein Leasingvertrag bekommt
     currency_icon: bool = False
 
 
@@ -263,6 +267,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         icon="mdi:car-info",
         entity_category=EntityCategory.DIAGNOSTIC,
         versicherung_only=True,
+        leasing_too=True,
         value_fn=lambda d: d.get(CONF_KENNZEICHEN) or None,
     ),
     VertragSensorDescription(
@@ -271,6 +276,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         icon="mdi:counter",
         native_unit_of_measurement="km",
         versicherung_only=True,
+        leasing_too=True,
         value_fn=lambda d: d.get(CONF_KM_START),
     ),
     VertragSensorDescription(
@@ -279,6 +285,7 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         icon="mdi:road-variant",
         native_unit_of_measurement="km",
         versicherung_only=True,
+        leasing_too=True,
         value_fn=lambda d: d.get(CONF_KM_PRO_JAHR),
     ),
     VertragSensorDescription(
@@ -421,6 +428,50 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
         attr_fn=lambda d: {"zinsen_gesamt": d.get("kredit_zinsen_gesamt")},
     ),
     VertragSensorDescription(
+        key="leasing_km_gefahren",
+        translation_key="leasing_km_gefahren",
+        icon="mdi:car-speed-limiter",
+        native_unit_of_measurement="km",
+        leasing_only=True,
+        value_fn=lambda d: d.get("leasing_km_gefahren"),
+        attr_fn=lambda d: {
+            "km_stand": d.get("leasing_km_stand"),
+            "km_erlaubt": d.get("leasing_km_erlaubt"),
+            "km_soll": d.get("leasing_km_soll"),
+            "abweichung_soll": d.get("leasing_km_abweichung"),
+            "km_rest": d.get("leasing_km_rest"),
+            "km_rest_je_tag": d.get("leasing_km_rest_je_tag"),
+            "km_je_tag": d.get("leasing_km_je_tag"),
+            "prozent_der_erlaubten": d.get("leasing_km_prozent"),
+        },
+    ),
+    VertragSensorDescription(
+        key="leasing_km_hochgerechnet",
+        translation_key="leasing_km_hochgerechnet",
+        icon="mdi:chart-line",
+        native_unit_of_measurement="km",
+        leasing_only=True,
+        value_fn=lambda d: d.get("leasing_km_hochgerechnet"),
+        attr_fn=lambda d: {
+            "abweichung_ende": d.get("leasing_km_abweichung_ende"),
+            "mehr_km": d.get("leasing_mehr_km"),
+            "minder_km": d.get("leasing_minder_km"),
+        },
+    ),
+    VertragSensorDescription(
+        key="leasing_km_kosten",
+        translation_key="leasing_km_kosten",
+        icon="mdi:cash-plus",
+        leasing_only=True,
+        value_fn=lambda d: d.get("leasing_km_kosten"),
+        attr_fn=lambda d: {
+            "nachzahlung": d.get("leasing_nachzahlung"),
+            "gutschrift": d.get("leasing_gutschrift"),
+            "mehr_km": d.get("leasing_mehr_km"),
+            "minder_km": d.get("leasing_minder_km"),
+        },
+    ),
+    VertragSensorDescription(
         key="einspeiseverguetung",
         translation_key="einspeiseverguetung",
         icon="mdi:transmission-tower-export",
@@ -523,6 +574,17 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
                     "autarkie_bisher_nt": d.get("autarkie_bisher_nt"),
                     "autarkie_naeherung": d.get("autarkie_naeherung"),
                     "prognose_ohne_autarkie": d.get("prognose_ohne_autarkie"),
+                    # Gesamtverbrauch des Hauses und was die PV deckt (nur mit einem Gesamtverbrauchs-Sensor)
+                    **(
+                        {
+                            "verbrauch_gesamt_bisher": d.get("verbrauch_gesamt_bisher"),
+                            "verbrauch_gesamt_hochgerechnet": d.get("verbrauch_gesamt_hochgerechnet"),
+                            "verbrauch_pv_gedeckt_bisher": d.get("verbrauch_pv_gedeckt_bisher"),
+                            "verbrauch_pv_gedeckt_hochgerechnet": d.get("verbrauch_pv_gedeckt_hochgerechnet"),
+                        }
+                        if d.get("verbrauch_gesamt_bisher") is not None
+                        else {}
+                    ),
                 }
                 if d.get("autarkie_aktiv")
                 else {}
@@ -642,6 +704,7 @@ async def async_setup_entry(
     hat_tiered = bool(coordinator.data.get("ist_tiered"))
     hat_aussen = bool(coordinator.data.get("aussenzaehler"))
     ist_kredit = sparte == SPARTE_LOAN
+    ist_leasing = sparte == SPARTE_LEASING
 
     def _passend(desc: VertragSensorDescription) -> bool:
         if desc.energie_only and not ist_energie:
@@ -658,11 +721,13 @@ async def async_setup_entry(
             return False
         if desc.ht_nt_only and not ist_ht_nt:
             return False
-        if desc.versicherung_only and not ist_versicherung:
+        if desc.versicherung_only and not (ist_versicherung or (desc.leasing_too and ist_leasing)):
             return False
         if desc.aussen_only and not hat_aussen:
             return False
         if desc.loan_only and not ist_kredit:
+            return False
+        if desc.leasing_only and not ist_leasing:
             return False
         return True
 
@@ -707,7 +772,7 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
             self._attr_native_unit_of_measurement = f"{currency}/Monat"
         elif key == "jahreskosten":
             self._attr_native_unit_of_measurement = currency
-        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher", "garten_kosten", "abwasser_kosten", "kredit_restschuld", "kredit_gezahlt", "kredit_restsumme", "kredit_zinsen_bisher"):
+        elif key in ("prognose_real", "bonus", "kosten_bisher", "guthaben_bisher", "kosten_ht_bisher", "kosten_nt_bisher", "garten_kosten", "abwasser_kosten", "kredit_restschuld", "kredit_gezahlt", "kredit_restsumme", "kredit_zinsen_bisher", "leasing_km_kosten"):
             self._attr_native_unit_of_measurement = currency
         elif key in ("verbrauch_bisher", "verbrauch_hochgerechnet", "verbrauch_letzte_laufzeit", "garten_verbrauch", "abwasserpflichtiger_verbrauch"):
             if sparte in (GAS_SPARTE, WASSER_SPARTE):
@@ -733,6 +798,9 @@ class VertragSensor(CoordinatorEntity[TariffyCoordinator], SensorEntity):
     def icon(self) -> str | None:
         if self.entity_description.icon_fn is not None:
             return self.entity_description.icon_fn(self.coordinator.data or {})
+        eigenes = (self.coordinator.data or {}).get(CONF_ICON)
+        if eigenes:  # das eigene Icon des Vertrags; Sensoren mit Statusicon (Guthaben/Nachzahlung) behalten ihres
+            return str(eigenes)
         if self.entity_description.currency_icon:
             currency = (self.coordinator.data or {}).get("currency", "EUR")
             return _CURRENCY_ICON.get(currency, "mdi:cash")

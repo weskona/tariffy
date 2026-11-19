@@ -15,7 +15,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import dt as dt_util
 
 from . import autarkie as pv
-from . import loan
+from . import leasing, loan
 from .const import (
     BASIS_FELDER,
     CONF_AUTARKIE_MANUELL,
@@ -30,6 +30,7 @@ from .const import (
     SPARTE_LOAN,
     CONF_ABSCHLAG,
     CONF_ABSCHLAG_AB_DATUM,
+    CONF_ABSCHLAG_VERLAUF,
     CONF_ABSCHLAG_VORHERIGER_WERT,
     CONF_ABSCHLAG_WARNUNG,
     CONF_ABSCHLAG_WARNUNG_BESTAETIGT,
@@ -60,7 +61,16 @@ from .const import (
     CONF_KUENDIGUNG_BESTAETIGT,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
+    CONF_ICON,
+    CONF_KM_AKTUELL,
+    CONF_KM_GESAMT,
+    CONF_KM_SENSOR,
     CONF_KM_START,
+    CONF_KM_TOL_OBEN,
+    CONF_KM_TOL_UNTEN,
+    CONF_PREIS_MEHRKM,
+    CONF_PREIS_MINDERKM,
+    SPARTE_LEASING,
     CONF_KUNDENNUMMER,
     CONF_MARKTLOKATION,
     CONF_NOTIFY_GESENDET,
@@ -168,6 +178,54 @@ def _parse_date(value: Any) -> date | None:
         return None
 
 
+def abschlag_plan(data: dict[str, Any]) -> list[tuple[date, float]]:
+    """Der Abschlagsverlauf des Vertrags (siehe const.CONF_ABSCHLAG_VERLAUF): aufsteigend nach Datum, je
+    Tag ein Eintrag (der spaetere gilt). Unbrauchbare Eintraege (aus einer Sicherung) werden uebergangen;
+    ohne Verlauf eine leere Liste, dann gilt die Rechnung wie bisher."""
+    roh = data.get(CONF_ABSCHLAG_VERLAUF)
+    if not isinstance(roh, list):
+        return []
+    je_tag: dict[date, float] = {}
+    for eintrag in roh:
+        if not isinstance(eintrag, dict):
+            continue
+        tag = _parse_date(eintrag.get("ab"))
+        betrag = _f(eintrag.get("betrag"))
+        if tag is None or betrag is None or betrag <= 0 or betrag != betrag:
+            continue
+        je_tag[tag] = betrag
+    return sorted(je_tag.items())
+
+
+def _abschlag_am(plan: list[tuple[date, float]], abschlag: float, tag: date) -> float:
+    """Monatlicher Abschlag, der am `tag` galt. Vor dem ersten Eintrag gilt dessen Betrag; ab dem letzten
+    Eintrag der aktuelle Abschlag."""
+    gueltig = [i for i, (ab, _betrag) in enumerate(plan) if ab <= tag]
+    if not gueltig:
+        return plan[0][1]
+    i = gueltig[-1]
+    return abschlag if i == len(plan) - 1 else plan[i][1]
+
+
+def _abschlag_aus_plan(
+    plan: list[tuple[date, float]], abschlag: float, vergangene_monate: float, beginn: date
+) -> float:
+    """Bis heute gezahlter Abschlag nach dem Abschlagsverlauf: jeder Betrag gilt fuer die Monate (Tage durch
+    30,44, wie sonst auch) zwischen seinem Datum und dem naechsten."""
+    grenzen = [max(0.0, (ab - beginn).days / 30.44) for ab, _betrag in plan]
+    schnitte = sorted({g for g in grenzen if 0.0 < g < vergangene_monate})
+    summe = 0.0
+    start = 0.0
+    for ende in [*schnitte, vergangene_monate]:
+        if ende > start:
+            gueltig = [i for i, g in enumerate(grenzen) if g <= start]
+            i = gueltig[-1] if gueltig else None
+            betrag = plan[0][1] if i is None else (abschlag if i == len(plan) - 1 else plan[i][1])
+            summe += betrag * (ende - start)
+        start = max(start, ende)
+    return summe
+
+
 def _abschlag_bisher_gezahlt(
     abschlag: float, vergangene_monate: float, beginn: date, data: dict[str, Any]
 ) -> float:
@@ -179,6 +237,9 @@ def _abschlag_bisher_gezahlt(
     (Anpassung empfohlen)" faelschlich optimistischer/pessimistischer
     ausfallen, als tatsaechlich gezahlt wurde).
     """
+    plan = abschlag_plan(data)
+    if plan:  # der Abschlagsverlauf, den der Nutzer eingetragen hat, ersetzt die einzelne Aenderung unten
+        return _abschlag_aus_plan(plan, abschlag, vergangene_monate, beginn)
     ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
     vorheriger_wert = data.get(CONF_ABSCHLAG_VORHERIGER_WERT)
     # Ein vorheriger Wert von 0 heisst: vorher war kein Abschlag eingetragen (aeltere Staende haben
@@ -287,6 +348,7 @@ def _abschlag_nach_zahlungen(
     monat_heute = (heute.year, heute.month)
     ab_datum = _parse_date(data.get(CONF_ABSCHLAG_AB_DATUM))
     vorher = _f(data.get(CONF_ABSCHLAG_VORHERIGER_WERT))
+    plan = abschlag_plan(data)
     summe = 0.0
     zahlung = 0
     naechste: date | None = None
@@ -302,7 +364,10 @@ def _abschlag_nach_zahlungen(
             intervall != 1 and termin > heute
         ):
             break
-        monatlich = vorher if (ab_datum is not None and vorher and termin < ab_datum) else abschlag
+        if plan:
+            monatlich = _abschlag_am(plan, abschlag, termin)
+        else:
+            monatlich = vorher if (ab_datum is not None and vorher and termin < ab_datum) else abschlag
         summe += round(monatlich * intervall, 2)
         zahlung += 1
     if naechste is None:  # die naechste Abbuchung nach heute, falls der Vertrag dann noch laeuft
@@ -764,6 +829,27 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 )
                 if self.entry.data.get(key) not in (None, "")
             },
+            # Leasing: Fahrzeug und Kilometerregeln bleiben beim Wechsel; Kilometerstand bei Beginn und von Hand gehoeren zur alten Laufzeit
+            **(
+                {
+                    key: self.entry.data[key]
+                    for key in (
+                        CONF_KENNZEICHEN,
+                        CONF_KM_SENSOR,
+                        CONF_KM_PRO_JAHR,
+                        CONF_KM_GESAMT,
+                        CONF_KM_TOL_OBEN,
+                        CONF_KM_TOL_UNTEN,
+                        CONF_PREIS_MEHRKM,
+                        CONF_PREIS_MINDERKM,
+                    )
+                    if self.entry.data.get(key) not in (None, "")
+                }
+                if self.entry.data.get(CONF_SPARTE) == SPARTE_LEASING
+                else {}
+            ),
+            # das eigene Icon gehoert zum Vertrag
+            **({CONF_ICON: self.entry.data[CONF_ICON]} if self.entry.data.get(CONF_ICON) else {}),
             # Einmalposten gehoeren zum Vertrag (auch in die Gesamtkosten ueber alle Laufzeiten)
             **(
                 {CONF_EINMALPOSTEN: self.entry.data[CONF_EINMALPOSTEN]}
@@ -792,6 +878,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for feld in BASIS_FELDER:
             wert = nxt.get(NEXT_PREFIX + feld)
             new_data[feld] = wert if wert not in (None, "") else self.entry.data.get(feld)
+        if new_data.get(CONF_ZAHLWEISE) is None:  # Verbrauchsvertraege haben keine Zahlweise
+            new_data.pop(CONF_ZAHLWEISE, None)
         # Verbrauch der letzten Laufzeit einfrieren — inkl. ihrer tatsächlichen
         # Dauer in Monaten, damit empfohlener_abschlag nicht von einem festen
         # 12-Monats-Jahr ausgehen muss.
@@ -1146,6 +1234,17 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._pv_mittelwerte[key] = anteil
         return anteil
 
+    def _km_stand(self, sensor_id: Any) -> float | None:
+        """Kilometerstand aus dem Sensor des Fahrzeugs (Meilen werden umgerechnet); None ohne gueltigen Wert."""
+        if not sensor_id:
+            return None
+        state = self.hass.states.get(str(sensor_id))
+        wert = _f(state.state) if state else None
+        if wert is None:
+            return None
+        einheit = str(state.attributes.get("unit_of_measurement") or "").strip().lower()
+        return round(wert * 1.609344, 1) if einheit in ("mi", "mile", "miles") else wert
+
     async def _pv_autarkie(
         self,
         data: dict[str, Any],
@@ -1199,6 +1298,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         a_monate: list[list[float | None]] = [[None] * len(monate) for _ in register]
         quellen: list[list[str | None]] = [[None] * len(monate) for _ in register]
         a_bisher_liste: list[float | None] = [None] * len(register)
+        gesamt_teile: list[float | None] = []  # Gesamtverbrauch bisher je Gruppe (nur Variante 1), fuer die Anzeige
         for gesamt_sensor, indizes in gruppen:
             # Autarkie im gemessenen Zeitraum
             a_bisher = None
@@ -1207,6 +1307,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     gesamt_sensor, None, beginn, self._get_aussen_offset
                 )
                 a_bisher = pv.autarkie(sum(register[i]["bisher"] for i in indizes), gesamt_bisher)
+                gesamt_teile.append(gesamt_bisher)
             elif variante == "entitaet":
                 a_bisher = await self._pv_mittel(autarkie_sensor, beginn, heute, heute)
             if a_bisher is None and manuell:
@@ -1257,8 +1358,29 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 zeile["autarkie_nt"] = None if a_monate[1][lauf] is None else round(a_monate[1][lauf] * 100, 1)
                 zeile["faktor_nt"] = round(faktoren[1][lauf], 3)
             monatswerte.append(zeile)
+        # Anzeige (Variante 1): Gesamtverbrauch des Hauses und der Teil, den die PV deckt. Der Gesamtverbrauch wird
+        # linear fortgeschrieben (die Saison steckt nur im Netzbezug); bei HT/NT die Summe beider Tarife.
+        gesamt_bisher_summe: float | None = None
+        gesamt_hoch_summe: float | None = None
+        pv_bisher: float | None = None
+        pv_hoch: float | None = None
+        netz_bisher = sum(r["bisher"] for r in register)
+        if (
+            variante == "gesamtverbrauch"
+            and gesamt_teile
+            and all(t is not None and t >= 0 for t in gesamt_teile)
+            and vergangene_tage > 0
+        ):
+            gesamt_bisher_summe = round(sum(gesamt_teile), 1)  # type: ignore[arg-type]
+            gesamt_hoch_summe = round(sum(gesamt_teile) / vergangene_tage * vertrag_gesamttage, 1)  # type: ignore[arg-type]
+            pv_bisher = round(max(gesamt_bisher_summe - netz_bisher, 0.0), 1)
+            pv_hoch = round(max(gesamt_hoch_summe - gesamt_hoch, 0.0), 1)
         return {
             "variante": variante,
+            "gesamt_bisher": gesamt_bisher_summe,
+            "gesamt_hochgerechnet": gesamt_hoch_summe,
+            "pv_bisher": pv_bisher,
+            "pv_hochgerechnet": pv_hoch,
             "verbrauch_hochgerechnet": round(gesamt_hoch, 1),
             "preis": round(gewichtet / gesamt_hoch, 6) if gesamt_hoch > 0 else None,
             "monate": monatswerte,
@@ -1424,6 +1546,11 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if ist_kredit and kredit.get("ende") is not None:
             ende = kredit["ende"]
         restlaufzeit = (ende - heute).days if ende is not None else None
+        # Leasing: Kilometerstand (Sensor vor Handeingabe) gegen die erlaubten Kilometer
+        ist_leasing = data.get(CONF_SPARTE) == SPARTE_LEASING
+        leasing_werte: dict[str, Any] = (
+            leasing.berechne(data, heute, self._km_stand(data.get(CONF_KM_SENSOR))) if ist_leasing else {}
+        )
         laufzeit_monate = (ende - beginn).days / 30.44 if (beginn and ende) else 12.0
 
         arbeitspreis = _f(data.get(CONF_ARBEITSPREIS))
@@ -1932,6 +2059,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "autarkie_bisher": autark["bisher"] if autark is not None else None,
             "autarkie_bisher_nt": autark["bisher_nt"] if autark is not None else None,
             "autarkie_naeherung": autark["naeherung"] if autark is not None else None,
+            "verbrauch_gesamt_bisher": autark["gesamt_bisher"] if autark is not None else None,
+            "verbrauch_gesamt_hochgerechnet": autark["gesamt_hochgerechnet"] if autark is not None else None,
+            "verbrauch_pv_gedeckt_bisher": autark["pv_bisher"] if autark is not None else None,
+            "verbrauch_pv_gedeckt_hochgerechnet": autark["pv_hochgerechnet"] if autark is not None else None,
             "prognose_ohne_autarkie": prognose_ohne_autarkie,
             "aussenzaehler": aussen.get("liste") or [],
             "garten_verbrauch": aussen.get("garten_verbrauch"),
@@ -1953,6 +2084,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ANBIETER: data.get(CONF_ANBIETER),
             CONF_KUNDENNUMMER: data.get(CONF_KUNDENNUMMER),
             CONF_TARIF: data.get(CONF_TARIF),
+            CONF_ICON: data.get(CONF_ICON) or None,
             CONF_ARBEITSPREIS: arbeitspreis,
             CONF_ARBEITSPREIS_SENSOR: arbeitspreis_sensor,
             CONF_ARBEITSPREIS_AUFSCHLAG: arbeitspreis_aufschlag,
@@ -1968,6 +2100,14 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_KENNZEICHEN: data.get(CONF_KENNZEICHEN),
             CONF_KM_START: _f(data.get(CONF_KM_START)),
             CONF_KM_PRO_JAHR: _f(data.get(CONF_KM_PRO_JAHR)),
+            CONF_KM_SENSOR: data.get(CONF_KM_SENSOR),
+            CONF_KM_AKTUELL: _f(data.get(CONF_KM_AKTUELL)),
+            CONF_KM_GESAMT: _f(data.get(CONF_KM_GESAMT)),
+            CONF_KM_TOL_OBEN: _f(data.get(CONF_KM_TOL_OBEN)),
+            CONF_KM_TOL_UNTEN: _f(data.get(CONF_KM_TOL_UNTEN)),
+            CONF_PREIS_MEHRKM: _f(data.get(CONF_PREIS_MEHRKM)),
+            CONF_PREIS_MINDERKM: _f(data.get(CONF_PREIS_MINDERKM)),
+            **leasing_werte,
             CONF_MARKTLOKATION: data.get(CONF_MARKTLOKATION),
             CONF_PREISGARANTIE: _parse_date(data.get(CONF_PREISGARANTIE)),
             CONF_BONUS: _f(data.get(CONF_BONUS)),
@@ -1991,6 +2131,10 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "guthaben_bisher": (
                 round(guthaben_bisher + einmal_laufend, 2) if guthaben_bisher is not None else None
             ),
+            "abschlagsverlauf": [
+                {"ab": tag.isoformat(), "betrag": round(betrag, 6), "betrag_je_zahlung": round(betrag * ZAHLWEISE_MONATE[zahlweise], 2)}
+                for tag, betrag in abschlag_plan(data)
+            ],
             "einmalposten": einmal_liste,
             "einmal_summe": einmal_gesamt,
             "verbrauch_letzte_laufzeit": verbrauch_letzte_laufzeit,
@@ -2033,10 +2177,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if ist_kredit
                 else {}
             ),
-            # Pauschalvertrag mit Ende, nicht archiviert: laesst sich verlaengern (neuer Betrag, neues Ende)
-            "verlaengerbar": bool(
-                sparte not in METERED_SPARTEN and ende is not None and not archiviert
-            ),
+            # Pauschalvertrag, nicht archiviert: laesst sich verlaengern (neuer Beginn, Betrag, optional neues
+            # Ende); auch ohne Vertragsende (Issue 103: Preisanpassung bei einem unbefristeten Vertrag)
+            "verlaengerbar": bool(sparte not in METERED_SPARTEN and not archiviert),
             CONF_ARBEITSPREIS_NT: arbeitspreis_nt,
             "arbeitspreis_ht": arbeitspreis_ht,
             CONF_ZAEHLERNUMMER_NT: data.get(CONF_ZAEHLERNUMMER_NT),

@@ -8,315 +8,25 @@
  * is only ever written with textContent / text nodes, never as HTML.
  */
 
-const I18N = {
-  en: {
-    overview: "Overview", costs: "Costs", contracts: "Contracts",
-    loading: "Loading contracts …",
-    error: "The panel could not load the contracts.",
-    emptyTitle: "No contracts yet",
-    emptyText: "Add a contract under Settings → Devices & services → Tariffy.",
-    emptyLink: "Add a contract",
-    monthlyTotal: "Instalments per month",
-    forecastTotal: "Forecast at contract end",
-    forecastSub: "{n} of {m} contracts with metering",
-    nextDates: "Next dates", perYear: "≈ {v} / year", shortMetered: "Metered", shortFlat: "Flat rate", dueSoFar: "Instalments due so far: {v}",
-    nothingPlanned: "Nothing planned",
-    inDays: "in {n} days", today: "today", tomorrow: "tomorrow",
-    credit: "Credit", balanceDue: "Balance due",
-    cancelDue: "Cancel now", warning: "Balance due likely",
-    switchOn: "Switch on {d}",
-    endForecast: "Credit / balance due at contract end",
-    endTotal: "Instalments over the contract term",
-    term: "Term",
-    costSoFar: "Cost so far", balanceSoFar: "Credit / balance due so far",
-    consumption: "Consumption", projected: "projected {v}",
-    remaining: "Remaining", daysLeft: "{n} days", until: "until {d}",
-    instalment: "Instalment / month", contractEnd: "Contract end",
-    reminder: "Reminder", reminderOff: "Off",
-    paid: "Instalments paid", cost: "Cost",
-    noteWarning: "At the current usage a balance due of about {v} is expected. Adjust the instalment to about {a} per month.",
-    noteWarningShort: "At the current usage a balance due of about {v} is expected.",
-    noteCancel: "The cancellation period is running, the contract ends on {d}.",
-    noteNext: "Next contract from {d}: {name}",
-    colContract: "Contract", colCost: "Cost so far", colBalance: "Balance today",
-    colForecast: "At contract end", colInstalment: "Instalment", colRecommended: "Recommended",
-    total: "Total", highTariff: "High tariff", lowTariff: "Low tariff",
-    costsHint: "Positive = credit, negative = balance due. “At contract end” is projected from the consumption so far. For flat-rate contracts the cost so far is the instalments due until today.",
-    secContract: "Contract", secPrices: "Prices", secConsumption: "Consumption",
-    secAdvice: "Recommendations", secNext: "Next contract",
-    provider: "Provider", tariff: "Tariff", insuranceType: "Type of insurance", kmStart: "Odometer at start", kmPerYear: "Allowed per year", start: "Start", end: "End",
-    unitPrice: "Unit price", unitPriceLow: "Unit price low tariff", unitPriceNight: "Unit price night",
-    unitPriceEff: "Unit price effective", unitPriceWater: "Water price incl. wastewater",
-    basePrice: "Base price", perMonth: "/ month",
-    totalCost: "Total cost", totalSince: "since {d}", termsOne: "1 term", termsMany: "{n} terms", atLeast: "at least {v}",
-    actRenew: "Renew contract", renewTitle: "Renew contract", renewGo: "Renew",
-    renewHint: "The current term goes to the history. The contract runs on with the new start, end and amount; reminders start over. Use it when the premium or price changes at the end of the term.",
-    rf_zahlweise: "Payment interval", rf_abschlag: "Amount per payment (€)",
-    renewUp: "{p} % dearer ({n} instead of {o} per month)", renewDown: "{p} % cheaper ({n} instead of {o} per month)", renewSame: "Amount unchanged",
-    termErr_invalid_abschlag: "Enter an amount above zero.", termErr_invalid_zahlweise: "Choose a payment interval.",
-    termErr_not_available: "This contract cannot be renewed (no end date, or not a flat-rate contract).",
-    firstDebit: "First debit", nextPayment: "Next payment", rf_erste: "First debit (optional)",
-    instalmentYear: "Instalment / year", costYear: "Cost / year", payment: "Payment", perYearShort: "{v} / year",
-    interval: { monthly: "monthly", quarterly: "quarterly", halfyearly: "half-yearly", yearly: "yearly" },
-    soFar: "So far", soFarHigh: "So far, high tariff", soFarLow: "So far, low tariff",
-    projectedTerm: "Projected for the term", lastPeriod: "Last period",
-    recommended: "Recommended instalment", adjustment: "Instalment adjustment",
-    reminderDate: "Reminder from", reminderActive: "Active", reminderDone: "Acknowledged",
-    nextStart: "Start", nextEnd: "End", nextProvider: "Provider", nextTariff: "Tariff",
-    nextPrice: "Unit price", nextInstalment: "Instalment",
-    months: "{n} months", yes: "yes", no: "no",
-    actConfirmWarning: "Acknowledge warning", actConfirmCancel: "Acknowledge cancellation",
-    actYesAck: "Yes, acknowledge", actCancel: "Cancel",
-    actAskWarning: "Acknowledge the instalment warning? It will not be shown again for this contract unless the forecast recovers first.",
-    actAskCancel: "Acknowledge the cancellation reminder? The reminder is dismissed for this contract.", actFailed: "Action failed: {m}",
-    actNextPlan: "Plan next contract", actNextEdit: "Edit next contract", actEdit: "Edit contract", actNew: "New contract",
-    saldoShort: "Balance today",
-    history: "History", histEmptyTitle: "No history yet",
-    histEmpty: "The earlier terms of a contract appear here once the next contract takes over. Archived contracts appear here too.",
-    allArchived: "All contracts are archived. You find them in the History tab.",
-    groupArchived: "Archived contracts", groupEarlier: "Earlier terms", archived: "Archived",
-    colTerm: "Term", colTermCost: "Cost", colUsage: "Consumption", colTermBalance: "Balance",
-    expired: "Expired", noteExpired: "This contract has ended. You can archive it in the Contracts tab.",
-    actArchive: "Archive", actRestore: "Restore",
-    actAskArchive: "Archive this contract? It leaves the overview, the costs and the contracts and moves to the History tab. Nothing is deleted and you can bring it back.",
-    actYesArchive: "Yes, archive",
-    actAskRestore: "Bring this contract back to the overview?", actYesRestore: "Yes, restore",
-    backup: "Backup", bkTitleExport: "Create a backup", bkTitleRestore: "Restore from a file", bkTitleDeleted: "Deleted contracts",
-    bkExportText: "Saves all contracts in one file: their data, history, planned next contract and acknowledgements. The file contains personal data (customer number, meter number, market location, notification target). Keep it safe and do not pass it on.",
-    bkDownload: "Download backup", bkDownloaded: "Backup downloaded: {n} contracts.",
-    bkRestoreText: "Choose a backup file. You see what would happen before anything is created. Contracts that exist already (same name and kind) are skipped and never changed; only missing ones are created.",
-    bkPlanCreate: "will be created", bkPlanSkip: "skipped: exists already", bkNothing: "Nothing to restore: the contracts of this file exist already.",
-    bkRestoreGo: "Restore ({n})", bkAskRestore: "Create {n} missing contract(s) from this file? Existing contracts are not changed.",
-    bkYesRestore: "Yes, restore", bkDone: "Restored: {c} created, {s} skipped.",
-    bkDeletedText: "A deleted contract is kept for 30 days and can be brought back here, also if it was deleted in Home Assistant.",
-    bkDeletedEmpty: "No deleted contracts.", bkDeletedOn: "deleted {d}", bkRestoreOne: "Restore", bkAskOne: "Bring back \"{name}\"?",
-    bkYesOne: "Yes, bring back", bkRestoredOne: "\"{name}\" is back.",
-    bkDiscard: "Forget now", bkAskDiscard: "Forget \"{name}\" for good? It can not be brought back afterwards.",
-    bkYesDiscard: "Yes, forget", bkDiscarded: "\"{name}\" was forgotten.",
-    bkErr_invalid_backup: "This file is not a valid Tariffy backup.", bkErr_exists: "A contract with this name and kind exists already.",
-    bkErr_not_found: "This backup does not exist any more.", bkErr_restore_failed: "Restoring failed.", bkErrBig: "The file is too large.",
-    termAdd: "Add an old contract", termEdit: "Edit this term", termTitleAdd: "Add an old contract", termTitleEdit: "Edit term",
-    termHint: "Enter the term of an earlier contract. Leave the grey fields empty and they are worked out automatically (the consumption from the statistics of the meter, the rest from it and your prices). You can type a value into any field yourself.",
-    termDelete: "Delete term", termDeleteAsk: "Delete this term from the history?", termDeleteYes: "Yes, delete", termManual: "entered by hand",
-    tf_entry_id: "Contract", tf_beginn: "Start", tf_ende: "End", tf_anbieter: "Provider", tf_tarif: "Tariff",
-    tf_arbeitspreis: "Price per unit (€)", tf_grundpreis: "Base price per month (€)", tf_abschlag: "Instalment per month (€)",
-    tf_verbrauch: "Consumption", tf_kosten: "Cost (€)", tf_abschlag_gezahlt: "Instalments paid (€)", tf_saldo: "Balance (€)",
-    autoStat: "Automatic, from the statistics of {s}", autoNoSensor: "No meter is set for this contract, please enter it",
-    autoNoStat: "No statistics for this term, please enter it", autoFlat: "Flat-rate contract: no consumption",
-    autoCalc: "Calculated", autoWait: "Calculated as soon as the other values are there", autoOwn: "Entered by you",
-    termErr_invalid_dates: "The end must not be before the start.", termErr_too_many: "The history is full (50 terms).",
-    termErr_not_found: "This term does not exist any more.", termErr_invalid: "One of the numbers is not valid.",
-    secOnce: "One-time items", onceAdd: "Add item", onceEdit: "Edit item", onceTitleAdd: "Add a one-time item", onceTitleEdit: "Edit item",
-    onceHint: "A positive amount is a credit (e.g. a switching bonus), a negative one a bill (e.g. a broker's fee). It counts in the balance and in the total cost from its date.",
-    onceName: "Description", onceAmount: "Amount (+ credit, − bill)", onceDate: "Date", onceDelete: "Delete item", onceDeleteAsk: "Delete this item?", onceDeleteYes: "Yes, delete", onceSum: "Net",
-    termErr_invalid_bezeichnung: "Enter a description.", termErr_invalid_betrag: "Enter an amount other than zero (with a minus for a bill).",
-    minTerm: "Minimum term", noticePeriod: "Notice period", cancelBy: "Cancel by", untilDate: "until {d}",
-    chartTitle: "Cost split", chartSoFar: "Cost so far", chartYear: "Per year", chartMetered: "Consumption contracts", chartFlat: "Flat-rate contracts", chartEmpty: "Nothing to show yet.", secAussen: "Outdoor meters", aussenAdd: "Add outdoor meter", aussenEdit: "Edit outdoor meter", aussenTitleAdd: "Add an outdoor meter", aussenTitleEdit: "Edit outdoor meter",
-    aussenHint: "Water that does not go into the sewer (garden, pool, irrigation). Its consumption is part of the main meter and is charged without wastewater.",
-    aussenName: "Name", aussenSensor: "Consumption sensor", aussenStart: "Start value (optional)", aussenPrice: "Own price per unit (optional)",
-    aussenDelete: "Delete meter", aussenDeleteAsk: "Delete this outdoor meter?", aussenTooMany: "There are too many outdoor meters (10).",
-    gardenUse: "Outdoor water", gardenCost: "Outdoor water cost", wwUse: "Wastewater-liable consumption", wwCost: "Wastewater cost",
-    termErr_invalid_name: "Enter a name.", termErr_invalid_sensor: "Enter the entity id of a sensor (for example sensor.garden_water).", termErr_same_sensor: "This is the main meter of the contract.",
-    groupLoans: "Loans / financing", secLoan: "Loan", loanDebt: "Remaining debt", loanPaid: "Paid so far", loanRemainingSum: "Remaining payments",
-    loanNext: "Next payment", loanSplit: "interest {z} · principal {t}", loanRepaid: "Repaid", loanPayments: "Payments made", loanEffective: "effective {v} %",
-    loanInterestOf: "of which interest {v}", loanInterestTotalOf: "interest over the term {v}", loanAmount: "Loan amount", loanNominal: "Nominal interest rate",
-    loanEffectiveRow: "Effective interest rate", loanTerm: "Term", loanRatePaid: "Rate", loanRateCalc: "Rate by the interest", loanFinal: "Final payment at the end",
-    loanInterestPaid: "Interest paid so far", loanPrincipalPaid: "Principal repaid so far", loanInterestTotal: "Interest over the term", loanTotalCost: "Total of all payments",
-    firstPayment: "First payment", loanIncomplete: "The loan cannot be calculated yet: amount, term, start and an interest rate are needed.",
-    loanMismatch: "Your rate differs by {p} % from the one the interest gives ({r}).",
-    loansHint: "Loans are kept apart: they do not count in the totals of the contracts.",
-    loanRenewTitle: "Follow-up financing", loanRenewHint: "The current term goes to the history and the loan runs on with a new amount, interest and term. The amount is usually the remaining debt.",
-    lf_summe: "New loan amount (€)", lf_soll: "Nominal interest rate (% a year)", lf_effektiv: "Effective interest rate (%)", lf_laufzeit: "Term (months)",
-    lf_rate: "Rate per payment (optional)", lf_schluss: "Final payment (optional)",
-    termErr_invalid_kredit_summe: "Enter a loan amount above zero.", termErr_invalid_laufzeit_monate: "Enter a term of at least one month.", termErr_invalid_zins: "Enter the nominal or the effective interest rate.",
-    pvSource: "Source of the self-sufficiency", pvSrc: { gesamtverbrauch: "Total consumption of the house", entitaet: "Self-sufficiency sensor", manuell: "Own values" }, pvWithout: "Forecast at contract end without PV self-sufficiency", pvSoFar: "PV self-sufficiency so far", pvLowTariff: "low tariff {v} %", pvApprox: "Self-sufficiency over both tariffs (approximation)",
-    chartBySparte: "By category", chartByContract: "By contract", chartYearLabel: "Year", chartYearAll: "Current", chartYearHint: "The cost of this calendar year; earlier terms count for their days in it.",
-    hintCatchUp: "Today {v} behind, made up by the instalment before the contract ends.", hintUsedUp: "Today {v} ahead, used up before the contract ends.",
-    grandTotal: "Overall", groupMetered: "Metered contracts", groupFlat: "Flat-rate contracts", noEnd: "No contract end", overTerm: "{v} over the contract term",
-    dlgTitleCreate: "New contract", dlgCreated: "The contract was created.",
-    dlgDelete: "Delete contract", dlgDeleteYes: "Delete for good", dlgDeleted: "The contract was deleted.",
-    dlgDeleteAsk: "Delete the contract \"{name}\" for good? This cannot be undone. Type its name to confirm.",
-    dlgDeleteNote: "Its sensors and buttons are removed. The long-term statistics Home Assistant already recorded stay in its database.",
-    dlgDeleteFailed: "Deleting failed: {m}",
-    dlgTitleEdit: "Edit contract · {name}", dlgContinue: "Next",
-    dlgSaveAsk: "Save the changes? The contract data is replaced with what the form shows.", dlgSaveYes: "Yes, save",
-    dlgTitle: "Next contract · {name}", dlgLoading: "Loading the form …", dlgSave: "Save", dlgClose: "Close",
-    dlgSaving: "Saving …", dlgSaved: "Saved. Home Assistant reloads the contract.",
-    dlgMarkDone: "Mark the cancellation as done",
-    dlgMarkDoneFailed: "Saved, but the cancellation could not be marked as done. Please use \"Acknowledge cancellation\".",
-    dlgRemove: "Remove planned contract", dlgRemoveAsk: "Remove the planned next contract? The current contract stays as it is.",
-    dlgRemoveYes: "Yes, remove", dlgRemoved: "The planned contract was removed.",
-    dlgInvalidNumber: "Not a valid number (zero or more, decimal comma or point).", dlgRequired: "Required",
-    dlgLoadFailed: "The form could not be loaded: {m}", dlgSaveFailed: "Saving failed: {m}",
-    dlgAborted: "Home Assistant ended the form: {m}",
-    dlgUnsupported: "This form has fields the panel cannot show yet. Please use the setup of Home Assistant.",
-    coveredHint: "Credit covers the costs",
-    adviceRaise: "Raise the instalment to {v} per month", adviceLower: "Instalment could drop to {v} per month",
-    adviceNone: "No instalment needed: the credit covers the costs until the contract ends", adviceOk: "The instalment fits",
-    sparte: {
-      electricity: "Electricity", electricity_ht_nt: "Electricity HT/NT", gas: "Gas",
-      water: "Water", internet: "Internet", mobile: "Mobile", streaming: "Streaming", loan: "Loan", insurance: "Insurance", other: "Other",
-    },
-    versicherungsart: {
-      car: "Car", house: "Building / house", household: "Household contents", liability: "Liability",
-      health: "Health", life: "Life", legal: "Legal protection", accident: "Accident", other: "Other",
-    },
-  },
-  de: {
-    overview: "Übersicht", costs: "Kosten", contracts: "Verträge",
-    loading: "Verträge werden geladen …",
-    error: "Das Panel konnte die Verträge nicht laden.",
-    emptyTitle: "Noch keine Verträge",
-    emptyText: "Lege einen Vertrag unter Einstellungen → Geräte & Dienste → Tariffy an.",
-    emptyLink: "Vertrag anlegen",
-    monthlyTotal: "Abschläge pro Monat",
-    forecastTotal: "Prognose zum Vertragsende",
-    forecastSub: "{n} von {m} Verträgen mit Verbrauchsmessung",
-    nextDates: "Nächste Termine", perYear: "≈ {v} / Jahr", shortMetered: "Verbrauch", shortFlat: "Pauschal", dueSoFar: "Fällige Abschläge bisher: {v}",
-    nothingPlanned: "Nichts geplant",
-    inDays: "in {n} Tagen", today: "heute", tomorrow: "morgen",
-    credit: "Guthaben", balanceDue: "Nachzahlung",
-    cancelDue: "Jetzt kündigen", warning: "Nachzahlung droht",
-    switchOn: "Wechsel am {d}",
-    endForecast: "Guthaben / Nachzahlung zum Vertragsende",
-    endTotal: "Abschläge über die Laufzeit",
-    term: "Laufzeit",
-    costSoFar: "Kosten bisher", balanceSoFar: "Guthaben / Nachzahlung bisher",
-    consumption: "Verbrauch", projected: "hochgerechnet {v}",
-    remaining: "Restlaufzeit", daysLeft: "{n} Tage", until: "bis {d}",
-    instalment: "Abschlag / Monat", contractEnd: "Vertragsende",
-    reminder: "Erinnerung", reminderOff: "Aus",
-    paid: "Abschläge gezahlt", cost: "Kosten",
-    noteWarning: "Beim aktuellen Verbrauch ist eine Nachzahlung von etwa {v} zu erwarten. Abschlag auf etwa {a} pro Monat anpassen.",
-    noteWarningShort: "Beim aktuellen Verbrauch ist eine Nachzahlung von etwa {v} zu erwarten.",
-    noteCancel: "Die Kündigungsfrist läuft, der Vertrag endet am {d}.",
-    noteNext: "Folgevertrag ab {d}: {name}",
-    colContract: "Vertrag", colCost: "Kosten bisher", colBalance: "Saldo heute",
-    colForecast: "Zum Vertragsende", colInstalment: "Abschlag", colRecommended: "Empfohlen",
-    total: "Summe", highTariff: "Hochtarif", lowTariff: "Niedertarif",
-    costsHint: "Positiv = Guthaben, negativ = Nachzahlung. „Zum Vertragsende“ ist aus dem bisherigen Verbrauch hochgerechnet. Bei Pauschalverträgen sind die Kosten bisher die bis heute fälligen Abschläge.",
-    secContract: "Vertrag", secPrices: "Preise", secConsumption: "Verbrauch",
-    secAdvice: "Empfehlungen", secNext: "Folgevertrag",
-    provider: "Anbieter", tariff: "Tarif", insuranceType: "Art der Versicherung", kmStart: "Kilometerstand bei Beginn", kmPerYear: "Erlaubt pro Jahr", start: "Beginn", end: "Ende",
-    unitPrice: "Arbeitspreis", unitPriceLow: "Arbeitspreis Niedertarif", unitPriceNight: "Arbeitspreis Nacht",
-    unitPriceEff: "Arbeitspreis effektiv", unitPriceWater: "Wasserpreis inkl. Abwasser",
-    basePrice: "Grundpreis", perMonth: "/ Monat",
-    totalCost: "Kosten gesamt", totalSince: "seit {d}", termsOne: "1 Laufzeit", termsMany: "{n} Laufzeiten", atLeast: "mindestens {v}",
-    actRenew: "Vertrag verlängern", renewTitle: "Vertrag verlängern", renewGo: "Verlängern",
-    renewHint: "Die bisherige Laufzeit kommt in die Historie. Der Vertrag läuft mit neuem Beginn, Ende und Betrag weiter; die Erinnerungen beginnen neu. Nutze es, wenn sich Beitrag oder Preis zum Ende der Laufzeit ändert.",
-    rf_zahlweise: "Zahlweise", rf_abschlag: "Betrag pro Zahlung (€)",
-    renewUp: "{p} % teurer ({n} statt {o} pro Monat)", renewDown: "{p} % günstiger ({n} statt {o} pro Monat)", renewSame: "Betrag unverändert",
-    termErr_invalid_abschlag: "Trage einen Betrag über null ein.", termErr_invalid_zahlweise: "Wähle eine Zahlweise.",
-    termErr_not_available: "Dieser Vertrag lässt sich nicht verlängern (kein Ende eingetragen oder kein Pauschalvertrag).",
-    firstDebit: "Erste Abbuchung", nextPayment: "Nächste Zahlung", rf_erste: "Erste Abbuchung (optional)",
-    instalmentYear: "Abschlag / Jahr", costYear: "Kosten / Jahr", payment: "Zahlung", perYearShort: "{v} / Jahr",
-    interval: { monthly: "monatlich", quarterly: "vierteljährlich", halfyearly: "halbjährlich", yearly: "jährlich" },
-    soFar: "Bisher", soFarHigh: "Bisher, Hochtarif", soFarLow: "Bisher, Niedertarif",
-    projectedTerm: "Hochgerechnet auf die Laufzeit", lastPeriod: "Letzte Laufzeit",
-    recommended: "Empfohlener Abschlag", adjustment: "Abschlag-Anpassung",
-    reminderDate: "Erinnerung ab", reminderActive: "Aktiv", reminderDone: "Bestätigt",
-    nextStart: "Beginn", nextEnd: "Ende", nextProvider: "Anbieter", nextTariff: "Tarif",
-    nextPrice: "Arbeitspreis", nextInstalment: "Abschlag",
-    months: "{n} Monate", yes: "ja", no: "nein",
-    actConfirmWarning: "Warnung bestätigen", actConfirmCancel: "Kündigung bestätigen",
-   
-    actYesAck: "Ja, bestätigen", actCancel: "Abbrechen",
-    actAskWarning: "Abschlag-Warnung bestätigen? Sie wird für diesen Vertrag erst wieder gemeldet, wenn sich die Prognose zwischendurch erholt hat.",
-    actAskCancel: "Kündigungs-Erinnerung bestätigen? Die Erinnerung wird für diesen Vertrag ausgeblendet.", actFailed: "Aktion fehlgeschlagen: {m}",
-    actNextPlan: "Folgevertrag planen", actNextEdit: "Folgevertrag bearbeiten", actEdit: "Vertrag bearbeiten", actNew: "Neuer Vertrag",
-    saldoShort: "Saldo heute",
-    history: "Historie", histEmptyTitle: "Noch keine Historie",
-    histEmpty: "Die früheren Laufzeiten eines Vertrags erscheinen hier, sobald der Folgevertrag übernimmt. Archivierte Verträge erscheinen hier ebenfalls.",
-    allArchived: "Alle Verträge sind archiviert. Du findest sie im Tab Historie.",
-    groupArchived: "Archivierte Verträge", groupEarlier: "Frühere Laufzeiten", archived: "Archiviert",
-    colTerm: "Laufzeit", colTermCost: "Kosten", colUsage: "Verbrauch", colTermBalance: "Saldo",
-    expired: "Abgelaufen", noteExpired: "Dieser Vertrag ist abgelaufen. Im Tab Verträge kannst du ihn archivieren.",
-    actArchive: "Archivieren", actRestore: "Zurückholen",
-    actAskArchive: "Diesen Vertrag archivieren? Er verschwindet aus Übersicht, Kosten und Verträgen und steht in der Historie. Nichts wird gelöscht, du kannst ihn zurückholen.",
-    actYesArchive: "Ja, archivieren",
-    actAskRestore: "Diesen Vertrag wieder in die Übersicht holen?", actYesRestore: "Ja, zurückholen",
-    backup: "Sicherung", bkTitleExport: "Sicherung erstellen", bkTitleRestore: "Aus Datei wiederherstellen", bkTitleDeleted: "Gelöschte Verträge",
-    bkExportText: "Speichert alle Verträge in einer Datei: ihre Daten, die Historie, den geplanten Folgevertrag und die Bestätigungen. Die Datei enthält persönliche Daten (Kundennummer, Zählernummer, Marktlokation, Benachrichtigungsziel). Bewahre sie sicher auf und gib sie nicht weiter.",
-    bkDownload: "Sicherung herunterladen", bkDownloaded: "Sicherung heruntergeladen: {n} Verträge.",
-    bkRestoreText: "Wähle eine Sicherungsdatei. Du siehst vorher, was passieren würde, bevor etwas angelegt wird. Verträge, die es schon gibt (gleicher Name und Sparte), werden übersprungen und nie verändert; nur fehlende werden angelegt.",
-    bkPlanCreate: "wird angelegt", bkPlanSkip: "übersprungen: gibt es schon", bkNothing: "Nichts wiederherzustellen: die Verträge dieser Datei gibt es schon.",
-    bkRestoreGo: "Wiederherstellen ({n})", bkAskRestore: "{n} fehlende(n) Vertrag/Verträge aus dieser Datei anlegen? Vorhandene Verträge werden nicht verändert.",
-    bkYesRestore: "Ja, wiederherstellen", bkDone: "Wiederhergestellt: {c} angelegt, {s} übersprungen.",
-    bkDeletedText: "Ein gelöschter Vertrag bleibt 30 Tage erhalten und lässt sich hier zurückholen, auch wenn er in Home Assistant gelöscht wurde.",
-    bkDeletedEmpty: "Keine gelöschten Verträge.", bkDeletedOn: "gelöscht am {d}", bkRestoreOne: "Zurückholen", bkAskOne: "„{name}“ zurückholen?",
-    bkYesOne: "Ja, zurückholen", bkRestoredOne: "„{name}“ ist wieder da.",
-    bkDiscard: "Jetzt vergessen", bkAskDiscard: "„{name}“ endgültig vergessen? Danach lässt er sich nicht mehr zurückholen.",
-    bkYesDiscard: "Ja, vergessen", bkDiscarded: "„{name}“ wurde vergessen.",
-    bkErr_invalid_backup: "Das ist keine gültige Tariffy-Sicherung.", bkErr_exists: "Einen Vertrag mit diesem Namen und dieser Sparte gibt es schon.",
-    bkErr_not_found: "Diese Sicherung gibt es nicht mehr.", bkErr_restore_failed: "Das Wiederherstellen ist fehlgeschlagen.", bkErrBig: "Die Datei ist zu groß.",
-    termAdd: "Alten Vertrag hinzufügen", termEdit: "Laufzeit bearbeiten", termTitleAdd: "Alten Vertrag hinzufügen", termTitleEdit: "Laufzeit bearbeiten",
-    termHint: "Trage die Laufzeit eines früheren Vertrags ein. Lass die grau hinterlegten Felder leer, dann werden sie automatisch berechnet (der Verbrauch aus den Statistiken des Zählers, der Rest daraus und aus deinen Preisen). In jedes Feld kannst du auch selbst einen Wert eintragen.",
-    termDelete: "Laufzeit löschen", termDeleteAsk: "Diese Laufzeit aus der Historie löschen?", termDeleteYes: "Ja, löschen", termManual: "von Hand eingetragen",
-    tf_entry_id: "Vertrag", tf_beginn: "Beginn", tf_ende: "Ende", tf_anbieter: "Anbieter", tf_tarif: "Tarif",
-    tf_arbeitspreis: "Arbeitspreis je Einheit (€)", tf_grundpreis: "Grundpreis pro Monat (€)", tf_abschlag: "Abschlag pro Monat (€)",
-    tf_verbrauch: "Verbrauch", tf_kosten: "Kosten (€)", tf_abschlag_gezahlt: "Gezahlte Abschläge (€)", tf_saldo: "Saldo (€)",
-    autoStat: "Automatisch aus den Statistiken von {s}", autoNoSensor: "Am Vertrag ist kein Zähler hinterlegt, bitte eintragen",
-    autoNoStat: "Keine Statistik für diese Laufzeit, bitte eintragen", autoFlat: "Pauschalvertrag: kein Verbrauch",
-    autoCalc: "Berechnet", autoWait: "Wird berechnet, sobald die anderen Werte da sind", autoOwn: "Von dir eingetragen",
-    termErr_invalid_dates: "Das Ende darf nicht vor dem Beginn liegen.", termErr_too_many: "Die Historie ist voll (50 Laufzeiten).",
-    termErr_not_found: "Diese Laufzeit gibt es nicht mehr.", termErr_invalid: "Eine der Zahlen ist nicht gültig.",
-    secOnce: "Einmalposten", onceAdd: "Posten hinzufügen", onceEdit: "Posten bearbeiten", onceTitleAdd: "Einmalposten hinzufügen", onceTitleEdit: "Posten bearbeiten",
-    onceHint: "Ein positiver Betrag ist eine Gutschrift (z. B. Wechselbonus), ein negativer eine Rechnung (z. B. Honorar für den Makler). Er zählt ab seinem Datum im Saldo und in den Gesamtkosten.",
-    onceName: "Bezeichnung", onceAmount: "Betrag (+ Gutschrift, − Rechnung)", onceDate: "Datum", onceDelete: "Posten löschen", onceDeleteAsk: "Diesen Posten löschen?", onceDeleteYes: "Ja, löschen", onceSum: "Saldo",
-    termErr_invalid_bezeichnung: "Trage eine Bezeichnung ein.", termErr_invalid_betrag: "Trage einen Betrag ungleich null ein (mit Minus für eine Rechnung).",
-    minTerm: "Mindestlaufzeit", noticePeriod: "Kündigungsfrist", cancelBy: "Kündigen bis", untilDate: "bis {d}",
-    chartTitle: "Kostenaufteilung", chartSoFar: "Kosten bisher", chartYear: "Pro Jahr", chartMetered: "Verbrauchsverträge", chartFlat: "Pauschalverträge", chartEmpty: "Noch nichts darzustellen.", secAussen: "Außenzähler", aussenAdd: "Außenzähler hinzufügen", aussenEdit: "Außenzähler bearbeiten", aussenTitleAdd: "Außenzähler hinzufügen", aussenTitleEdit: "Außenzähler bearbeiten",
-    aussenHint: "Wasser, das nicht in die Kanalisation fließt (Garten, Pool, Bewässerung). Sein Verbrauch ist im Hauptzähler enthalten und wird ohne Abwasser berechnet.",
-    aussenName: "Name", aussenSensor: "Verbrauchssensor", aussenStart: "Startwert (optional)", aussenPrice: "Eigener Preis je Einheit (optional)",
-    aussenDelete: "Zähler löschen", aussenDeleteAsk: "Diesen Außenzähler löschen?", aussenTooMany: "Es gibt zu viele Außenzähler (10).",
-    gardenUse: "Gartenwasser", gardenCost: "Gartenwasser-Kosten", wwUse: "Abwasserpflichtiger Verbrauch", wwCost: "Abwasserkosten",
-    termErr_invalid_name: "Trage einen Namen ein.", termErr_invalid_sensor: "Trage die Entity-ID eines Sensors ein (zum Beispiel sensor.garten_wasser).", termErr_same_sensor: "Das ist der Hauptzähler des Vertrags.",
-    groupLoans: "Kredite / Finanzierungen", secLoan: "Kredit", loanDebt: "Restschuld", loanPaid: "Gezahlt bisher", loanRemainingSum: "Restsumme",
-    loanNext: "Nächste Rate", loanSplit: "Zinsen {z} · Tilgung {t}", loanRepaid: "Getilgt", loanPayments: "Raten gezahlt", loanEffective: "effektiv {v} %",
-    loanInterestOf: "davon Zinsen {v}", loanInterestTotalOf: "Zinsen insgesamt {v}", loanAmount: "Kreditsumme", loanNominal: "Sollzins",
-    loanEffectiveRow: "Effektiver Jahreszins", loanTerm: "Laufzeit", loanRatePaid: "Rate", loanRateCalc: "Rate laut Zins", loanFinal: "Schlussrate am Ende",
-    loanInterestPaid: "Zinsen bisher", loanPrincipalPaid: "Getilgt bisher", loanInterestTotal: "Zinsen über die Laufzeit", loanTotalCost: "Summe aller Zahlungen",
-    firstPayment: "Erste Rate", loanIncomplete: "Der Kredit lässt sich noch nicht berechnen: Summe, Laufzeit, Beginn und ein Zinssatz werden gebraucht.",
-    loanMismatch: "Deine Rate weicht um {p} % von der ab, die der Zins ergibt ({r}).",
-    loansHint: "Kredite laufen getrennt: Sie zählen nicht in die Summen der Verträge.",
-    loanRenewTitle: "Anschlussfinanzierung", loanRenewHint: "Die bisherige Laufzeit kommt in die Historie, der Kredit läuft mit neuer Summe, neuem Zins und neuer Laufzeit weiter. Die Summe ist meist die Restschuld.",
-    lf_summe: "Neue Kreditsumme (€)", lf_soll: "Sollzins (% pro Jahr)", lf_effektiv: "Effektiver Jahreszins (%)", lf_laufzeit: "Laufzeit (Monate)",
-    lf_rate: "Rate je Zahlung (freiwillig)", lf_schluss: "Schlussrate (freiwillig)",
-    termErr_invalid_kredit_summe: "Trage eine Kreditsumme über null ein.", termErr_invalid_laufzeit_monate: "Trage eine Laufzeit von mindestens einem Monat ein.", termErr_invalid_zins: "Trage den Sollzins oder den effektiven Jahreszins ein.",
-    pvSource: "Quelle der Autarkie", pvSrc: { gesamtverbrauch: "Gesamtverbrauch des Hauses", entitaet: "Autarkie-Sensor", manuell: "Eigene Werte" }, pvWithout: "Prognose zum Vertragsende ohne PV-Autarkie", pvSoFar: "PV-Autarkie bisher", pvLowTariff: "Niedertarif {v} %", pvApprox: "Autarkie über beide Tarife (Näherung)",
-    chartBySparte: "Je Sparte", chartByContract: "Je Vertrag", chartYearLabel: "Jahr", chartYearAll: "Aktuell", chartYearHint: "Die Kosten dieses Kalenderjahres; frühere Laufzeiten zählen anteilig für ihre Tage darin.",
-    hintCatchUp: "Heute {v} im Rückstand, bis Vertragsende durch den Abschlag ausgeglichen.", hintUsedUp: "Heute {v} im Plus, bis Vertragsende aufgebraucht.",
-    grandTotal: "Gesamt", groupMetered: "Verbrauchsverträge", groupFlat: "Pauschalverträge", noEnd: "Kein Vertragsende", overTerm: "{v} über die Laufzeit",
-    dlgTitleCreate: "Neuer Vertrag", dlgCreated: "Der Vertrag wurde angelegt.",
-    dlgDelete: "Vertrag löschen", dlgDeleteYes: "Endgültig löschen", dlgDeleted: "Der Vertrag wurde gelöscht.",
-    dlgDeleteAsk: "Den Vertrag \"{name}\" endgültig löschen? Das lässt sich nicht rückgängig machen. Zur Bestätigung den Namen eintippen.",
-    dlgDeleteNote: "Seine Sensoren und Buttons werden entfernt. Die Langzeit-Statistiken, die Home Assistant schon aufgezeichnet hat, bleiben in der Datenbank.",
-    dlgDeleteFailed: "Löschen fehlgeschlagen: {m}",
-    dlgTitleEdit: "Vertrag bearbeiten · {name}", dlgContinue: "Weiter",
-    dlgSaveAsk: "Änderungen speichern? Die Vertragsdaten werden durch das ersetzt, was das Formular zeigt.", dlgSaveYes: "Ja, speichern",
-    dlgTitle: "Folgevertrag · {name}", dlgLoading: "Formular wird geladen …", dlgSave: "Speichern", dlgClose: "Schließen",
-    dlgSaving: "Wird gespeichert …", dlgSaved: "Gespeichert. Home Assistant lädt den Vertrag neu.",
-    dlgMarkDone: "Kündigung als erledigt markieren",
-    dlgMarkDoneFailed: "Gespeichert, aber die Kündigung konnte nicht als erledigt markiert werden. Bitte \"Kündigung bestätigen\" benutzen.",
-    dlgRemove: "Geplanten Vertrag entfernen", dlgRemoveAsk: "Den geplanten Folgevertrag entfernen? Der aktuelle Vertrag bleibt unverändert.",
-    dlgRemoveYes: "Ja, entfernen", dlgRemoved: "Der geplante Vertrag wurde entfernt.",
-    dlgInvalidNumber: "Keine gültige Zahl (null oder größer, Komma oder Punkt).", dlgRequired: "Pflichtfeld",
-    dlgLoadFailed: "Das Formular konnte nicht geladen werden: {m}", dlgSaveFailed: "Speichern fehlgeschlagen: {m}",
-    dlgAborted: "Home Assistant hat das Formular beendet: {m}",
-    dlgUnsupported: "Dieses Formular enthält Felder, die das Panel noch nicht anzeigen kann. Bitte die Einrichtung von Home Assistant benutzen.",
-    coveredHint: "Guthaben deckt die Kosten",
-    adviceRaise: "Abschlag auf {v} pro Monat erhöhen", adviceLower: "Abschlag könnte auf {v} pro Monat sinken",
-    adviceNone: "Kein Abschlag nötig: Das Guthaben deckt die Kosten bis Vertragsende", adviceOk: "Der Abschlag passt",
-    sparte: {
-      electricity: "Strom", electricity_ht_nt: "Strom HT/NT", gas: "Gas",
-      water: "Wasser", internet: "Internet", mobile: "Mobilfunk", streaming: "Streaming", loan: "Kredit", insurance: "Versicherung", other: "Sonstiges",
-    },
-    versicherungsart: {
-      car: "Auto (Kfz)", house: "Gebäude / Haus", household: "Hausrat", liability: "Haftpflicht",
-      health: "Kranken", life: "Leben", legal: "Rechtsschutz", accident: "Unfall", other: "Sonstige",
-    },
-  },
-};
+/* The texts, icons and styles are in their own files next to this one. They are loaded with the version of this
+ * file in the URL (?v=...): the static path is cached for a long time, so a browser must never combine new code
+ * with old texts or styles after an update. */
+const VERSION = new URL(import.meta.url).search;
+let I18N;
+let ICONS;
+let STYLE;
+/* No top-level await: the element must be defined the moment this file has run. Home Assistant may create the
+ * element and hand it `hass` before it is defined (the properties then shadow the setters), and a module that is
+ * still waiting for its parts defines it too late. The parts arrive a moment later and the panel draws itself then. */
+const PARTS = Promise.all([
+  import(`./tariffy-i18n.js${VERSION}`),
+  import(`./tariffy-icons.js${VERSION}`),
+  import(`./tariffy-style.js${VERSION}`),
+]).then(([i18n, icons, style]) => {
+  ({ I18N } = i18n);
+  ({ ICONS } = icons);
+  ({ STYLE } = style);
+});
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TABS = ["overview", "costs", "contracts", "history", "backup"];
@@ -326,353 +36,6 @@ const GRID = ["24%", "15.2%", "15.2%", "15.2%", "15.2%", "15.2%"];
 const INTERVAL_MONTHS = { monthly: 1, quarterly: 3, halfyearly: 6, yearly: 12 };
 const METERED = new Set(["electricity", "electricity_ht_nt", "gas", "water"]);
 const TAB_KEY = "tariffy-panel-tab";
-
-/* Simple outline icons per contract type (24x24, stroke). */
-const ICONS = {
-  electricity: [["path", { d: "M13 2 4 14h7l-1 8 9-12h-7z" }]],
-  electricity_ht_nt: [["path", { d: "M13 2 4 14h7l-1 8 9-12h-7z" }]],
-  gas: [["path", { d: "M12 2c.5 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.500 2-4.500.2 2 1 3 2 3 .5-3-1-5 1-9.500z" }]],
-  water: [["path", { d: "M12 2s6.500 7 6.500 12a6.500 6.500 0 0 1-13 0C5.500 9 12 2 12 2z" }]],
-  internet: [
-    ["path", { d: "M2.500 9a14 14 0 0 1 19 0" }],
-    ["path", { d: "M5.500 12.500a9.500 9.500 0 0 1 13 0" }],
-    ["path", { d: "M8.600 16a5 5 0 0 1 6.800 0" }],
-    ["circle", { cx: "12", cy: "19.500", r: "1", fill: "currentColor" }],
-  ],
-  mobile: [
-    ["rect", { x: "7", y: "2.500", width: "10", height: "19", rx: "2.500" }],
-    ["path", { d: "M11 18.500h2" }],
-  ],
-  streaming: [
-    ["rect", { x: "3", y: "5", width: "18", height: "14", rx: "3" }],
-    ["path", { d: "M10 9.500v5l4.500-2.500z" }],
-  ],
-  loan: [
-    ["rect", { x: "3", y: "6", width: "18", height: "12", rx: "2" }],
-    ["circle", { cx: "12", cy: "12", r: "2.500" }],
-    ["path", { d: "M6.500 9.500v.01M17.500 14.500v.01" }],
-  ],
-  insurance: [["path", { d: "M12 2.500 20 5.500v6c0 5-3.500 8.500-8 10.500-4.500-2-8-5.500-8-10.500v-6z" }]],
-  // actions of the contract list
-  edit: [["path", { d: "M12 20h9" }], ["path", { d: "M16.500 3.500a2.100 2.100 0 0 1 3 3L7 19l-4 1 1-4z" }]],
-  plan: [
-    ["rect", { x: "3", y: "4", width: "18", height: "18", rx: "2" }],
-    ["path", { d: "M16 2v4M8 2v4M3 10h18M12 13.500v5M9.500 16h5" }],
-  ],
-  plus: [["path", { d: "M12 5v14M5 12h14" }]],
-  chevron: [["path", { d: "M9 6l6 6-6 6" }]],
-  renew: [["path", { d: "M20 11a8 8 0 0 0-14.500-3.500M4 5v4h4" }], ["path", { d: "M4 13a8 8 0 0 0 14.500 3.500M20 19v-4h-4" }]],
-  other: [
-    ["circle", { cx: "6", cy: "12", r: "1.600", fill: "currentColor" }],
-    ["circle", { cx: "12", cy: "12", r: "1.600", fill: "currentColor" }],
-    ["circle", { cx: "18", cy: "12", r: "1.600", fill: "currentColor" }],
-  ],
-};
-
-const STYLE = `
-:host {
-  --bg: #0b0d12; --panel: #14171e; --panel2: #11141a;
-  --tile: rgba(255,255,255,.032); --tile-line: rgba(255,255,255,.07); --line: rgba(255,255,255,.065);
-  --text: #f3f5f9; --muted: #8b91a1; --dim: #5d6373;
-  --green: #34d399; --red: #f87171; --orange: #fb923c; --blue: #60a5fa; --gold: #f7b733;
-  display: block; min-height: 100%; box-sizing: border-box;
-  background: var(--bg); color: var(--text); color-scheme: dark;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  container-type: inline-size;
-}
-* { box-sizing: border-box; }
-/* use the whole width of the window; the cap only keeps ultra-wide monitors readable */
-.wrap { max-width: 2400px; margin: 0 auto; padding: 16px 24px 40px; }
-.top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
-.brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; letter-spacing: .02em; }
-.tabs { display: flex; gap: 2px; margin: 0 auto; padding: 4px; background: var(--panel2);
-  border: 1px solid var(--line); border-radius: 12px; }
-.tab { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit;
-  font-size: 14px; font-weight: 600; padding: 8px 18px; border-radius: 9px; cursor: pointer; }
-.tab:hover { color: var(--text); }
-.tab[aria-selected="true"] { background: rgba(255,255,255,.09); color: var(--text); }
-.tab:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-.spacer { width: 90px; }
-
-.summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px; }
-@container (min-width: 1100px) { .summary { grid-template-columns: repeat(4, 1fr); } }
-.sum { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; min-width: 0; }
-.label { font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
-.sum .value { font-size: 26px; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
-.sum .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.split { display: flex; height: 7px; margin-top: 12px; border-radius: 4px; overflow: hidden; gap: 2px; background: rgba(255,255,255,.07); }
-.split span { display: block; height: 100%; }
-.legend { display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 8px; font-size: 12px; color: var(--muted); }
-.legend b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-.legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-.mini { margin-top: 10px; display: grid; gap: 0; }
-.mrow { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
-.mrow .n { min-width: 0; }
-.mrow .n b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-.mrow .v { flex: none; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); }
-
-/* two groups: metered contracts (big cards) and flat-rate contracts (slim cards), each in rows of equal height */
-.group { margin-top: 22px; }
-.group:first-of-type { margin-top: 0; }
-.group-title { display: flex; align-items: center; gap: 8px; margin: 0 0 12px 2px; font-size: 11px; font-weight: 600;
-  letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-/* the overall total is a row of its own in the same column grid as the tables above */
-.grand-table { margin-top: 18px; table-layout: fixed; }
-.grand-table td { font-weight: 700; border-bottom: 0; background: var(--panel2); }
-.group-title .count { font-size: 11px; letter-spacing: 0; padding: 1px 8px; border-radius: 999px; background: rgba(255,255,255,.07); }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; align-items: stretch; }
-.grid.flat { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-/* wide screens: three contracts per row in both groups, four on a very wide window */
-@container (min-width: 1000px) { .grid.metered, .grid.flat { grid-template-columns: repeat(3, 1fr); } }
-@container (min-width: 1500px) { .grid.flat { grid-template-columns: repeat(4, 1fr); } }
-@container (min-width: 1750px) { .grid.metered, .grid.flat { grid-template-columns: repeat(4, 1fr); } }
-section.card { display: flex; flex-direction: column; }
-section.card .foot { padding-top: 12px; }
-/* cards of one row share their rows: the header, the big figure, the tiles, the bars and the footer line up across the cards */
-@supports (grid-template-rows: subgrid) {
-  .grid > section.card { display: grid; grid-row: span 6; grid-template-rows: subgrid; row-gap: 0; align-content: start; }
-}
-.card.flat .big { font-size: 28px; }
-.card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
-.card.tone-green { background: linear-gradient(180deg, rgba(52,211,153,.085), var(--panel) 150px); }
-.card.tone-red { background: linear-gradient(180deg, rgba(248,113,113,.085), var(--panel) 150px); }
-.card.tone-orange { background: linear-gradient(180deg, rgba(251,146,60,.085), var(--panel) 150px); }
-.card.alert { border-color: rgba(248,113,113,.35); }
-.head { display: flex; align-items: flex-start; gap: 12px; }
-.chips:empty { display: none; }
-.head > .chips { margin-left: auto; flex: 0 1 auto; justify-content: flex-end; }
-.card .title { font-size: 15px; letter-spacing: .07em; text-transform: uppercase; }
-.icon-btn { appearance: none; flex: none; width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border-radius: 10px;
-  border: 1px solid var(--tile-line); background: var(--tile); color: var(--muted); cursor: pointer; }
-.icon-btn:hover { color: var(--text); background: rgba(255,255,255,.09); }
-.icon-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-.icon-btn svg, .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.row-actions { display: flex; gap: 6px; flex: none; }
-.list-head { display: flex; justify-content: flex-end; margin: 0 0 12px; }
-.list-head .btn { display: inline-flex; align-items: center; gap: 8px; }
-.foot { margin-top: 12px; font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; }
-.foot b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-.badge { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
-  background: var(--tile); border: 1px solid var(--tile-line); color: var(--blue); }
-.badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.badge.gas { color: var(--orange); } .badge.water { color: #38bdf8; } .badge.electricity,
-.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: #a78bfa; } .badge.mobile { color: var(--green); } .badge.streaming { color: #f472b6; } .badge.loan { color: #fbbf24; }
-.title { font-size: 17px; font-weight: 700; line-height: 1.2; }
-.meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.who { min-width: 0; flex: 1; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
-.chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap;
-  background: rgba(255,255,255,.06); color: var(--muted); }
-.chip.green { background: rgba(52,211,153,.14); color: var(--green); }
-.chip.red { background: rgba(248,113,113,.14); color: var(--red); }
-.chip.orange { background: rgba(251,146,60,.15); color: var(--orange); }
-.chip.blue { background: rgba(96,165,250,.15); color: var(--blue); }
-
-.hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin: 16px 0 14px; }
-.hero > div:first-child { min-width: 0; }
-.ring { position: relative; flex: none; width: 84px; height: 84px; }
-.ring svg { width: 84px; height: 84px; transform: rotate(-90deg); }
-.ring .track { stroke: rgba(255,255,255,.08); } .ring .arc { stroke: var(--blue); stroke-linecap: round; }
-.ring .center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
-.ring .pct { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.ring .pcap { font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.big { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; margin-top: 4px; }
-.green-t { color: var(--green); } .red-t { color: var(--red); } .muted-t { color: var(--muted); }
-.note { font-size: 13px; color: var(--muted); margin-top: 6px; }
-.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-.btn { appearance: none; font: inherit; font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 10px;
-  border: 1px solid var(--tile-line); background: var(--tile); color: var(--text); cursor: pointer; }
-.btn:hover { background: rgba(255,255,255,.08); }
-.btn[disabled] { opacity: .5; cursor: default; }
-.btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-.btn.red { color: var(--red); border-color: rgba(248,113,113,.4); }
-.btn.orange { color: var(--orange); border-color: rgba(251,146,60,.4); }
-.btn.blue { color: var(--blue); border-color: rgba(96,165,250,.4); }
-.btn.go { background: rgba(96,165,250,.18); color: var(--blue); border-color: rgba(96,165,250,.5); }
-.overlay { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.62); display: flex; align-items: center; justify-content: center; padding: 16px; }
-.dialog { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; width: 100%; max-width: 620px; max-height: calc(100vh - 32px); overflow: auto; padding: 18px 20px; box-sizing: border-box; }
-.dialog h2 { margin: 0 0 6px; font-size: 18px; }
-.dialog .hint { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
-.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
-.fld { display: block; margin: 8px 0; min-width: 0; }
-.fld .lbl { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-.fld input, .fld select { width: 100%; box-sizing: border-box; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
-/* the list of a drop-down is drawn by the browser: some ignore color-scheme, so it gets its colours explicitly
-   (otherwise light text on a white list) */
-/* iOS draws a date field with its own intrinsic width and no height while empty: it stuck out of the dialog */
-.fld input[type="date"] { appearance: none; -webkit-appearance: none; min-width: 0; max-width: 100%; min-height: 38px; text-align: left; }
-.fld input[type="date"]::-webkit-date-and-time-value { text-align: left; min-height: 1.2em; }
-.fld select option, .fld select optgroup { background: #1a1d25; color: var(--text); }
-.fld input:focus-visible, .fld select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
-.confirm-name { width: 100%; font: inherit; font-size: 14px; color: var(--text); background: var(--tile); border: 1px solid var(--tile-line); border-radius: 8px; padding: 8px 10px; color-scheme: dark; }
-.confirm-name:focus-visible { outline: 2px solid var(--red); outline-offset: 1px; }
-.fld.bool { display: flex; gap: 8px; align-items: center; }
-.fld.bool .lbl { margin: 0; font-size: 13px; color: var(--text); }
-.fld.bool input { width: auto; }
-.fld.bad input, .fld.bad select { border-color: var(--red); }
-.ferr { color: var(--red); font-size: 12px; margin-top: 4px; }
-.check { display: flex; gap: 8px; align-items: center; margin: 12px 0 0; font-size: 13px; }
-.dialog .actions { margin-top: 16px; }
-@media (max-width: 560px) { .fields { grid-template-columns: 1fr; } }
-.ask { width: 100%; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
-.ask span { flex-basis: 100%; }
-.err { width: 100%; font-size: 13px; color: var(--red); }
-
-.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
-.tile { background: var(--tile); border: 1px solid var(--tile-line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
-.tile .label { overflow-wrap: anywhere; }
-.tile .v { font-size: 16px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
-.tile .s { font-size: 12px; color: var(--muted); margin-top: 1px; }
-.tile .v small, .big small { font-size: 12px; font-weight: 500; color: var(--muted); margin-left: 3px; }
-
-.bars { margin-top: 14px; display: grid; gap: 6px; }
-.bar { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; font-size: 12px; color: var(--muted); }
-.bar .tr { grid-column: 1 / -1; height: 7px; border-radius: 4px; background: rgba(255,255,255,.07); overflow: hidden; }
-.bar .fl { display: block; height: 100%; border-radius: 4px; }
-.bar b { color: var(--text); font-variant-numeric: tabular-nums; }
-
-.notes { margin-top: 14px; display: grid; gap: 8px; }
-.callout { font-size: 13px; line-height: 1.4; border-radius: 12px; padding: 10px 12px; background: var(--tile); border: 1px solid var(--tile-line); color: var(--muted); }
-.callout.red { border-color: rgba(248,113,113,.35); background: rgba(248,113,113,.07); color: #fecaca; }
-.callout.orange { border-color: rgba(251,146,60,.35); background: rgba(251,146,60,.07); color: #fed7aa; }
-.callout.blue { border-color: rgba(96,165,250,.3); background: rgba(96,165,250,.06); color: #bfdbfe; }
-
-.group table { table-layout: fixed; }
-table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-th, td { padding: 12px 14px; text-align: right; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--line); }
-th:first-child, td:first-child { text-align: left; }
-th { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--panel2); }
-tr.sub td { font-size: 13px; color: var(--muted); padding-top: 6px; padding-bottom: 6px; }
-tr.sub td:first-child { padding-left: 32px; }
-.hist { margin-bottom: 16px; }
-.hist-head { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; }
-.hist-head .who { flex: 1; }
-.hist .actions { margin-top: 10px; }
-.hist-total { margin: 8px 2px 0; }
-.once-row .t2 { display: block; }
-.once-row .icon-btn { margin-left: 4px; flex: none; }
-.once-row > span:first-child { min-width: 0; overflow-wrap: anywhere; }
-.once-row > span:nth-child(2) { white-space: nowrap; }
-.aussen-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: start; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-.aussen-row .an { min-width: 0; overflow-wrap: anywhere; }
-.aussen-row .t2 { display: block; font-size: 12px; color: var(--muted); }
-.aussen-row .av { grid-column: 1; margin-top: 2px; font-variant-numeric: tabular-nums; }
-.aussen-row .icon-btn { grid-column: 2; grid-row: 1 / span 2; }
-.sec { min-width: 0; }
-.aussen-sec { grid-column: 1 / -1; }
-.aussen-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); column-gap: 18px; }
-.once-add { margin-top: 8px; }
-.chart { margin-bottom: 22px; }
-.chart-ctl { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 0 0 14px; }
-.yr-pick { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-.yr-pick select { font: inherit; font-size: 13px; padding: 6px 10px; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
-.yr-pick select option { background: #14171e; color: #f3f5f9; }
-.seg { display: inline-flex; gap: 2px; padding: 3px; margin: 0; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
-.seg button { font: inherit; font-size: 13px; padding: 5px 12px; border: 0; border-radius: 7px; background: none; color: var(--muted); cursor: pointer; }
-.seg button.on { background: var(--tile-line); color: var(--text); font-weight: 600; }
-.chart-body { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
-.cs-ringwrap { position: relative; width: 190px; height: 190px; flex: none; }
-.cs-ring { width: 100%; height: 100%; display: block; }
-.cs-mid { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.cs-legend { list-style: none; margin: 0; padding: 0; flex: 1 1 260px; min-width: 0; max-width: 560px; }
-.cs-legend li { display: flex; align-items: baseline; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-.cs-legend .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cs-legend .val { font-variant-numeric: tabular-nums; }
-.cs-legend .pct { width: 56px; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
-.cs-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
-.kindbar { margin-top: 16px; }
-.kindbar .cs-split { display: flex; height: 8px; border-radius: 99px; overflow: hidden; background: var(--tile-line); }
-.cs-dot.k0, .cs-split .k0 { background: var(--blue); }
-.cs-dot.k1, .cs-split .k1 { background: var(--orange); }
-.kindleg { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--muted); }
-.kindleg .cs-dot { margin-right: 6px; }
-.hist-total b { color: var(--text); }
-.bk { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: grid; gap: 12px; }
-.bk p { margin: 0; font-size: 13px; color: var(--muted); }
-.bk-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; justify-content: space-between; }
-.bk-row .who { flex: 1 1 200px; }
-.bk-msg { margin: 0 0 12px; font-size: 13px; color: var(--green); }
-.bk .file { font: inherit; font-size: 13px; color: var(--muted); max-width: 100%; }
-.bk .file::file-selector-button { font: inherit; font-size: 13px; font-weight: 700; padding: 8px 14px; margin-right: 10px; border-radius: 10px;
-  border: 1px solid var(--tile-line); background: var(--tile); color: var(--text); cursor: pointer; }
-.bk .file::file-selector-button:hover { background: rgba(255,255,255,.09); }
-td.act { width: 1%; white-space: nowrap; }
-.fnote { font-size: 12px; color: var(--muted); margin-top: 4px; }
-tr.total td { font-weight: 700; border-bottom: 0; background: var(--panel2); }
-td .t2 { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
-.hint { font-size: 12px; color: var(--muted); margin-top: 10px; }
-
-details { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 12px; overflow: hidden; }
-summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
-summary::-webkit-details-marker { display: none; }
-summary .who { flex: 1; }
-summary .end { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-summary .caret { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px;
-  border: 1px solid var(--tile-line); background: var(--tile); color: var(--muted); transition: color .15s; }
-summary .caret svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .15s; }
-/* icons and arrow of a list row stay together when the row wraps */
-.row-end { display: flex; align-items: center; gap: 6px; flex: none; margin-left: auto; }
-summary:hover .caret { color: var(--text); }
-summary .chips:empty { display: none; }
-/* cards (overview): the chips get a line of their own below */
-details.card > summary .chips { flex-basis: 100%; justify-content: flex-end; order: 5; }
-/* rows of the contract list: name, chips, amount on one line, wrapping on narrow screens */
-details:not(.card) > summary { flex-wrap: wrap; }
-details:not(.card) > summary .who { flex: 1 1 150px; }
-details:not(.card) > summary .chips { flex: 0 1 auto; justify-content: flex-end; }
-details.card { padding: 0; }
-details.card > summary { padding: 14px 16px; flex-wrap: wrap; }
-details.card .body { padding: 0 16px 16px; }
-details.card.alert { border-color: rgba(248,113,113,.35); }
-details[open] summary .caret svg { transform: rotate(90deg); }
-.detail { padding: 4px 18px 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
-.sec h4 { margin: 8px 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
-.row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-.row span:first-child { color: var(--muted); } .row span:last-child { text-align: right; font-variant-numeric: tabular-nums; }
-
-.state { text-align: center; padding: 64px 16px; color: var(--muted); }
-.state h2 { color: var(--text); margin: 0 0 6px; }
-.state a { color: var(--blue); font-weight: 600; }
-
-@container (max-width: 760px) {
-  .wrap { padding: 12px 12px 32px; }
-  .top { gap: 10px; }
-  .tabs { order: 3; width: 100%; margin: 0; overflow-x: auto; scrollbar-width: none; }
-  .tab { flex: 1; padding: 9px 6px; }
-  .spacer { display: none; }
-  .summary { grid-template-columns: 1fr; gap: 10px; }
-  .sum { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 12px 14px; }
-  .sum .value { font-size: 20px; margin: 0; grid-column: 2; grid-row: 1 / span 2; }
-  .sum .sub { grid-column: 1; }
-  .sum .split, .sum .legend, .sum .mini { grid-column: 1 / -1; }
-  .tiles { grid-template-columns: 1fr 1fr; }
-  .tiles .tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .grid, .grid.flat { grid-template-columns: 1fr; gap: 12px; }
-  summary .caret { width: 30px; height: 30px; }
-  .group { margin-top: 18px; }
-  .card { padding: 14px; }
-  .big { font-size: 28px; }
-  .ring, .ring svg { width: 76px; height: 76px; }
-  table, thead, tbody, tr, td { display: block; }
-  colgroup, td:empty { display: none; }
-  thead { display: none; }
-  table { background: transparent; border: 0; border-radius: 0; }
-  tr { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; padding: 8px 14px; }
-  tr.sub { margin: -6px 0 10px 14px; background: var(--panel2); padding: 6px 14px; }
-  td { display: flex; justify-content: space-between; text-align: right; padding: 5px 0; border: 0; }
-  td::before { content: attr(data-label); color: var(--muted); font-size: 12px; text-align: left; margin-right: 12px; }
-  td:first-child { font-weight: 700; padding-bottom: 6px; }
-  td:first-child::before { content: none; }
-  tr.sub td:first-child { padding: 0 0 2px; font-weight: 600; color: var(--muted); }
-  tr.total td:first-child { display: none; }
-  td.empty { display: none; }
-  td.rec { flex-wrap: wrap; }
-  td.rec .t2 { flex-basis: 100%; text-align: right; margin-top: 2px; }
-  .detail { grid-template-columns: 1fr; gap: 6px; padding: 0 14px 14px; }
-  summary { padding: 12px 14px; }
-}
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
-`;
 
 /* ---------- DOM helpers (text only, never HTML) ---------- */
 
@@ -737,18 +100,41 @@ class TariffyPanel extends HTMLElement {
     this._actionError = null;
     this._bk = { deleted: null, loading: false, plan: null, backup: null, file: null, message: null, error: null, busy: false, asking: null };
     this.attachShadow({ mode: "open" });
+    // values set before the element was defined (Home Assistant creates it first) sit on the object itself and
+    // hide the setters: take them back through the setters
+    for (const prop of ["hass", "narrow", "panel"]) {
+      if (Object.prototype.hasOwnProperty.call(this, prop)) {
+        const value = this[prop];
+        delete this[prop];
+        this[prop] = value;
+      }
+    }
+    PARTS.then(() => { if (this._hass) this._render(); }, (err) => {
+      this.shadowRoot.replaceChildren(Object.assign(document.createElement("pre"), {
+        textContent: `Tariffy: ${(err && err.message) || err}`, style: "color:#f87171;padding:16px",
+      }));
+    });
   }
 
   set hass(hass) {
     const first = !this._hass;
     const languageChanged = this._hass && this._hass.language !== hass.language;
     this._hass = hass;
+    this._applyTheme();
     if (first) {
       this._subscribe();
       this._render();
     } else if (languageChanged) {
       this._render();
     }
+  }
+
+  // the light or the dark colours: whatever Home Assistant shows (its own light/dark/auto setting), else the system's
+  _applyTheme() {
+    const ha = this._hass && this._hass.themes && this._hass.themes.darkMode;
+    const dark = typeof ha === "boolean" ? ha
+      : !(window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+    this.classList.toggle("light", !dark);
   }
 
   set narrow(value) {
@@ -828,6 +214,12 @@ class TariffyPanel extends HTMLElement {
     return text;
   }
 
+  // a text that depends on the contract: a streaming subscription has a price, not an instalment (key + "_streaming")
+  _tc(key, c, vars) {
+    const alt = `${key}_streaming`;
+    return c && c.sparte === "streaming" && (I18N[this._lang][alt] || I18N.en[alt]) ? this._t(alt, vars) : this._t(key, vars);
+  }
+
   get _locale() {
     return (this._hass && this._hass.locale && this._hass.locale.language) ||
       (this._hass && this._hass.language) || "en";
@@ -893,6 +285,11 @@ class TariffyPanel extends HTMLElement {
       : "–";
   }
 
+  _isoLocal(d) {
+    const two = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`;
+  }
+
   _today() {
     const n = new Date();
     return new Date(n.getFullYear(), n.getMonth(), n.getDate());
@@ -948,6 +345,7 @@ class TariffyPanel extends HTMLElement {
   /* ----- rendering ----- */
 
   _render() {
+    if (!STYLE) return; // the texts and styles are still loading: PARTS draws the panel when they are here
     const root = this.shadowRoot;
     root.replaceChildren(h("style", { text: STYLE }));
     const wrap = h("div", { class: "wrap" });
@@ -978,8 +376,8 @@ class TariffyPanel extends HTMLElement {
       // and leaves the whole panel empty for anyone who has only metered or only flat-rate contracts)
       for (const section of [
         group("groupMetered", this._live.filter((c) => METERED.has(c.sparte)), "metered"),
-        group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte)), "flat"),
-        group("groupLoans", this._loans, "flat"),
+        group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte) && c.sparte !== "leasing"), "flat"),
+        group("groupLoans", this._financing, "flat"),
       ]) {
         if (section) wrap.appendChild(section);
       }
@@ -1017,9 +415,24 @@ class TariffyPanel extends HTMLElement {
     );
   }
 
+  /* the group "Loans / financing" of the overview and the list: the loans (kept apart from the totals) and the
+     leases, which stand there too but count in the totals like any flat-rate contract */
+  get _financing() {
+    return [...this._loans, ...this._live.filter((c) => c.sparte === "leasing")];
+  }
+
   /* ----- loans / financing (kept apart from the contracts and their totals) ----- */
   get _loans() {
     return (this._contracts || []).filter((c) => c.sparte === "loan" && !c.archiviert);
+  }
+
+  /* the badge icon: the own icon of the contract (mdi:...) when HA can draw it, else the one of the category */
+  _icon(c) {
+    const own = typeof c.icon === "string" && /^[a-z0-9_-]+:[a-z0-9_-]+$/i.test(c.icon) ? c.icon : null;
+    if (own && customElements.get("ha-icon")) {
+      return Object.assign(document.createElement("ha-icon"), { icon: own, className: "own-icon" });
+    }
+    return icon(c.sparte);
   }
 
   _loanSub(c) {
@@ -1083,7 +496,7 @@ class TariffyPanel extends HTMLElement {
     if (this._compact) {
       const card = h("details", { class: "card compact tone-none".replace(" tone-none", ""), "data-id": c.entry_id },
         h("summary", {},
-          h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+          h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
           this._who(c),
           h("div", { class: "end", text: isNum(c.kredit_restschuld) ? this._money(c.kredit_restschuld, c.currency) : "–" }),
           h("span", { class: "caret", "aria-hidden": "true" }, icon("chevron")),
@@ -1097,7 +510,7 @@ class TariffyPanel extends HTMLElement {
       return card;
     }
     return h("section", { class: "card flat", "data-id": c.entry_id },
-      h("div", { class: "head" }, h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)), this._who(c), this._chips(d.chips)),
+      h("div", { class: "head" }, h("div", { class: `badge ${c.sparte}` }, this._icon(c)), this._who(c), this._chips(d.chips)),
       body.map((part) => part || h("div", { class: "slot" })));
   }
 
@@ -1130,6 +543,45 @@ class TariffyPanel extends HTMLElement {
     ].filter(Boolean);
     return rows.length ? h("div", { class: "sec" }, h("h4", { text: this._t("secLoan") }), rows,
       this._loanNote(c) ? h("div", { class: "hint", text: this._loanNote(c) }) : null) : null;
+  }
+
+  /* the "leasing" block of the contract details: kilometres against the allowance */
+  _leasingSection(c) {
+    if (c.sparte !== "leasing") return null;
+    const km = (v) => (isNum(v) ? `${this._num(v, 0)} km` : null);
+    const sgn = (v) => (isNum(v) ? `${v > 0 ? "+" : ""}${this._num(v, 0)} km` : null);
+    const money = (v) => (isNum(v) ? this._money(v, c.currency, { digits: 2 }) : null);
+    const row = (label, value) => (value === null || value === undefined ? null
+      : h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value })));
+    let note = null;
+    if (!isNum(c.leasing_km_gefahren)) note = this._t("leasingNoOdo");
+    else if (!isNum(c.leasing_km_hochgerechnet)) note = this._t("leasingEarly");
+    else if (c.leasing_mehr_km > 0) note = this._t("leasingOver", { k: this._num(c.leasing_km_abweichung_ende, 0) });
+    else if (c.leasing_minder_km > 0) note = this._t("leasingUnder", { k: this._num(-c.leasing_km_abweichung_ende, 0) });
+    else note = this._t("leasingFine");
+    const rows = [
+      row(this._t("leasingOdo"), km(c.leasing_km_stand)),
+      row(this._t("leasingDriven"), km(c.leasing_km_gefahren)),
+      row(this._t("leasingAllowed"), km(c.leasing_km_erlaubt)),
+      row(this._t("leasingTarget"), km(c.leasing_km_soll)),
+      row(this._t("leasingDiff"), sgn(c.leasing_km_abweichung)),
+      row(this._t("leasingLeft"), km(c.leasing_km_rest)),
+      row(this._t("leasingPerDay"), isNum(c.leasing_km_rest_je_tag) ? `${this._num(c.leasing_km_rest_je_tag, 1)} km` : null),
+      row(this._t("leasingAvg"), isNum(c.leasing_km_je_tag) ? `${this._num(c.leasing_km_je_tag, 1)} km` : null),
+      row(this._t("leasingForecast"), km(c.leasing_km_hochgerechnet)),
+      row(this._t("leasingEndDiff"), sgn(c.leasing_km_abweichung_ende)),
+      row(this._t("leasingToleranceUp"), km(c.km_toleranz_oben)),
+      row(this._t("leasingToleranceDown"), km(c.km_toleranz_unten)),
+      row(this._t("leasingExtra"), c.leasing_mehr_km > 0 ? km(c.leasing_mehr_km) : null),
+      row(this._t("leasingShort"), c.leasing_minder_km > 0 ? km(c.leasing_minder_km) : null),
+      row(this._t("leasingPriceExtra"), money(c.preis_mehrkm)),
+      row(this._t("leasingPriceShort"), money(c.preis_minderkm)),
+      row(this._t("leasingCostExtra"), c.leasing_nachzahlung > 0 ? money(c.leasing_nachzahlung) : null),
+      row(this._t("leasingCostCredit"), c.leasing_gutschrift > 0 ? money(c.leasing_gutschrift) : null),
+      row(this._t("leasingCostBalance"), isNum(c.leasing_km_kosten) ? money(c.leasing_km_kosten) : null),
+    ].filter(Boolean);
+    return h("div", { class: "sec" }, h("h4", { text: this._t("secLeasing") }), rows,
+      note ? h("div", { class: "hint", text: note }) : null);
   }
 
   _loanTable(loans) {
@@ -1215,9 +667,9 @@ class TariffyPanel extends HTMLElement {
         h("div", { class: "label", text: this._t("monthlyTotal") }),
         h("div", { class: "value", text: money(monthly, { digits: 2 }) }),
         h("div", { class: "sub", text: this._t("perYear", { v: money(monthly * 12) }) }),
-        monthly > 0 ? h("div", { class: "split" }, segment(monthlyMetered, "var(--blue)"), segment(monthlyFlat, "#a78bfa")) : null,
+        monthly > 0 ? h("div", { class: "split" }, segment(monthlyMetered, "var(--blue)"), segment(monthlyFlat, "var(--c-flat)")) : null,
         monthly > 0 ? h("div", { class: "legend" },
-          legend("var(--blue)", this._t("shortMetered"), monthlyMetered), legend("#a78bfa", this._t("shortFlat"), monthlyFlat)) : null),
+          legend("var(--blue)", this._t("shortMetered"), monthlyMetered), legend("var(--c-flat)", this._t("shortFlat"), monthlyFlat)) : null),
       h("div", { class: "sum" },
         h("div", { class: "label", text: this._t("colCost") }),
         h("div", { class: "value", text: money(costs, { digits: 2 }) }),
@@ -1324,7 +776,7 @@ class TariffyPanel extends HTMLElement {
 
     // flat-rate contracts lead with the monthly amount: it exists always, a total over the term only with an end date
     const heroValue = flat ? c.abschlag : d.hasMetering ? c.prognose_real : c.jahreskosten;
-    const heroLabel = flat ? this._t("instalment") : d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
+    const heroLabel = flat ? this._tc("instalment", c) : d.hasMetering ? this._t("forecastTotal") : this._t("endTotal");
     const heroTone = !flat && d.hasMetering ? (heroValue < 0 ? "red-t" : "green-t") : "";
     const heroSub = flat
       ? [
@@ -1334,7 +786,7 @@ class TariffyPanel extends HTMLElement {
         c.ende && isNum(c.jahreskosten) ? this._t("overTerm", { v: this._money(c.jahreskosten, c.currency) }) : null,
       ].filter(Boolean).join(" · ") || null
       : isNum(c.abschlag)
-      ? `${this._t("instalment")}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
+      ? `${this._tc("instalment", c)}: ${this._money(c.abschlag, c.currency, { digits: 2 })}` +
         (isNum(c.abschlag_anpassung_empfohlen)
           ? ` · ${this._advice(c)}`
           : "")
@@ -1364,7 +816,7 @@ class TariffyPanel extends HTMLElement {
           isNum(c.verbrauch_hochgerechnet) ? this._t("projected", { v: `${this._num(c.verbrauch_hochgerechnet, 0)} ${unit}` }) : null),
       ]
       : [
-        this._tile(this._t("instalment"), this._money(c.abschlag, c.currency, { digits: 2 })),
+        this._tile(this._tc("instalment", c), this._money(c.abschlag, c.currency, { digits: 2 })),
         c.ende ? this._tile(this._t("contractEnd"), this._date(c.ende)) : null,
       ];
     const foot = [];
@@ -1394,6 +846,15 @@ class TariffyPanel extends HTMLElement {
     if (c.erinnerung_aktiv) {
       notes.push(h("div", { class: "callout orange", text: this._t("noteCancel", { d: this._date(c.ende) }) }));
     }
+    if (c.sparte === "leasing" && isNum(c.leasing_km_gefahren)) { // kilometres against the allowance
+      const km = `${this._num(c.leasing_km_gefahren, 0)} km`;
+      const over = isNum(c.leasing_mehr_km) && c.leasing_mehr_km > 0;
+      const text = !isNum(c.leasing_km_hochgerechnet) ? this._t("leasingEarly")
+        : over ? this._t("leasingOver", { k: this._num(c.leasing_km_abweichung_ende, 0) })
+        : c.leasing_minder_km > 0 ? this._t("leasingUnder", { k: this._num(-c.leasing_km_abweichung_ende, 0) })
+        : this._t("leasingFine");
+      notes.push(h("div", { class: `callout ${over ? "orange" : "blue"}`, text: `${km} · ${text}` }));
+    }
     if (c.next && c.next.beginn) {
       const name = [c.next.anbieter, c.next.tarif].filter(Boolean).join(" · ") || "–";
       notes.push(h("div", { class: "callout blue", text: this._t("noteNext", { d: this._date(c.next.beginn), name }) }));
@@ -1418,7 +879,7 @@ class TariffyPanel extends HTMLElement {
       const card = h(
         "details", { class: `card compact${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", ""), "data-id": c.entry_id },
         h("summary", {},
-          h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+          h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
           this._who(c),
           h("div", { class: `end ${heroTone}`, text: flat
             ? `${this._money(heroValue, c.currency, { digits: 2 })} ${this._t("perMonth")}`
@@ -1436,7 +897,7 @@ class TariffyPanel extends HTMLElement {
     return h(
       "section", { class: `card${flat ? " flat" : ""}${alert ? " alert" : ""} tone-${tone}`.replace(" tone-none", "") },
       h("div", { class: "head" },
-        h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+        h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
         this._who(c),
         this._chips(d.chips)),
       // always six blocks: cards in one row share their rows (subgrid), so the figures line up across the cards
@@ -1524,7 +985,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   _fieldSpec(raw, dlg, step) {
-    const kind = ["date", "text", "number", "select", "entity", "boolean"].find((k) => raw.selector && k in raw.selector) || null;
+    const kind = ["date", "text", "number", "select", "entity", "boolean", "icon"].find((k) => raw.selector && k in raw.selector) || null;
     const sel = kind === "select" ? raw.selector.select : {};
     const suggested = raw.description && raw.description.suggested_value;
     const initial = suggested !== undefined && suggested !== null ? suggested : raw.default;
@@ -1794,6 +1255,7 @@ class TariffyPanel extends HTMLElement {
     if (dlg.mode === "term") { this._renderTermDialog(); return; }
     if (dlg.mode === "renew") { this._renderRenewDialog(); return; }
     if (dlg.mode === "once") { this._renderOnceDialog(); return; }
+    if (dlg.mode === "instal") { this._renderInstalDialog(); return; }
     if (dlg.mode === "aussen") { this._renderAussenDialog(); return; }
     const busy = dlg.stage === "saving";
     const body = [h("h2", { id: "dlg-title", text: this._t({ edit: "dlgTitleEdit", create: "dlgTitleCreate", next: "dlgTitle" }[dlg.mode], { name: dlg.name }) })];
@@ -2084,13 +1546,13 @@ class TariffyPanel extends HTMLElement {
       mode: "renew", stage: "form", id: c.entry_id, name: c.title, contract: c, flowId: null, localize: () => "",
       fields: [
         spec("beginn", "date", this._t("tf_beginn"), { required: true }),
-        spec("ende", "date", this._t("tf_ende"), { required: true }),
+        spec("ende", "date", this._t("tf_ende")),
         spec("zahlweise", "select", this._t("rf_zahlweise"), { options: Object.keys(INTERVAL_MONTHS).map((k) => ({ value: k, label: this._t("interval")[k] })) }),
         spec("abschlag", "number", this._t("rf_abschlag"), { required: true, min: 0.01 }),
         spec("erste_zahlung", "date", this._t("rf_erste")),
       ],
       values: {
-        beginn: this._isoShift(c.ende, { days: 1 }), ende: this._isoShift(c.ende, { years: 1 }), zahlweise,
+        beginn: c.ende ? this._isoShift(c.ende, { days: 1 }) : this._isoLocal(this._today()), ende: c.ende ? this._isoShift(c.ende, { years: 1 }) : "", zahlweise,
         abschlag: String(isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : (c.abschlag ?? "")),
       },
       fieldErrors: {}, message: null,
@@ -2267,6 +1729,7 @@ class TariffyPanel extends HTMLElement {
   _onceSection(c) {
     const items = c.einmalposten || [];
     if (!items.length && !this._isAdmin) return null;
+    if (!items.length && c.sparte === "streaming") return null; // a streaming subscription has none; one that already has items keeps the block
     const rows = items.map((item, index) => h("div", { class: "row once-row" },
       h("span", {}, item.bezeichnung, item.datum ? h("span", { class: "t2", text: this._date(item.datum) }) : null),
       h("span", { class: item.betrag < 0 ? "red-t" : "green-t", text: this._money(item.betrag, c.currency, { sign: true, digits: 2 }) }),
@@ -2281,6 +1744,171 @@ class TariffyPanel extends HTMLElement {
       this._isAdmin ? h("div", { class: "once-add" }, h("button", {
         class: "btn", type: "button", onclick: () => this._openOnce(c, null),
       }, icon("plus"), this._t("onceAdd"))) : null);
+  }
+
+  /* ----- instalments paid: one amount per payment of the term, administrators only ----- */
+  // the payments of a term, one per payment interval (monthly: a field per month, quarterly four a year, half-yearly two,
+  // yearly one); a payment that has not come yet is locked. Without an end the payments up to today.
+  _payRange(beginn, ende, first, interval) {
+    const parse = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ""); return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null; };
+    const start = parse(first) || parse(beginn);
+    if (!start) return [];
+    const pad = (n) => String(n).padStart(2, "0");
+    const now = new Date();
+    const todayIso = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+    const end = parse(ende);
+    const endIso = end ? `${end[0]}-${pad(end[1])}-${pad(end[2])}` : todayIso;
+    const months = [];
+    if (interval === 1) { // monthly: the months, from the month of the start
+      const here = now.getFullYear() * 12 + now.getMonth();
+      const last = end ? end[0] * 12 + end[1] - 1 : here;
+      for (let k = parse(beginn || first)[0] * 12 + parse(beginn || first)[1] - 1; k <= last && months.length < 600; k += 1) {
+        const y = Math.floor(k / 12);
+        const m = k % 12 + 1;
+        months.push({ iso: `${y}-${pad(m)}-01`, upto: `${y}-${pad(m)}-31`, future: k > here,
+          label: new Intl.DateTimeFormat(this._locale, { month: "long", year: "numeric" }).format(new Date(y, m - 1, 1)) });
+      }
+      return months;
+    }
+    for (let n = 0; n < 200; n += 1) {
+      const k = start[0] * 12 + start[1] - 1 + n * interval;
+      const y = Math.floor(k / 12);
+      const m = k % 12 + 1;
+      const day = Math.min(start[2], new Date(y, m, 0).getDate());
+      const iso = `${y}-${pad(m)}-${pad(day)}`;
+      if (iso > endIso) break;
+      months.push({ iso, upto: iso, future: iso > todayIso, label: this._date(iso) });
+    }
+    return months;
+  }
+
+  // fills the amounts: the entry that applied at the payment, the current instalment for the ones that have not come yet
+  _instalFill(range, entries, current) {
+    for (const x of range) {
+      const valid = entries.filter((e) => e.ab <= x.upto);
+      const value = x.future ? current : entries.length ? (valid.length ? valid[valid.length - 1] : entries[0]).betrag_je_zahlung : current;
+      x.betrag = isNum(value) ? String(value) : "";
+    }
+    return range;
+  }
+
+  _instalMonths(c) {
+    const interval = INTERVAL_MONTHS[c.zahlweise] || 1;
+    return this._instalFill(this._payRange(c.beginn, c.ende, c.erste_zahlung, interval), c.abschlagsverlauf || [],
+      isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : null);
+  }
+
+  // the changes to send: a blank amount takes the one before, only the payments where the amount changes; null = the first one is missing
+  _instalRows(months) {
+    const rows = [];
+    let before = null;
+    for (const month of months.filter((x) => !x.future)) {
+      const text = String(month.betrag || "").trim();
+      const value = text === "" ? before : text;
+      if (value === null) return null;
+      if (before === null || Number(value) !== Number(before) || Number.isNaN(Number(value))) rows.push({ ab: month.iso, betrag: value });
+      before = value;
+    }
+    return rows;
+  }
+
+  // the grid of amounts shared by the dialog of a contract and the one of an earlier term
+  _instalGrid(months, busy, interval, c) {
+    const inputs = [];
+    // the payments that have not come yet show the instalment of the last one that has (the current one)
+    const syncFuture = () => {
+      const began = months.filter((x) => !x.future);
+      const now = began.length ? began[began.length - 1].betrag : null;
+      months.forEach((x, j) => { if (x.future && now !== null) { x.betrag = now; if (inputs[j]) inputs[j].value = now; } });
+    };
+    const rows = months.map((month, i) => {
+      const input = h("input", { type: "text", inputmode: "decimal", autocomplete: "off", value: month.betrag, "aria-label": `${month.label}: ${this._tc("instalAmount", c)}`,
+        disabled: busy || month.future ? "" : null, oninput: (ev) => { month.betrag = ev.target.value.replace(",", "."); },
+        // a finished edit also applies to the following payments that still had the old amount
+        onchange: (ev) => {
+          ev.target.value = month.betrag; // a comma typed as decimal separator is shown as the dot that is stored
+          const old = month.before;
+          month.before = month.betrag;
+          for (let j = i + 1; j < months.length; j += 1) {
+            if (months[j].future || months[j].betrag !== old) continue;
+            months[j].betrag = month.betrag;
+            months[j].before = month.betrag;
+            inputs[j].value = month.betrag;
+          }
+          syncFuture();
+        } });
+      month.before = month.betrag;
+      inputs.push(input);
+      return h("label", { class: `instal-row${month.future ? " instal-future" : ""}` }, h("span", { text: month.label }), h("span", { class: "fld" }, input));
+    });
+    syncFuture();
+    return h("div", { class: "instal-grid" },
+      h("div", { class: "instal-head" }, h("span", { text: this._t(interval === 1 ? "instalMonth" : "instalPayment") }),
+        h("span", { text: interval === 1 ? this._tc("instalAmount", c) : this._t("instalAmountPay") })),
+      rows);
+  }
+
+  _openInstal(c) {
+    this._closeFlow();
+    const months = this._instalMonths(c);
+    this._dlg = { mode: "instal", stage: "form", id: c.entry_id, name: c.title, flowId: null, localize: () => "", fields: [], values: {},
+      months, interval: INTERVAL_MONTHS[c.zahlweise] || 1, sparte: c.sparte, message: null };
+    this._renderInstalDialog();
+  }
+
+  async _saveInstal() {
+    const dlg = this._dlg;
+    const rows = this._instalRows(dlg.months);
+    if (rows === null) { dlg.message = this._t("instalErr_first"); this._renderInstalDialog(); return; }
+    dlg.stage = "saving";
+    dlg.message = null;
+    this._renderInstalDialog();
+    try {
+      await this._hass.callWS({ type: "tariffy/abschlag_verlauf_save", entry_id: dlg.id, rows });
+    } catch (err) {
+      if (this._dlg !== dlg) return;
+      const code = String((err && (err.code || (err.body && err.body.code))) || "");
+      const key = `instalErr_${code}`;
+      dlg.stage = "form";
+      dlg.message = I18N[this._lang][key] || I18N.en[key] ? this._t(key) : this._termError(err);
+      this._renderInstalDialog();
+      return;
+    }
+    if (this._dlg === dlg) this._closeFlow();
+    this._render();
+  }
+
+  _renderInstalDialog() {
+    const dlg = this._dlg;
+    if (!dlg) return;
+    const busy = dlg.stage === "saving";
+    const body = [
+      h("h2", { id: "dlg-title", text: this._tc("instalTitle", dlg) }),
+      h("p", { class: "hint", text: dlg.name }),
+      h("p", { class: "hint", text: this._tc("instalHint", dlg) }),
+      dlg.months.length ? this._instalGrid(dlg.months, busy, dlg.interval, dlg) : h("p", { class: "hint", text: this._t("instalNoStart") }),
+    ];
+    if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
+    body.push(h("div", { class: "actions" },
+      h("button", { class: "btn go", type: "button", disabled: busy || !dlg.months.some((x) => !x.future) ? "" : null, text: this._t(busy ? "dlgSaving" : "dlgSave"), onclick: () => this._saveInstal() }),
+      h("button", { class: "btn", type: "button", disabled: busy ? "" : null, text: this._t("actCancel"), onclick: () => this._closeFlow() })));
+    this._mountDialog(dlg, body, busy);
+  }
+
+  /* the "instalments paid" block of a contract */
+  _instalSection(c) {
+    if (c.sparte === "loan" || !isNum(c.abschlag)) return null;
+    const items = c.abschlagsverlauf || [];
+    if (!items.length && !this._isAdmin) return null;
+    // monthly (the usual case) needs no word, another interval is named
+    const iv = c.zahlweise && c.zahlweise !== "monthly" ? this._t("interval")[c.zahlweise] || "" : "";
+    const rows = items.map((e, i) => h("div", { class: "row once-row" },
+      h("span", {}, `${this._t("instalFrom")} ${this._date(e.ab)}`, i === items.length - 1 ? h("span", { class: "t2", text: this._t("instalNow") }) : null),
+      h("span", { text: `${this._money(e.betrag_je_zahlung, c.currency, { digits: 2 })}${iv ? ` ${iv}` : ""}` })));
+    return h("div", { class: "sec" }, h("h4", { text: this._tc("secInstal", c) }),
+      rows.length ? rows : h("div", { class: "hint", text: this._tc("instalNone", c) }),
+      this._isAdmin ? h("div", { class: "once-add" }, h("button", { class: "btn", type: "button", onclick: () => this._openInstal(c) },
+        icon("edit"), this._tc(items.length ? "instalEdit" : "instalEnter", c))) : null);
   }
 
   /* ----- outdoor meters of a water contract (garden, pool, ...): not charged wastewater, administrators only ----- */
@@ -2433,10 +2061,35 @@ class TariffyPanel extends HTMLElement {
     const dlg = {
       mode: "term", stage: "form", id: target.entry_id, name: target.title, index: term ? index : null, fields, values,
       fieldErrors: {}, message: null, asking: null, calc: null, calcSeq: 0, flowId: null, localize: () => "",
+      termMonths: [], termOpen: false,
     };
+    // the instalments by payment of the term, when it has them: the amounts show again for editing
+    const stored = term && Array.isArray(term.abschlag_verlauf) ? term.abschlag_verlauf : [];
+    if (stored.length) {
+      dlg.termOpen = true;
+      this._termRebuild(dlg, stored);
+    }
     this._dlg = dlg;
     this._renderTermDialog();
     this._termCalc(dlg);
+  }
+
+  // the payments of the term (from its two dates and the payment interval of the contract); amounts already typed stay
+  _termRebuild(dlg, stored) {
+    const contract = (this._contracts || []).find((x) => x.entry_id === dlg.values.entry_id);
+    const interval = (contract && INTERVAL_MONTHS[contract.zahlweise]) || 1;
+    const range = this._payRange(dlg.values.beginn, dlg.values.ende, dlg.values.beginn, interval);
+    const typed = new Map((dlg.termMonths || []).map((x) => [x.iso, x.betrag]));
+    const entries = (stored || []).map((e) => ({ ab: e.ab, betrag_je_zahlung: Math.round(e.betrag * interval * 100) / 100 }));
+    dlg.termInterval = interval;
+    dlg.termMonths = stored ? this._instalFill(range, entries, null) : range.map((x) => ({ ...x, betrag: typed.get(x.iso) || "" }));
+    for (const x of dlg.termMonths) x.future = false; // an earlier term is over
+  }
+
+  // the instalments of the term as the changes to send (nothing when no amount was typed); null = the first one is missing
+  _termRows(dlg) {
+    if (!(dlg.termMonths || []).some((x) => String(x.betrag || "").trim() !== "")) return [];
+    return this._instalRows(dlg.termMonths);
   }
 
   async _termCalc(dlg) {
@@ -2448,9 +2101,10 @@ class TariffyPanel extends HTMLElement {
     }
     const seq = ++dlg.calcSeq;
     const { entry_id: _id, ...rest } = values;
+    const rows = this._termRows(dlg) || [];
     let calc = null;
     try {
-      calc = await this._hass.callWS({ type: "tariffy/history_calc", entry_id: dlg.values.entry_id, values: rest });
+      calc = await this._hass.callWS({ type: "tariffy/history_calc", entry_id: dlg.values.entry_id, values: rest, ...(rows.length ? { rows } : {}) });
     } catch (_err) { /* invalid dates and the like: nothing to show yet */ }
     if (this._dlg !== dlg || seq !== dlg.calcSeq) return;
     dlg.calc = calc;
@@ -2499,10 +2153,13 @@ class TariffyPanel extends HTMLElement {
       this._renderTermDialog();
       return;
     }
+    const rows = this._termRows(dlg);
+    if (rows === null) { dlg.message = this._t("instalErr_first"); this._renderTermDialog(); return; }
     dlg.stage = "saving";
     this._renderTermDialog();
     const { entry_id: _id, ...rest } = values;
     const message = { type: "tariffy/history_save", entry_id: dlg.values.entry_id, values: rest };
+    if (rows.length) message.rows = rows;
     if (dlg.index !== null) message.index = dlg.index;
     try {
       await this._hass.callWS(message);
@@ -2535,6 +2192,10 @@ class TariffyPanel extends HTMLElement {
     this._render();
   }
 
+  _termGrid(dlg, busy) {
+    return dlg.termMonths.length ? this._instalGrid(dlg.termMonths, busy, dlg.termInterval || 1, (this._contracts || []).find((x) => x.entry_id === dlg.values.entry_id)) : h("p", { class: "hint", text: this._t("termInstalWait") });
+  }
+
   _renderTermDialog() {
     const dlg = this._dlg;
     if (!dlg) return;
@@ -2549,6 +2210,10 @@ class TariffyPanel extends HTMLElement {
           f.auto ? h("div", { class: "fnote", "data-note": f.name }) : null,
           error ? h("div", { class: "ferr", text: error }) : null);
       })),
+      h("details", { class: "term-instal", open: dlg.termOpen ? "" : null, ontoggle: (ev) => { dlg.termOpen = ev.target.open; } },
+        h("summary", { text: this._t("termInstal") }),
+        h("p", { class: "hint", text: this._t("termInstalHint") }),
+        h("div", { class: "term-grid" }, this._termGrid(dlg, busy))),
     ];
     if (dlg.message) body.push(h("div", { class: "err", role: "alert", text: dlg.message }));
     const buttons = [];
@@ -2570,7 +2235,16 @@ class TariffyPanel extends HTMLElement {
     this._mountDialog(dlg, body, busy);
     const el = this._dlgEl;
     // a finished edit of any field (blur, drop-down) works the automatic values out again
-    el.onchange = () => this._termCalc(dlg);
+    el.onchange = (ev) => {
+      const name = ev && ev.target && ev.target.name;
+      if (name === "beginn" || name === "ende" || name === "entry_id") {
+        if (name === "entry_id") dlg.values.entry_id = ev.target.value;
+        this._termRebuild(dlg, null);
+        const grid = el.querySelector(".term-grid");
+        if (grid) grid.replaceChildren(this._termGrid(dlg, false));
+      }
+      this._termCalc(dlg);
+    };
     if (dlg.index !== null) {
       const select = el.querySelector('[name="entry_id"]');
       if (select) select.disabled = true; // a term stays with its contract
@@ -2819,7 +2493,7 @@ class TariffyPanel extends HTMLElement {
       }, icon("edit"))) : null);
     const contractBlock = (c) => h("div", { class: "hist", "data-id": c.entry_id },
       h("div", { class: "hist-head" },
-        h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+        h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
         this._who(c),
         c.archiviert ? h("span", { class: "chip", text: this._t("archived") }) : null),
       h("table", {},
@@ -2848,8 +2522,8 @@ class TariffyPanel extends HTMLElement {
       list.map((c) => this._detail(c))) : null);
     return h("div", {}, head,
       group("groupMetered", this._live.filter((c) => METERED.has(c.sparte))),
-      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte))),
-      group("groupLoans", this._loans));
+      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte) && c.sparte !== "leasing")),
+      group("groupLoans", this._financing));
   }
 
   /* Everything that changes a contract lives here, in the list of contracts (administrators only). */
@@ -2869,12 +2543,41 @@ class TariffyPanel extends HTMLElement {
       button("edit", this._t("actEdit"), "edit"));
   }
 
+  /* copies a value to the clipboard (HA may be opened over plain http, where the clipboard API is missing) */
+  async _copy(text, button) {
+    let ok = false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); ok = true; }
+    } catch (_err) { /* fall back below */ }
+    if (!ok) {
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.cssText = "position:fixed;top:-1000px;opacity:0";
+      document.body.appendChild(area);
+      area.select();
+      try { ok = document.execCommand("copy"); } catch (_err) { ok = false; }
+      area.remove();
+    }
+    if (ok && button) {
+      button.classList.add("done");
+      button.title = this._t("copied");
+      setTimeout(() => { button.classList.remove("done"); button.title = this._t("copyValue"); }, 1600);
+    }
+  }
+
   _detail(c) {
     const d = this._derive(c);
     const unit = this._unit(c);
     const pu = this._priceUnit(c);
     const row = (label, value) => (value === null || value === undefined || value === "–" ? null
       : h("div", { class: "row" }, h("span", { text: label }), h("span", { text: value })));
+    // personal details (only administrators receive them): the value with a button to copy it
+    const copyRow = (label, value) => (!value ? null
+      : h("div", { class: "row" }, h("span", { text: label }),
+        h("span", { class: "val" }, h("span", { text: value }),
+          h("button", { class: "copy", type: "button", title: this._t("copyValue"), "aria-label": `${this._t("copyValue")}: ${label}`,
+            onclick: (ev) => this._copy(value, ev.currentTarget) }, icon("copy")))));
     const section = (title, rows) => {
       const filled = rows.filter(Boolean);
       return filled.length ? h("div", { class: "sec" }, h("h4", { text: title }), filled) : null;
@@ -2883,10 +2586,22 @@ class TariffyPanel extends HTMLElement {
     const amount = (v) => (isNum(v) ? `${this._num(v, 0)} ${unit}` : null);
     const amount1 = (v) => (isNum(v) ? `${this._num(v, 1)} ${unit}` : null); // small amounts (outdoor water) need a decimal
     const nxt = c.next || {};
+    const sameAsYearCost = !METERED.has(c.sparte) && isNum(c.kosten_jahr) && isNum(c.abschlag_jahr) && Math.abs(c.kosten_jahr - c.abschlag_jahr) < 0.005;
+    // with a total-consumption sensor (PV self-sufficiency): total, covered by PV and billed grid draw, so far and projected
+    const usageGrid = c.autarkie_aktiv && isNum(c.verbrauch_gesamt_bisher) && isNum(c.verbrauch_gesamt_hochgerechnet)
+      ? h("div", { class: "vgrid" },
+        h("span", { class: "h", text: unit }), h("span", { class: "h n", text: this._t("gridColNow") }), h("span", { class: "h n", text: this._t("gridColEnd") }),
+        h("span", { text: this._t("totalUse") }), h("span", { class: "n", text: this._num(c.verbrauch_gesamt_bisher, 0) }), h("span", { class: "n", text: this._num(c.verbrauch_gesamt_hochgerechnet, 0) }),
+        h("span", { text: this._t("pvCovered") }), h("span", { class: "n", text: this._num(c.verbrauch_pv_gedeckt_bisher, 0) }), h("span", { class: "n", text: this._num(c.verbrauch_pv_gedeckt_hochgerechnet, 0) }),
+        h("span", { class: "b", text: this._t("gridDraw") }), h("span", { class: "n b", text: this._num(c.verbrauch_bisher, 0) }), h("span", { class: "n b", text: this._num(c.verbrauch_hochgerechnet, 0) }))
+      : null;
 
     const sections = [
       section(this._t("secContract"), [
         row(this._t("provider"), c.anbieter), row(this._t("tariff"), c.tarif),
+        copyRow(this._t("customerNo"), c.kundennummer),
+        copyRow(this._t("meterNo"), c.zaehlernummer), copyRow(this._t("meterNoLow"), c.zaehlernummer_nt),
+        copyRow(this._t("maloId"), c.marktlokation),
         row(this._t("insuranceType"), c.versicherungsart ? this._insuranceType(c.versicherungsart) : null),
         row(this._t("kmStart"), isNum(c.km_start) ? `${this._num(c.km_start, 0)} km` : null),
         row(this._t("kmPerYear"), isNum(c.km_pro_jahr) ? `${this._num(c.km_pro_jahr, 0)} km` : null),
@@ -2902,6 +2617,7 @@ class TariffyPanel extends HTMLElement {
           : null),
       ]),
       this._kreditSection(c),
+      this._leasingSection(c),
       section(this._t("secPrices"), [
         row(this._t("unitPrice"), isNum(c.arbeitspreis) ? this._price(c.arbeitspreis, c.currency, pu) : null),
         row(this._t("unitPriceLow"), isNum(c.arbeitspreis_nt) ? this._price(c.arbeitspreis_nt, c.currency, pu) : null),
@@ -2909,8 +2625,10 @@ class TariffyPanel extends HTMLElement {
         row(this._t("unitPriceEff"), isNum(c.effektiver_arbeitspreis) ? this._price(c.effektiver_arbeitspreis, c.currency, pu) : null),
         row(this._t("unitPriceWater"), isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
         row(this._t("basePrice"), isNum(c.grundpreis) ? `${money(c.grundpreis)} ${this._t("perMonth")}` : null),
-        row(this._t("instalment"), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
-        row(this._t("instalmentYear"), isNum(c.abschlag_jahr) ? money(c.abschlag_jahr) : null),
+        row(this._tc("instalment", c), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
+        // a flat-rate contract with one amount: the instalment per year is the same figure as "cost per year" right below
+        // (they differ only when there is a base price, and a metered contract has no "cost per year" row)
+        row(this._tc("instalmentYear", c), isNum(c.abschlag_jahr) && !sameAsYearCost ? money(c.abschlag_jahr) : null),
         // flat-rate contracts: what the contract costs a year, and how it is paid when not monthly
         row(this._t("costYear"), !METERED.has(c.sparte) && isNum(c.kosten_jahr) ? money(c.kosten_jahr) : null),
         row(this._t("payment"), c.zahlweise && c.zahlweise !== "monthly" && isNum(c.abschlag_je_zahlung)
@@ -2921,13 +2639,14 @@ class TariffyPanel extends HTMLElement {
         row(this._t("totalCost"), this._total(c) ? `${this._total(c).value} · ${this._total(c).since}` : null),
       ]),
       this._onceSection(c),
+      this._instalSection(c),
       d.measured || d.hasMetering || isNum(c.verbrauch_letzte_laufzeit) ? section(this._t("secConsumption"), [
-        row(this._t("soFar"), amount(c.verbrauch_bisher)),
+        usageGrid || row(this._t("soFar"), amount(c.verbrauch_bisher)),
         row(this._t("gardenUse"), amount1(c.garten_verbrauch)),
         row(this._t("wwUse"), amount1(c.abwasserpflichtiger_verbrauch)),
         row(this._t("soFarHigh"), amount(c.verbrauch_bisher_ht)),
         row(this._t("soFarLow"), amount(c.verbrauch_bisher_nt)),
-        row(this._t("projectedTerm"), amount(c.verbrauch_hochgerechnet)),
+        usageGrid ? null : row(this._t("projectedTerm"), amount(c.verbrauch_hochgerechnet)),
         row(this._t("lastPeriod"), amount(c.verbrauch_letzte_laufzeit)),
         row(this._t("costSoFar"), money(c.kosten_bisher)),
         row(this._t("gardenCost"), money(c.garten_kosten)),
@@ -2949,7 +2668,7 @@ class TariffyPanel extends HTMLElement {
         row(this._t("nextEnd"), nxt.ende ? this._date(nxt.ende) : null),
         row(this._t("nextProvider"), nxt.anbieter), row(this._t("nextTariff"), nxt.tarif),
         row(this._t("nextPrice"), isNum(nxt.arbeitspreis) ? this._price(nxt.arbeitspreis, c.currency, pu) : null),
-        row(this._t("nextInstalment"), isNum(nxt.abschlag) ? `${money(nxt.abschlag)} ${this._t("perMonth")}` : null),
+        row(this._tc("nextInstalment", c), isNum(nxt.abschlag) ? `${money(nxt.abschlag)} ${this._t("perMonth")}` : null),
       ]) : null,
       this._aussenSection(c), // over the whole width below the other blocks: up to ten meters fit side by side
     ];
@@ -2961,7 +2680,7 @@ class TariffyPanel extends HTMLElement {
     const details = h(
       "details", { "data-id": c.entry_id },
       h("summary", {},
-        h("div", { class: `badge ${c.sparte}` }, icon(c.sparte)),
+        h("div", { class: `badge ${c.sparte}` }, this._icon(c)),
         this._who(c),
         this._chips(d.chips),
         h("div", { class: `end ${!flat && d.hasMetering ? (c.prognose_real < 0 ? "red-t" : "green-t") : ""}`, text: endValue }),

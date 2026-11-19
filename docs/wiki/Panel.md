@@ -26,9 +26,14 @@ Das Panel folgt der Sprache von Home Assistant (Deutsch, sonst Englisch) und pas
 
 Vorzeichen: **Plus** ist Guthaben, **Minus** ist Nachzahlung. „Zum Vertragsende" ist aus dem bisherigen Verbrauch hochgerechnet. Deckt ein Guthaben die Kosten bis zum Vertragsende schon ab, steht beim empfohlenen Abschlag „0,00 €" mit dem Hinweis „Guthaben deckt die Kosten", nie ein negativer Betrag. Alle Werte sind dieselben wie bei den Sensoren und aktualisieren sich von selbst.
 
+## Helles und dunkles Design
+
+Das Panel folgt dem **Design von Home Assistant**: Ist Home Assistant (nach Profil, automatischer Umschaltung oder Systemeinstellung) im **hellen** Modus, zeigt Tariffy helle Farben, sonst dunkle. Es gibt dafür keine eigene Einstellung. Ein Wechsel in Home Assistant gilt sofort, ohne die Seite neu zu laden. Die Farben für Guthaben, Nachzahlung und Warnungen sind im hellen Modus dunkler, damit sie lesbar bleiben.
+
 ## Wer sieht und darf was
 
-- **Alle Benutzer** sehen die Verträge, aber nur ausgewählte Werte. Kundennummer, Zählernummern, Marktlokations-ID, Benachrichtigungs-Ziel und interne Markierungen werden **nicht** ans Panel geschickt.
+- **Alle Benutzer** sehen die Verträge, aber nur ausgewählte Werte. Kundennummer, Zählernummern, Marktlokations-ID, Kennzeichen, Benachrichtigungs-Ziel und interne Markierungen werden **nicht** ans Panel geschickt.
+- **Nur Administratoren** sehen zusätzlich **Kundennummer, Zählernummer(n) und Marktlokations-ID** im Block **Vertrag** der Vertragsdetails (Tab **Verträge**), jeweils mit einem Symbol zum **Kopieren**. Die Angaben werden nur an Administratoren gesendet, andere Browser bekommen sie nie. Kennzeichen und Benachrichtigungs-Ziel bleiben auch für sie verborgen.
 - **Nur Administratoren** sehen die Buttons und Dialoge zum Bestätigen, Bearbeiten, Anlegen und Löschen. Das prüft zusätzlich das Backend: Ein Nicht-Administrator kann die Aktionen auch über die Schnittstelle nicht auslösen.
 
 ## Bestätigen
@@ -57,7 +62,7 @@ Die normalen Backups von Home Assistant sichern Tariffy schon vollständig mit. 
 
 ## Pauschalvertrag verlängern
 
-Bei Verträgen ohne Verbrauch (Versicherung, Internet, Mobilfunk, Streaming, Sonstiges), die ein **Vertragsende** haben, steht in jeder Zeile des Tabs **Verträge** ein Symbol **Vertrag verlängern** (zwei Pfeile im Kreis, nur Administratoren). Der Dialog schlägt vor: Beginn am Tag nach dem bisherigen Ende, neues Ende ein Jahr später, Zahlweise und Betrag wie bisher. Du trägst zum Beispiel den neuen Beitrag ein, und der Dialog zeigt sofort, um wie viel Prozent der Vertrag teurer oder günstiger wird (verglichen pro Monat). Mit **Verlängern** passiert Folgendes:
+Bei Verträgen ohne Verbrauch (Versicherung, Internet, Mobilfunk, Streaming, Sonstiges), steht in jeder Zeile des Tabs **Verträge** ein Symbol **Vertrag verlängern** (zwei Pfeile im Kreis, nur Administratoren). Der Dialog schlägt vor: Beginn am Tag nach dem bisherigen Ende, neues Ende ein Jahr später (bei einem Vertrag **ohne Ende**: Beginn heute, Ende leer; der Vertrag läuft nach einer Preisanpassung ohne Ende weiter), Zahlweise und Betrag wie bisher. Du trägst zum Beispiel den neuen Beitrag ein, und der Dialog zeigt sofort, um wie viel Prozent der Vertrag teurer oder günstiger wird (verglichen pro Monat). Mit **Verlängern** passiert Folgendes:
 
 - Die bisherige Laufzeit kommt in die **Historie** (Zeitraum, Anbieter, Tarif, Abschlag, gezahlte Abschläge). So entsteht pro Jahr ein Eintrag und man sieht, wie der Beitrag steigt.
 - Der Vertrag läuft mit dem neuen Beginn, Ende und Betrag weiter. Anbieter, Tarif, Kundennummer und alles andere bleiben.
@@ -73,7 +78,28 @@ Bei Pauschalverträgen (Internet, Mobilfunk, Versicherung, Abos, ...) sind die *
 
 Hat ein Vertrag eine **Historie** (zum Beispiel weil du ihn jährlich **verlängerst** oder weil der Folgevertrag übernommen hat), zeigt Tariffy die **Kosten gesamt** über alle Laufzeiten: die früheren Laufzeiten aus der Historie plus die laufende. Bei Pauschalverträgen ist das eine eigene Kachel auf der Karte, bei Verbrauchsverträgen eine Zeile unter der Restlaufzeit; dazu stehen sie in den Vertragsdetails und im Tab **Historie** unter den früheren Laufzeiten, jeweils mit „seit <Datum> · n Laufzeiten“. Für eine frühere Laufzeit zählen ihre Kosten, wenn es sie gibt, sonst die gezahlten Abschläge. Fehlt bei einer Laufzeit beides, steht „mindestens …“, weil die Summe dann nicht vollständig ist. Bei einem archivierten Vertrag steht seine letzte Laufzeit schon in der Historie und wird nicht doppelt gezählt. Ohne Historie und ohne Einmalposten gibt es keine zusätzliche Anzeige. Einmalposten (siehe unten) fließen in die Kosten gesamt ein.
 
+## Gezahlte Abschläge (wenn der Versorger den Abschlag ändert)
+
+Ändert der Versorger den Abschlag von sich aus, rechnet Tariffy mit dem neuen Betrag rückwirkend, solange du nichts einträgst. Im Tab **Verträge** hat jeder Vertrag mit Abschlag (nicht der Kredit) den Block **Gezahlte Abschläge** (Änderungen nur für Administratoren). Dort trägst du ein, **was ab wann gezahlt wurde**, zum Beispiel bei Gas Monat 1–7 178 €, Monat 8 174,41 €, Monat 9–11 215 €:
+
+| Monat | Abschlag |
+|-------|----------|
+| März bis Juli | 178,00 € |
+| August | 174,41 € |
+| September bis heute | 215,00 € |
+
+- Der Dialog **Abschläge bearbeiten** hat **ein Feld je Zahlung der Laufzeit**, passend zur **Zahlweise** des Vertrags: bei **monatlicher** Zahlung ein Feld je Monat (bei einem Vertrag von März bis Februar März, April, … Februar), bei **vierteljährlicher** vier im Jahr, bei **halbjährlicher** zwei, bei **jährlicher** eines. Bei den Zahlungen, die nicht monatlich sind, steht das Datum der Abbuchung vor dem Feld (Beginn bzw. erste Abbuchung, dann im Zahlungsrhythmus), und du gibst den Betrag **je Zahlung** ein. Zahlungen, die **noch nicht fällig waren, sind gesperrt** und zeigen den aktuellen Abschlag; erst wenn die Zahlung fällig ist, lässt sie sich bearbeiten. Hat der Vertrag kein Ende, stehen die Zahlungen bis heute da. Speichern gilt für alle Zahlungen zusammen.
+- Eine Änderung gilt **auch für die folgenden Zahlungen, die noch denselben Betrag haben**: Du trägst 178 im März ein, 174,41 im August und 215 im September; mehr ist nicht zu tun. Ein leeres Feld übernimmt den Betrag der Zahlung davor.
+- Die **letzte Zahlung ist der aktuelle Abschlag**: Tariffy übernimmt ihren Betrag als Abschlag des Vertrags. Der Vertrag braucht einen Beginn.
+- Gespeichert werden nur die Zahlungen, bei denen sich der Betrag ändert, jeweils ab dem Ersten des Monats bzw. dem Tag der Abbuchung (höchstens 60). Eine Änderung mitten im Monat, die Tariffy beim Bearbeiten selbst vermerkt hat, zählt beim Speichern ab dem Monatsersten.
+- **Frühere Laufzeit (Tab Historie, „Alten Vertrag hinzufügen“):** Dort gibt es unter den Feldern den Bereich **Abschläge nach Zahlungen (freiwillig)** mit denselben Feldern für die Zahlungen der Laufzeit (aus Beginn und Ende der Laufzeit und der Zahlweise des Vertrags). Trägst du dort etwas ein, werden **Gezahlt** und der **Saldo** der Laufzeit daraus berechnet (bei Verbrauchsverträgen anteilig nach Tagen, bei Pauschalverträgen Zahlung für Zahlung); ein selbst eingetragener Wert bei „Gezahlte Abschläge“ hat Vorrang. Die Beträge bleiben gespeichert und erscheinen beim Bearbeiten der Laufzeit wieder. Bleibt der Bereich leer, rechnet die Laufzeit wie bisher mit dem einzelnen Abschlag.
+- Mit dem Verlauf rechnen **Gezahlt bisher**, **Guthaben/Nachzahlung bisher**, die **Prognose zum Vertragsende** und der **empfohlene Abschlag** mit den Beträgen, die wirklich galten. Bei Verbrauchsverträgen zählt jeder Betrag für die Monate (Tage durch 30,44, wie sonst auch) zwischen seinem Datum und dem nächsten; bei Pauschalverträgen zählt jede Abbuchung mit dem Betrag ihres Termins.
+- **Ohne Zeilen** ändert sich nichts: Es gilt wie bisher der aktuelle Abschlag (mit der einzelnen Änderung, die Tariffy beim Bearbeiten selbst merkt). Mit Verlauf hängt eine Änderung des Abschlags im Vertragsformular einen Eintrag mit dem heutigen Datum an.
+- Beim **Verlängern** eines Pauschalvertrags und bei einem **Tarifwechsel** beginnt die neue Laufzeit ohne den alten Verlauf; die alte Laufzeit steht mit ihren Werten in der Historie.
+
 ## Einmalposten (Bonus und Rechnung)
+
+Bei der Sparte **Streaming** erscheint der Block nicht, solange der Vertrag keine Einmalposten hat (ein Abo braucht sie meist nicht); hat ein Streaming-Vertrag schon welche, bleibt der Block mit ihnen sichtbar.
 
 Im Tab **Verträge** hat jeder Vertrag in den Details den Block **Einmalposten** (nur Administratoren können ihn ändern). Dort trägst du einmalige Beträge ein, die nicht zum Abschlag gehören, mit **Bezeichnung**, **Betrag** und **Datum**:
 

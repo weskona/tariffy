@@ -106,7 +106,7 @@ async def test_unusable_input_changes_nothing(frontend_env, contract, hass_ws_cl
     assert dict(entry.data) == before
 
 
-async def test_only_flat_rate_contracts_with_an_end_can_be_renewed(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+async def test_only_flat_rate_contracts_can_be_renewed(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
     client = await hass_ws_client()
     entry, data = await contract.setup(dict(STROM), **GOLDEN)
     assert data["verlaengerbar"] is False
@@ -115,12 +115,35 @@ async def test_only_flat_rate_contracts_with_an_end_can_be_renewed(frontend_env,
     assert entry.data["beginn"] == STROM["beginn"]
 
 
-async def test_without_an_end_date_there_is_nothing_to_renew(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+async def test_a_contract_without_an_end_date_can_be_renewed_without_one(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    """Issue 103: a price adjustment of an open-ended contract; the old term goes to the history."""
     client = await hass_ws_client()
     data = {k: v for k, v in INSURANCE.items() if k != "ende"}
-    entry, d = await contract.setup(data, **GOLDEN)
-    assert d["verlaengerbar"] is False
-    assert (await _call(client, entry_id=entry.entry_id, values=NEW))["error"]["code"] == "not_available"
+    entry, d = await contract.setup(data, **{**GOLDEN, "today": "2026-01-10"})
+    assert d["verlaengerbar"] is True
+    values = {"beginn": "2026-01-01", "abschlag": 660.0, "zahlweise": "yearly"}
+    assert (await _call(client, entry_id=entry.entry_id, values=values))["success"] is True
+    await hass.async_block_till_done()
+    assert entry.data["beginn"] == "2026-01-01" and "ende" not in entry.data
+    assert entry.data["abschlag"] == 55.0
+    (term,) = entry.data["_historie"]
+    assert term["beginn"] == "2025-01-01" and term["abschlag"] == 50.0
+    assert entry.runtime_data.data["historie"] == entry.data["_historie"]
+    # an end date may be given as well
+    again = {**values, "beginn": "2026-02-01", "ende": "2026-12-31", "abschlag": 700.0}
+    assert (await _call(client, entry_id=entry.entry_id, values=again))["success"] is True
+    await hass.async_block_till_done()
+    assert entry.data["ende"] == "2026-12-31" and len(entry.data["_historie"]) == 2
+
+
+async def test_a_wrong_start_without_an_end_is_refused(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    client = await hass_ws_client()
+    data = {k: v for k, v in INSURANCE.items() if k != "ende"}
+    entry, _ = await contract.setup(data, **GOLDEN)
+    before = dict(entry.data)
+    reply = await _call(client, entry_id=entry.entry_id, values={"beginn": "x", "abschlag": 10.0})
+    assert reply["error"]["code"] == "invalid_dates"
+    assert dict(entry.data) == before
 
 
 async def test_an_archived_contract_is_not_renewed(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
