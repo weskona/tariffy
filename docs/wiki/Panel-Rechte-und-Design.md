@@ -59,7 +59,7 @@ Das Panel folgt dem **Design von Home Assistant**: Ist Home Assistant (nach Prof
 
 Das Panel passt sich der Breite an, nicht dem Gerät: Ist es höchstens etwa 760 Pixel breit (Handy, schmales Fenster), stehen die Kacheln untereinander und die Vertragskarten werden **aufklappbare Zeilen**, die Tabellen werden Karten mit einer Zeile je Spalte. Auf dem Handy erscheint bei schmalem Home Assistant oben links der Menü-Knopf. Auf einem breiten Bildschirm stehen mehr Karten nebeneinander.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Übersicht auf dem Handy: Kacheln untereinander und Verträge als zugeklappte Zeilen" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png" alt="Übersicht auf dem Handy: Kacheln untereinander und Verträge als zugeklappte Zeilen (dunkles Design)" width="300"><br><sub>Dunkel</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Übersicht auf dem Handy: Kacheln untereinander und Verträge als zugeklappte Zeilen (helles Design)" width="300"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Die Übersicht in schmaler Ansicht.*
 

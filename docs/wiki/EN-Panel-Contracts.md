@@ -56,7 +56,7 @@ Expanded, a metered contract shows several blocks side by side (stacked on narro
 
 For flat-rate contracts the blocks are similar, without consumption; for streaming the instalment is called "Price / month". Further blocks exist only for certain categories: **Outdoor meters** for water ([Water contract](EN-Contract-Water)), **Leasing kilometres** for leasing ([Leasing contract](EN-Contract-Leasing)) and **Loan** with all loan values ([Loan contract](EN-Contract-Loan)).
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts-light.png" alt="Contracts tab with expanded details for Strom Haus and Gas Heizung: blocks Contract, Prices, One-time items and Consumption, below them Recommendations and the button Acknowledge warning" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts.png" alt="Contracts tab with expanded details for Strom Haus and Gas Heizung: blocks Contract, Prices, One-time items and Consumption, below them Recommendations and the button Acknowledge warning (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts-light.png" alt="Contracts tab with expanded details for Strom Haus and Gas Heizung: blocks Contract, Prices, One-time items and Consumption, below them Recommendations and the button Acknowledge warning (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: Expanded details. For Strom Haus the button "Acknowledge warning" sits under Recommendations.*
 
@@ -201,7 +201,7 @@ Then the item is in the list and **Net** shows +42.50 € (55.00 € − 12.50 �
 
 On a phone the icons stand in the row under the name, and the detail blocks expand one below the other. Everything else works as on the desktop.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-contracts.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-contracts-light.png" alt="Contracts tab on a phone: the button New contract on top, below it the contracts as cards with icons for next contract and edit" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-contracts.png" alt="Contracts tab on a phone: the button New contract on top, below it the contracts as cards with icons for next contract and edit (dark design)" width="300"><br><sub>Dark</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-contracts-light.png" alt="Contracts tab on a phone: the button New contract on top, below it the contracts as cards with icons for next contract and edit (light design)" width="300"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The Contracts tab on a phone (German labels in this screenshot).*
 

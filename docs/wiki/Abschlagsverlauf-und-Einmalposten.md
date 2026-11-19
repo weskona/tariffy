@@ -108,7 +108,7 @@ Einmalposten gehören zum **Vertrag**, nicht zu einer Laufzeit. Bei einem Tarifw
 
 Der Vertrag Strom Haus aus den Beispieldaten des Panels (Stichtag 12.07.2026) hat zwei Einmalposten.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts-light.png" alt="Tab Verträge mit dem Vertrag Strom Haus: im Block Einmalposten stehen Wechselbonus plus 80 Euro und Honorar Makler minus 25 Euro, Saldo plus 55 Euro" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts.png" alt="Tab Verträge mit dem Vertrag Strom Haus: im Block Einmalposten stehen Wechselbonus plus 80 Euro und Honorar Makler minus 25 Euro, Saldo plus 55 Euro (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts-light.png" alt="Tab Verträge mit dem Vertrag Strom Haus: im Block Einmalposten stehen Wechselbonus plus 80 Euro und Honorar Makler minus 25 Euro, Saldo plus 55 Euro (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Tab Verträge mit den Details von Strom Haus. Im Block Einmalposten stehen die beiden Posten und ihr Saldo.*
 

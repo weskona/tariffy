@@ -37,7 +37,7 @@ The tab bar is at the top, in the middle. The **Backup** tab only appears for ad
 | **History** | Earlier terms and archived contracts. | [Panel history](EN-Panel-History) |
 | **Backup** | Download a backup, restore from a file, bring back deleted contracts (administrators only). | [Panel backup](EN-Panel-Backup) |
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-overview-light.png" alt="Overview tab on the desktop: the tab bar with Overview, Costs, Contracts, History and Backup on top, below it four tiles, then the groups of metered contracts, flat-rate contracts and loans with one card per contract" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-overview.png" alt="Overview tab on the desktop: the tab bar with Overview, Costs, Contracts, History and Backup on top, below it four tiles, then the groups of metered contracts, flat-rate contracts and loans with one card per contract (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-overview-light.png" alt="Overview tab on the desktop: the tab bar with Overview, Costs, Contracts, History and Backup on top, below it four tiles, then the groups of metered contracts, flat-rate contracts and loans with one card per contract (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The Overview tab on the desktop (mock data of 12 July 2026).*
 
@@ -111,7 +111,7 @@ The overview has no buttons. How you change the instalment or acknowledge the wa
 
 When the panel is narrow (up to about 760 pixels wide), the tiles stand one below the other and every card is an **expandable row**: name, provider and tariff, the forecast as a figure and the badge. The arrow on the right expands the card and shows the same details as on the desktop. When Home Assistant itself is narrow, the menu button appears at the top left.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Overview on a phone: four tiles one below the other, below them the contracts as collapsed rows with forecast and badge" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png" alt="Overview on a phone: four tiles one below the other, below them the contracts as collapsed rows with forecast and badge (dark design)" width="300"><br><sub>Dark</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Overview on a phone: four tiles one below the other, below them the contracts as collapsed rows with forecast and badge (light design)" width="300"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The overview on a phone, all cards collapsed (German labels in this screenshot).*
 

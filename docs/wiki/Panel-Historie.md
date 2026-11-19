@@ -19,7 +19,7 @@ Der Tab **Historie** zeigt, was früher war: die **früheren Laufzeiten** jedes 
 
 Oben rechts steht für Administratoren der Button **Alten Vertrag hinzufügen**. Darunter stehen zwei Gruppen: **Archivierte Verträge** und **Frühere Laufzeiten**. Jede Gruppe hat pro Vertrag eine Tabelle mit den Spalten **Laufzeit** (mit Anbieter und Tarif darunter), **Abschlag**, **Kosten**, **Verbrauch** und **Saldo**. Administratoren sehen am Zeilenende einen Stift zum Bearbeiten.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-history.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-history-light.png" alt="Tab Historie: oben rechts der Button Alten Vertrag hinzufügen, darunter der archivierte Vertrag Strom Altvertrag mit zwei Laufzeiten und der Button Zurückholen, dann die früheren Laufzeiten von Strom Haus" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-history.png" alt="Tab Historie: oben rechts der Button Alten Vertrag hinzufügen, darunter der archivierte Vertrag Strom Altvertrag mit zwei Laufzeiten und der Button Zurückholen, dann die früheren Laufzeiten von Strom Haus (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-history-light.png" alt="Tab Historie: oben rechts der Button Alten Vertrag hinzufügen, darunter der archivierte Vertrag Strom Altvertrag mit zwei Laufzeiten und der Button Zurückholen, dann die früheren Laufzeiten von Strom Haus (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab Historie (Beispieldaten vom 12.07.2026).*
 
@@ -98,7 +98,7 @@ Wer noch keinen Folgevertrag hatte und keinen Vertrag archiviert hat, sieht „N
 
 Auf dem Handy stehen die Zeilen der Tabellen als Karten untereinander, die Buttons bleiben am Platz.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-history.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-history-light.png" alt="Tab Historie auf dem Handy: archivierter Vertrag und frühere Laufzeiten untereinander" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-history.png" alt="Tab Historie auf dem Handy: archivierter Vertrag und frühere Laufzeiten untereinander (dunkles Design)" width="300"><br><sub>Dunkel</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-history-light.png" alt="Tab Historie auf dem Handy: archivierter Vertrag und frühere Laufzeiten untereinander (helles Design)" width="300"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab Historie auf dem Handy.*
 
