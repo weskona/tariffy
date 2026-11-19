@@ -241,7 +241,10 @@ def async_contracts(hass: HomeAssistant, admin: bool = False) -> list[dict[str, 
     """All loaded contracts."""
     contracts = []
     for entry in hass.config_entries.async_entries(DOMAIN):
-        if entry.state is not ConfigEntryState.LOADED:
+        # A contract that is being set up counts: it tells the panel about itself from inside async_setup_entry, when
+        # its state is not yet LOADED. Leaving it out sent an empty list after every creation and every reload (Issue
+        # 102). One that is being unloaded or failed has no coordinator to show.
+        if entry.state not in (ConfigEntryState.LOADED, ConfigEntryState.SETUP_IN_PROGRESS):
             continue
         if getattr(entry, "runtime_data", None) is None:
             continue

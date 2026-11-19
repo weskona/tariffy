@@ -96,12 +96,21 @@ class TariffyPanel extends HTMLElement {
     const first = !this._hass;
     const languageChanged = this._hass && this._hass.language !== hass.language;
     this._hass = hass;
+    this._applyTheme();
     if (first) {
       this._subscribe();
       this._render();
     } else if (languageChanged) {
       this._render();
     }
+  }
+
+  // the light or the dark colours: whatever Home Assistant shows (its own light/dark/auto setting), else the system's
+  _applyTheme() {
+    const ha = this._hass && this._hass.themes && this._hass.themes.darkMode;
+    const dark = typeof ha === "boolean" ? ha
+      : !(window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches);
+    this.classList.toggle("light", !dark);
   }
 
   set narrow(value) {
@@ -628,9 +637,9 @@ class TariffyPanel extends HTMLElement {
         h("div", { class: "label", text: this._t("monthlyTotal") }),
         h("div", { class: "value", text: money(monthly, { digits: 2 }) }),
         h("div", { class: "sub", text: this._t("perYear", { v: money(monthly * 12) }) }),
-        monthly > 0 ? h("div", { class: "split" }, segment(monthlyMetered, "var(--blue)"), segment(monthlyFlat, "#a78bfa")) : null,
+        monthly > 0 ? h("div", { class: "split" }, segment(monthlyMetered, "var(--blue)"), segment(monthlyFlat, "var(--c-flat)")) : null,
         monthly > 0 ? h("div", { class: "legend" },
-          legend("var(--blue)", this._t("shortMetered"), monthlyMetered), legend("#a78bfa", this._t("shortFlat"), monthlyFlat)) : null),
+          legend("var(--blue)", this._t("shortMetered"), monthlyMetered), legend("var(--c-flat)", this._t("shortFlat"), monthlyFlat)) : null),
       h("div", { class: "sum" },
         h("div", { class: "label", text: this._t("colCost") }),
         h("div", { class: "value", text: money(costs, { digits: 2 }) }),
