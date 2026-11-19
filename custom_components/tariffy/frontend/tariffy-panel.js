@@ -261,6 +261,11 @@ class TariffyPanel extends HTMLElement {
       : "–";
   }
 
+  _isoLocal(d) {
+    const two = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${two(d.getMonth() + 1)}-${two(d.getDate())}`;
+  }
+
   _today() {
     const n = new Date();
     return new Date(n.getFullYear(), n.getMonth(), n.getDate());
@@ -1516,13 +1521,13 @@ class TariffyPanel extends HTMLElement {
       mode: "renew", stage: "form", id: c.entry_id, name: c.title, contract: c, flowId: null, localize: () => "",
       fields: [
         spec("beginn", "date", this._t("tf_beginn"), { required: true }),
-        spec("ende", "date", this._t("tf_ende"), { required: true }),
+        spec("ende", "date", this._t("tf_ende")),
         spec("zahlweise", "select", this._t("rf_zahlweise"), { options: Object.keys(INTERVAL_MONTHS).map((k) => ({ value: k, label: this._t("interval")[k] })) }),
         spec("abschlag", "number", this._t("rf_abschlag"), { required: true, min: 0.01 }),
         spec("erste_zahlung", "date", this._t("rf_erste")),
       ],
       values: {
-        beginn: this._isoShift(c.ende, { days: 1 }), ende: this._isoShift(c.ende, { years: 1 }), zahlweise,
+        beginn: c.ende ? this._isoShift(c.ende, { days: 1 }) : this._isoLocal(this._today()), ende: c.ende ? this._isoShift(c.ende, { years: 1 }) : "", zahlweise,
         abschlag: String(isNum(c.abschlag_je_zahlung) ? c.abschlag_je_zahlung : (c.abschlag ?? "")),
       },
       fieldErrors: {}, message: null,

@@ -2177,10 +2177,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 if ist_kredit
                 else {}
             ),
-            # Pauschalvertrag mit Ende, nicht archiviert: laesst sich verlaengern (neuer Betrag, neues Ende)
-            "verlaengerbar": bool(
-                sparte not in METERED_SPARTEN and ende is not None and not archiviert
-            ),
+            # Pauschalvertrag, nicht archiviert: laesst sich verlaengern (neuer Beginn, Betrag, optional neues
+            # Ende); auch ohne Vertragsende (Issue 103: Preisanpassung bei einem unbefristeten Vertrag)
+            "verlaengerbar": bool(sparte not in METERED_SPARTEN and not archiviert),
             CONF_ARBEITSPREIS_NT: arbeitspreis_nt,
             "arbeitspreis_ht": arbeitspreis_ht,
             CONF_ZAEHLERNUMMER_NT: data.get(CONF_ZAEHLERNUMMER_NT),

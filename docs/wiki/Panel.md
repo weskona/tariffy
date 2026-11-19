@@ -62,7 +62,7 @@ Die normalen Backups von Home Assistant sichern Tariffy schon vollständig mit. 
 
 ## Pauschalvertrag verlängern
 
-Bei Verträgen ohne Verbrauch (Versicherung, Internet, Mobilfunk, Streaming, Sonstiges), die ein **Vertragsende** haben, steht in jeder Zeile des Tabs **Verträge** ein Symbol **Vertrag verlängern** (zwei Pfeile im Kreis, nur Administratoren). Der Dialog schlägt vor: Beginn am Tag nach dem bisherigen Ende, neues Ende ein Jahr später, Zahlweise und Betrag wie bisher. Du trägst zum Beispiel den neuen Beitrag ein, und der Dialog zeigt sofort, um wie viel Prozent der Vertrag teurer oder günstiger wird (verglichen pro Monat). Mit **Verlängern** passiert Folgendes:
+Bei Verträgen ohne Verbrauch (Versicherung, Internet, Mobilfunk, Streaming, Sonstiges), steht in jeder Zeile des Tabs **Verträge** ein Symbol **Vertrag verlängern** (zwei Pfeile im Kreis, nur Administratoren). Der Dialog schlägt vor: Beginn am Tag nach dem bisherigen Ende, neues Ende ein Jahr später (bei einem Vertrag **ohne Ende**: Beginn heute, Ende leer; der Vertrag läuft nach einer Preisanpassung ohne Ende weiter), Zahlweise und Betrag wie bisher. Du trägst zum Beispiel den neuen Beitrag ein, und der Dialog zeigt sofort, um wie viel Prozent der Vertrag teurer oder günstiger wird (verglichen pro Monat). Mit **Verlängern** passiert Folgendes:
 
 - Die bisherige Laufzeit kommt in die **Historie** (Zeitraum, Anbieter, Tarif, Abschlag, gezahlte Abschläge). So entsteht pro Jahr ein Eintrag und man sieht, wie der Beitrag steigt.
 - Der Vertrag läuft mit dem neuen Beginn, Ende und Betrag weiter. Anbieter, Tarif, Kundennummer und alles andere bleiben.
