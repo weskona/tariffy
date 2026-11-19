@@ -1,4 +1,4 @@
-# Tariffy – Contract Management for Home Assistant
+# Tariffy – Contract Management for Home Assistant / Vertragsverwaltung für Home Assistant
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/Home%20Assistant-2026.6%2B-blue.svg)](https://www.home-assistant.io)
@@ -16,578 +16,72 @@
 
 ---
 
-## 🇬🇧 English
-
-Tariffy is a Home Assistant custom integration for managing utility and service contracts. Electricity, gas, water, internet, mobile, insurance and more — each contract becomes its own HA device with dedicated sensors. Tariffy automatically reminds you of cancellation deadlines, switches tariffs on the switch date, and calculates costs and billing forecasts based on real consumption data.
-
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/english-overview.png"><img src="docs/panel-preview/english-overview-light.png" alt="Tariffy panel: overview"></picture>
-
-<table>
+<table align="center">
 <tr>
-<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/english-costs.png"><img src="docs/panel-preview/english-costs-light.png" alt="Tariffy panel: costs"></picture></td>
-<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/english-contracts.png"><img src="docs/panel-preview/english-contracts-light.png" alt="Tariffy panel: contracts"></picture></td>
+<td align="center" width="50%"><img src="docs/panel-preview/desktop-overview.png" alt="Tariffy panel, overview (dark design)" width="100%"><br><sub>Dark / Dunkel</sub></td>
+<td align="center" width="50%"><img src="docs/panel-preview/desktop-overview-light.png" alt="Tariffy panel, overview (light design)" width="100%"><br><sub>Light / Hell</sub></td>
 </tr>
 </table>
 
-On a phone the cards turn into expandable rows:
-
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/mobile-overview.png"><img src="docs/panel-preview/mobile-overview-light.png" alt="Tariffy panel on a phone" width="260"></picture>
+*Mock data. / Beispieldaten.*
 
 ---
+
+## 🇬🇧 English
+
+Tariffy manages your utility and service contracts in Home Assistant: electricity, gas, water, internet, mobile, streaming, insurance, leasing, loans and more. Each contract becomes its own device with sensors for cost, balance and forecast.
 
 ### Features
 
-- **Categories:** Electricity, Gas, Water, Internet, Mobile, Streaming, Loan, Leasing, Insurance, Other
-- **Real consumption tracking** – connect any HA sensor as your meter; Tariffy reads the meter value at contract start from Long-Term Statistics and calculates consumption since contract start and projected annual usage
-- **Real billing forecast** – forecast based on actual measured consumption (credit or surcharge)
-- **Last contract period consumption** – frozen at tariff switch; used to calculate the recommended monthly payment for the new period
-- **Recommended monthly payment** – based on last period's real consumption × current rates
-- **Automatic tariff switch** – store the next tariff, HA promotes it automatically on the switch date
-- **Cancellation reminder** – 1–4 months before contract end, persistent notification + optional notify service
-- **Gas conversion** – annual consumption in m³ is automatically converted to kWh via calorific value & state number
-- **Water** – fresh water + wastewater (fixed price, % or flat rate)
-- **Tiered pricing** – country-specific (US, AU, ES, …)
-- **Time-of-Use / Night rate** – Economy 7, TOU (GB, US, AU, …)
-- **Dual-tariff meter (HT/NT)** – separate category for a real two-register electricity meter (high tariff / low tariff): a second unit price, second consumption sensor and second meter number, tracked independently from the high-tariff register. All the usual sensors (Cost/Refund/Forecast so far) stay combined across both registers via an automatically weighted average price; dedicated Consumption/Cost sensors per register are also available
-- **Dynamic tariff (spot price)** – reference an external HA sensor (Tibber, aWATTar, Nordpool, …) instead of a fixed unit price; the effective price is calculated as the sensor's statistical average over the contract-to-date plus a fixed markup, with automatic fallback to the manual price while no statistics history exists yet
-- **Feed-in tariff** – per kWh fed into the grid (solar)
-- **Auto-refresh after HA startup** – sensors update automatically once Long-Term Statistics are ready after a restart
-- **Check interval** – every 6 hours
+- **Contracts of all kinds** – electricity (also dual-tariff), gas, water, internet, mobile, streaming, insurance, leasing (with a kilometre forecast), loans and other
+- **Real consumption** – connect your meter sensor; Tariffy works out the billing forecast (credit or balance due) and a recommended instalment from the measured consumption, with optional PV self-sufficiency
+- **Instalments and costs** – instalments paid, balance so far, total cost over all terms, correctable instalment history, one-off items
+- **Reminders and switching** – cancellation reminder before the contract ends, plan the next contract that takes over automatically on the switch date, or renew a contract
+- **Panel in the sidebar** – all contracts, costs and history at a glance, on the phone too, in light and dark design (follows Home Assistant); administrators manage contracts there
+- **Backup and restore** built in; deleted contracts stay restorable for 30 days
+- **German and English**, an own icon for every contract
 
----
-
-### Sensors per contract
-
-| Sensor | Unit | Category | Description |
-|--------|------|----------|-------------|
-| Unit price | €/kWh | Energy | Consumption-based price. For a dynamic tariff (spot-price sensor configured), this is the statistical average over the contract-to-date + markup; attribute `arbeitspreis_aktuell` shows the live current price, `dynamischer_tarif` whether a price sensor is set |
-| Unit price (night) | €/kWh | Energy | Night rate (TOU/Economy 7) |
-| Unit price (low tariff / NT) | €/kWh | Electricity (dual meter) | Low-tariff register price, as entered in the config flow |
-| Unit price (effective) | €/kWh | Energy | Effective average price (tiered) |
-| Unit price (wastewater) | €/m³ | Water | Wastewater charge |
-| Water price (combined) | €/m³ | Water | Fresh water + wastewater |
-| Base price | €/month | Energy | Monthly base fee |
-| Monthly payment | €/month | All | Monthly instalment |
-| Monthly payment (recommended) | €/month | Energy | Based on last period consumption × current rates |
-| Instalment adjustment (recommended) | €/month | Energy+Water | What the instalment should be from now until contract end to break even exactly — unlike "Monthly payment (recommended)" (only after a tariff switch), this updates continuously during the current contract |
-| Installment total (contract term) | € | All | Instalment × contract duration in months — a payment plan total, **not** a cost forecast |
-| Cost (so far) | € | Energy+Water | Actual costs incurred since contract start (real consumption) |
-| Refund/balance due (so far) | € | Energy | Instalments paid so far − Cost (so far), as of today (no projection). Icon shows 👍/👎 depending on sign |
-| Feed-in tariff | €/kWh | Electricity | Configured feed-in rate |
-| Annual consumption (kWh) | kWh | Gas | Manually entered annual estimate, converted via calorific value & state number |
-| Consumption (so far) | unit of the consumption sensor (usually m³) | Energy+Water | Measured consumption since contract start — raw meter delta in the unit of the sensor (a meter reporting **Wh or MWh is calculated in kWh**); gas/water are **not** converted to kWh here |
-| Consumption (contract term projected) | unit of the consumption sensor | Energy+Water | Current consumption extrapolated to the full contract term (not a fixed calendar year) |
-| Consumption (last period) | unit of the consumption sensor | Energy | Frozen at tariff switch — basis for recommended payment |
-| Consumption, high/low tariff (so far) | kWh | Electricity (dual meter) | Measured consumption of each register since contract start |
-| Cost, high/low tariff (so far) | € | Electricity (dual meter) | Usage-based cost of each register (no base fee share) since contract start |
-| Refund/balance due (contract end) | € | Energy+Water | Forecast based on real consumption, projected to contract end. Icon shows 👍/👎 depending on sign |
-| Remaining term | Days | All | Days until contract end |
-| Contract start | Date | All | Start date of contract |
-| Contract end | Date | All | End of current contract |
-| Next switch | Date | All | Date of planned tariff switch |
-| Cancellation reminder | Date | All | Date from which the reminder is active |
-| Provider | – | All | Provider name (diagnostic) |
-| Tariff | – | All | Tariff name (diagnostic) |
-| Customer number | – | All | Customer number (diagnostic) |
-| Meter number | – | Energy | Meter number (diagnostic) |
-| Meter number (low tariff / NT) | – | Electricity (dual meter) | Meter number of the low-tariff register (diagnostic) |
-
-> **Night rate**, **tiered pricing** and **dual-tariff (HT/NT)** sensors only appear when the corresponding category/option is used.
-
----
-
-### The four cost sensors at a glance
-
-Tariffy has four sensors with a currency unit. Behind them are two independent questions:
-
-- **When?** – the standing **so far** (actual) or the forecast for **contract end** (projected)?
-- **What?** – a **raw amount** (instalment total or actual cost) or the **balance** between them (instalments minus cost = refund/balance due)?
-
-|  | **raw amount** | **balance (instalments − cost)** |
-|---|---|---|
-| **so far** | Cost (so far) `kosten_bisher` | Refund/balance due (so far) `guthaben_bisher` |
-| **contract end** (projected) | Installment total (contract term) `jahreskosten` | Refund/balance due (contract end) `prognose_real` |
-
-Important: **Installment total (contract term)** is *not* a cost forecast — it's simply `instalment × months`, just the payment plan, independent of actual consumption. Both balance sensors (`guthaben_bisher`, `prognose_real`) are positive when in credit, negative when a balance is due (see the `tendenz` attribute and the 👍/👎 icon).
-
-**Real example** (electricity contract: instalment 40 €/month, unit price 0.2977 €/kWh, base price 11.51 €/month, term 01.01.–31.12.2026 ≈ 11.96 months; today, after 6.31 months: 1,481.17 kWh consumed):
-
-```
-Cost (so far)                       = 1,481.17 kWh × 0.2977 €  + 11.51 € × 6.31 months  =    513.54 €
-Instalments paid so far (internal)  = 40 € × 6.31 months                               =    252.40 €
-→ Refund/balance due (so far)       = 252.40 € − 513.54 €                              =   −261.24 €  (balance due)
-
-Projected onto the full term: 1,481.17 kWh / 192 days × 364 days ≈ 2,808.1 kWh
-
-Installment total (contract term)   = 40 € × 11.96 months                              =    478.32 €
-Projected real cost (internal)      = 2,808.1 kWh × 0.2977 € + 11.51 € × 11.96 months   =    973.61 €
-→ Refund/balance due (contract end)  = 478.32 € − 973.61 €                              =   −495.29 €  (balance due, projected)
-```
-
-All four values match this contract's live sensors exactly. Consumption is well above what the instalment covers — the balance due grows from −261 € (today) to a projected −495 € (contract end), roughly in step with elapsed time (6.31 → 11.96 months, nearly 2×). That's the difference between the two balance sensors: one is the **current** standing, the other the **forecast** for contract end, assuming consumption continues at the same rate.
-
-All four require `unit price`; `Cost (so far)`, `Refund/balance due (so far)` and `Refund/balance due (contract end)` additionally require a configured consumption sensor.
-
----
-
-### Real consumption tracking
-
-When a **consumption sensor** is configured, Tariffy reads the historical meter value at contract start from **Long-Term Statistics** and calculates:
-
-Tariffy also reads the sensor's raw `state` alongside the `sum` statistic: if the current reading
-hasn't dropped below the value at contract start (the normal case — no real meter reset), it uses
-the simpler state difference instead of the `sum` statistic. This makes the calculation robust
-against rare anomalies in the `sum` statistic itself (observed once after a Home Assistant
-restart: the statistic suddenly jumped to an implausible value while the meter reading stayed
-perfectly continuous). If the sensor's statistics history still doesn't reach back to the
-contract start date (e.g. because it was renamed or recreated at some point), you can optionally
-enter a **"Meter reading at contract start"** — this manual value takes priority over both
-automatic methods.
-
-```
-Consumption so far                    = current meter value − meter value at contract start   (in the sensor's own unit, e.g. m³)
-Consumption (contract term projected) = consumption so far ÷ days elapsed × contract term (days)
-Cost (so far)                         = consumption so far (in kWh) × unit price + base price × months elapsed
-Refund/balance due (so far)           = instalments paid so far − Cost (so far)                (today's exact standing, no projection)
-Refund/balance due (contract end)     = instalments over the term − projected cost over the term   (instalments paid so far + current instalment × remaining term)
-```
-
-**Positive** = credit · **Negative** = surcharge
-
-⚠️ **Unit note (gas/water):** "Consumption (so far)" and "Consumption (contract term projected)" show the raw meter delta in whatever unit your actual consumption sensor reports (usually m³) — they are **not** automatically converted to kWh, even though the `gas unit`/`water unit` setting might say "kWh". That setting only describes the unit of your manually entered annual consumption *estimate*, not your real meter. For all cost calculations (Cost so far, both refund/balance due sensors), the consumption **is** converted to kWh internally via calorific value × state number — just not for the raw "Consumption" sensors themselves.
-
-The contract term used for the projection is `contract end − contract start` in days (falls back to 365 if no end date is set) — a contract that runs for e.g. 6 months is projected onto those 6 months, not a full calendar year.
-
-Both the current meter value and the historical value at contract start are read from the recorder's **cumulative `sum` statistic**, not the sensor's raw state. This makes the calculation robust against sensors with `state_class: total_increasing` that legitimately reset periodically (some smart-meter integrations reset their raw counter on every reading cycle) — the recorder's `sum` already accounts for such resets. A meter that never resets at all is still preferable where available.
-
-> The sensor must have Long-Term Statistics enabled and must have existed since at least the contract start date.
-
----
-
-### Last contract period & recommended payment
-
-When a tariff switch occurs — automatic (date reached) or manual ("Switch now" button, identical calculation either way) — Tariffy freezes the total consumption of the expiring contract period:
-
-```
-Consumption (last period)          = meter at switch date − meter at contract start
-Monthly payment (recommended)      = (last period consumption × new unit price + new base price × months) / months
-```
-
-`months` is the **actual duration of the expiring contract period** in months (frozen at the moment of switching), not a fixed 12 — relevant if the previous contract ran shorter or longer than a year. Falls back to 12 for periods frozen before this was tracked.
-
-This gives a data-driven recommendation for the monthly instalment in the new contract.
-
----
-
-### Buttons per contract
-
-| Button | Description |
-|--------|-------------|
-| Switch now | Promotes the stored next tariff immediately (without waiting for the switch date) — freezes the ending period's consumption exactly like the automatic switch |
-| Confirm cancellation | Acknowledges the reminder and removes the persistent notification |
-| Confirm low-instalment warning | Acknowledges the low-instalment warning and removes the persistent notification (re-arms automatically if the forecast worsens again later) |
-
----
-
-### Tariff switch
-
-Under **Settings → Integrations → Tariffy → [Contract] → Options** you can store a successor tariff:
-
-- Switch date, new provider, customer number, tariff name
-- New prices and consumption values
-
-On the switch date HA promotes the new tariff automatically — checked exactly at midnight (00:00:01) plus the regular 6-hour poll and HA-start refresh as fallback. Fields left blank keep their current value.
-
----
-
-### Cancellation reminder
-
-When contract end is set and the reminder period is reached:
-
-1. **Persistent notification** in the HA notification centre
-2. One-time **push notification** via the configured notify service
-3. **"Confirm cancellation"** button to acknowledge
-
-**With a notice period:** If you enter a **notice period** (in months) for the contract, the reminder refers to the **last day to cancel** (contract end minus notice period) instead of the contract end. Example: contract end 31 Dec, notice period 3 months, reminder "3 months before": the cancellation has to be received by 30 Sep, and the message comes on 30 Jun, 6 months before the contract end. The message names the last day to cancel. Without a notice period nothing changes. The panel shows the **minimum term** (in months) as "until <start + minimum term>"; it does not affect any reminder. Both fields are optional; the "Cancellation reminder" sensor gets the attributes `kuendigungsfrist_monate` and `kuendigung_bis`. A tariff switch keeps the notice period, not the minimum term.
-
----
-
-### PV self-sufficiency in the forecast (optional)
-
-With a PV system (also with a battery) the grid draw varies with the season: whoever looks in winter overestimates the rest of the term, whoever looks in summer underestimates it. For an **electricity contract** (also a dual-tariff meter) the **PV self-sufficiency** can be taken into account. It applies **to the remaining term only**; the consumption so far stays as it is. It goes into the **forecast at contract end**, the **recommended instalment** and the projected consumption. **Off by default; without the option nothing changes.**
-
-**Setup:** in the contract form switch on **Take PV self-sufficiency into account** and give the source of the self-sufficiency. There are three, used in this order: **(1) the total consumption of the house** as a sensor (kWh, with a long-term statistic, for example the house consumption of the Energy dashboard; the most exact source, because it is based on energy sums and works with a battery), **(2) a self-sufficiency sensor in %** (with a statistic, for example the autonomy of the Fronius integration; the **monthly mean** of last year is used) or **(3) own values in %**: twelve values for January to December, separated by spaces or semicolons (for example `10 10 25 50 70 80 85 80 60 35 15 10`), or one value for all months. Own values also apply to months for which the statistics are missing and are enough on their own (for example in the first year of a PV system without history). **Note:** the forecast compares the self-sufficiency of each remaining month with that of the measured period; a single value is the same in every month, so on its own it changes nothing. Without a sensor the form therefore asks for twelve different monthly values; one value only makes sense as a fallback for months without data next to a sensor. The **consumption sensor of the contract must measure the grid draw**. For a dual-tariff meter there is, for (1), an optional second total-consumption sensor for the low-tariff period; without it the self-sufficiency is calculated over both tariffs together and applied to both (an approximation, marked in the attribute `autarkie_naeherung`). A self-sufficiency sensor (2) and own values (3) apply to both tariffs alike.
-
-**Total consumption in the panel:** with a total-consumption sensor (1) the block **Consumption** shows a small grid with **So far** and **Projected**: the **total consumption** of the house, what is **covered by PV** (total minus grid draw) and the **grid draw (billed)**. The total is extended linearly (the season only sits in the grid draw); with a dual-tariff meter both tariffs are added. The grid draw and all costs are as before. The figures are also attributes of the sensor "Refund/balance due (contract end)": `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet`. With a self-sufficiency sensor in % or own values there is no total consumption, so the grid is not shown.
-
-**Calculation:** for every month of the remaining term the **same month last year** is used: for (1) from the long-term statistics `self-sufficiency = 1 − grid draw / total consumption`, for (2) the monthly mean of the sensor, for (3) your own value; limited to 0–100 %. If the value of a month is missing, that month takes your own value (3), otherwise no adjustment. The self-sufficiency in the measured period comes from the same source (for (3) from your own values of the months already measured, weighted by days). As the consumption sensor already measures the grid draw, the self-sufficiency is part of the values so far; the daily grid draw is therefore **normalised for the season**: `grid draw of the month = daily grid draw so far × days × (1 − self-sufficiency of the month) / (1 − self-sufficiency so far)`. A dual-tariff meter is calculated per tariff. If the data of a month (or of the measured period) is missing, that month keeps the linear extrapolation; without any history nothing changes and there is no error.
-
-**Display:** the sensor **Refund/balance due (contract end)** gets (only when the self-sufficiency determines the forecast) the attributes `autarkie_variante`, `autarkie_monatswerte` (per month self-sufficiency in % and factor, for a dual-tariff meter also for the low tariff), `autarkie_bisher`, `autarkie_naeherung` and `prognose_ohne_autarkie`. The panel shows the forecast without self-sufficiency and the self-sufficiency so far in the contract details. The attribute `autarkie_variante` names the source (`gesamtverbrauch`, `entitaet` or `manuell`), `autarkie_monatswerte` says per month whether the value came from the statistics or from you. **Not included:** a consumption sensor that measures the total consumption instead of the grid draw.
-
-### Low-instalment warning (optional)
-
-Opt-in per contract (electricity/gas/water with a configured consumption sensor): warns via persistent notification (+ optional push notification) when the contract-end forecast (`prognose_real`, see "Refund/balance due (contract end)" above) projects a balance due beyond a configurable threshold.
-
-- **Enable**: "Warn if instalment is too low" checkbox in the contract's config/reconfigure flow. Off by default.
-- **Threshold** (€ balance due, default 50 €): fires when `prognose_real < -threshold`.
-- **Acknowledge**: "Confirm low-instalment warning" button removes the notification for the current episode. If the forecast recovers above the threshold and later worsens again, the warning fires again automatically — acknowledging isn't a permanent mute, just a dismissal of the current episode.
-- The raw state (independent of acknowledgement) is exposed as the `abschlag_warnung_aktiv` attribute on the "Refund/balance due (contract end)" sensor.
-- The notification message includes a concrete recommendation ("adjust your instalment to about X €/month") from the "Instalment adjustment (recommended)" sensor, if computable.
-
-> **No retroactive recalculation on instalment changes.** If you raise or lower your instalment mid-contract, Tariffy remembers the date and the previous value and applies the old instalment correctly only up to that date, the new one from then on — "Refund/balance due (so far)", "Refund/balance due (contract end)" and "Instalment adjustment (recommended)" won't suddenly jump as if the new instalment had applied since day one. Multiple corrections on the same day count as a single change.
-
----
-
-### Sidebar panel
-
-Since version 1.27.0 a **Tariffy** page in the sidebar shows all contracts at a glance (overview, cost table, contract details) with live values. Administrators can also acknowledge the warning and the cancellation reminder, plan the next contract, edit, create and delete contracts there. Everything is stored through the existing dialogs of Home Assistant, every action asks a second time, and deleting a contract needs its name typed. All users see the values, only administrators get the buttons; customer and meter numbers are never sent to the panel. The panel needs no setup; after the update, reload the browser page once (Ctrl+F5).
-
-Details: [Panel documentation](docs/wiki/EN-Panel-Overview.md)
-
-### Installation via HACS
+### Installation
 
 1. HACS → Integrations → ⋮ → **Custom repositories**
 2. URL: `https://github.com/weskona/tariffy` – Category: **Integration**
-3. Install Tariffy → restart HA
-4. Settings → Integrations → **Tariffy** → Add
+3. Install Tariffy → restart Home Assistant
+4. Settings → Devices & services → **Add integration** → **Tariffy**
 
-### Manual installation
+Manual installation: copy `custom_components/tariffy` to `/config/custom_components/` and restart. Requires Home Assistant 2026.6 or newer. After an update reload the browser page once (Ctrl+F5).
 
-```bash
-cp -r custom_components/tariffy /config/custom_components/
-```
-Restart HA.
+### Documentation
 
-### Requirements
-
-- Home Assistant 2026.6 or newer
+**Everything is explained in the [Wiki](https://github.com/weskona/tariffy/wiki/EN-Home):** [Getting started](https://github.com/weskona/tariffy/wiki/EN-Getting-Started), every contract category, the panel, all sensors, automation examples, backup, FAQ and troubleshooting. Changes: [Changelog](CHANGELOG.md) · Problems and wishes: [Issues](https://github.com/weskona/tariffy/issues) (please name the version).
 
 ---
 
 ## 🇩🇪 Deutsch
 
-Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- und Dienstleistungsverträgen. Strom, Gas, Wasser, Internet, Mobilfunk, Versicherungen und mehr – jeder Vertrag wird als eigenes HA-Gerät mit Sensoren angelegt. Tariffy erinnert automatisch an Kündigungsfristen, wechselt Tarife zum Stichtag und berechnet Kosten sowie Abrechnungsprognosen auf Basis echter Verbrauchsdaten.
-
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/desktop-overview.png"><img src="docs/panel-preview/desktop-overview-light.png" alt="Tariffy-Panel: Übersicht"></picture>
-
-<table>
-<tr>
-<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/desktop-costs.png"><img src="docs/panel-preview/desktop-costs-light.png" alt="Tariffy-Panel: Kosten"></picture></td>
-<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/desktop-contracts.png"><img src="docs/panel-preview/desktop-contracts-light.png" alt="Tariffy-Panel: Verträge"></picture></td>
-</tr>
-</table>
-
-Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
-
-<picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/mobile-overview.png"><img src="docs/panel-preview/mobile-overview-light.png" alt="Tariffy-Panel auf dem Handy" width="260"></picture>
-
----
-
-### Features
-
-- **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Kredit, Leasing, Versicherung, Sonstiges
-- **Echte Verbrauchsmessung** – beliebigen HA-Sensor als Zähler einbinden; Tariffy liest den Stand zum Vertragsbeginn aus den Long-Term Statistics und berechnet Verbrauch seit Vertragsbeginn sowie hochgerechneten Jahresverbrauch
-- **Abrechnungsprognose (real)** – Prognose basierend auf dem tatsächlich gemessenen Verbrauch (Guthaben oder Nachzahlung)
-- **Verbrauch letzte Vertragslaufzeit** – wird beim Tarifwechsel eingefroren; Basis für den empfohlenen Abschlag
-- **Empfohlener Abschlag** – berechnet aus realem Verbrauch der letzten Laufzeit × aktuelle Preise
-- **Automatischer Tarifwechsel** – Folgetarif hinterlegen, HA übernimmt ihn am Wechseldatum automatisch
-- **Kündigungs-Erinnerung** – 1–4 Monate vor Vertragsende, Dauerbenachrichtigung + optionaler notify-Dienst, Bestätigen-Button
-- **Gas-Umrechnung** – Jahresverbrauch in m³ wird automatisch via Brennwert & Zustandszahl in kWh umgerechnet
-- **Wasser** – Frischwasser + Abwasser (Festpreis, % oder Monatspauschale)
-- **Staffelpreise** – länderspezifisch (US, AU, ES, …)
-- **Tag/Nacht-Tarif** – Economy 7, TOU (GB, US, AU, …)
-- **Zweizählertarif (HT/NT)** – eigene Sparte für einen echten Zweiregister-Stromzähler (Hochtarif/Niedertarif): zweiter Arbeitspreis, zweiter Verbrauchssensor und zweite Zählernummer, unabhängig vom Hochtarif-Register erfasst. Die üblichen Sensoren (Kosten/Guthaben/Prognose Bisher) bleiben über beide Register kombiniert, per automatisch gewichtetem Durchschnittspreis; zusätzlich stehen eigene Verbrauchs-/Kosten-Sensoren pro Register zur Verfügung
-- **Dynamischer Tarif (Spotpreis)** – externen HA-Sensor (Tibber, aWATTar, Nordpool, …) statt eines festen Arbeitspreises referenzieren; der effektive Preis wird als Statistik-Durchschnitt des Sensors über die bisherige Vertragslaufzeit + fester Aufschlag berechnet, mit automatischem Fallback auf den manuellen Preis solange keine Statistik-Historie vorliegt
-- **Einspeisevergütung** – Vergütung pro eingespeister kWh (Photovoltaik)
-- **Auto-Refresh nach HA-Start** – Sensoren aktualisieren sich automatisch sobald die Long-Term Statistics nach einem Neustart bereit sind
-- **Prüfintervall** – alle 6 Stunden, zusätzlich täglich exakt um 00:00:01 Uhr für einen pünktlichen Tarifwechsel bei Datumswechsel
-
----
-
-### Konfiguration
-
-#### Schritt 1 – Allgemeine Vertragsdaten (alle Sparten)
-
-| Feld | Pflicht | Beschreibung |
-|------|---------|-------------|
-| Bezeichnung | ✅ | Anzeigename (z. B. „Strom Haus") |
-| Sparte | ✅ | Strom, Strom (Zweizählertarif HT/NT), Gas, Wasser, Internet, Mobilfunk, Streaming, Kredit / Finanzierung, Leasing, Versicherung, Sonstiges |
-| Anbieter | ✅ | Name des Anbieters |
-| Kundennummer | – | Kundennummer beim Anbieter |
-| Tarifname | – | Bezeichnung des Tarifs |
-| Icon | – | Eigenes Icon des Vertrags, z. B. `mdi:car`. Gilt im Panel und für die Sensoren des Vertrags (Sensoren mit Statussymbol wie Guthaben/Nachzahlung behalten ihres). Leer = das Icon der Sparte. |
-| Vertragsbeginn | – | Startdatum des Vertrags |
-| Vertragsende | – | Enddatum / Laufzeit bis |
-| Mindestlaufzeit (Monate) | – | Das Panel zeigt, bis wann der Vertrag mindestens läuft |
-| Kündigungsfrist (Monate) | – | Wenn eingetragen, bezieht sich die Erinnerung auf den letzten Kündigungstag |
-| Kündigung erinnern | ✅ | 0–4 Monate vorher (0 = deaktiviert); vor Vertragsende, mit Kündigungsfrist vor Ablauf der Frist |
-| Benachrichtigungs-Ziel | – | notify-Dienst (z. B. `mobile_app_iphone`) |
-
-#### Schritt 2a – Strom-Details
-
-| Feld | Pflicht | Beschreibung |
-|------|---------|-------------|
-| Arbeitspreis | ✅ | €/kWh – steht auf deiner Stromrechnung |
-| Grundpreis | ✅ | €/Monat – monatlicher Festbetrag |
-| Monatlicher Abschlag | ✅ | €/Monat – Vorauszahlung |
-| Jahresverbrauch | – | kWh/Jahr – für die Kostenprognose |
-| Verbrauchssensor | – | HA-Sensor des Stromzählers – für echte Verbrauchsmessung |
-| Einspeisevergütung | – | €/kWh – Vergütung für eingespeisten Strom |
-| Neukundenbonus | – | Einmaliger Bonus in € |
-| Ökostrom | ✅ | Ja/Nein |
-| Zählernummer | – | Für Dokumentation |
-| Marktlokation (MaLo-ID) | – | Für Dokumentation |
-| Preisgarantie bis | – | Datum |
-
-#### Schritt 2b – Gas-Details
-
-Wie Strom, zusätzlich:
-
-| Feld | Pflicht | Beschreibung |
-|------|---------|-------------|
-| Gaseinheit | ✅ | m³, CCF, therm, … |
-| Jahresverbrauch | – | In der gewählten Einheit |
-| Verbrauchssensor | – | HA-Sensor des Gaszählers |
-| Brennwert | ✅ | kWh/m³ (ca. 10–12, steht auf der Gasrechnung) |
-| Zustandszahl | ✅ | Umrechnungsfaktor Z (ca. 0,95, steht auf der Gasrechnung) |
-
-> **Umrechnung:** kWh = m³ × Brennwert × Zustandszahl
->
-> Brennwert und Zustandszahl akzeptieren sowohl Dezimalpunkt (`11.2`) als auch Dezimalkomma (`11,2`).
-
-#### Schritt 2c – Wasser-Details
-
-| Feld | Pflicht | Beschreibung |
-|------|---------|-------------|
-| Wassereinheit | ✅ | m³, L, gal, … |
-| Frischwasserpreis | ✅ | Preis pro Einheit |
-| Grundpreis | ✅ | €/Monat |
-| Monatlicher Abschlag | ✅ | €/Monat |
-| Jahresverbrauch | – | Für die Kostenprognose |
-| Verbrauchssensor | – | HA-Sensor des Wasserzählers |
-| Abwasser-Typ | ✅ | Festpreis/Einheit, % des Frischwassers oder Monatspauschale |
-| Abwassergebühr | – | Betrag je nach gewähltem Typ |
-| Außenzähler | – | Im Panel (Block „Außenzähler“): Garten/Pool ohne Abwasser, siehe Wiki |
-| Zählernummer | – | Für Dokumentation |
-
-#### Schritt 2d – Pauschalverträge (Internet, Mobilfunk, Streaming, Versicherung, …)
-
-**Zahlweise und Betrag:** Du wählst die **Zahlweise** (monatlich, vierteljährlich, halbjährlich, jährlich) und trägst den **Betrag pro Zahlung** ein; Tariffy rechnet intern mit dem Betrag pro Monat. Bei nicht monatlicher Zahlweise zählen die **Abbuchungen** zu den Kosten bisher; die erste nimmt Tariffy am Vertragsbeginn an, das echte Datum trägst du bei **Erste Abbuchung am** ein.
-
-| Feld | Pflicht | Beschreibung |
-|------|---------|-------------|
-| Zahlweise | ✅ | monatlich, vierteljährlich, halbjährlich oder jährlich |
-| Betrag pro Zahlung | ✅ | € pro Zahlung in der gewählten Zahlweise (zum Beispiel der Jahresbeitrag) |
-| Erste Abbuchung am | – | Nur bei nicht monatlicher Zahlweise; leer = Vertragsbeginn |
-
-Ein Pauschalvertrag hat **nur einen Betrag**; das frühere Feld *Grundpreis* gibt es bei neuen Verträgen nicht mehr und erscheint nur noch beim Bearbeiten eines Vertrags, der schon einen hat.
-
-**Versicherungen** haben vor den Kosten einen eigenen Schritt **Art der Versicherung** (Auto (Kfz), Gebäude / Haus, Hausrat, Haftpflicht, Kranken, Leben, Rechtsschutz, Unfall, Sonstige). **Nur bei einer Kfz-Versicherung** folgt danach ein Schritt mit Angaben zum Auto; alle anderen Arten gehen gleich weiter zu den Kosten. Alle Versicherungsangaben sind optional und dienen der Dokumentation, es wird nichts berechnet.
-
-| Feld (nur Kfz) | Pflicht | Beschreibung |
-|------|---------|-------------|
-| Kennzeichen | – | Persönlich: nicht im Seitenleisten-Panel sichtbar, im Diagnose-Download geschwärzt |
-| Kilometerstand bei Vertragsbeginn | – | in km |
-| Erlaubte Kilometer pro Jahr | – | in km |
-
----
-
-### Sensoren pro Vertrag
-
-| Sensor | Einheit | Sparte | Beschreibung |
-|--------|---------|--------|-------------|
-| Arbeitspreis | €/kWh | Energie | Verbrauchsabhängiger Preis. Bei dynamischem Tarif (Preissensor konfiguriert) der Statistik-Durchschnitt über die bisherige Vertragslaufzeit + Aufschlag; Attribut `arbeitspreis_aktuell` zeigt den aktuellen Live-Preis, `dynamischer_tarif` ob ein Preissensor gesetzt ist |
-| Arbeitspreis (Nacht) | €/kWh | Energie | Nachttarif (TOU/Economy 7) |
-| Arbeitspreis (Niedertarif/NT) | €/kWh | Strom (Zweizählertarif) | Niedertarif-Preis, wie im Config Flow eingetragen |
-| Arbeitspreis (Effektiv) | €/kWh | Energie | Effektiver Ø-Preis bei Staffeltarif |
-| Arbeitspreis (Abwasser) | €/m³ | Wasser | Abwassergebühr |
-| Wasserpreis (Gesamt) | €/m³ | Wasser | Frischwasser + Abwasser kombiniert |
-| Grundpreis | €/Monat | Energie | Monatliche Grundgebühr |
-| Abschlag | €/Monat | Alle | Monatlicher Abschlag |
-| Abschlag (Empfohlen) | €/Monat | Energie | Basiert auf realem Verbrauch der letzten Laufzeit × aktuelle Preise |
-| Abschlag (Anpassung empfohlen) | €/Monat | Energie+Wasser | Was der Abschlag ab jetzt bis Vertragsende sein müsste, um exakt auszugleichen — im Unterschied zu „Abschlag (Empfohlen)" (erst nach Tarifwechsel) läuft dieser fortlaufend während des aktuellen Vertrags mit |
-| Abschlag (Vertragslaufzeit) | € | Alle | Abschlag × Laufzeit in Monaten (reiner Zahlungsplan, keine Kosten-Prognose) |
-| Kosten (Bisher) | € | Energie+Wasser | Tatsächlich angefallene Kosten seit Vertragsbeginn (Echte Messung) |
-| Guthaben/Nachzahlung (Bisher) | € | Energie | Abschlag bisher gezahlt − Kosten (Bisher), Stand von heute (keine Hochrechnung). Icon zeigt 👍/👎 je nach Vorzeichen |
-| Einspeisevergütung | €/kWh | Strom | Eingetragene Vergütung pro kWh |
-| Jahresverbrauch (kWh) | kWh | Gas | m³ umgerechnet via Brennwert & Zustandszahl |
-| Verbrauch (Bisher) | Einheit des Verbrauchssensors (meist m³) | Energie+Wasser | Gemessener Verbrauch seit Vertragsbeginn — roher Zählerstand-Delta, **nicht** automatisch in kWh umgerechnet |
-| Verbrauch (Vertragslaufzeit hochgerechnet) | Einheit des Verbrauchssensors | Energie+Wasser | Aktueller Verbrauch auf die tatsächliche Vertragslaufzeit hochgerechnet (kein festes Kalenderjahr) |
-| Verbrauch (Letzte Laufzeit) | Einheit des Verbrauchssensors | Energie | Eingefroren beim Tarifwechsel |
-| Verbrauch Hochtarif/Niedertarif (Bisher) | kWh | Strom (Zweizählertarif) | Gemessener Verbrauch je Register seit Vertragsbeginn |
-| Kosten Hochtarif/Niedertarif (Bisher) | € | Strom (Zweizählertarif) | Verbrauchskosten je Register (ohne Grundpreis-Anteil) seit Vertragsbeginn |
-| Guthaben/Nachzahlung (Vertragsende) | € | Energie+Wasser | Prognose auf Basis des echten Verbrauchs. Icon zeigt 👍/👎 je nach Vorzeichen |
-| Restlaufzeit | Tage | Alle | Tage bis Vertragsende |
-| Vertragsbeginn | Datum | Alle | Startdatum des Vertrags |
-| Vertragsende | Datum | Alle | Ende des aktuellen Vertrags |
-| Nächster Wechsel | Datum | Alle | Datum des geplanten Tarifwechsels |
-| Kündigungs-Erinnerung | Datum | Alle | Datum ab dem erinnert wird |
-| Anbieter | – | Alle | Name des Anbieters (Diagnose) |
-| Tarif | – | Alle | Tarifbezeichnung (Diagnose) |
-| Kundennummer | – | Alle | Kundennummer (Diagnose) |
-| Zählernummer | – | Energie | Zählernummer (Diagnose) |
-| Zählernummer (Niedertarif/NT) | – | Strom (Zweizählertarif) | Zählernummer des Niedertarif-Registers (Diagnose) |
-
-> Sensoren für **Nachttarif** (Economy 7 / TOU), **Staffelpreise** und **Zweizählertarif (HT/NT)** erscheinen nur wenn die entsprechende Sparte/Option genutzt wird.
-
----
-
-### Die vier Kosten-Sensoren im Überblick
-
-Tariffy hat vier Sensoren mit Währungseinheit. Dahinter stecken zwei unabhängige Fragen:
-
-- **Wann?** – der Stand **bis heute** (Ist) oder die Prognose fürs **Vertragsende** (hochgerechnet)?
-- **Was?** – ein **reiner Betrag** (Abschlag-Soll oder echte Kosten) oder die **Bilanz** daraus (Abschlag minus Kosten = Guthaben/Nachzahlung)?
-
-|  | **reiner Betrag** | **Bilanz (Abschlag − Kosten)** |
-|---|---|---|
-| **Bisher** | Kosten (Bisher) `kosten_bisher` | Guthaben/Nachzahlung (Bisher) `guthaben_bisher` |
-| **Vertragsende** (hochgerechnet) | Abschlag (Vertragslaufzeit) `jahreskosten` | Guthaben/Nachzahlung (Vertragsende) `prognose_real` |
-
-Wichtig: **Abschlag (Vertragslaufzeit)** ist *keine* Kosten-Prognose — es ist einfach `abschlag × laufzeit_monate`, also nur der Zahlungsplan, unabhängig vom tatsächlichen Verbrauch. Die beiden Bilanz-Sensoren (`guthaben_bisher`, `prognose_real`) sind positiv bei Guthaben, negativ bei Nachzahlung (siehe `tendenz`-Attribut und Icon 👍/👎).
-
-**Echtes Beispiel** (Stromvertrag: Abschlag 40 €/Monat, Arbeitspreis 0,2977 €/kWh, Grundpreis 11,51 €/Monat, Laufzeit 01.01.–31.12.2026 ≈ 11,96 Monate; Stand heute nach 6,31 Monaten: 1.481,17 kWh verbraucht):
-
-```
-Kosten (Bisher)                       = 1.481,17 kWh × 0,2977 €  + 11,51 € × 6,31 Monate  =    513,54 €
-Abschlag bisher gezahlt (intern)      = 40 € × 6,31 Monate                                =    252,40 €
-→ Guthaben/Nachzahlung (Bisher)       = 252,40 € − 513,54 €                               =   −261,24 €  (Nachzahlung)
-
-Hochgerechnet auf die volle Laufzeit: 1.481,17 kWh / 192 Tage × 364 Tage ≈ 2.808,1 kWh
-
-Abschlag (Vertragslaufzeit)           = 40 € × 11,96 Monate                               =    478,32 €
-Geschaetzte Kosten real (intern)      = 2.808,1 kWh × 0,2977 € + 11,51 € × 11,96 Monate    =    973,61 €
-→ Guthaben/Nachzahlung (Vertragsende)  = 478,32 € − 973,61 €                               =   −495,29 €  (Nachzahlung, prognostiziert)
-```
-
-Alle vier Werte entsprechen exakt den live angezeigten Sensoren dieses Vertrags. Man sieht: der Verbrauch liegt deutlich über dem, was der Abschlag deckt — die Nachzahlung wächst von −261 € (heute) auf prognostizierte −495 € (Vertragsende), fast im gleichen Verhältnis wie die Zeit fortschreitet (6,31 → 11,96 Monate, fast Faktor 2). Das zeigt den Unterschied zwischen den beiden Bilanz-Sensoren: einer ist der **aktuelle** Stand, der andere die **Prognose** zum Vertragsende, unter der Annahme dass der Verbrauch im gleichen Tempo weitergeht.
-
-Alle vier benötigen `arbeitspreis`; `kosten_bisher`, `guthaben_bisher` und `prognose_real` zusätzlich einen konfigurierten `verbrauch_sensor`.
-
----
-
-### Echte Verbrauchsmessung
-
-Wenn ein **Verbrauchssensor** eingetragen ist, liest Tariffy beim Vertragsbeginn den historischen Zählerstand aus den **Long-Term Statistics** und berechnet:
-
-```
-Verbrauch (Bisher)                          = aktueller Zählerstand − Zählerstand am Vertragsbeginn
-Verbrauch (Vertragslaufzeit hochgerechnet)  = Verbrauch bisher ÷ vergangene Tage × Vertragslaufzeit (Tage)
-Kosten (Bisher)                             = Verbrauch bisher × Arbeitspreis + Grundpreis × vergangene Monate
-Guthaben/Nachzahlung (Bisher)                = Abschlag × vergangene Monate − Kosten (Bisher)
-Guthaben/Nachzahlung (Vertragsende)           = Abschläge über die Laufzeit − hochgerechnete Kosten über Laufzeit   (bisher gezahlte Abschläge + aktueller Abschlag × Restlaufzeit)
-```
-
-**Positiv** = Guthaben · **Negativ** = Nachzahlung
-
-Die für die Hochrechnung verwendete Vertragslaufzeit ist `Vertragsende − Vertragsbeginn` in Tagen (Fallback 365 ohne Enddatum) — ein Vertrag über z. B. 6 Monate wird auf diese 6 Monate hochgerechnet, nicht auf ein volles Kalenderjahr.
-
-Sowohl der aktuelle Zählerstand als auch der historische Wert zum Vertragsbeginn werden primär aus der kumulierten **`sum`-Statistik** des Recorders gelesen, nicht aus dem rohen Sensor-Zustand. Das macht die Berechnung robust gegenüber Sensoren mit `state_class: total_increasing`, die erlaubterweise periodisch zurücksetzen (manche Smart-Meter-Integrationen setzen ihren Rohzähler bei jedem Ablesezyklus zurück) — die `sum`-Statistik des Recorders berücksichtigt solche Resets bereits. Zusätzlich liest Tariffy aber auch den rohen `state`-Wert mit: ist der aktuelle Zählerstand nicht unter den Wert bei Vertragsbeginn gefallen (kein echter Reset), wird stattdessen die einfachere State-Differenz verwendet — das schützt vor seltenen Anomalien direkt in der `sum`-Statistik selbst (beobachtet z. B. nach einem HA-Neustart: die Statistik sprang plötzlich auf einen unplausiblen Wert, während der Zählerstand durchgehend korrekt blieb).
-
-> Der Sensor muss Long-Term Statistics aktiviert haben. Reicht dessen Statistik-Historie trotzdem
-> nicht bis zum Vertragsbeginn zurück (z. B. weil der Sensor zwischenzeitlich umbenannt oder neu
-> angelegt wurde), kannst du optional einen **manuellen "Zählerstand bei Vertragsbeginn"**
-> eintragen — der hat dann Vorrang vor beiden automatischen Methoden.
-
----
-
-### Verbrauch letzte Laufzeit & empfohlener Abschlag
-
-Beim Tarifwechsel friert Tariffy den Gesamtverbrauch der ablaufenden Vertragslaufzeit ein:
-
-```
-Verbrauch (Letzte Laufzeit) = Zählerstand am Wechseltag − Zählerstand am Vertragsbeginn
-Abschlag (Empfohlen)        = (Letzte Laufzeit × neuer Arbeitspreis + neuer Grundpreis × Monate) / Monate
-```
-
-`Monate` ist die **tatsächliche Dauer der ablaufenden Vertragslaufzeit** in Monaten (eingefroren im Moment des Wechsels), nicht pauschal 12 — relevant, wenn der vorherige Vertrag kürzer oder länger als ein Jahr lief. Fallback auf 12, wenn die Laufzeit vor Einführung dieser Berechnung eingefroren wurde.
-
-So erhält man eine datenbasierte Empfehlung für den monatlichen Abschlag im neuen Vertrag.
-
----
-
-### Buttons pro Vertrag
-
-| Button | Beschreibung |
-|--------|-------------|
-| Jetzt wechseln | Übernimmt den hinterlegten Folgetarif sofort (ohne auf das Datum zu warten) — friert den Verbrauch der endenden Laufzeit exakt wie beim automatischen Wechsel ein |
-| Kündigung bestätigen | Quittiert die Erinnerung und entfernt die Dauerbenachrichtigung |
-| Abschlag-Warnung bestätigen | Quittiert die Nachzahlungs-Warnung und entfernt die Dauerbenachrichtigung (meldet sich automatisch neu, falls sich die Prognose später wieder verschlechtert) |
-
----
-
-### Tarifwechsel
-
-Unter **Einstellungen → Integrationen → Tariffy → [Vertrag] → Optionen** kannst du einen Folgetarif hinterlegen:
-
-- Wechseldatum, neuer Anbieter, Kundennummer, Tarifname
-- Neue Preise und Verbrauchswerte
-
-Am Wechseldatum übernimmt HA den neuen Tarif automatisch — geprüft täglich exakt um 00:00:01 Uhr, zusätzlich beim regulären 6h-Poll und beim HA-Start als Fallback. Nicht angegebene Felder behalten ihren aktuellen Wert.
-
----
-
-### Kündigungs-Erinnerung
-
-Wenn Vertragsende gesetzt und der Erinnerungszeitraum erreicht ist:
-
-1. **Dauerbenachrichtigung** im HA-Benachrichtigungscenter
-2. Einmalige **Push-Benachrichtigung** via konfiguriertem notify-Dienst
-3. Button **„Kündigung bestätigen"** zum Quittieren
-
-**Mit Kündigungsfrist:** Trägst du beim Vertrag eine **Kündigungsfrist** (in Monaten) ein, bezieht sich die Erinnerung auf den **letzten Kündigungstag** (Vertragsende minus Frist) statt auf das Vertragsende. Beispiel: Vertragsende 31.12., Kündigungsfrist 3 Monate, Erinnerung „3 Monate vorher": Die Kündigung muss bis 30.09. vorliegen, die Meldung kommt am 30.06., also 6 Monate vor dem Vertragsende. Die Meldung nennt den letzten Kündigungstag. Ohne Kündigungsfrist ändert sich nichts. Die **Mindestlaufzeit** (in Monaten) zeigt das Panel als „bis <Beginn + Mindestlaufzeit>"; sie beeinflusst keine Erinnerung. Beide Felder sind freiwillig; der Sensor „Kündigungs-Erinnerung" hat dazu die Attribute `kuendigungsfrist_monate` und `kuendigung_bis`. Bei einem Tarifwechsel bleibt die Kündigungsfrist erhalten, die Mindestlaufzeit nicht.
-
----
-
-### PV-Autarkie in der Prognose (optional)
-
-Mit einer PV-Anlage (auch mit Batterie) schwankt der Netzbezug mit der Jahreszeit: Wer im Winter beobachtet, überschätzt die Restlaufzeit, wer im Sommer beobachtet, unterschätzt sie. Bei einem **Stromvertrag** (auch Zweizählertarif) lässt sich die **PV-Autarkie** berücksichtigen. Sie gilt **nur für die Restlaufzeit**; der bisherige Verbrauch bleibt unverändert. Sie fließt in die **Prognose zum Vertragsende**, den **empfohlenen Abschlag** und den hochgerechneten Verbrauch ein. **Standardmäßig aus; ohne die Option ändert sich nichts.**
-
-**Einrichtung:** Im Vertragsformular **PV-Autarkie in der Prognose berücksichtigen** einschalten und die Quelle der Autarkie angeben. Es gibt drei, die in dieser Reihenfolge gelten: **(1) Gesamtverbrauch des Hauses** als Sensor (kWh, mit Langzeitstatistik, zum Beispiel der Hausverbrauch aus dem Energie-Dashboard; die genaueste Quelle, weil sie auf Energiesummen beruht und mit Batterie funktioniert), **(2) ein Autarkie-Sensor in %** (mit Statistik, zum Beispiel die Autarkie der Fronius-Integration; es wird der **Monatsmittelwert** des Vorjahres genommen) oder **(3) eigene Werte in %**: zwölf Werte für Januar bis Dezember, getrennt durch Leerzeichen oder Semikolon (zum Beispiel `10 10 25 50 70 80 85 80 60 35 15 10`), oder ein Wert für alle Monate. Eigene Werte gelten auch für Monate, für die die Statistik fehlt, und reichen allein (zum Beispiel im ersten Jahr einer PV-Anlage ohne Historie). **Hinweis:** Die Prognose vergleicht die Autarkie jedes Restmonats mit der des gemessenen Zeitraums; ein einzelner Wert ist in jedem Monat gleich und ändert deshalb allein nichts. Ohne Sensor verlangt das Formular darum zwölf unterschiedliche Monatswerte; ein Wert ist nur als Ersatz für Monate ohne Daten neben einem Sensor sinnvoll. Der **Verbrauchssensor des Vertrags muss den Netzbezug messen**. Beim Zweizählertarif gibt es zu (1) optional einen zweiten Gesamtverbrauchs-Sensor für die Niedertarif-Zeit; ohne ihn wird die Autarkie über beide Tarife zusammen berechnet und auf beide angewendet (eine Näherung, im Attribut `autarkie_naeherung` gekennzeichnet). Ein Autarkie-Sensor (2) und eigene Werte (3) gelten für beide Tarife gleich.
-
-**Gesamtverbrauch im Panel:** Mit einem Gesamtverbrauchs-Sensor (1) zeigt der Block **Verbrauch** ein kleines Raster mit **Bisher** und **Hochgerechnet**: den **Gesamtverbrauch** des Hauses, was **durch PV gedeckt** ist (Gesamtverbrauch minus Netzbezug) und den **Netzbezug (abgerechnet)**. Der Gesamtverbrauch wird linear fortgeschrieben (die Saison steckt nur im Netzbezug); beim Zweizählertarif werden beide Tarife addiert. Netzbezug und alle Kosten bleiben wie bisher. Die Werte stehen auch als Attribute am Sensor „Guthaben/Nachzahlung (Vertragsende)“: `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet`. Mit einem Autarkie-Sensor in % oder eigenen Werten gibt es keinen Gesamtverbrauch, das Raster erscheint dann nicht.
-
-**Berechnung:** Für jeden Monat der Restlaufzeit wird der **gleiche Monat des Vorjahres** genommen: bei (1) aus den Langzeitstatistiken `Autarkie = 1 − Netzbezug / Gesamtverbrauch`, bei (2) der Monatsmittelwert des Sensors, bei (3) der eigene Wert; auf 0 bis 100 % begrenzt. Fehlt der Wert für einen Monat, gilt für diesen Monat der eigene Wert (3), sonst keine Anpassung. Die Autarkie im gemessenen Zeitraum kommt aus derselben Quelle (bei (3) aus den eigenen Werten der bereits gemessenen Monate, nach Tagen gewichtet). Da der Verbrauchssensor schon den Netzbezug misst, steckt die Autarkie in den bisherigen Messwerten; der tägliche Netzbezug wird deshalb **saisonal normalisiert**: `Netzbezug des Monats = Netzbezug je Tag bisher × Tage × (1 − Autarkie des Monats) / (1 − Autarkie bisher)`. Beim Zweizählertarif wird je Tarif gerechnet. Fehlen die Daten für einen Monat (oder für den gemessenen Zeitraum), bleibt es für diesen Monat bei der linearen Hochrechnung; fehlt jede Historie, ändert sich nichts und es gibt keinen Fehler.
-
-**Anzeige:** Der Sensor **Guthaben/Nachzahlung (Vertragsende)** bekommt (nur wenn die Autarkie die Prognose bestimmt) die Attribute `autarkie_variante`, `autarkie_monatswerte` (je Monat Autarkie in % und Faktor, beim Zweizählertarif auch für den Niedertarif), `autarkie_bisher`, `autarkie_naeherung` und `prognose_ohne_autarkie`. Das Panel zeigt in den Vertragsdetails die Prognose ohne Autarkie und die Autarkie bisher. Das Attribut `autarkie_variante` nennt die Quelle (`gesamtverbrauch`, `entitaet` oder `manuell`), in `autarkie_monatswerte` steht je Monat, ob der Wert aus der Statistik oder von dir kam. **Nicht enthalten:** ein Verbrauchssensor, der den Gesamtverbrauch statt des Netzbezugs misst.
-
-### Abschlag-Warnung (optional)
-
-Pro Vertrag zuschaltbar (Strom/Gas/Wasser mit konfiguriertem Verbrauchssensor): warnt per Dauerbenachrichtigung (+ optional Push-Benachrichtigung), wenn die Prognose zum Vertragsende (`prognose_real`, siehe „Guthaben/Nachzahlung (Vertragsende)" oben) eine Nachzahlung über einer einstellbaren Schwelle erwarten lässt.
-
-- **Aktivieren**: Checkbox „Warnen, wenn Abschlag zu niedrig ist" im Config-/Reconfigure-Flow des Vertrags. Standardmäßig aus.
-- **Warnschwelle** (€ Nachzahlung, Default 50 €): Warnung feuert, wenn `prognose_real < -Schwelle`.
-- **Quittieren**: Button „Abschlag-Warnung bestätigen" entfernt die Meldung für die aktuelle Episode. Verbessert sich die Prognose danach wieder über die Schwelle und verschlechtert sie sich später erneut, wird automatisch wieder gewarnt — kein dauerhaftes Stummschalten.
-- Der Rohzustand (unabhängig vom Bestätigt-Status) steht als Attribut `abschlag_warnung_aktiv` am Sensor „Guthaben/Nachzahlung (Vertragsende)".
-- Die Benachrichtigung nennt zusätzlich einen konkreten Empfehlungswert ("Abschlag auf ca. X €/Monat anpassen") aus dem Sensor „Abschlag (Anpassung empfohlen)", sofern berechenbar.
-
-> **Keine rückwirkende Neuberechnung bei Abschlags-Änderung.** Erhöhst oder senkst du deinen Abschlag mitten im Vertrag, merkt sich Tariffy Datum und vorherigen Wert und wendet den alten Abschlag korrekt nur bis zu diesem Zeitpunkt an, den neuen erst danach — „Guthaben/Nachzahlung (Bisher)", „Guthaben/Nachzahlung (Vertragsende)" und „Abschlag (Anpassung empfohlen)" springen nicht plötzlich so, als hätte der neue Abschlag schon seit Vertragsbeginn gegolten. Mehrere Korrekturen am selben Tag zählen als eine Änderung.
-
----
-
-### Seitenleisten-Panel
-
-Seit Version 1.27.0 zeigt eine Seite **Tariffy** in der Seitenleiste alle Verträge auf einen Blick (Übersicht, Kostentabelle, Vertragsdetails) mit Live-Werten. Administratoren können dort außerdem Warnung und Kündigungs-Erinnerung bestätigen, den Folgevertrag planen sowie Verträge bearbeiten, anlegen und löschen. Gespeichert wird immer über die vorhandenen Dialoge von Home Assistant, jede Aktion fragt ein zweites Mal nach, und zum Löschen muss der Vertragsname getippt werden. Alle Benutzer sehen die Werte, nur Administratoren bekommen die Buttons; Kunden- und Zählernummern werden nie ans Panel geschickt. Das Panel braucht keine Einrichtung; nach dem Update die Browserseite einmal neu laden (Strg+F5).
-
-Details: [Panel-Dokumentation](docs/wiki/Panel-Uebersicht.md)
-
-### Installation via HACS
+Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant: Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Leasing, Kredit und mehr. Jeder Vertrag wird ein eigenes Gerät mit Sensoren für Kosten, Saldo und Prognose.
+
+### Funktionen
+
+- **Verträge aller Art** – Strom (auch Zweitarif), Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Leasing (mit Kilometer-Prognose), Kredit und Sonstiges
+- **Echter Verbrauch** – Zähler-Sensor verbinden; Tariffy rechnet aus dem gemessenen Verbrauch die Prognose (Guthaben oder Nachzahlung) und einen empfohlenen Abschlag, optional mit PV-Autarkie
+- **Abschläge und Kosten** – gezahlte Abschläge, Saldo, Gesamtkosten über alle Laufzeiten, korrigierbarer Abschlagsverlauf, Einmalposten
+- **Erinnerung und Wechsel** – Kündigungserinnerung vor dem Vertragsende, Folgevertrag planen (wird zum Wechseldatum automatisch übernommen) oder Vertrag verlängern
+- **Panel in der Seitenleiste** – alle Verträge, Kosten und Historie auf einen Blick, auch auf dem Handy, in hellem und dunklem Design (folgt Home Assistant); Administratoren verwalten dort die Verträge
+- **Sicherung und Wiederherstellung** eingebaut; gelöschte Verträge bleiben 30 Tage wiederherstellbar
+- **Deutsch und Englisch**, ein eigenes Symbol pro Vertrag
+
+### Installation
 
 1. HACS → Integrationen → ⋮ → **Benutzerdefinierte Repositories**
 2. URL: `https://github.com/weskona/tariffy` – Kategorie: **Integration**
-3. Tariffy installieren → HA neu starten
-4. Einstellungen → Integrationen → **Tariffy** → Hinzufügen
+3. Tariffy installieren → Home Assistant neu starten
+4. Einstellungen → Geräte & Dienste → **Integration hinzufügen** → **Tariffy**
 
-### Manuelle Installation
+Manuell: `custom_components/tariffy` nach `/config/custom_components/` kopieren und neu starten. Benötigt Home Assistant 2026.6 oder neuer. Nach einem Update die Browserseite einmal neu laden (Strg+F5).
 
-```bash
-cp -r custom_components/tariffy /config/custom_components/
-```
-HA neu starten.
+### Dokumentation
 
-### Anforderungen
-
-- Home Assistant 2026.6 oder neuer
+**Alles ist im [Wiki](https://github.com/weskona/tariffy/wiki) erklärt:** [Erste Schritte](https://github.com/weskona/tariffy/wiki/Erste-Schritte), jede Vertragssparte, das Panel, alle Sensoren, Automationsbeispiele, Sicherung, FAQ und Fehlerbehebung. Änderungen: [Changelog](CHANGELOG.md) · Probleme und Wünsche: [Issues](https://github.com/weskona/tariffy/issues) (bitte mit Versionsangabe).
 
 ---
 
