@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-rc.2] - 2026-11-19
+
+### Changed
+
+- **Renew a contract without an end date** (requested in #103). The icon **Renew contract** is now also shown for flat-rate contracts that have no contract end (before it needed one). The end date in the dialog is optional: left empty, the contract runs on without an end with the new start and amount (a price adjustment of an open-ended contract); the old term goes to the history and counts in the total cost as before. Existing contracts and contracts with an end are unchanged; electricity, gas and water are still not renewable.
+
 ## [1.32.0-rc.1] - 2026-11-19
 
 ### Added

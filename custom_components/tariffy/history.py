@@ -302,9 +302,15 @@ async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str,
     if entry.data.get(CONF_SPARTE) == SPARTE_LOAN:
         await _renew_kredit(hass, entry, values)
         return
-    beginn, ende = _dates(values)
-    if ende <= beginn:
-        raise HistoryError("invalid_dates")
+    if values.get("ende") in (None, ""):  # unbefristet weiter (Issue 103): das Ende bleibt leer
+        try:
+            beginn, ende = date.fromisoformat(str(values.get("beginn"))), None
+        except ValueError as err:
+            raise HistoryError("invalid_dates") from err
+    else:
+        beginn, ende = _dates(values)
+        if ende <= beginn:
+            raise HistoryError("invalid_dates")
     betrag = _number(values.get("abschlag"), "abschlag")
     if betrag is None or betrag <= 0:
         raise HistoryError("invalid_abschlag")
@@ -327,12 +333,15 @@ async def async_renew(hass: HomeAssistant, entry: ConfigEntry, values: dict[str,
     data.update(
         {
             CONF_BEGINN: beginn.isoformat(),
-            CONF_ENDE: ende.isoformat(),
             CONF_ABSCHLAG: round(betrag / ZAHLWEISE_MONATE[zahlweise], 6),
             CONF_ZAHLWEISE: zahlweise,
             CONF_HISTORIE: _sorted(historie)[-HISTORIE_MAX:],
         }
     )
+    if ende is None:
+        data.pop(CONF_ENDE, None)
+    else:
+        data[CONF_ENDE] = ende.isoformat()
     await coordinator._dismiss_notifications()
     hass.config_entries.async_update_entry(entry, data=data)
 

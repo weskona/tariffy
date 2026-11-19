@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-rc.2] - 2026-11-19
+
+### Changed
+
+- **Vertrag verlängern auch ohne Vertragsende** (gewünscht in #103). Das Symbol **Vertrag verlängern** gibt es jetzt auch bei Pauschalverträgen ohne Vertragsende (bisher war ein Ende nötig). Das Ende im Dialog ist optional: bleibt es leer, läuft der Vertrag mit neuem Beginn und Betrag ohne Ende weiter (Preisanpassung bei einem unbefristeten Vertrag); die alte Laufzeit kommt in die Historie und zählt wie bisher bei den Gesamtkosten mit. Bestehende Verträge und Verträge mit Ende bleiben unverändert; Strom, Gas und Wasser lassen sich weiterhin nicht verlängern.
+
 ## [1.32.0-rc.1] - 2026-11-19
 
 ### Added
