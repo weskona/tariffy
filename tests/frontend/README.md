@@ -9,3 +9,4 @@ Mock data and a preview harness for the Tariffy panel (`custom_components/tariff
   and open `/tests/frontend/preview.html?lang=de`. Parameters: `lang=de|en`, `state=loading|empty|error`, `narrow=1`.
 - `screenshots.mjs`: renders the preview in headless Chromium with the date fixed to 2026-07-12 and writes screenshots to
   `docs/panel-preview/`. Needs Playwright: `node tests/frontend/screenshots.mjs`. Not part of CI.
+- `screenshots-light.mjs`: the main screenshots (German desktop and phone, English at 960 px, all five tabs) in the **light design**, written as `*-light.png` next to the dark ones (`node tests/frontend/screenshots-light.mjs`). The README shows both with `<picture>` (the visitor's colour scheme decides). The preview takes `theme=light|dark`.
