@@ -1,35 +1,44 @@
+🇩🇪 Deutsch · [🇬🇧 English](EN-Home)
+
 # Tariffy – Vertragsverwaltung für Home Assistant
 
-Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- und Dienstleistungsverträgen. Jeder Vertrag wird als eigenes HA-Gerät mit Sensoren angelegt. Tariffy erinnert an Kündigungsfristen, wechselt Tarife zum Stichtag und berechnet Kosten sowie Abrechnungsprognosen auf Basis echter Verbrauchsdaten.
+Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant: Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Kredit, Leasing und Sonstiges. Dieses Wiki erklärt Schritt für Schritt, wie Du Tariffy einrichtest und nutzt.
 
-**Seiten in diesem Wiki**
+## Was Tariffy für Dich tut
 
-- [Installation](Installation)
-- [Konfiguration](Konfiguration)
-- [Sensoren](Sensoren)
-- [Verbrauchsmessung](Verbrauchsmessung)
-- [Tarifwechsel und Erinnerungen](Tarifwechsel-und-Erinnerungen)
-- [Panel](Panel)
-- [Fehlerbehebung](Fehlerbehebung)
-- [English documentation](English)
+- Jeder Vertrag wird ein eigenes Home-Assistant-Gerät mit Sensoren (Kosten, Saldo, Prognose und mehr).
+- Mit einem Zähler-Sensor misst Tariffy den echten Verbrauch und rechnet Prognose und empfohlenen Abschlag daraus.
+- Tariffy erinnert Dich rechtzeitig vor dem Ende der Kündigungsfrist und kann den Folgetarif am Wechseldatum automatisch übernehmen.
+- Das Panel in der Seitenleiste zeigt alle Verträge, Kosten und die Historie, auch auf dem Handy, in hellem und dunklem Design.
+- Sicherung und Wiederherstellung sind eingebaut; gelöschte Verträge bleiben 30 Tage wiederherstellbar.
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview-light.png" alt="Das Tariffy-Panel, Übersicht: Verträge, Kosten und Hinweise auf einen Blick" width="100%"></picture></p>
+
+*Abbildung: Übersicht im Panel (Mock-Daten, Datum 12.07.2026).*
+
+## Schnellstart
+
+1. [Erste Schritte](Erste-Schritte) – installieren, Integration anlegen, ersten Vertrag in fünf Minuten.
+2. [Verträge anlegen](Vertraege-Anlegen) – alle Sparten und ihre Formularfelder.
+3. [Verbrauch messen](Verbrauch-Messen) – Zähler-Sensor wählen, damit Prognosen echt werden.
+4. [Das Panel](Panel-Uebersicht) – die fünf Ansichten.
+
+## Alle Seiten
+
+| Thema | Seiten |
+|---|---|
+| Start | [Erste Schritte](Erste-Schritte) · [Verträge anlegen](Vertraege-Anlegen) |
+| Verträge je Sparte | [Strom](Vertrag-Strom) · [Gas](Vertrag-Gas) · [Wasser](Vertrag-Wasser) · [Internet und Mobilfunk](Vertrag-Internet-und-Mobilfunk) · [Streaming](Vertrag-Streaming) · [Versicherung](Vertrag-Versicherung) · [Leasing](Vertrag-Leasing) · [Kredit](Vertrag-Kredit) · [Sonstiges](Vertrag-Sonstiges) |
+| Verbrauch | [Verbrauch messen](Verbrauch-Messen) · [PV-Autarkie](PV-Autarkie) |
+| Abschläge und Kosten | [Abschläge und Kosten](Abschlaege-und-Kosten) · [Abschlagsverlauf und Einmalposten](Abschlagsverlauf-und-Einmalposten) |
+| Vertragsende und Wechsel | [Vertragsende und Wechsel](Vertragsende-und-Wechsel) · [Folgevertrag oder Verlängern](Folgevertrag-oder-Verlaengern) · [Archiv und Historie](Archiv-und-Historie) |
+| Panel | [Übersicht](Panel-Uebersicht) · [Kosten](Panel-Kosten) · [Verträge](Panel-Vertraege) · [Historie](Panel-Historie) · [Sicherung](Panel-Sicherung) · [Rechte und Design](Panel-Rechte-und-Design) |
+| Referenz | [Sensoren](Sensoren-Referenz) · [Dashboard-Beispiele](Dashboard-Beispiele) · [Automationen](Automationen) |
+| Betrieb | [Sicherung und Umzug](Sicherung-und-Umzug) · [FAQ](FAQ) · [Fehlerbehebung](Fehlerbehebung) |
+| Projekt | [Releases und Beta](Releases-und-Beta) · [Für Entwickler](Entwickler) |
+
+## Version und Status
+
+Dieses Wiki beschreibt Tariffy **1.32.0** (Stable). Das Panel in der Seitenleiste gibt es seit 1.27. Neue Funktionen kommen zuerst als Beta-Version, siehe [Releases und Beta](Releases-und-Beta).
 
 Quellcode, Releases und Changelog: [weskona/tariffy](https://github.com/weskona/tariffy) · [Changelog](https://github.com/weskona/tariffy/blob/main/CHANGELOG.md) · [Fehler melden](https://github.com/weskona/tariffy/issues)
-
-## Features
-
-- **Sparten:** Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Kredit, Leasing, Versicherung, Sonstiges
-- **Echte Verbrauchsmessung** – beliebigen HA-Sensor als Zähler einbinden; Tariffy liest den Stand zum Vertragsbeginn aus den Long-Term Statistics und berechnet Verbrauch seit Vertragsbeginn sowie hochgerechneten Jahresverbrauch
-- **Abrechnungsprognose (real)** – Prognose basierend auf dem tatsächlich gemessenen Verbrauch (Guthaben oder Nachzahlung)
-- **Verbrauch letzte Vertragslaufzeit** – wird beim Tarifwechsel eingefroren; Basis für den empfohlenen Abschlag
-- **Empfohlener Abschlag** – berechnet aus realem Verbrauch der letzten Laufzeit × aktuelle Preise
-- **Automatischer Tarifwechsel** – Folgetarif hinterlegen, HA übernimmt ihn am Wechseldatum automatisch
-- **Kündigungs-Erinnerung** – 1–4 Monate vor Vertragsende, Dauerbenachrichtigung + optionaler notify-Dienst, Bestätigen-Button
-- **Gas-Umrechnung** – Jahresverbrauch in m³ wird automatisch via Brennwert & Zustandszahl in kWh umgerechnet
-- **Wasser** – Frischwasser + Abwasser (Festpreis, % oder Monatspauschale)
-- **Staffelpreise** – länderspezifisch (US, AU, ES, …)
-- **Tag/Nacht-Tarif** – Economy 7, TOU (GB, US, AU, …)
-- **Zweizählertarif (HT/NT)** – eigene Sparte für einen echten Zweiregister-Stromzähler (Hochtarif/Niedertarif): zweiter Arbeitspreis, zweiter Verbrauchssensor und zweite Zählernummer, unabhängig vom Hochtarif-Register erfasst. Die üblichen Sensoren (Kosten/Guthaben/Prognose Bisher) bleiben über beide Register kombiniert, per automatisch gewichtetem Durchschnittspreis; zusätzlich stehen eigene Verbrauchs-/Kosten-Sensoren pro Register zur Verfügung
-- **Dynamischer Tarif (Spotpreis)** – externen HA-Sensor (Tibber, aWATTar, Nordpool, …) statt eines festen Arbeitspreises referenzieren; der effektive Preis wird als Statistik-Durchschnitt des Sensors über die bisherige Vertragslaufzeit + fester Aufschlag berechnet, mit automatischem Fallback auf den manuellen Preis solange keine Statistik-Historie vorliegt
-- **Einspeisevergütung** – Vergütung pro eingespeister kWh (Photovoltaik)
-- **Auto-Refresh nach HA-Start** – Sensoren aktualisieren sich automatisch sobald die Long-Term Statistics nach einem Neustart bereit sind
-- **Prüfintervall** – alle 6 Stunden, zusätzlich täglich exakt um 00:00:01 Uhr für einen pünktlichen Tarifwechsel bei Datumswechsel
