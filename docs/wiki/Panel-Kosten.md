@@ -12,7 +12,7 @@ Der Tab **Kosten** zeigt oben, wie sich Deine Kosten auf Sparten und Verträge v
 - [Auf dem Handy](#auf-dem-handy)
 - [Siehe auch](#siehe-auch)
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-costs.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-costs-light.png" alt="Tab Kosten: oben die Kostenaufteilung mit Ringdiagramm und Legende, darunter die Tabellen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-costs.png" alt="Tab Kosten: oben die Kostenaufteilung mit Ringdiagramm und Legende, darunter die Tabellen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-costs-light.png" alt="Tab Kosten: oben die Kostenaufteilung mit Ringdiagramm und Legende, darunter die Tabellen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab Kosten auf dem Desktop (Beispieldaten vom 12.07.2026).*
 
@@ -81,7 +81,7 @@ Mit **Je Vertrag** und **Pro Jahr** siehst Du dagegen den Abschlag auf ein Jahr 
 
 Auf schmalen Bildschirmen steht die Legende unter dem Ring, und jeder Vertrag der Tabellen wird zu einer Karte mit einer Zeile je Spalte (Kosten bisher, Saldo heute, Zum Vertragsende, Abschlag, Empfohlen). Die Summen stehen als eigene Karten darunter.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-costs.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-costs-light.png" alt="Tab Kosten auf dem Handy: Kostenaufteilung und Tabellen untereinander" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-costs.png" alt="Tab Kosten auf dem Handy: Kostenaufteilung und Tabellen untereinander (dunkles Design)" width="300"><br><sub>Dunkel</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-costs-light.png" alt="Tab Kosten auf dem Handy: Kostenaufteilung und Tabellen untereinander (helles Design)" width="300"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab Kosten auf dem Handy.*
 

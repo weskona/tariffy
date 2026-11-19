@@ -18,7 +18,7 @@ Der Tab **Sicherung** ist nur für Administratoren sichtbar. Er hat drei Bereich
 
 Die normalen Backups von Home Assistant sichern Tariffy schon vollständig mit. Der Tab ergänzt das um eine Sicherung nur für Tariffy (mehr dazu in [Sicherung-und-Umzug](Sicherung-und-Umzug)).
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-backup.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-backup-light.png" alt="Tab Sicherung mit den Bereichen Sicherung erstellen mit dem Button Sicherung herunterladen, Aus Datei wiederherstellen mit der Dateiauswahl und Gelöschte Verträge mit dem Eintrag Strom 2023 und den Buttons Zurückholen und Jetzt vergessen" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-backup.png" alt="Tab Sicherung mit den Bereichen Sicherung erstellen mit dem Button Sicherung herunterladen, Aus Datei wiederherstellen mit der Dateiauswahl und Gelöschte Verträge mit dem Eintrag Strom 2023 und den Buttons Zurückholen und Jetzt vergessen (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-backup-light.png" alt="Tab Sicherung mit den Bereichen Sicherung erstellen mit dem Button Sicherung herunterladen, Aus Datei wiederherstellen mit der Dateiauswahl und Gelöschte Verträge mit dem Eintrag Strom 2023 und den Buttons Zurückholen und Jetzt vergessen (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab Sicherung (Beispieldaten vom 12.07.2026). Das Feld „Choose File" kommt vom Browser und ist in der Sprache des Browsers beschriftet.*
 
@@ -77,7 +77,7 @@ Wäre der Vertrag länger als 30 Tage gelöscht, wäre der Eintrag schon verschw
 
 Auf dem Handy stehen die drei Bereiche untereinander.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-backup.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-backup-light.png" alt="Tab Sicherung auf dem Handy: die drei Bereiche untereinander" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-backup.png" alt="Tab Sicherung auf dem Handy: die drei Bereiche untereinander (dunkles Design)" width="300"><br><sub>Dunkel</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-backup-light.png" alt="Tab Sicherung auf dem Handy: die drei Bereiche untereinander (helles Design)" width="300"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab Sicherung auf dem Handy.*
 

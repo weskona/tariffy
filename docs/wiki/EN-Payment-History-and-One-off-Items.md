@@ -108,7 +108,7 @@ One-time items belong to the **contract**, not to a term. They stay at a tariff 
 
 The contract Strom Haus from the sample data of the panel (reference date 12 July 2026) has two one-time items.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts-light.png" alt="Contracts tab with the contract Strom Haus: the block One-time items shows Wechselbonus plus 80 euros and Honorar Makler minus 25 euros, net plus 55 euros" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts.png" alt="Contracts tab with the contract Strom Haus: the block One-time items shows Wechselbonus plus 80 euros and Honorar Makler minus 25 euros, net plus 55 euros (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts-light.png" alt="Contracts tab with the contract Strom Haus: the block One-time items shows Wechselbonus plus 80 euros and Honorar Makler minus 25 euros, net plus 55 euros (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: Contracts tab with the details of Strom Haus. The block One-time items shows the two items and their net sum.*
 

@@ -56,7 +56,7 @@ Aufgeklappt zeigt ein Verbrauchsvertrag mehrere Blöcke nebeneinander (auf schma
 
 Bei Pauschalverträgen heißen die Blöcke ähnlich, es gibt keinen Verbrauch; bei Streaming heißt der Abschlag „Preis / Monat". Weitere Blöcke gibt es nur bei bestimmten Sparten: **Außenzähler** beim Wasser ([Vertrag-Wasser](Vertrag-Wasser)), **Leasing-Kilometer** beim Leasing ([Vertrag-Leasing](Vertrag-Leasing)) und **Kredit** mit allen Kreditwerten ([Vertrag-Kredit](Vertrag-Kredit)).
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts-light.png" alt="Tab Verträge mit aufgeklappten Details für Strom Haus und Gas Heizung: Blöcke Vertrag, Preise, Einmalposten und Verbrauch, darunter Empfehlungen und der Button Warnung bestätigen" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts.png" alt="Tab Verträge mit aufgeklappten Details für Strom Haus und Gas Heizung: Blöcke Vertrag, Preise, Einmalposten und Verbrauch, darunter Empfehlungen und der Button Warnung bestätigen (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts-light.png" alt="Tab Verträge mit aufgeklappten Details für Strom Haus und Gas Heizung: Blöcke Vertrag, Preise, Einmalposten und Verbrauch, darunter Empfehlungen und der Button Warnung bestätigen (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Aufgeklappte Details. Bei Strom Haus steht unter Empfehlungen der Button „Warnung bestätigen".*
 
@@ -201,7 +201,7 @@ Danach steht der Posten in der Liste, und **Saldo** zeigt +42,50 € (55,00 € 
 
 Auf dem Handy stehen die Symbole in der Zeile unter dem Namen, und die Details-Blöcke klappen untereinander auf. Alles andere funktioniert wie am Desktop.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-contracts.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-contracts-light.png" alt="Tab Verträge auf dem Handy: oben der Button Neuer Vertrag, darunter die Verträge als Karten mit Symbolen für Folgevertrag und Bearbeiten" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-contracts.png" alt="Tab Verträge auf dem Handy: oben der Button Neuer Vertrag, darunter die Verträge als Karten mit Symbolen für Folgevertrag und Bearbeiten (dunkles Design)" width="300"><br><sub>Dunkel</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-contracts-light.png" alt="Tab Verträge auf dem Handy: oben der Button Neuer Vertrag, darunter die Verträge als Karten mit Symbolen für Folgevertrag und Bearbeiten (helles Design)" width="300"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab Verträge auf dem Handy.*
 

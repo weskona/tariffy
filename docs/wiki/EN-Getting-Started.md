@@ -126,13 +126,13 @@ As soon as at least one contract is loaded, the entry **Tariffy** (icon `mdi:cas
 
 The panel has five views: **Overview**, **Costs**, **Contracts**, **History** and **Backup** (only administrators see the backup). You create the contract in the **Contracts** tab; all actions that change a contract are there as well.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts-light.png" alt="The Contracts tab of the Tariffy panel with the button New contract and the groups of metered contracts, flat-rate contracts and loans / financing" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts.png" alt="The Contracts tab of the Tariffy panel with the button New contract and the groups of metered contracts, flat-rate contracts and loans / financing (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-contracts-light.png" alt="The Contracts tab of the Tariffy panel with the button New contract and the groups of metered contracts, flat-rate contracts and loans / financing (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The "Contracts" tab with the button "New contract" (mock data, date 12 July 2026).*
 
 On a phone the cards turn into expandable rows:
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="The overview of the Tariffy panel on a phone with four tiles and one card per contract" width="260"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png" alt="The overview of the Tariffy panel on a phone with four tiles and one card per contract (dark design)" width="260"><br><sub>Dark</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="The overview of the Tariffy panel on a phone with four tiles and one card per contract (light design)" width="260"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The overview on a phone (German panel).*
 

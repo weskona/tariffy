@@ -20,7 +20,7 @@ This page shows how to save your contracts to a file, restore them from it, take
 - **The Tariffy backup** in the **Backup** tab of the panel is a single file with only your contracts. It helps if you need only the contracts, if you move to a fresh installation, or if you want a copy before a bigger change.
 - **Deleted contracts** are remembered by Tariffy for 30 days by itself, without you doing anything.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-backup.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-backup-light.png" alt="The Backup tab with the three blocks Create a backup, Restore from a file and Deleted contracts, in the last one a contract Strom 2023 with the buttons Restore and Forget now" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-backup.png" alt="The Backup tab with the three blocks Create a backup, Restore from a file and Deleted contracts, in the last one a contract Strom 2023 with the buttons Restore and Forget now (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-backup-light.png" alt="The Backup tab with the three blocks Create a backup, Restore from a file and Deleted contracts, in the last one a contract Strom 2023 with the buttons Restore and Forget now (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The "Backup" tab with mock data dated 12 Jul 2026. More about the tab is on [Panel-Backup](EN-Panel-Backup).*
 

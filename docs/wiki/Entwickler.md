@@ -118,7 +118,7 @@ node tests/frontend/screenshots.mjs [Zielordner]
 node tests/frontend/screenshots-light.mjs [Zielordner]
 ```
 
-Beide brauchen Playwright mit einem Chromium-Browser und sind **nicht Teil der CI**. Ohne Zielordner schreibt `screenshots.mjs` nach `docs/panel-preview/`; für das Wiki gibst Du `docs/wiki/images` an. Das Wiki nutzt zu den Bildern mit Hell-Variante ein `<picture>`-Element, das je nach Farbschema des Besuchers die helle oder dunkle Datei zeigt.
+Beide brauchen Playwright mit einem Chromium-Browser und sind **nicht Teil der CI**. Ohne Zielordner schreibt `screenshots.mjs` nach `docs/panel-preview/`; für das Wiki gibst Du `docs/wiki/images` an. Das Wiki zeigt zu den Bildern mit Hell-Variante beide Dateien nebeneinander in einer kleinen Tabelle (links dunkel, rechts hell), damit immer beide Designs zu sehen sind. Eine Seite wechselt nicht nach dem Farbschema des Besuchers (die README tut das mit einem `<picture>`-Element).
 
 ## Dokumentation prüfen
 

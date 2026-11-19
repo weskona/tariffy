@@ -59,7 +59,7 @@ The panel follows the **theme of Home Assistant**: if Home Assistant is in **lig
 
 The panel adapts to the width, not to the device: when it is up to about 760 pixels wide (phone, narrow window), the tiles stand one below the other and the contract cards become **expandable rows**, and the tables become cards with one row per column. On a phone the menu button appears at the top left when Home Assistant is narrow. On a wide screen more cards stand side by side.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Overview on a phone: tiles one below the other and contracts as collapsed rows" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png" alt="Overview on a phone: tiles one below the other and contracts as collapsed rows (dark design)" width="300"><br><sub>Dark</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Overview on a phone: tiles one below the other and contracts as collapsed rows (light design)" width="300"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The overview in the narrow view (German labels in this screenshot).*
 

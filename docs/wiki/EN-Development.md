@@ -118,7 +118,7 @@ node tests/frontend/screenshots.mjs [output folder]
 node tests/frontend/screenshots-light.mjs [output folder]
 ```
 
-Both need Playwright with a Chromium browser and are **not part of CI**. Without an output folder `screenshots.mjs` writes to `docs/panel-preview/`; for the wiki pass `docs/wiki/images`. For images with a light variant the wiki uses a `<picture>` element that shows the light or dark file by the visitor's colour scheme.
+Both need Playwright with a Chromium browser and are **not part of CI**. Without an output folder `screenshots.mjs` writes to `docs/panel-preview/`; for the wiki pass `docs/wiki/images`. For images with a light variant the wiki shows both files side by side in a small table (dark left, light right), so both designs are always visible. A page does not switch by the visitor's colour scheme (the README does, with a `<picture>` element).
 
 ## Check the documentation
 

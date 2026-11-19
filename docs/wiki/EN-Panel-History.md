@@ -19,7 +19,7 @@ The **History** tab shows what used to be: the **earlier terms** of every contra
 
 At the top right administrators see the button **Add an old contract**. Below it are two groups: **Archived contracts** and **Earlier terms**. Each group has one table per contract with the columns **Term** (with provider and tariff below), **Instalment**, **Cost**, **Consumption** and **Balance**. Administrators see a pencil at the end of the row to edit it.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-history.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-history-light.png" alt="History tab: at the top right the button Add an old contract, below it the archived contract Strom Altvertrag with two terms and the button Restore, then the earlier terms of Strom Haus" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-history.png" alt="History tab: at the top right the button Add an old contract, below it the archived contract Strom Altvertrag with two terms and the button Restore, then the earlier terms of Strom Haus (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-history-light.png" alt="History tab: at the top right the button Add an old contract, below it the archived contract Strom Altvertrag with two terms and the button Restore, then the earlier terms of Strom Haus (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The History tab (mock data of 12 July 2026).*
 
@@ -98,7 +98,7 @@ If you have had no next contract and have not archived a contract, you see "No h
 
 On a phone the rows of the tables stand as cards one below the other, the buttons stay in place.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-history.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-history-light.png" alt="History tab on a phone: archived contract and earlier terms one below the other" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-history.png" alt="History tab on a phone: archived contract and earlier terms one below the other (dark design)" width="300"><br><sub>Dark</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-history-light.png" alt="History tab on a phone: archived contract and earlier terms one below the other (light design)" width="300"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The History tab on a phone (German labels in this screenshot).*
 

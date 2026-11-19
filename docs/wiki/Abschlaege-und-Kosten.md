@@ -160,7 +160,7 @@ Kosten gesamt = Kosten der früheren Laufzeiten (Historie)
 
 Dieses Beispiel stammt aus den Beispieldaten des Panels (Stichtag 12.07.2026, Vertrag Strom Haus). Es sind dieselben Zahlen wie auf dem Screenshot.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-costs.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-costs-light.png" alt="Tab Kosten mit den Verbrauchsverträgen: Strom Haus zeigt Kosten bisher 513,54 €, Saldo heute −206,24 €, zum Vertragsende −495 €, Abschlag 40,00 € und empfohlen 127,66 €" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-costs.png" alt="Tab Kosten mit den Verbrauchsverträgen: Strom Haus zeigt Kosten bisher 513,54 €, Saldo heute −206,24 €, zum Vertragsende −495 €, Abschlag 40,00 € und empfohlen 127,66 € (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-costs-light.png" alt="Tab Kosten mit den Verbrauchsverträgen: Strom Haus zeigt Kosten bisher 513,54 €, Saldo heute −206,24 €, zum Vertragsende −495 €, Abschlag 40,00 € und empfohlen 127,66 € (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Tab Kosten mit den Beispieldaten vom 12.07.2026. In der ersten Zeile steht der Vertrag Strom Haus.*
 

@@ -37,7 +37,7 @@ Oben in der Mitte steht die Tab-Leiste. Der Tab **Sicherung** erscheint nur für
 | **Historie** | Frühere Laufzeiten und archivierte Verträge. | [Panel-Historie](Panel-Historie) |
 | **Sicherung** | Sicherung herunterladen, aus Datei wiederherstellen, gelöschte Verträge zurückholen (nur Administratoren). | [Panel-Sicherung](Panel-Sicherung) |
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview-light.png" alt="Tab Übersicht auf dem Desktop: oben die Tab-Leiste mit Übersicht, Kosten, Verträge, Historie und Sicherung, darunter vier Kacheln, dann die Gruppen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen mit je einer Karte pro Vertrag" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview.png" alt="Tab Übersicht auf dem Desktop: oben die Tab-Leiste mit Übersicht, Kosten, Verträge, Historie und Sicherung, darunter vier Kacheln, dann die Gruppen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen mit je einer Karte pro Vertrag (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview-light.png" alt="Tab Übersicht auf dem Desktop: oben die Tab-Leiste mit Übersicht, Kosten, Verträge, Historie und Sicherung, darunter vier Kacheln, dann die Gruppen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen mit je einer Karte pro Vertrag (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab Übersicht auf dem Desktop (Beispieldaten vom 12.07.2026).*
 
@@ -111,7 +111,7 @@ Die Übersicht hat keine Buttons. Wie Du den Abschlag änderst oder die Warnung 
 
 Ist das Panel schmal (bis etwa 760 Pixel Breite), stehen die Kacheln untereinander und jede Karte ist eine **aufklappbare Zeile**: Name, Anbieter und Tarif, die Prognose als Zahl und das Badge. Mit dem Pfeil rechts klappst Du die Karte auf und siehst dieselben Angaben wie auf dem Desktop. Oben links erscheint in der Home-Assistant-App der Menü-Knopf.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Übersicht auf dem Handy: vier Kacheln untereinander, darunter die Verträge als zugeklappte Zeilen mit Prognose und Badge" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png" alt="Übersicht auf dem Handy: vier Kacheln untereinander, darunter die Verträge als zugeklappte Zeilen mit Prognose und Badge (dunkles Design)" width="300"><br><sub>Dunkel</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Übersicht auf dem Handy: vier Kacheln untereinander, darunter die Verträge als zugeklappte Zeilen mit Prognose und Badge (helles Design)" width="300"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Die Übersicht auf dem Handy, alle Karten zugeklappt.*
 
