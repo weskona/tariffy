@@ -1,4 +1,13 @@
-# Tariffy – Contract Management for Home Assistant / Vertragsverwaltung für Home Assistant
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="custom_components/tariffy/brand/dark_logo@2x.png">
+    <img src="custom_components/tariffy/brand/logo@2x.png" alt="Tariffy" width="380">
+  </picture>
+</h1>
+
+<p align="center"><b>Contract Management for Home Assistant</b><br>Vertragsverwaltung für Home Assistant</p>
+
+<div align="center">
 
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz)
 [![HA Version](https://img.shields.io/badge/Home%20Assistant-2026.6%2B-blue.svg)](https://www.home-assistant.io)
@@ -13,6 +22,8 @@
 ![Sidebar panel](https://img.shields.io/badge/sidebar%20panel-since%201.27-8b5cf6.svg)
 
 **[🇩🇪 Deutsche Version weiter unten](#-deutsch)**
+
+</div>
 
 ---
 

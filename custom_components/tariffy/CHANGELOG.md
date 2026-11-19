@@ -7,6 +7,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Neues Markenzeichen.** Tariffy hat ein neues Icon (ein Vertrag mit einer Euro-Münze auf blau-violettem Verlauf) und ein Logo mit dem Namen, auch für das dunkle Design. Home Assistant zeigt sie in der Liste der Integrationen, HACS in seiner Liste. Es ändern sich nur Bilder, sonst ist nichts betroffen.
+
 ## [1.32.0] - 2026-11-19
 
 Diese Version fasst alles zusammen, was in den Betas `1.32.0-beta.1` bis `1.32.0-beta.9` und den Release Candidates `1.32.0-rc.1` bis `1.32.0-rc.3` getestet wurde. **Bestehende Verträge funktionieren ohne jede Änderung weiter.** Alle neuen Funktionen sind freiwillig oder ergänzen nur.
