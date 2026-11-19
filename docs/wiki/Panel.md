@@ -26,6 +26,10 @@ Das Panel folgt der Sprache von Home Assistant (Deutsch, sonst Englisch) und pas
 
 Vorzeichen: **Plus** ist Guthaben, **Minus** ist Nachzahlung. „Zum Vertragsende" ist aus dem bisherigen Verbrauch hochgerechnet. Deckt ein Guthaben die Kosten bis zum Vertragsende schon ab, steht beim empfohlenen Abschlag „0,00 €" mit dem Hinweis „Guthaben deckt die Kosten", nie ein negativer Betrag. Alle Werte sind dieselben wie bei den Sensoren und aktualisieren sich von selbst.
 
+## Helles und dunkles Design
+
+Das Panel folgt dem **Design von Home Assistant**: Ist Home Assistant (nach Profil, automatischer Umschaltung oder Systemeinstellung) im **hellen** Modus, zeigt Tariffy helle Farben, sonst dunkle. Es gibt dafür keine eigene Einstellung. Ein Wechsel in Home Assistant gilt sofort, ohne die Seite neu zu laden. Die Farben für Guthaben, Nachzahlung und Warnungen sind im hellen Modus dunkler, damit sie lesbar bleiben.
+
 ## Wer sieht und darf was
 
 - **Alle Benutzer** sehen die Verträge, aber nur ausgewählte Werte. Kundennummer, Zählernummern, Marktlokations-ID, Kennzeichen, Benachrichtigungs-Ziel und interne Markierungen werden **nicht** ans Panel geschickt.

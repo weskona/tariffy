@@ -33,6 +33,7 @@
   let createSteps = 0;
   panel.hass = {
     user: { is_admin: params.get("admin") !== "0" },
+    themes: { darkMode: params.get("theme") !== "light" },
     callWS: async (message) => {
       window.__calls.push(message);
       if (message.type === "tariffy/history_calc") { // like the backend: typed values stay, empty ones are worked out

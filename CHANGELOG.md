@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-rc.1] - 2026-11-19
+
+### Added
+
+- **Light design.** The panel now follows the design of Home Assistant: in the light mode of Home Assistant (profile setting, automatic switching or system setting) Tariffy shows light colours, otherwise the dark ones as before. There is no setting of its own, a change in Home Assistant applies at once. Colours for credit, balance due and warnings are darker in the light mode to stay readable; the dark design is unchanged.
+
 ## [1.32.0-beta.9] - 2026-11-19
 
 ### Changed
