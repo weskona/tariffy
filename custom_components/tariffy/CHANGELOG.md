@@ -7,103 +7,32 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
-## [1.32.0-rc.3] - 2026-11-19
+## [1.32.0] - 2026-11-19
+
+Diese Version fasst alles zusammen, was in den Betas `1.32.0-beta.1` bis `1.32.0-beta.9` und den Release Candidates `1.32.0-rc.1` bis `1.32.0-rc.3` getestet wurde. **Bestehende Verträge funktionieren ohne jede Änderung weiter.** Alle neuen Funktionen sind freiwillig oder ergänzen nur.
+
+### Added
+
+- **Neue Sparte „Leasing“** (gewünscht in #90) für einen Auto-Leasingvertrag. Die Rate läuft wie ein normaler **Pauschalvertrag**; dazu behält Tariffy die **Kilometer** im Blick: ein **Kilometerzähler-Sensor** (Meilen werden umgerechnet) oder der von Hand eingetragene Stand, der Stand bei Beginn, die **erlaubten Kilometer pro Jahr** und/oder über die ganze Laufzeit, eine **Toleranz nach oben und unten** und ein **Preis je Mehrkilometer / eine Gutschrift je nicht gefahrenem Kilometer**. Tariffy zeigt die gefahrenen Kilometer, das Soll bis heute, den Rest, deinen Schnitt je Tag und die **Hochrechnung zum Rückgabedatum** mit der **erwarteten Nachzahlung oder Gutschrift**. Drei weitere Sensoren (**Gefahrene Kilometer**, **Hochgerechnete Kilometer bei Rückgabe**, **Erwartete Mehr-/Minderkilometerkosten**); die Kilometerkosten sind eine Schätzung und nicht in den Summen. Leasingverträge stehen in der Gruppe **„Kredite / Finanzierungen“** der Übersicht und der Liste und zählen wie jeder Pauschalvertrag in den Summen.
+- **Eigenes Symbol für jeden Vertrag** (gewünscht in #93). Freiwilliges Feld **Symbol** (zum Beispiel `mdi:car`) im Vertragsformular; es gilt im Panel und für die Sensoren des Vertrags. Leer = das Symbol der Sparte.
+- **Helles Design.** Das Panel folgt dem Design von Home Assistant (hell, dunkel oder automatisch, ohne eigene Einstellung); das dunkle Design ist unverändert.
+- **Kundennummer, Zählernummer(n) und MaLo-ID in den Vertragsdetails** des Panels, nur für Administratoren, jeweils mit einem Symbol zum Kopieren.
+- **Gesamtverbrauch und „durch PV gedeckt“** (gewünscht in #86): Mit PV-Autarkie und einem Gesamtverbrauchs-Sensor zeigt der Block **Verbrauch** Gesamtverbrauch, den von der PV gedeckten Anteil und den Netzbezug (abgerechnet), bisher und hochgerechnet. Auch als Attribute des Sensors „Rückerstattung/Nachzahlung (Vertragsende)“.
+- **Gezahlte Abschläge: korrigieren, was wirklich abgebucht wurde.** Im Tab **Verträge** hat der Dialog **Abschläge bearbeiten** ein Feld je Zahlung der Laufzeit (monatlich eins je Monat, vierteljährlich vier im Jahr, halbjährlich zwei, jährlich eins); noch nicht fällige Zahlungen bleiben gesperrt. **Bisher gezahlt**, der Saldo, die Prognose zum Vertragsende und der empfohlene Abschlag nutzen die Beträge, die wirklich galten. Ohne Einträge ändert sich nichts.
+- **Frühere Laufzeiten: Abschläge je Zahlung.** Der Dialog für eine frühere Laufzeit (Tab **Historie**) hat einen freiwilligen Abschnitt mit einem Feld für jede Zahlung der Laufzeit; **Gezahlt** und der Saldo werden daraus berechnet.
+- **Vertrag ohne Vertragsende verlängern** (gewünscht in #103): Das Symbol **Vertrag verlängern** gibt es auch bei Pauschalverträgen ohne Vertragsende; das Ende im Dialog ist freiwillig.
+
+### Changed
+
+- **Pauschalverträge: ein Betrag reicht.** Das Kostenformular hat das zweite Feld **Grundpreis (€/Monat)** nicht mehr; es bleibt nur bei Verträgen, die schon einen haben. Bestehende Verträge behalten ihre Werte.
+- **Folgevertrag planen (Sparte Streaming): ein kürzeres Formular** mit Beginn (vorgeschlagen als Tag nach dem aktuellen Ende), Tarifname, Zahlweise, Betrag je Zahlung und Ende. Streaming-Verträge sagen **Preis** statt „Abschlag“, haben keinen leeren Block „Einmalposten“ und keine doppelte Zeile „Abschlag / Jahr“. Alle anderen Sparten behalten ihr Formular.
+- Das Panel ist in mehrere Dateien aufgeteilt (intern); lade nach dem Update die Browserseite einmal neu (Strg+F5).
 
 ### Fixed
 
-- **Das Panel blieb beim Öffnen schwarz** (bis ein anderes Dashboard und danach wieder das Tariffy-Panel geöffnet wurde). Home Assistant legt das Panel-Element an und gibt ihm seine Daten, bevor das Element definiert ist; da das Panel vor der Definition auf seine Teile (Texte, Icons, Styles) wartete, verdeckten die Daten dann die Setter des Panels, und es wurde nichts gezeichnet. Das Panel definiert sich jetzt sofort, übernimmt früher gesetzte Werte und zeichnet sich, sobald seine Teile da sind; lässt sich ein Teil nicht laden, erscheint eine Fehlermeldung statt einer schwarzen Seite.
-
-## [1.32.0-rc.2] - 2026-11-19
-
-### Changed
-
-- **Vertrag verlängern auch ohne Vertragsende** (gewünscht in #103). Das Symbol **Vertrag verlängern** gibt es jetzt auch bei Pauschalverträgen ohne Vertragsende (bisher war ein Ende nötig). Das Ende im Dialog ist optional: bleibt es leer, läuft der Vertrag mit neuem Beginn und Betrag ohne Ende weiter (Preisanpassung bei einem unbefristeten Vertrag); die alte Laufzeit kommt in die Historie und zählt wie bisher bei den Gesamtkosten mit. Bestehende Verträge und Verträge mit Ende bleiben unverändert; Strom, Gas und Wasser lassen sich weiterhin nicht verlängern.
-
-## [1.32.0-rc.1] - 2026-11-19
-
-### Added
-
-- **Helles Design.** Das Panel folgt jetzt dem Design von Home Assistant: Im hellen Modus von Home Assistant (Profil-Einstellung, automatische Umschaltung oder Systemeinstellung) zeigt Tariffy helle Farben, sonst wie bisher die dunklen. Es gibt keine eigene Einstellung, ein Wechsel in Home Assistant gilt sofort. Die Farben für Guthaben, Nachzahlung und Warnungen sind im hellen Modus dunkler, damit sie lesbar bleiben; das dunkle Design ist unverändert.
-
-### Fixed
-
-- **Das Panel blieb leer, nachdem ein Vertrag angelegt oder geändert wurde** (gemeldet in #102). Das Panel erfährt die Verträge aus dem Einrichten eines Vertrags heraus, wenn er noch nicht „geladen“ ist, und ließ ihn aus: Jedes Anlegen und jedes Neuladen (Speichern eines bearbeiteten Vertrags, „Neu laden“ in den Einstellungen) schickte eine leere Liste, und das Panel zeigte nichts, bis ein anderer Vertrag neu geladen wurde. Ein Vertrag, der gerade eingerichtet wird, gehört jetzt zur Liste. (Die Seite neu zu laden musste nie helfen: sie zeigte die Verträge.)
-
-## [1.32.0-beta.9] - 2026-11-19
-
-### Changed
-
-- **Folgevertrag planen (Sparte Streaming): ein kürzeres Formular mit der Zahlweise.** Bei Streaming-Verträgen fragt das Formular jetzt nach **Beginn** (ohne Eingabe der Tag nach dem Ende des laufenden Vertrags vorgeschlagen), **Tarifname**, **Zahlweise** (so lässt sich von jährlich auf monatlich wechseln), **Betrag pro Zahlung** und **Ende**. Anbieter, Kundennummer und Grundpreis gibt es nur noch, wenn ein schon geplanter Vertrag sie hat. Beim Wechsel werden die neue Zahlweise und der neue Betrag übernommen (der Betrag je Zahlung wird wie überall als Monatsbetrag gespeichert); ein Wert, den du nicht änderst, bleibt wie im laufenden Vertrag. Alle anderen Sparten (Strom, Gas, Wasser, Internet, Mobilfunk, Versicherung, Leasing, Sonstiges) behalten ihr Formular.
-
-- **Streaming: kein Block „Einmalposten“.** Die Details eines Streaming-Vertrags zeigen den leeren Block (und seine Schaltfläche zum Hinzufügen) nicht mehr; hat ein Streaming-Vertrag schon Einmalposten, bleibt der Block mit ihnen sichtbar.
-
-- **Streaming: Preis statt Abschlag.** Die Details, die Karte und der Block für die gezahlten Beträge eines Streaming-Vertrags sagen **Preis / Monat**, **Preis** und **Gezahlte Beträge** statt „Abschlag“ / „Gezahlte Abschläge“. Andere Sparten behalten ihre Texte.
-
-- **Keine doppelte Zeile „Abschlag / Jahr“.** Die Details eines Pauschalvertrags lassen „Abschlag / Jahr“ weg, wenn „Kosten / Jahr“ direkt darunter dieselbe Zahl zeigt (ohne Grundpreis sind sie immer gleich). Mit Grundpreis bleiben beide stehen, und Verbrauchsverträge behalten die Zeile.
-
-### Fixed
-
-- **Ein Pauschalvertrag mit jährlicher, halbjährlicher oder vierteljährlicher Zahlung fiel beim automatischen Wechsel auf monatlich zurück.** Die Zahlweise wird jetzt in die neue Laufzeit übernommen (oder durch die geplante ersetzt).
-
-## [1.32.0-beta.8] - 2026-11-18
-
-### Added
-
-- **Frühere Laufzeiten: Abschläge nach Zahlungen.** Im Dialog für eine frühere Laufzeit (Tab **Historie**, „Alten Vertrag hinzufügen“) gibt es den neuen Bereich **Abschläge nach Zahlungen (freiwillig)** mit einem Feld für jede Zahlung der Laufzeit (aus Beginn und Ende der Laufzeit und der Zahlweise des Vertrags). Trägst du dort etwas ein, werden **Gezahlt** und der **Saldo** der Laufzeit daraus berechnet (Verbrauchsverträge anteilig nach Tagen, Pauschalverträge Zahlung für Zahlung); ein bei „Gezahlte Abschläge“ eingetragener Wert hat weiter Vorrang, und die Beträge erscheinen beim Bearbeiten der Laufzeit wieder. Bleibt der Bereich leer, ändert sich nichts.
-
-### Changed
-
-- **Pauschalverträge: ein Betrag genügt.** Das Kostenformular eines Pauschalvertrags (Internet, Mobilfunk, Streaming, Versicherung, Leasing, …) hat das zweite Feld **Grundpreis (€/Monat)** nicht mehr; es war verwirrend, weil beide Werte pro Monat gerechnet wurden. Das Feld bleibt nur beim Bearbeiten eines Vertrags, der schon einen Grundpreis hat (dessen Jahreskosten rechnen damit, beim Speichern geht also nichts verloren), und lässt sich dort leeren. Bestehende Verträge behalten ihre Werte.
-
-- **Gezahlte Abschläge: die Zahl der Felder richtet sich nach der Zahlweise.** Der Dialog **Abschläge bearbeiten** hat ein Feld je Zahlung: bei monatlicher Zahlweise eines je Monat, bei vierteljährlicher vier im Jahr, bei halbjährlicher zwei, bei jährlicher eines (mit dem Datum der Abbuchung und dem Betrag je Zahlung). Zahlungen, die noch nicht fällig waren, bleiben gesperrt. Der gespeicherte Verlauf und die Rechnung sind wie bisher.
-
-## [1.32.0-beta.7] - 2026-11-18
-
-### Changed
-
-- **Gezahlte Abschläge: ein Feld pro Monat der Laufzeit.** Der Dialog **Abschläge bearbeiten** listet jetzt jeden Monat der Laufzeit (bei einem Vertrag von März bis Februar: März, April, … Februar) mit einem Feld für den Abschlag, statt freier Zeilen mit Datum. Monate, die noch nicht begonnen haben, sind gesperrt und zeigen den aktuellen Abschlag; hat der Vertrag kein Ende, stehen die Monate bis zum laufenden Monat da. Eine Änderung gilt auch für die folgenden Monate, die noch denselben Betrag haben; du trägst also die Monate ein, in denen sich der Betrag geändert hat (zum Beispiel März 178, August 174,41, September 215). Der letzte Monat ist der aktuelle Abschlag. Gespeichert werden nur die Monate, in denen sich der Betrag ändert, jeweils ab dem Ersten des Monats; die Rechnung und der gespeicherte Verlauf sind wie in 1.32.0-beta.6 (eine Änderung mitten im Monat, die Tariffy beim Bearbeiten selbst vermerkt hat, zählt beim Speichern ab dem Monatsersten).
-
-## [1.32.0-beta.6] - 2026-11-18
-
-### Added
-
-- **Gezahlte Abschläge: korrigieren, was wirklich abgebucht wurde** (der Versorger hat den Abschlag selbst geändert, zum Beispiel Gas Monat 1–7 178 €, Monat 8 174,41 €, Monat 9–11 215 €). Im Tab **Verträge** hat jeder Vertrag mit Abschlag den Block **Gezahlte Abschläge**; der Dialog **Abschläge bearbeiten** (Administratoren) nimmt Zeilen „ab Datum, Abschlag“, jede gilt, bis die nächste beginnt, die neueste Zeile ist der aktuelle Abschlag (nur Daten in der Vergangenheit, jeder Tag einmal, höchstens 60 Zeilen; bei nicht monatlicher Zahlweise der Betrag je Zahlung). **Gezahlt bisher**, das **Guthaben/die Nachzahlung bisher**, die **Prognose zum Vertragsende** und der **empfohlene Abschlag** rechnen dann mit den Beträgen, die wirklich galten. **Ohne Zeilen ändert sich nichts** (der aktuelle Abschlag zählt wie bisher, mit der einzelnen Änderung, die Tariffy beim Bearbeiten selbst merkt). Mit Verlauf hängt ein neuer Abschlag im Vertragsformular einen Eintrag mit dem heutigen Datum an. Eine verlängerte Laufzeit und ein Tarifwechsel beginnen ohne den alten Verlauf. Keine neuen Sensoren.
-
-## [1.32.0-beta.5] - 2026-11-18
-
-### Changed
-
-- **Das Panel ist in mehrere Dateien aufgeteilt** (intern, für dich ändert sich nichts): der Code (`tariffy-panel.js`), die Texte (`tariffy-i18n.js`), die Icons (`tariffy-icons.js`) und die Styles (`tariffy-style.js`) liegen jetzt in eigenen Dateien im Ordner `frontend/`. Die Teile werden mit der Version der Panel-Datei in der URL geladen, damit ein Browser nach einem Update nie neuen Code mit alten Texten mischt. Was das Panel zeigt, ist identisch (Ansicht für Ansicht gegen die vorige Version geprüft); das Größenlimit gilt jetzt je Datei. Nach dem Update die Browserseite einmal neu laden (Strg+F5).
-
-## [1.32.0-beta.4] - 2026-11-18
-
-### Added
-
-- **Gesamtverbrauch und „durch PV gedeckt“ im Panel** (gewünscht in #86). Mit PV-Autarkie und einem **Gesamtverbrauchs-Sensor** zeigt der Block **Verbrauch** eines Stromvertrags ein kleines Raster mit **Bisher** und **Hochgerechnet**: **Gesamtverbrauch** des Hauses, **durch PV gedeckt** (Gesamtverbrauch minus Netzbezug) und **Netzbezug (abgerechnet)**. Der Gesamtverbrauch wird linear fortgeschrieben (die Saison steckt nur im Netzbezug, wie in 1.31.0); beim Zweizählertarif werden beide Tarife addiert. Netzbezug und alle Kosten bleiben unverändert; ohne die Option oder mit einem Autarkie-Sensor in % bzw. eigenen Werten (kein Gesamtverbrauch) bleibt das Panel wie bisher. Die Werte stehen auch als Attribute am Sensor „Guthaben/Nachzahlung (Vertragsende)“: `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet`. Fehlen Daten, bleiben die Zeilen weg; der Anteil durch PV wird nie negativ.
-
-## [1.32.0-beta.3] - 2026-11-18
-
-### Added
-
-- **Kundennummer, Zählernummer(n) und MaLo-ID in den Vertragsdetails** des Panels. Bisher waren sie nur im Bearbeiten-Formular zu sehen. **Administratoren** sehen sie jetzt im Block **Vertrag** (Tab **Verträge**), jeweils mit einem Symbol zum **Kopieren** des Werts. Sie werden nur an Administratoren gesendet: Die Browser anderer Nutzer bekommen sie nie, und Kennzeichen und Benachrichtigungs-Ziel bleiben für alle verborgen. An Verträgen und Sensoren ändert sich nichts.
-
-## [1.32.0-beta.2] - 2026-11-18
-
-### Added
-
-- **Eigenes Icon für jeden Vertrag** (gewünscht in #93). Der erste Schritt des Vertragsformulars (Anlegen und Bearbeiten) hat ein freiwilliges Feld **Icon** (zum Beispiel `mdi:car`, mit der Icon-Auswahl von Home Assistant). Das Icon gilt im **Panel** (Karten und Listen, ersatzweise das Icon der Sparte) und für die **Sensoren des Vertrags**; Sensoren mit Statussymbol (Guthaben mit Daumen hoch/runter, Preis) behalten ihres. Leer = das Icon der Sparte, bei bestehenden Verträgen ändert sich nichts. Ein Tarifwechsel behält das Icon.
-
-### Changed
-
-- **Leasingverträge stehen in der Gruppe „Kredite / Finanzierungen“** der Übersicht und der Vertragsliste (gemeldet in #90). Sie zählen weiter wie jeder Pauschalvertrag in den Summen und der Kostenaufteilung mit.
-
-## [1.32.0-beta.1] - 2026-11-17
-
-Erste Beta von 1.32.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
-
-### Added
-
-- **Neue Sparte „Leasing“** (gewünscht in #90) für einen Auto-Leasingvertrag. Die Rate läuft wie ein normaler **Pauschalvertrag** (Rate, Beginn, Ende = Rückgabedatum, Erinnerung, Kündigungsfrist, Einmalposten); dazu behält Tariffy die **Kilometer** im Blick. Im Formular (alles freiwillig): ein **Kilometerzähler-Sensor** (Meilen werden umgerechnet) oder der **von Hand eingetragene** Kilometerstand, der Stand bei Beginn, die **erlaubten Kilometer pro Jahr** und/oder **über die ganze Laufzeit**, eine **Toleranz nach oben und unten** und ein **Preis je Mehrkilometer / Gutschrift je Minderkilometer**. Tariffy zeigt die gefahrenen Kilometer, das **Soll bis heute**, was **noch übrig** ist (und pro Tag ab jetzt erlaubt), deinen Schnitt pro Tag und die **Hochrechnung zum Rückgabedatum**; Mehr- und Minderkilometer über der Toleranz ergeben die **erwartete Nachzahlung oder Gutschrift**. Ein Leasingvertrag hat drei weitere Sensoren (**Gefahrene Kilometer**, **Kilometer bei Rückgabe (Hochrechnung)**, **Erwartete Mehr-/Minderkilometer-Kosten**) und die Fahrzeug-Sensoren der Versicherung; das Panel zeigt eine Zeile in der Karte und in den Details einen Block „Leasing-Kilometer“. Die Kilometerkosten sind eine Schätzung und zählen **nicht** in die Summen. Ein Tarifwechsel behält Fahrzeug, Sensor und Kilometerregeln; der Stand bei Beginn und der von Hand eingetragene Wert gehören zur alten Laufzeit. Andere Verträge bleiben unverändert.
+- **Das Panel blieb leer, nachdem ein Vertrag angelegt oder geändert wurde** (gemeldet in #102): Ein Vertrag, der gerade eingerichtet wird, gehört jetzt zur Liste, die das Panel bekommt.
+- **Das Panel blieb beim Öffnen schwarz**, bis ein anderes Dashboard und wieder zurück geöffnet wurde: Das Panel definiert sich jetzt sofort, übernimmt früher gesetzte Werte und zeichnet sich, sobald seine Teile da sind; lässt sich ein Teil nicht laden, erscheint eine Fehlermeldung.
+- **Ein Pauschalvertrag mit jährlicher, halbjährlicher oder vierteljährlicher Zahlung fiel bei einem automatischen Wechsel auf monatlich zurück.** Die Zahlweise wird jetzt in die neue Laufzeit übernommen.
 
 ## [1.31.0] - 2026-11-17
 

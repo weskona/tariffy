@@ -7,103 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.32.0-rc.3] - 2026-11-19
+## [1.32.0] - 2026-11-19
+
+This release brings together everything that was tested in the betas `1.32.0-beta.1` to `1.32.0-beta.9` and the release candidates `1.32.0-rc.1` to `1.32.0-rc.3`. **Existing contracts keep working without any change.** All new functions are optional or only add something.
+
+### Added
+
+- **New category "Leasing"** (requested in #90) for a car lease. The rate is a normal **flat-rate contract**; on top of that Tariffy watches the **kilometres**: an **odometer sensor** (miles are converted) or the odometer entered by hand, the odometer at the start, the **allowed kilometres per year** and/or over the whole term, a **tolerance upwards and downwards** and a **price per extra kilometre / credit per kilometre not driven**. Tariffy shows the kilometres driven, the target by now, what is left, your average per day and the **projection at the return date** with the **expected extra payment or credit**. Three more sensors (**Kilometres driven**, **Projected kilometres at return**, **Expected extra/shortfall kilometre cost**); the kilometre cost is an estimate and not part of the totals. Leasing contracts stand in the group **"Loans / financing"** of the overview and the list and count in the totals like any flat-rate contract.
+- **Own icon for every contract** (requested in #93). Optional field **Icon** (for example `mdi:car`) in the contract form; used in the panel and for the sensors of the contract. Empty = the icon of the category.
+- **Light design.** The panel follows the design of Home Assistant (light, dark or automatic, no setting of its own); the dark design is unchanged.
+- **Customer number, meter number(s) and MaLo ID in the contract details** of the panel, for administrators only, each with a symbol to copy the value.
+- **Total consumption and "covered by PV"** (requested in #86): with PV self-sufficiency and a total-consumption sensor the block **Consumption** shows total consumption, share covered by PV and grid draw (billed), so far and projected. Also attributes of the sensor "Refund/balance due (contract end)".
+- **Instalments paid: correct what was really charged.** In the **Contracts** tab the dialog **Edit instalments** has a field per payment of the term (monthly one per month, quarterly four a year, half-yearly two, yearly one); payments that were not due yet stay locked. **Paid so far**, the balance, the forecast at contract end and the recommended instalment use the amounts that really applied. Without entries nothing changes.
+- **Earlier terms: instalments by payment.** The dialog for an earlier term (tab **History**) has an optional section with a field for every payment of the term; **Paid** and the balance are worked out from it.
+- **Renew a contract without an end date** (requested in #103): the icon **Renew contract** is also shown for flat-rate contracts without a contract end; the end in the dialog is optional.
+
+### Changed
+
+- **Flat-rate contracts: one amount is enough.** The cost form no longer has the second field **Base price (€/month)**; it stays only for contracts that already have one. Existing contracts keep their figures.
+- **Plan next contract (category Streaming): a shorter form** with start (suggested as the day after the current end), tariff name, payment interval, amount per payment and end. Streaming contracts say **Price** instead of "Instalment", have no empty "One-time items" block and no duplicate "Instalment / year" row. All other categories keep their form.
+- The panel is split into several files (internal); after the update reload the browser page once (Ctrl+F5).
 
 ### Fixed
 
-- **The panel stayed black when it was opened** (until another dashboard was opened and the Tariffy panel again). Home Assistant creates the panel element and gives it its data before the element is defined; since the panel waited for its parts (texts, icons, styles) before defining itself, the data then hid the panel's setters and nothing was drawn. The panel now defines itself at once, takes back values that were set earlier and draws itself as soon as its parts have arrived; if a part cannot be loaded, an error is shown instead of a black page.
-
-## [1.32.0-rc.2] - 2026-11-19
-
-### Changed
-
-- **Renew a contract without an end date** (requested in #103). The icon **Renew contract** is now also shown for flat-rate contracts that have no contract end (before it needed one). The end date in the dialog is optional: left empty, the contract runs on without an end with the new start and amount (a price adjustment of an open-ended contract); the old term goes to the history and counts in the total cost as before. Existing contracts and contracts with an end are unchanged; electricity, gas and water are still not renewable.
-
-## [1.32.0-rc.1] - 2026-11-19
-
-### Added
-
-- **Light design.** The panel now follows the design of Home Assistant: in the light mode of Home Assistant (profile setting, automatic switching or system setting) Tariffy shows light colours, otherwise the dark ones as before. There is no setting of its own, a change in Home Assistant applies at once. Colours for credit, balance due and warnings are darker in the light mode to stay readable; the dark design is unchanged.
-
-### Fixed
-
-- **The panel stayed empty after a contract was created or changed** (reported in #102). The panel is told about the contracts from inside the set-up of a contract, when it is not yet "loaded", and left it out: every creation and every reload (saving an edited contract, "Reload" in the settings) sent an empty list, and the panel showed nothing until another contract was reloaded. A contract that is being set up is now part of the list. (Reloading the page never needed to help: it showed the contracts.)
-
-## [1.32.0-beta.9] - 2026-11-19
-
-### Changed
-
-- **Plan next contract (category Streaming): a shorter form with the payment interval.** For streaming contracts the form now asks for **Start** (suggested as the day after the end of the current contract when you enter none), **Tariff name**, **Payment interval** (so you can change from yearly to monthly), **Amount per payment** and **End**. Provider, customer number and base price are only offered when an already planned contract has them. At the switch the new interval and amount are taken over (the amount per payment is stored per month, as everywhere); a value you do not change stays as in the current contract. All other categories (electricity, gas, water, internet, mobile, insurance, leasing, other) keep their form.
-
-- **Streaming: no "One-time items" block.** The details of a streaming contract no longer show the empty block (and its add button); a streaming contract that already has one-time items keeps the block.
-
-- **Streaming: price instead of instalment.** The details, the card and the block for the amounts paid of a streaming contract say **Price / month**, **Price** and **Amounts paid** instead of "Instalment" / "Instalments paid". Other categories keep their texts.
-
-- **No duplicate "Instalment / year" row.** The details of a flat-rate contract leave out "Instalment / year" when "Cost / year" right below shows the same figure (without a base price they are always equal). With a base price both stay, and metered contracts keep the row.
-
-### Fixed
-
-- **A flat-rate contract with a yearly, half-yearly or quarterly payment fell back to monthly at an automatic switch.** The payment interval is now taken over into the new term (or replaced by the one you planned).
-
-## [1.32.0-beta.8] - 2026-11-18
-
-### Added
-
-- **Earlier terms: instalments by payment.** In the dialog for an earlier term (tab **History**, "Add old contract") there is a new section **Instalments by payment (optional)** with a field for every payment of the term (from its start and end and the payment interval of the contract). If you fill it in, **Paid** and the **balance** of the term are worked out from it (metered contracts prorated by days, flat-rate contracts payment by payment); a value typed in "Instalments paid" still takes precedence, and the amounts show again when the term is edited. Left empty, nothing changes.
-
-### Changed
-
-- **Flat-rate contracts: one amount is enough.** The cost form of a flat-rate contract (internet, mobile, streaming, insurance, lease, ...) no longer has the second field **Base price (€/month)**; it was confusing, because both values were counted per month. The field stays only when editing a contract that already has a base price (its yearly cost counts it, so nothing is lost when you save) and can be emptied there. Existing contracts keep their figures.
-
-- **Instalments paid: the number of fields follows the payment interval.** The dialog **Edit instalments** has a field per payment: monthly one per month, quarterly four a year, half-yearly two, yearly one (with the date of the debit and the amount per payment). Payments that were not due yet stay locked. The stored history and the calculation are as before.
-
-## [1.32.0-beta.7] - 2026-11-18
-
-### Changed
-
-- **Instalments paid: one field per month of the term.** The dialog **Edit instalments** now lists every month of the term (a contract from March to February: March, April, … February) with a field for the instalment, instead of free rows with dates. Months that have not begun yet are locked and show the current instalment; a contract without an end shows the months up to the current one. A change also applies to the following months that still have the same amount, so you enter the months where the amount changed (for example March 178, August 174.41, September 215). The last month is the current instalment. Stored are only the months where the amount changes, each from the first of the month; the calculation and the stored history are as in 1.32.0-beta.6 (a change in the middle of a month that Tariffy noted itself when you edited counts from the first of the month once you save).
-
-## [1.32.0-beta.6] - 2026-11-18
-
-### Added
-
-- **Instalments paid: correct what was really charged** (the supplier changed the instalment by itself, for example gas months 1–7 178 €, month 8 174.41 €, months 9–11 215 €). In the **Contracts** tab every contract with an instalment has a block **Instalments paid**; the dialog **Edit instalments** (administrators) takes rows "from date, instalment", each valid until the next one begins, the newest row is the current instalment (past dates only, a day once, 60 rows at most; with a payment interval other than monthly the amount per payment). **Paid so far**, the **balance so far**, the **forecast at contract end** and the **recommended instalment** then use the amounts that really applied. **Without rows nothing changes** (the current instalment counts as before, with the single change that Tariffy remembers when you edit). With a history, a new instalment in the contract form appends an entry with today's date. A renewed term and a tariff switch start without the old history. No new sensors.
-
-## [1.32.0-beta.5] - 2026-11-18
-
-### Changed
-
-- **The panel is split into several files** (internal, nothing changes for you): the code (`tariffy-panel.js`), the texts (`tariffy-i18n.js`), the icons (`tariffy-icons.js`) and the styles (`tariffy-style.js`) now live in separate files in the folder `frontend/`. The parts are loaded with the version of the panel file in the URL, so a browser never mixes new code with old texts after an update. What the panel shows is identical (checked view by view against the previous version); the size limit now applies to each file. After the update reload the browser page once (Ctrl+F5).
-
-## [1.32.0-beta.4] - 2026-11-18
-
-### Added
-
-- **Total consumption and "covered by PV" in the panel** (requested in #86). With PV self-sufficiency and a **total-consumption sensor**, the block **Consumption** of an electricity contract shows a small grid with **So far** and **Projected**: **total consumption** of the house, **covered by PV** (total minus grid draw) and **grid draw (billed)**. The total is extended linearly (the season only sits in the grid draw, as in 1.31.0); a dual-tariff meter adds both tariffs. The grid draw and all costs stay as they are; without the option, or with a self-sufficiency sensor in % or own values (no total consumption), the panel is unchanged. The figures are also attributes of the sensor "Refund/balance due (contract end)": `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet`. Missing data hides the rows; the share covered by PV is never negative.
-
-## [1.32.0-beta.3] - 2026-11-18
-
-### Added
-
-- **Customer number, meter number(s) and MaLo ID in the contract details** of the panel. Until now they could only be seen in the edit form. **Administrators** now see them in the block **Contract** (tab **Contracts**), each with a symbol to **copy** the value. They are sent to administrators only: other users' browsers never receive them, and the licence plate and the notification target stay hidden for everyone. Nothing changes for contracts and sensors.
-
-## [1.32.0-beta.2] - 2026-11-18
-
-### Added
-
-- **Own icon for every contract** (requested in #93). The first step of the contract form (create and edit) has an optional field **Icon** (for example `mdi:car`, with the icon picker of Home Assistant). The icon is used in the **panel** (cards and lists, the category icon is the fallback) and for the **sensors of the contract**; sensors with a status symbol (balance with thumb up/down, price) keep theirs. Empty = the icon of the category, nothing changes for existing contracts. A tariff switch keeps the icon.
-
-### Changed
-
-- **Leasing contracts stand in the group "Loans / financing"** of the overview and the list of contracts (reported in #90). They still count in the totals and in the cost split like any flat-rate contract.
-
-## [1.32.0-beta.1] - 2026-11-17
-
-First beta of 1.32.0. Please report problems with the bug report form and mention this exact version.
-
-### Added
-
-- **New category "Leasing"** (requested in #90) for a car lease. The rate is a normal **flat-rate contract** (instalment, start, end = return date, reminder, notice period, one-time items); on top of that Tariffy watches the **kilometres**. In the form (all optional): an **odometer sensor** (miles are converted) or the odometer **entered by hand**, the odometer at the start, the **allowed kilometres per year** and/or **over the whole term**, a **tolerance upwards and downwards** and a **price per extra kilometre / credit per kilometre not driven**. Tariffy shows the kilometres driven, the **target by now**, what is **left** (and allowed per day from now), your average per day and the **projection at the return date**; extra kilometres and kilometres not driven beyond the tolerance give the **expected extra payment or credit**. A leasing contract has three more sensors (**Kilometres driven**, **Projected kilometres at return**, **Expected extra/shortfall kilometre cost**) and the car sensors of the insurance; the panel shows a line in the card and a block "Leasing kilometres" in the details. The kilometre cost is an estimate and is **not** part of the totals. A tariff switch keeps the car, the sensor and the kilometre rules; the odometer at the start and the value entered by hand belong to the old term. Other contracts are not changed.
+- **The panel stayed empty after a contract was created or changed** (reported in #102): a contract that is being set up is now part of the list sent to the panel.
+- **The panel stayed black when it was opened** until another dashboard was opened and back: the panel now defines itself at once, takes back values that were set earlier and draws itself when its parts have arrived; if a part cannot be loaded, an error is shown.
+- **A flat-rate contract with a yearly, half-yearly or quarterly payment fell back to monthly at an automatic switch.** The payment interval is now taken over into the new term.
 
 ## [1.31.0] - 2026-11-17
 
