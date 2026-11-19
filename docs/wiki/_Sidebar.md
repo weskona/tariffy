@@ -18,4 +18,20 @@
 
 ---
 
-🇬🇧 English: [Home](EN-Home) · [Getting started](EN-Getting-Started) · [Creating contracts](EN-Creating-Contracts) · [Panel](EN-Panel-Overview) · [Sensors](EN-Sensor-Reference) · [Automations](EN-Automations) · [FAQ](EN-FAQ) · [Troubleshooting](EN-Troubleshooting) · [Releases and beta](EN-Releases-and-Beta) · [Development](EN-Development)
+**Tariffy** — 🇬🇧 English
+
+- [Home](EN-Home)
+- [Getting started](EN-Getting-Started)
+- [Creating contracts](EN-Creating-Contracts)
+  - [Electricity](EN-Contract-Electricity) · [Gas](EN-Contract-Gas) · [Water](EN-Contract-Water)
+  - [Internet and mobile](EN-Contract-Internet-and-Mobile)
+  - [Streaming](EN-Contract-Streaming) · [Insurance](EN-Contract-Insurance)
+  - [Leasing](EN-Contract-Leasing) · [Loan](EN-Contract-Loan) · [Other](EN-Contract-Other)
+- Consumption: [Measuring](EN-Measuring-Consumption) · [PV self-sufficiency](EN-PV-Self-Sufficiency)
+- Costs: [Payments and costs](EN-Payments-and-Costs) · [Payment history](EN-Payment-History-and-One-off-Items)
+- Contract end: [End and switching](EN-Contract-End-and-Switching) · [Next contract or renew](EN-Next-Contract-or-Renew) · [Archive and history](EN-Archive-and-History)
+- Panel: [Overview](EN-Panel-Overview) · [Costs](EN-Panel-Costs) · [Contracts](EN-Panel-Contracts) · [History](EN-Panel-History) · [Backup](EN-Panel-Backup) · [Permissions and design](EN-Panel-Permissions-and-Design)
+- Reference: [Sensors](EN-Sensor-Reference) · [Dashboards](EN-Dashboard-Examples) · [Automations](EN-Automations)
+- [Backup and migration](EN-Backup-and-Migration)
+- [FAQ](EN-FAQ) · [Troubleshooting](EN-Troubleshooting)
+- [Releases and beta](EN-Releases-and-Beta) · [Development](EN-Development)
