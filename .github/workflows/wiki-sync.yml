@@ -1,0 +1,55 @@
+name: Sync wiki
+
+# Copies docs/wiki/ into the GitHub wiki (weskona/tariffy.wiki) when it changes on main.
+# Needs: the wiki enabled in the repository settings and at least one page created once
+# (GitHub creates the wiki repository with the first page). The built-in GITHUB_TOKEN
+# is enough, no extra secret.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/wiki/**"
+      - "scripts/check_wiki.py"
+      - ".github/workflows/wiki-sync.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync docs/wiki to the wiki
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Check the wiki sources
+        run: python3 scripts/check_wiki.py
+
+      - name: Checkout the wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+
+      - name: Copy docs/wiki into the wiki (pages deleted in the source are deleted there too)
+        run: rsync -a --delete --exclude '.git' docs/wiki/ wiki/
+
+      - name: Commit and push
+        working-directory: wiki
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "The wiki is already up to date."
+          else
+            git commit -m "Sync from docs/wiki (${GITHUB_SHA::7})"
+            git push
+          fi
