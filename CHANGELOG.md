@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **New brand icon.** Tariffy has a new icon (a contract with a euro coin on a blue-violet gradient) and a logo with the name, also for the dark design. They are shown by Home Assistant in the list of integrations and by HACS. Only images change; nothing else is affected.
+
 ## [1.32.0] - 2026-11-19
 
 This release brings together everything that was tested in the betas `1.32.0-beta.1` to `1.32.0-beta.9` and the release candidates `1.32.0-rc.1` to `1.32.0-rc.3`. **Existing contracts keep working without any change.** All new functions are optional or only add something.
