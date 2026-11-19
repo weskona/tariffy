@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.32.0-rc.3] - 2026-11-19
+
+### Fixed
+
+- **The panel stayed black when it was opened** (until another dashboard was opened and the Tariffy panel again). Home Assistant creates the panel element and gives it its data before the element is defined; since the panel waited for its parts (texts, icons, styles) before defining itself, the data then hid the panel's setters and nothing was drawn. The panel now defines itself at once, takes back values that were set earlier and draws itself as soon as its parts have arrived; if a part cannot be loaded, an error is shown instead of a black page.
+
 ## [1.32.0-rc.2] - 2026-11-19
 
 ### Changed

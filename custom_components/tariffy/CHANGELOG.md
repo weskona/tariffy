@@ -7,6 +7,12 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.32.0-rc.3] - 2026-11-19
+
+### Fixed
+
+- **Das Panel blieb beim Öffnen schwarz** (bis ein anderes Dashboard und danach wieder das Tariffy-Panel geöffnet wurde). Home Assistant legt das Panel-Element an und gibt ihm seine Daten, bevor das Element definiert ist; da das Panel vor der Definition auf seine Teile (Texte, Icons, Styles) wartete, verdeckten die Daten dann die Setter des Panels, und es wurde nichts gezeichnet. Das Panel definiert sich jetzt sofort, übernimmt früher gesetzte Werte und zeichnet sich, sobald seine Teile da sind; lässt sich ein Teil nicht laden, erscheint eine Fehlermeldung statt einer schwarzen Seite.
+
 ## [1.32.0-rc.2] - 2026-11-19
 
 ### Changed

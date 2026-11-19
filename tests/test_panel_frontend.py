@@ -39,6 +39,17 @@ def test_every_file_is_small_enough_to_ship(path):
     assert len(path.read_bytes()) < 190_000
 
 
+def test_the_element_is_defined_without_waiting_for_its_parts():
+    """Home Assistant may create the element and set `hass` before it is defined; a module that waits (top-level
+    await) for its parts defines it late, the values then hide the setters and the panel stays black."""
+    assert not re.search(r"^(const|let|var)\s[^=\n]*=\s*await\b|^await\b", SOURCE, flags=re.M)
+    assert "customElements.define(" in SOURCE
+    # values given before the definition are taken back through the setters
+    assert 'for (const prop of ["hass", "narrow", "panel"])' in SOURCE
+    # nothing draws before the parts are there
+    assert "if (!STYLE) return;" in SOURCE
+
+
 def test_the_panel_loads_its_parts_with_its_own_version():
     """The static path is cached for a long time: the texts, icons and styles must be requested with the
     `?v=` of the panel file, or a browser could mix new code with old texts after an update."""

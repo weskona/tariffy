@@ -12,11 +12,21 @@
  * file in the URL (?v=...): the static path is cached for a long time, so a browser must never combine new code
  * with old texts or styles after an update. */
 const VERSION = new URL(import.meta.url).search;
-const [{ I18N }, { ICONS }, { STYLE }] = await Promise.all([
+let I18N;
+let ICONS;
+let STYLE;
+/* No top-level await: the element must be defined the moment this file has run. Home Assistant may create the
+ * element and hand it `hass` before it is defined (the properties then shadow the setters), and a module that is
+ * still waiting for its parts defines it too late. The parts arrive a moment later and the panel draws itself then. */
+const PARTS = Promise.all([
   import(`./tariffy-i18n.js${VERSION}`),
   import(`./tariffy-icons.js${VERSION}`),
   import(`./tariffy-style.js${VERSION}`),
-]);
+]).then(([i18n, icons, style]) => {
+  ({ I18N } = i18n);
+  ({ ICONS } = icons);
+  ({ STYLE } = style);
+});
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 const TABS = ["overview", "costs", "contracts", "history", "backup"];
@@ -90,6 +100,20 @@ class TariffyPanel extends HTMLElement {
     this._actionError = null;
     this._bk = { deleted: null, loading: false, plan: null, backup: null, file: null, message: null, error: null, busy: false, asking: null };
     this.attachShadow({ mode: "open" });
+    // values set before the element was defined (Home Assistant creates it first) sit on the object itself and
+    // hide the setters: take them back through the setters
+    for (const prop of ["hass", "narrow", "panel"]) {
+      if (Object.prototype.hasOwnProperty.call(this, prop)) {
+        const value = this[prop];
+        delete this[prop];
+        this[prop] = value;
+      }
+    }
+    PARTS.then(() => { if (this._hass) this._render(); }, (err) => {
+      this.shadowRoot.replaceChildren(Object.assign(document.createElement("pre"), {
+        textContent: `Tariffy: ${(err && err.message) || err}`, style: "color:#f87171;padding:16px",
+      }));
+    });
   }
 
   set hass(hass) {
@@ -321,6 +345,7 @@ class TariffyPanel extends HTMLElement {
   /* ----- rendering ----- */
 
   _render() {
+    if (!STYLE) return; // the texts and styles are still loading: PARTS draws the panel when they are here
     const root = this.shadowRoot;
     root.replaceChildren(h("style", { text: STYLE }));
     const wrap = h("div", { class: "wrap" });
