@@ -1,0 +1,1 @@
+🇩🇪 [Home](Home) · [Fehlerbehebung](Fehlerbehebung) · [Changelog](https://github.com/weskona/tariffy/blob/main/CHANGELOG.md) · [Fehler melden](https://github.com/weskona/tariffy/issues) — 🇬🇧 [Home](EN-Home) · [Troubleshooting](EN-Troubleshooting) · [Report a bug](https://github.com/weskona/tariffy/issues)
