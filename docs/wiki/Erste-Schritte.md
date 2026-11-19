@@ -126,13 +126,13 @@ Sobald mindestens ein Vertrag geladen ist, erscheint in der Seitenleiste von Hom
 
 Das Panel hat fünf Ansichten: **Übersicht**, **Kosten**, **Verträge**, **Historie** und **Sicherung** (die Sicherung sehen nur Administratoren). Den Vertrag legst Du im Tab **Verträge** an; dort stehen auch alle Aktionen, die einen Vertrag ändern.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts-light.png" alt="Der Tab Verträge im Tariffy-Panel mit dem Button Neuer Vertrag und den Gruppen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts.png" alt="Der Tab Verträge im Tariffy-Panel mit dem Button Neuer Vertrag und den Gruppen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-contracts-light.png" alt="Der Tab Verträge im Tariffy-Panel mit dem Button Neuer Vertrag und den Gruppen Verbrauchsverträge, Pauschalverträge und Kredite / Finanzierungen (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Der Tab „Verträge“ mit dem Button „Neuer Vertrag“ (Mock-Daten, Datum 12.07.2026).*
 
 Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Die Übersicht des Tariffy-Panels auf einem Handy mit vier Kacheln und einer Karte pro Vertrag" width="260"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview.png" alt="Die Übersicht des Tariffy-Panels auf einem Handy mit vier Kacheln und einer Karte pro Vertrag (dunkles Design)" width="260"><br><sub>Dunkel</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-overview-light.png" alt="Die Übersicht des Tariffy-Panels auf einem Handy mit vier Kacheln und einer Karte pro Vertrag (helles Design)" width="260"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Die Übersicht auf dem Handy.*
 

@@ -12,7 +12,7 @@ The **Costs** tab shows at the top how your costs split between categories and c
 - [On a phone](#on-a-phone)
 - [See also](#see-also)
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-costs.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-costs-light.png" alt="Costs tab: the cost split with ring chart and legend on top, below it the tables for metered contracts, flat-rate contracts and loans" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-costs.png" alt="Costs tab: the cost split with ring chart and legend on top, below it the tables for metered contracts, flat-rate contracts and loans (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-costs-light.png" alt="Costs tab: the cost split with ring chart and legend on top, below it the tables for metered contracts, flat-rate contracts and loans (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The Costs tab on the desktop (mock data of 12 July 2026).*
 
@@ -81,7 +81,7 @@ With **By contract** and **Per year** you see the instalment projected to a year
 
 On narrow screens the legend sits below the ring, and each contract of the tables becomes a card with one row per column (Cost so far, Balance today, At contract end, Instalment, Recommended). The totals are cards of their own below.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-costs.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-costs-light.png" alt="Costs tab on a phone: cost split and tables one below the other" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-costs.png" alt="Costs tab on a phone: cost split and tables one below the other (dark design)" width="300"><br><sub>Dark</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-costs-light.png" alt="Costs tab on a phone: cost split and tables one below the other (light design)" width="300"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The Costs tab on a phone; the labels are German in this screenshot.*
 

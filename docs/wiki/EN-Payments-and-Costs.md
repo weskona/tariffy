@@ -160,7 +160,7 @@ Total cost = cost of the earlier terms (history)
 
 This example comes from the sample data of the panel (reference date 12 July 2026, contract Strom Haus). These are the same numbers as in the screenshot.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-costs.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-costs-light.png" alt="Costs tab with the metered contracts: Strom Haus shows cost so far €513.54, balance today −€206.24, at contract end −€495, instalment €40.00 and recommended €127.66" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-costs.png" alt="Costs tab with the metered contracts: Strom Haus shows cost so far €513.54, balance today −€206.24, at contract end −€495, instalment €40.00 and recommended €127.66 (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-costs-light.png" alt="Costs tab with the metered contracts: Strom Haus shows cost so far €513.54, balance today −€206.24, at contract end −€495, instalment €40.00 and recommended €127.66 (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: Costs tab with the sample data of 12 July 2026. The first row is the contract Strom Haus.*
 

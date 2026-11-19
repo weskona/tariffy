@@ -18,7 +18,7 @@ The **Backup** tab is only visible to administrators. It has three areas: downlo
 
 The normal Home Assistant backups include Tariffy completely. The tab adds a backup just for Tariffy (more in [Backup and migration](EN-Backup-and-Migration)).
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-backup.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-backup-light.png" alt="Backup tab with the areas Create a backup with the button Download backup, Restore from a file with the file chooser and Deleted contracts with the entry Strom 2023 and the buttons Restore and Forget now" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-backup.png" alt="Backup tab with the areas Create a backup with the button Download backup, Restore from a file with the file chooser and Deleted contracts with the entry Strom 2023 and the buttons Restore and Forget now (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-backup-light.png" alt="Backup tab with the areas Create a backup with the button Download backup, Restore from a file with the file chooser and Deleted contracts with the entry Strom 2023 and the buttons Restore and Forget now (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The Backup tab (mock data of 12 July 2026). The "Choose File" field comes from the browser and is labelled in the browser's language.*
 
@@ -77,7 +77,7 @@ Had the contract been deleted for more than 30 days, the entry would be gone alr
 
 On a phone the three areas stand one below the other.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-backup.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-backup-light.png" alt="Backup tab on a phone: the three areas one below the other" width="300"></picture></p>
+<table align="center"><tr><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-backup.png" alt="Backup tab on a phone: the three areas one below the other (dark design)" width="300"><br><sub>Dark</sub></td><td align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/mobile-backup-light.png" alt="Backup tab on a phone: the three areas one below the other (light design)" width="300"><br><sub>Light</sub></td></tr></table>
 
 *Figure: The Backup tab on a phone (German labels in this screenshot).*
 

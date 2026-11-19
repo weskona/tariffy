@@ -12,7 +12,7 @@ Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant:
 - Das Panel in der Seitenleiste zeigt alle Verträge, Kosten und die Historie, auch auf dem Handy, in hellem und dunklem Design.
 - Sicherung und Wiederherstellung sind eingebaut; gelöschte Verträge bleiben 30 Tage wiederherstellbar.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview-light.png" alt="Das Tariffy-Panel, Übersicht: Verträge, Kosten und Hinweise auf einen Blick" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview.png" alt="Das Tariffy-Panel, Übersicht: Verträge, Kosten und Hinweise auf einen Blick (dunkles Design)" width="100%"><br><sub>Dunkel</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/desktop-overview-light.png" alt="Das Tariffy-Panel, Übersicht: Verträge, Kosten und Hinweise auf einen Blick (helles Design)" width="100%"><br><sub>Hell</sub></td></tr></table>
 
 *Abbildung: Übersicht im Panel (Mock-Daten, Datum 12.07.2026).*
 

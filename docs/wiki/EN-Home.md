@@ -12,7 +12,7 @@ Tariffy manages your energy and service contracts in Home Assistant: electricity
 - The panel in the sidebar shows all contracts, costs and the history, also on a phone, in light and dark design.
 - Backup and restore are built in; deleted contracts can be restored for 30 days.
 
-<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-overview.png"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-overview-light.png" alt="The Tariffy panel, overview: contracts, costs and notes at a glance" width="100%"></picture></p>
+<table align="center"><tr><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-overview.png" alt="The Tariffy panel, overview: contracts, costs and notes at a glance (dark design)" width="100%"><br><sub>Dark</sub></td><td align="center" width="50%"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/english-overview-light.png" alt="The Tariffy panel, overview: contracts, costs and notes at a glance (light design)" width="100%"><br><sub>Light</sub></td></tr></table>
 
 *Figure: the overview in the panel (mock data, date 12 July 2026).*
 

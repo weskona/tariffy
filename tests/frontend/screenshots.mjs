@@ -832,7 +832,7 @@ for (const width of [1280, 900, 600, 390]) {
   check(/frühere laufzeiten/i.test(history), "and the earlier terms of the other contracts");
   check((await page.locator(".hist[data-id=contract-1] tbody tr").count()) === 2, "Strom Haus shows its two earlier terms");
   check((await page.locator(".hist[data-id=contract-1] tbody tr").first().innerText()).replace(/\u00a0/g, " ").includes("01.01.2025 – 31.12.2025"), "the newest term comes first");
-  check((await page.locator(".hist[data-id=contract-7] tbody tr").count()) === 2, "the archived contract shows its terms");
+  check((await page.locator(".hist[data-id=contract-8] tbody tr").count()) === 2, "the archived contract shows its terms");
   check(history.includes("Archiviert"), "the archived contract is marked");
   check(!history.includes("Warnung bestätigen") && !history.includes("Kündigung bestätigen"), "the History tab offers no acknowledgements, only archive and restore");
   await page.screenshot({ path: join(outDir, "desktop-history-actions.png"), fullPage: true });
@@ -845,7 +845,7 @@ for (const width of [1280, 900, 600, 390]) {
   check((await calls(page)).length === before, "cancelling does nothing");
   await page.getByRole("button", { name: "Zurückholen" }).click();
   await page.getByRole("button", { name: "Ja, zurückholen" }).click();
-  check((await calls(page)).some((c) => c.entry_id === "contract-7" && c.action === "restore_contract"), "restore is sent for the archived contract");
+  check((await calls(page)).some((c) => c.entry_id === "contract-8" && c.action === "restore_contract"), "restore is sent for the archived contract");
 
   // an expired contract can be archived (in the Contracts tab, after asking)
   await page.evaluate(() => {
@@ -1260,7 +1260,7 @@ for (const width of [1280, 900, 600, 390]) {
   await page.getByRole("tab", { name: "Historie", exact: true }).click();
   const hist = await text(".hist[data-id=contract-1]");
   check(hist.includes("Kosten gesamt: 2.667,24 €"), "the history shows the total under the earlier terms");
-  const archived = await text(".hist[data-id=contract-7]");
+  const archived = await text(".hist[data-id=contract-8]");
   check(archived.includes("Kosten gesamt: 1.725,40 € · seit 01.01.2022 · 2 Laufzeiten"), `an archived contract counts its last term only once (${archived.split("\n").find((l) => l.includes("gesamt"))})`);
   await context.close();
 }
