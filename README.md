@@ -20,18 +20,18 @@
 
 Tariffy is a Home Assistant custom integration for managing utility and service contracts. Electricity, gas, water, internet, mobile, insurance and more — each contract becomes its own HA device with dedicated sensors. Tariffy automatically reminds you of cancellation deadlines, switches tariffs on the switch date, and calculates costs and billing forecasts based on real consumption data.
 
-![Tariffy panel: overview](docs/panel-preview/english-overview.png)
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/english-overview.png"><img src="docs/panel-preview/english-overview-light.png" alt="Tariffy panel: overview"></picture>
 
 <table>
 <tr>
-<td width="50%"><img src="docs/panel-preview/english-costs.png" alt="Tariffy panel: costs"></td>
-<td width="50%"><img src="docs/panel-preview/english-contracts.png" alt="Tariffy panel: contracts"></td>
+<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/english-costs.png"><img src="docs/panel-preview/english-costs-light.png" alt="Tariffy panel: costs"></picture></td>
+<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/english-contracts.png"><img src="docs/panel-preview/english-contracts-light.png" alt="Tariffy panel: contracts"></picture></td>
 </tr>
 </table>
 
 On a phone the cards turn into expandable rows:
 
-<img src="docs/panel-preview/mobile-overview.png" alt="Tariffy panel on a phone" width="260">
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/mobile-overview.png"><img src="docs/panel-preview/mobile-overview-light.png" alt="Tariffy panel on a phone" width="260"></picture>
 
 ---
 
@@ -268,18 +268,18 @@ Restart HA.
 
 Tariffy ist eine Home Assistant Custom Integration zur Verwaltung von Energie- und Dienstleistungsverträgen. Strom, Gas, Wasser, Internet, Mobilfunk, Versicherungen und mehr – jeder Vertrag wird als eigenes HA-Gerät mit Sensoren angelegt. Tariffy erinnert automatisch an Kündigungsfristen, wechselt Tarife zum Stichtag und berechnet Kosten sowie Abrechnungsprognosen auf Basis echter Verbrauchsdaten.
 
-![Tariffy-Panel: Übersicht](docs/panel-preview/desktop-overview.png)
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/desktop-overview.png"><img src="docs/panel-preview/desktop-overview-light.png" alt="Tariffy-Panel: Übersicht"></picture>
 
 <table>
 <tr>
-<td width="50%"><img src="docs/panel-preview/desktop-costs.png" alt="Tariffy-Panel: Kosten"></td>
-<td width="50%"><img src="docs/panel-preview/desktop-contracts.png" alt="Tariffy-Panel: Verträge"></td>
+<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/desktop-costs.png"><img src="docs/panel-preview/desktop-costs-light.png" alt="Tariffy-Panel: Kosten"></picture></td>
+<td width="50%"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/desktop-contracts.png"><img src="docs/panel-preview/desktop-contracts-light.png" alt="Tariffy-Panel: Verträge"></picture></td>
 </tr>
 </table>
 
 Auf dem Handy werden die Karten zu aufklappbaren Zeilen:
 
-<img src="docs/panel-preview/mobile-overview.png" alt="Tariffy-Panel auf dem Handy" width="260">
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/panel-preview/mobile-overview.png"><img src="docs/panel-preview/mobile-overview-light.png" alt="Tariffy-Panel auf dem Handy" width="260"></picture>
 
 ---
 
