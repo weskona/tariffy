@@ -13,6 +13,10 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 - **Helles Design.** Das Panel folgt jetzt dem Design von Home Assistant: Im hellen Modus von Home Assistant (Profil-Einstellung, automatische Umschaltung oder Systemeinstellung) zeigt Tariffy helle Farben, sonst wie bisher die dunklen. Es gibt keine eigene Einstellung, ein Wechsel in Home Assistant gilt sofort. Die Farben für Guthaben, Nachzahlung und Warnungen sind im hellen Modus dunkler, damit sie lesbar bleiben; das dunkle Design ist unverändert.
 
+### Fixed
+
+- **Das Panel blieb leer, nachdem ein Vertrag angelegt oder geändert wurde** (gemeldet in #102). Das Panel erfährt die Verträge aus dem Einrichten eines Vertrags heraus, wenn er noch nicht „geladen“ ist, und ließ ihn aus: Jedes Anlegen und jedes Neuladen (Speichern eines bearbeiteten Vertrags, „Neu laden“ in den Einstellungen) schickte eine leere Liste, und das Panel zeigte nichts, bis ein anderer Vertrag neu geladen wurde. Ein Vertrag, der gerade eingerichtet wird, gehört jetzt zur Liste. (Die Seite neu zu laden musste nie helfen: sie zeigte die Verträge.)
+
 ## [1.32.0-beta.9] - 2026-11-19
 
 ### Changed

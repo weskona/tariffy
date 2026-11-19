@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Light design.** The panel now follows the design of Home Assistant: in the light mode of Home Assistant (profile setting, automatic switching or system setting) Tariffy shows light colours, otherwise the dark ones as before. There is no setting of its own, a change in Home Assistant applies at once. Colours for credit, balance due and warnings are darker in the light mode to stay readable; the dark design is unchanged.
 
+### Fixed
+
+- **The panel stayed empty after a contract was created or changed** (reported in #102). The panel is told about the contracts from inside the set-up of a contract, when it is not yet "loaded", and left it out: every creation and every reload (saving an edited contract, "Reload" in the settings) sent an empty list, and the panel showed nothing until another contract was reloaded. A contract that is being set up is now part of the list. (Reloading the page never needed to help: it showed the contracts.)
+
 ## [1.32.0-beta.9] - 2026-11-19
 
 ### Changed
