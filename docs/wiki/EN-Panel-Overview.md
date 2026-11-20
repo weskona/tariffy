@@ -60,6 +60,7 @@ Below the tiles the contracts stand in groups, one card per contract:
 
 - **Metered contracts** (electricity, gas, water),
 - **Flat-rate contracts** (internet, mobile, insurance, streaming, other),
+- **House costs** (waste fees, street cleaning and the like; they count in the totals),
 - **Loans / financing** (kept apart: their amounts do not count in the totals of the contracts).
 
 The cards are tinted by their state: green for credit, red for balance due, orange when the cancellation is due. At the top right of a card there is a badge, for example **Credit**, **Balance due**, **Balance due likely** (the forecast is below the warning threshold), **Cancel now**, **Switch on 01.01.2027** (a next contract is planned) or **Expired** (the contract end has passed, see [Panel history](EN-Panel-History)).

@@ -83,6 +83,19 @@ CONF_VERBRAUCH_START_WERT = "verbrauch_start_wert"
 # Kfz-Versicherung, Kennzeichen, Kilometerstand bei Vertragsbeginn und die
 # vereinbarten Kilometer pro Jahr. Nur zur Dokumentation, es wird nichts
 # berechnet. Das Kennzeichen gilt wie die Kundennummer als persoenlich.
+# Hauskosten (Issue 121): Abfallgebuehren, Strassenreinigung, Niederschlagswasser usw. Ein Pauschalvertrag wie
+# jeder andere (zaehlt in den Summen mit); dazu die freiwillige "Art" aus einer festen Liste oder frei getippt.
+SPARTE_HAUSKOSTEN = "hauskosten"
+CONF_HAUSKOSTENART = "hauskostenart"
+HAUSKOSTENARTEN = [
+    "waste",
+    "street_cleaning",
+    "rainwater",
+    "property_tax",
+    "chimney_sweep",
+    "winter_service",
+    "caretaker",
+]
 SPARTE_INSURANCE = "insurance"
 CONF_VERSICHERUNGSART = "versicherungsart"
 CONF_KENNZEICHEN = "kennzeichen"
@@ -267,6 +280,7 @@ BASIS_FELDER = [
     CONF_VERSICHERUNGSART,
     CONF_KENNZEICHEN,
     CONF_KM_PRO_JAHR,
+    CONF_HAUSKOSTENART,
 ]
 
 # Kredit / Finanzierung (Sparte "loan"): getrennt von den Vertraegen, zaehlt nicht in deren Summen.
@@ -290,6 +304,7 @@ SPARTEN = [
     SPARTE_LOAN,
     SPARTE_LEASING,
     SPARTE_INSURANCE,
+    SPARTE_HAUSKOSTEN,
     "other",
 ]
 

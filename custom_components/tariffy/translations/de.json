@@ -678,6 +678,26 @@
           "preis_mehrkm": "Wird für jeden Mehrkilometer über der Toleranz berechnet",
           "preis_minderkm": "Wird für jeden Minderkilometer über der Toleranz gutgeschrieben"
         }
+      },
+      "hauskosten": {
+        "title": "Hauskosten",
+        "description": "Um welche Hauskosten geht es? Wähle aus der Liste oder tippe eigene Kosten ein. Alles danach läuft wie bei einem Pauschalvertrag.",
+        "data": {
+          "hauskostenart": "Art der Hauskosten"
+        },
+        "data_description": {
+          "hauskostenart": "Optional: zum Beispiel Abfallgebühren; Du kannst auch eigene eintippen"
+        }
+      },
+      "reconfigure_hauskosten": {
+        "title": "Hauskosten",
+        "description": "Um welche Hauskosten geht es? Wähle aus der Liste oder tippe eigene Kosten ein. Alles danach läuft wie bei einem Pauschalvertrag.",
+        "data": {
+          "hauskostenart": "Art der Hauskosten"
+        },
+        "data_description": {
+          "hauskostenart": "Optional: zum Beispiel Abfallgebühren; Du kannst auch eigene eintippen"
+        }
       }
     },
     "abort": {
@@ -749,7 +769,8 @@
         "other": "Sonstiges",
         "electricity_ht_nt": "Strom (Zweizählertarif, Hoch-/Niedertarif)",
         "loan": "Kredit / Finanzierung",
-        "leasing": "Leasing"
+        "leasing": "Leasing",
+        "hauskosten": "Hauskosten"
       }
     },
     "erinnerung": {
@@ -787,6 +808,17 @@
         "legal": "Rechtsschutz",
         "accident": "Unfall",
         "other": "Sonstige"
+      }
+    },
+    "hauskostenart": {
+      "options": {
+        "waste": "Abfallgebühren",
+        "street_cleaning": "Straßenreinigung",
+        "rainwater": "Niederschlagswasser (Regenwassergebühr)",
+        "property_tax": "Grundsteuer",
+        "chimney_sweep": "Schornsteinfeger",
+        "winter_service": "Winterdienst",
+        "caretaker": "Hausmeister / Gebäudeservice"
       }
     }
   },

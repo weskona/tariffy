@@ -165,7 +165,7 @@ More in [Contract-Loan](EN-Contract-Loan).
 
 ## Flat-rate contracts
 
-**Internet**, **Mobile**, **Streaming** and **Other** only have the sensors for all contracts. **Monthly payment** is the amount per month there, **Installment total (contract term)** the total amount of the term. The four sensors for consumption and forecast stay empty without a consumption sensor. Cost so far exists for these contracts only in the panel, as the instalments due until today.
+**Internet**, **Mobile**, **Streaming**, **House costs** and **Other** only have the sensors for all contracts. **Monthly payment** is the amount per month there, **Installment total (contract term)** the total amount of the term. The four sensors for consumption and forecast stay empty without a consumption sensor. Cost so far exists for these contracts only in the panel, as the instalments due until today.
 
 ## Buttons
 
