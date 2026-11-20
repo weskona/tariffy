@@ -7,7 +7,7 @@ export const STYLE = `
   --tile: rgba(var(--w),.032); --tile-line: rgba(var(--w),.07); --line: rgba(var(--w),.065);
   --text: #f3f5f9; --muted: #8b91a1; --dim: #5d6373;
   --green: #34d399; --red: #f87171; --orange: #fb923c; --blue: #60a5fa; --gold: #f7b733;
-  --c-water: #38bdf8; --c-internet: #a78bfa; --c-streaming: #f472b6; --c-loan: #fbbf24; --c-flat: #a78bfa;
+  --c-water: #38bdf8; --c-internet: #a78bfa; --c-streaming: #f472b6; --c-loan: #fbbf24; --c-flat: #a78bfa; --c-house: #34d3b8;
   --call-red: #fecaca; --call-orange: #fed7aa; --call-blue: #bfdbfe;
   --option-bg: #1a1d25;
   display: block; min-height: 100%; box-sizing: border-box;
@@ -20,7 +20,7 @@ export const STYLE = `
   --w: 15,23,42;
   --text: #111827; --muted: #5a6376; --dim: #8791a3;
   --green: #047857; --red: #dc2626; --orange: #c2410c; --blue: #1d4ed8; --gold: #b45309;
-  --c-water: #0369a1; --c-internet: #6d28d9; --c-streaming: #be185d; --c-loan: #a16207; --c-flat: #7c3aed;
+  --c-water: #0369a1; --c-internet: #6d28d9; --c-streaming: #be185d; --c-loan: #a16207; --c-flat: #7c3aed; --c-house: #0f766e;
   --call-red: #991b1b; --call-orange: #9a3412; --call-blue: #1e40af;
   --option-bg: #ffffff;
   color-scheme: light;
@@ -102,7 +102,7 @@ section.card .foot { padding-top: 12px; }
 .badge ha-icon { --mdc-icon-size: 22px; width: 22px; height: 22px; display: block; }
 .badge svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .badge.gas { color: var(--orange); } .badge.water { color: var(--c-water); } .badge.electricity,
-.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: var(--c-internet); } .badge.mobile { color: var(--green); } .badge.streaming { color: var(--c-streaming); } .badge.loan { color: var(--c-loan); } .badge.leasing { color: var(--c-water); }
+.badge.electricity_ht_nt { color: var(--gold); } .badge.internet { color: var(--c-internet); } .badge.mobile { color: var(--green); } .badge.streaming { color: var(--c-streaming); } .badge.loan { color: var(--c-loan); } .badge.leasing { color: var(--c-water); } .badge.hauskosten { color: var(--c-house); }
 .title { font-size: 17px; font-weight: 700; line-height: 1.2; }
 .meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .who { min-width: 0; flex: 1; }

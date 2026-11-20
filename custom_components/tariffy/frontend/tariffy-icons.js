@@ -41,6 +41,11 @@ export const ICONS = {
   plus: [["path", { d: "M12 5v14M5 12h14" }]],
   chevron: [["path", { d: "M9 6l6 6-6 6" }]],
   renew: [["path", { d: "M20 11a8 8 0 0 0-14.500-3.500M4 5v4h4" }], ["path", { d: "M4 13a8 8 0 0 0 14.500 3.500M20 19v-4h-4" }]],
+  hauskosten: [
+    ["path", { d: "M4 11l8-6.500 8 6.500" }],
+    ["path", { d: "M6 10v9.500h12V10" }],
+    ["path", { d: "M10 19.500v-5h4v5" }],
+  ],
   other: [
     ["circle", { cx: "6", cy: "12", r: "1.600", fill: "currentColor" }],
     ["circle", { cx: "12", cy: "12", r: "1.600", fill: "currentColor" }],

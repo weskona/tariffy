@@ -678,6 +678,26 @@
           "preis_mehrkm": "Charged for each extra kilometre beyond the tolerance",
           "preis_minderkm": "Credited for each kilometre not driven beyond the tolerance"
         }
+      },
+      "hauskosten": {
+        "title": "House costs",
+        "description": "Which house costs are these? Choose from the list or type your own. Everything after this works like a flat-rate contract.",
+        "data": {
+          "hauskostenart": "Type of house costs"
+        },
+        "data_description": {
+          "hauskostenart": "Optional: for example waste fees; you can also type your own"
+        }
+      },
+      "reconfigure_hauskosten": {
+        "title": "House costs",
+        "description": "Which house costs are these? Choose from the list or type your own. Everything after this works like a flat-rate contract.",
+        "data": {
+          "hauskostenart": "Type of house costs"
+        },
+        "data_description": {
+          "hauskostenart": "Optional: for example waste fees; you can also type your own"
+        }
       }
     },
     "abort": {
@@ -749,7 +769,8 @@
         "other": "Other",
         "electricity_ht_nt": "Electricity (dual tariff, HT/NT)",
         "loan": "Loan / financing",
-        "leasing": "Leasing"
+        "leasing": "Leasing",
+        "hauskosten": "House costs"
       }
     },
     "erinnerung": {
@@ -787,6 +808,17 @@
         "legal": "Legal protection",
         "accident": "Accident",
         "other": "Other"
+      }
+    },
+    "hauskostenart": {
+      "options": {
+        "waste": "Waste fees",
+        "street_cleaning": "Street cleaning",
+        "rainwater": "Rainwater (stormwater fee)",
+        "property_tax": "Property tax",
+        "chimney_sweep": "Chimney sweep",
+        "winter_service": "Winter service",
+        "caretaker": "Caretaker / building services"
       }
     }
   },

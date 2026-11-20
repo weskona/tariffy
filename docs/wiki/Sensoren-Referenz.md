@@ -165,7 +165,7 @@ Mehr in [Vertrag-Kredit](Vertrag-Kredit).
 
 ## Pauschalverträge
 
-**Internet**, **Mobilfunk**, **Streaming** und **Sonstiges** haben nur die Sensoren für alle Verträge. **Abschlag** ist dort der Betrag pro Monat, **Abschlag (Vertragslaufzeit)** der Gesamtbetrag der Laufzeit. Die vier Sensoren für Verbrauch und Prognose bleiben ohne Verbrauchssensor leer. Kosten bisher gibt es für diese Verträge nur im Panel, als die bis heute fälligen Abschläge.
+**Internet**, **Mobilfunk**, **Streaming**, **Hauskosten** und **Sonstiges** haben nur die Sensoren für alle Verträge. **Abschlag** ist dort der Betrag pro Monat, **Abschlag (Vertragslaufzeit)** der Gesamtbetrag der Laufzeit. Die vier Sensoren für Verbrauch und Prognose bleiben ohne Verbrauchssensor leer. Kosten bisher gibt es für diese Verträge nur im Panel, als die bis heute fälligen Abschläge.
 
 ## Buttons
 

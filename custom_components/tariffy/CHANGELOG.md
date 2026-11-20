@@ -7,6 +7,14 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.33.0-beta.1] - 2026-11-20
+
+Erste Beta von 1.33.0. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Added
+
+- **Neue Sparte „Hauskosten“** (gewünscht in #121) für die laufenden Kosten rund ums Haus ohne Zähler: Abfallgebühren, Straßenreinigung, Niederschlagswasser (Regenwassergebühr), Grundsteuer, Schornsteinfeger, Winterdienst und Ähnliches. Sie ist ein normaler **Pauschalvertrag** (Zahlweise, Betrag pro Zahlung, Beginn, Ende, Erinnerung, Einmalposten, Verlängern, Folgevertrag planen) mit einer zusätzlichen, freiwilligen **Art**: aus einer Liste wählen (Abfallgebühren, Straßenreinigung, Niederschlagswasser, Grundsteuer, Schornsteinfeger, Winterdienst, Hausmeister / Gebäudeservice) **oder frei eintippen**. Hauskosten **zählen in den Summen mit** (Abschläge pro Monat, Kosten bisher, Kostenaufteilung, Jahressummen) und haben im Panel eine eigene Gruppe **Hauskosten**; das Panel spricht dort von „Betrag“ statt „Abschlag“. Andere Verträge ändern sich nicht.
+
 ### Changed
 
 - **Neues Markenzeichen.** Tariffy hat ein neues Icon (ein Vertrag mit einer Euro-Münze auf blau-violettem Verlauf) und ein Logo mit dem Namen, auch für das dunkle Design. Home Assistant zeigt sie in der Liste der Integrationen, HACS in seiner Liste. Es ändern sich nur Bilder, sonst ist nichts betroffen.

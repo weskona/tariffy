@@ -182,6 +182,16 @@ CONTRACTS = [
         {},
         {},
     ),
+    (
+        "Abfallgebühren",
+        {
+            "sparte": "hauskosten", "hauskostenart": "waste", "anbieter": "Stadt Musterstadt",
+            "tarif": "Restmüll und Biotonne", "abschlag": 31.0, "zahlweise": "quarterly",
+            "beginn": "2026-01-01", "erinnerung_monate": "0",
+        },
+        {},
+        {},
+    ),
 ]
 
 

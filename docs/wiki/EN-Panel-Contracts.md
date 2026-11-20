@@ -24,7 +24,7 @@ The **Contracts** tab is the workspace of the panel: here you expand the details
 
 ## The contract list
 
-The contracts stand in the same groups as in the overview: **Metered contracts**, **Flat-rate contracts** and **Loans / financing**. Each row shows the icon, name, provider and tariff, the badge (for example **Balance due likely**, **Credit**, **Cancel now**, **Switch on 01.01.2027**) and, on the right, the balance at contract end (metered) or the amount "39.99 € / month" (flat rate). A click on the row expands the details (arrow at the far right).
+The contracts stand in the same groups as in the overview: **Metered contracts**, **Flat-rate contracts**, **House costs** and **Loans / financing**. Each row shows the icon, name, provider and tariff, the badge (for example **Balance due likely**, **Credit**, **Cancel now**, **Switch on 01.01.2027**) and, on the right, the balance at contract end (metered) or the amount "39.99 € / month" (flat rate). A click on the row expands the details (arrow at the far right).
 
 <p align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/list-1280.png" alt="Contracts tab on a 1280 pixel wide screen: the button New contract at the top right, below it the contracts as collapsed rows with badge, balance and icons" width="100%"></p>
 

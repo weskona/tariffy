@@ -38,6 +38,7 @@ PAIRS = {
     "Vertrag-Leasing": "EN-Contract-Leasing",
     "Vertrag-Kredit": "EN-Contract-Loan",
     "Vertrag-Sonstiges": "EN-Contract-Other",
+    "Vertrag-Hauskosten": "EN-Contract-House-Costs",
     "Verbrauch-Messen": "EN-Measuring-Consumption",
     "PV-Autarkie": "EN-PV-Self-Sufficiency",
     "Abschlaege-und-Kosten": "EN-Payments-and-Costs",

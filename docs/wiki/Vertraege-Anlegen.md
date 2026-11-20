@@ -42,6 +42,7 @@ Die Auswahl **Sparte** bietet diese Einträge in dieser Reihenfolge an:
 | Kredit / Finanzierung | eigener Tilgungsplan, zählt nicht in die Summen der Verträge | **Kredit / Finanzierung** | [Vertrag Kredit](Vertrag-Kredit) |
 | Leasing | Pauschale plus Kilometer | **Leasing**, dann **Kosten** | [Vertrag Leasing](Vertrag-Leasing) |
 | Versicherung | Pauschale | **Versicherung**, bei Kfz **Kfz-Versicherung**, dann **Kosten** | [Vertrag Versicherung](Vertrag-Versicherung) |
+| Hauskosten | Pauschale plus Art | **Hauskosten** (Art), dann **Kosten** | [Vertrag Hauskosten](Vertrag-Hauskosten) |
 | Sonstiges | Pauschale | **Kosten** | [Vertrag Sonstiges](Vertrag-Sonstiges) |
 
 **Verbrauchsverträge** (Strom, Strom HT/NT, Gas, Wasser) rechnen mit einem Zähler-Sensor echte Kosten, Saldo und Prognose aus. **Pauschalverträge** haben einen Betrag pro Zahlung und eine Zahlweise (monatlich, vierteljährlich, halbjährlich, jährlich). Im Panel stehen Kredit und Leasing in der Gruppe **Kredite / Finanzierungen**.

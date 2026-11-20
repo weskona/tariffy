@@ -80,6 +80,7 @@ from .const import (
     CONF_PREISGARANTIE,
     CONF_SPARTE,
     CONF_TARIF,
+    CONF_HAUSKOSTENART,
     CONF_VERSICHERUNGSART,
     CONF_ZAEHLERNUMMER,
     CONF_ERSTE_ZAHLUNG,
@@ -125,6 +126,8 @@ from .const import (
     WASSER_EINHEITEN,
     WASSER_SPARTE,
     SPARTE_ELECTRICITY_HT_NT,
+    HAUSKOSTENARTEN,
+    SPARTE_HAUSKOSTEN,
     SPARTE_INSURANCE,
     CONF_ARBEITSPREIS_NT,
     CONF_VERBRAUCH_SENSOR_NT,
@@ -706,6 +709,18 @@ def _versicherungsart_schema(d: dict[str, Any]) -> vol.Schema:
     )
 
 
+def _hauskostenart_schema(d: dict[str, Any]) -> vol.Schema:
+    """Eigener Schritt der Hauskosten: um welche Kosten es geht (optional). Eine feste Liste, aber auch frei
+    tippbar (z. B. "Gartenabfall")."""
+    return vol.Schema(
+        {
+            _opt(CONF_HAUSKOSTENART, d.get(CONF_HAUSKOSTENART)): _select(
+                HAUSKOSTENARTEN, translation_key=CONF_HAUSKOSTENART, custom=True
+            ),
+        }
+    )
+
+
 def _kfz_schema(d: dict[str, Any]) -> vol.Schema:
     """Schritt nur fuer eine Kfz-Versicherung: Kennzeichen, Kilometerstand bei Vertragsbeginn und
     Kilometer pro Jahr. Alles optional und nur zur Dokumentation."""
@@ -1010,6 +1025,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_energie()
             if user_input[CONF_SPARTE] == SPARTE_INSURANCE:
                 return await self.async_step_versicherung()
+            if user_input[CONF_SPARTE] == SPARTE_HAUSKOSTEN:
+                return await self.async_step_hauskosten()
             if user_input[CONF_SPARTE] == SPARTE_LOAN:
                 return await self.async_step_kredit()
             if user_input[CONF_SPARTE] == SPARTE_LEASING:
@@ -1100,6 +1117,17 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="versicherung", data_schema=_versicherungsart_schema({}), last_step=False
         )
 
+    async def async_step_hauskosten(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Um welche Hauskosten geht es? Danach das Formular der Pauschalvertraege."""
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_pauschal()
+        return self.async_show_form(
+            step_id="hauskosten", data_schema=_hauskostenart_schema({}), last_step=False
+        )
+
     async def async_step_versicherung_kfz(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -1155,6 +1183,8 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
                 return await self.async_step_reconfigure_energie()
             if user_input[CONF_SPARTE] == SPARTE_INSURANCE:
                 return await self.async_step_reconfigure_versicherung()
+            if user_input[CONF_SPARTE] == SPARTE_HAUSKOSTEN:
+                return await self.async_step_reconfigure_hauskosten()
             if user_input[CONF_SPARTE] == SPARTE_LOAN:
                 return await self.async_step_reconfigure_kredit()
             if user_input[CONF_SPARTE] == SPARTE_LEASING:
@@ -1249,6 +1279,19 @@ class TariffyConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="reconfigure_versicherung",
             data_schema=_versicherungsart_schema(dict(entry.data)),
+            last_step=False,
+        )
+
+    async def async_step_reconfigure_hauskosten(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        entry = self._get_reconfigure_entry()
+        if user_input is not None:
+            self._data.update(user_input)
+            return await self.async_step_reconfigure_pauschal()
+        return self.async_show_form(
+            step_id="reconfigure_hauskosten",
+            data_schema=_hauskostenart_schema(dict(entry.data)),
             last_step=False,
         )
 
