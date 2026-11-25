@@ -39,6 +39,6 @@ Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant:
 
 ## Version und Status
 
-Dieses Wiki beschreibt Tariffy **1.32.0** (Stable). Das Panel in der Seitenleiste gibt es seit 1.27. Neue Funktionen kommen zuerst als Beta-Version, siehe [Releases und Beta](Releases-und-Beta).
+Dieses Wiki beschreibt Tariffy **1.33.0** (Stable). Das Panel in der Seitenleiste gibt es seit 1.27. Neue Funktionen kommen zuerst als Beta-Version, siehe [Releases und Beta](Releases-und-Beta).
 
 Quellcode, Releases und Changelog: [weskona/tariffy](https://github.com/weskona/tariffy) · [Changelog](https://github.com/weskona/tariffy/blob/main/CHANGELOG.md) · [Fehler melden](https://github.com/weskona/tariffy/issues)
