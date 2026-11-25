@@ -406,7 +406,8 @@ async def _renew_kredit(hass: HomeAssistant, entry: ConfigEntry, values: dict[st
 # ------------------------------------------------------------ Abschlagsverlauf
 def _verlauf_zeilen(rows: Any, intervall: int, bis: date) -> list[tuple[date, float]]:
     """Die Zeilen `{"ab": Datum, "betrag": Betrag je Zahlung}` eines Abschlagsverlaufs, aufsteigend nach Datum, mit
-    dem Betrag je Monat. Nur Tage bis `bis`, jeder Tag einmal, Betrag ueber null, hoechstens ABSCHLAG_VERLAUF_MAX."""
+    dem Betrag je Monat. Nur Tage bis `bis`, jeder Tag einmal, Betrag ab null (eine ausgefallene Zahlung ist 0),
+    hoechstens ABSCHLAG_VERLAUF_MAX."""
     if not isinstance(rows, list):
         raise HistoryError("invalid_dates")
     if len(rows) > ABSCHLAG_VERLAUF_MAX:
@@ -421,8 +422,8 @@ def _verlauf_zeilen(rows: Any, intervall: int, bis: date) -> list[tuple[date, fl
             raise HistoryError("invalid_dates") from err
         if tag > bis or tag in je_tag:
             raise HistoryError("invalid_dates")
-        betrag = _number(row.get("betrag"), "abschlag")
-        if betrag is None or betrag <= 0:
+        betrag = _number(row.get("betrag"), "abschlag")  # negativ ist ungueltig
+        if betrag is None:
             raise HistoryError("invalid_abschlag")
         je_tag[tag] = round(betrag / intervall, 6)
     return sorted(je_tag.items())
@@ -438,6 +439,9 @@ def save_abschlag_verlauf(hass: HomeAssistant, entry: ConfigEntry, rows: Any) ->
     if entry.data.get(CONF_SPARTE) == SPARTE_LOAN:
         raise HistoryError("not_available")
     plan = _verlauf_zeilen(rows, _intervall(entry), dt_util.now().date())  # nur Vergangenes
+    if plan and plan[-1][1] <= 0:
+        # die letzte Zeile ist der aktuelle Abschlag, der weiterlaeuft: nur eine fruehere Zahlung darf ausfallen (0)
+        raise HistoryError("last_zero")
     data = dict(entry.data)
     if not plan:
         data.pop(CONF_ABSCHLAG_VERLAUF, None)

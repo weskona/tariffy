@@ -34,6 +34,8 @@ Ohne Eintrag bleibt alles wie bisher. Kredite haben keinen Abschlagsverlauf.
 6. **Zahlungen, die noch nicht fällig waren**, sind gesperrt und zeigen den aktuellen Abschlag. **Die letzte fällige Zahlung ist der aktuelle Abschlag** des Vertrags.
 7. Klicke auf **Speichern**.
 
+**Eine Zahlung ist ausgefallen?** Trage für diese Zahlung **0** ein (zum Beispiel für September, wenn der Versorger den Abschlag nicht abgebucht hat), und danach beim nächsten Monat wieder den normalen Betrag, denn eine Änderung gilt auch für die folgenden Zahlungen mit demselben Betrag. Eine **0 in der letzten Zahlung** geht nicht, denn die letzte Zahlung ist der aktuelle Abschlag, der weiterläuft. Die ausgefallene Zahlung zählt dann bei **Gezahlt bisher** als nichts gezahlt.
+
 Ein leeres Feld übernimmt den Betrag der Zahlung davor, nur das erste Feld muss gefüllt sein. Sonst meldet der Dialog **Trage einen Betrag für den ersten Monat ein.**
 
 Fehlermeldungen des Dialogs:
@@ -41,7 +43,8 @@ Fehlermeldungen des Dialogs:
 | Meldung | Ursache |
 |---|---|
 | **Ein Datum ist ungültig (nicht in der Zukunft, jeder Monat einmal).** | ein Datum in der Zukunft oder doppelt |
-| **Jeder Monat braucht einen Betrag über null.** | ein Betrag ist null, negativ oder keine Zahl |
+| **Ein Betrag darf nicht negativ sein.** | ein Betrag ist negativ oder keine Zahl |
+| **Der letzte Monat ist der aktuelle Betrag, der weiterläuft, und muss über null liegen. Nur eine frühere Zahlung darf 0 sein.** | im letzten Feld steht 0 |
 | **Zu viele Änderungen (höchstens 60).** | mehr als 60 Änderungen im Verlauf |
 | **Dieser Vertrag hat keine Abschläge.** | der Vertrag ist ein Kredit |
 | **Der Vertrag braucht einen Beginn, bevor sich die Abschläge nach Monaten eintragen lassen.** | im Vertrag fehlt der Beginn |
