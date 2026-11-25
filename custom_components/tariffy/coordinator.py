@@ -192,7 +192,7 @@ def abschlag_plan(data: dict[str, Any]) -> list[tuple[date, float]]:
             continue
         tag = _parse_date(eintrag.get("ab"))
         betrag = _f(eintrag.get("betrag"))
-        if tag is None or betrag is None or betrag <= 0 or betrag != betrag:
+        if tag is None or betrag is None or betrag < 0 or betrag != betrag:
             continue
         je_tag[tag] = betrag
     return sorted(je_tag.items())

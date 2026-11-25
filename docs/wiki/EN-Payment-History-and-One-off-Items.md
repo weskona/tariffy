@@ -34,6 +34,8 @@ Without an entry everything stays as before. Loans have no payment history.
 6. **Payments that have not been due yet** are locked and show the current instalment. **The last payment that is due is the current instalment** of the contract.
 7. Click **Save**.
 
+**A payment was skipped?** Enter **0** for that payment (for example for September if the supplier did not debit the instalment) and the normal amount again for the next month, because a change also applies to the following payments that have the same amount. A **0 in the last payment** is not possible, because the last payment is the current instalment that goes on. The skipped payment then counts as nothing paid in **Paid so far**.
+
 An empty field takes the amount of the payment before it, only the first field has to be filled. Otherwise the dialog says **Enter an amount for the first month.**
 
 Error messages of the dialog:
@@ -41,7 +43,8 @@ Error messages of the dialog:
 | Message | Cause |
 |---|---|
 | **A date is not valid (not in the future, each month once).** | a date in the future or twice |
-| **Each month needs an amount above zero.** | an amount is zero, negative or not a number |
+| **An amount must not be negative.** | an amount is negative or not a number |
+| **The last month is the current amount that goes on and must be above zero. Only an earlier payment can be 0.** | the last field is 0 |
 | **Too many changes (60 at most).** | more than 60 changes in the history |
 | **This contract has no instalments.** | the contract is a loan |
 | **The contract needs a start date before the instalments can be entered by month.** | the start is missing in the contract |
