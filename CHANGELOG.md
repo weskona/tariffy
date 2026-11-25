@@ -7,15 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.33.0-beta.2] - 2026-11-25
+## [1.33.0] - 2026-11-25
 
-### Changed
-
-- **A skipped instalment can be entered as 0 €.** In the dialog **Edit instalments** (and for an earlier term in the History tab) a payment can be **0**, for example when the supplier did not debit the instalment of a month (reported in the forum): the payment then counts as nothing paid in "Paid so far", the balance and the forecast. Enter the normal amount again for the following month, because a change also applies to the following payments with the same amount. The **last** payment is the current instalment that goes on and still has to be above zero; the dialog says so. Negative amounts are still refused.
-
-## [1.33.0-beta.1] - 2026-11-20
-
-First beta of 1.33.0. Please report problems with the bug report form and mention this exact version.
+This release brings together everything that was tested in the betas `1.33.0-beta.1` and `1.33.0-beta.2`. **Existing contracts keep working without any change.**
 
 ### Added
 
@@ -23,6 +17,7 @@ First beta of 1.33.0. Please report problems with the bug report form and mentio
 
 ### Changed
 
+- **A skipped instalment can be entered as 0 €.** In the dialog **Edit instalments** (and for an earlier term in the History tab) a payment can be **0**, for example when the supplier did not debit the instalment of a month: the payment then counts as nothing paid in "Paid so far", the balance and the forecast. Enter the normal amount again for the following month, because a change also applies to the following payments with the same amount. The **last** payment is the current instalment that goes on and still has to be above zero; the dialog says so. Negative amounts are still refused.
 - **New brand icon.** Tariffy has a new icon (a contract with a euro coin on a blue-violet gradient) and a logo with the name, also for the dark design. They are shown by Home Assistant in the list of integrations and by HACS. Only images change; nothing else is affected.
 
 ## [1.32.0] - 2026-11-19
