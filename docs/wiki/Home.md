@@ -2,7 +2,7 @@
 
 # Tariffy – Vertragsverwaltung für Home Assistant
 
-Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant: Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Kredit, Leasing und Sonstiges. Dieses Wiki erklärt Schritt für Schritt, wie Du Tariffy einrichtest und nutzt.
+Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant: Strom, Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Kredit, Leasing, Hauskosten und Sonstiges. Dieses Wiki erklärt Schritt für Schritt, wie Du Tariffy einrichtest und nutzt.
 
 ## Was Tariffy für Dich tut
 
@@ -28,7 +28,7 @@ Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant:
 | Thema | Seiten |
 |---|---|
 | Start | [Erste Schritte](Erste-Schritte) · [Verträge anlegen](Vertraege-Anlegen) |
-| Verträge je Sparte | [Strom](Vertrag-Strom) · [Gas](Vertrag-Gas) · [Wasser](Vertrag-Wasser) · [Internet und Mobilfunk](Vertrag-Internet-und-Mobilfunk) · [Streaming](Vertrag-Streaming) · [Versicherung](Vertrag-Versicherung) · [Leasing](Vertrag-Leasing) · [Kredit](Vertrag-Kredit) · [Sonstiges](Vertrag-Sonstiges) |
+| Verträge je Sparte | [Strom](Vertrag-Strom) · [Gas](Vertrag-Gas) · [Wasser](Vertrag-Wasser) · [Internet und Mobilfunk](Vertrag-Internet-und-Mobilfunk) · [Streaming](Vertrag-Streaming) · [Versicherung](Vertrag-Versicherung) · [Leasing](Vertrag-Leasing) · [Kredit](Vertrag-Kredit) · [Hauskosten](Vertrag-Hauskosten) · [Sonstiges](Vertrag-Sonstiges) |
 | Verbrauch | [Verbrauch messen](Verbrauch-Messen) · [PV-Autarkie](PV-Autarkie) |
 | Abschläge und Kosten | [Abschläge und Kosten](Abschlaege-und-Kosten) · [Abschlagsverlauf und Einmalposten](Abschlagsverlauf-und-Einmalposten) |
 | Vertragsende und Wechsel | [Vertragsende und Wechsel](Vertragsende-und-Wechsel) · [Folgevertrag oder Verlängern](Folgevertrag-oder-Verlaengern) · [Archiv und Historie](Archiv-und-Historie) |
@@ -39,6 +39,6 @@ Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant:
 
 ## Version und Status
 
-Dieses Wiki beschreibt Tariffy **1.32.0** (Stable). Das Panel in der Seitenleiste gibt es seit 1.27. Neue Funktionen kommen zuerst als Beta-Version, siehe [Releases und Beta](Releases-und-Beta).
+Dieses Wiki beschreibt Tariffy **1.33.0** (Stable). Das Panel in der Seitenleiste gibt es seit 1.27. Neue Funktionen kommen zuerst als Beta-Version, siehe [Releases und Beta](Releases-und-Beta).
 
 Quellcode, Releases und Changelog: [weskona/tariffy](https://github.com/weskona/tariffy) · [Changelog](https://github.com/weskona/tariffy/blob/main/CHANGELOG.md) · [Fehler melden](https://github.com/weskona/tariffy/issues)

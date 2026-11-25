@@ -2,7 +2,7 @@
 
 # Tariffy – Contract Management for Home Assistant
 
-Tariffy manages your energy and service contracts in Home Assistant: electricity, gas, water, internet, mobile, streaming, insurance, loan, leasing and other. This wiki explains step by step how to set up and use Tariffy.
+Tariffy manages your energy and service contracts in Home Assistant: electricity, gas, water, internet, mobile, streaming, insurance, loan, leasing, house costs and other. This wiki explains step by step how to set up and use Tariffy.
 
 ## What Tariffy does for you
 
@@ -28,7 +28,7 @@ Tariffy manages your energy and service contracts in Home Assistant: electricity
 | Topic | Pages |
 |---|---|
 | Start | [Getting started](EN-Getting-Started) · [Creating contracts](EN-Creating-Contracts) |
-| Contracts by type | [Electricity](EN-Contract-Electricity) · [Gas](EN-Contract-Gas) · [Water](EN-Contract-Water) · [Internet and mobile](EN-Contract-Internet-and-Mobile) · [Streaming](EN-Contract-Streaming) · [Insurance](EN-Contract-Insurance) · [Leasing](EN-Contract-Leasing) · [Loan](EN-Contract-Loan) · [Other](EN-Contract-Other) |
+| Contracts by type | [Electricity](EN-Contract-Electricity) · [Gas](EN-Contract-Gas) · [Water](EN-Contract-Water) · [Internet and mobile](EN-Contract-Internet-and-Mobile) · [Streaming](EN-Contract-Streaming) · [Insurance](EN-Contract-Insurance) · [Leasing](EN-Contract-Leasing) · [Loan](EN-Contract-Loan) · [House costs](EN-Contract-House-Costs) · [Other](EN-Contract-Other) |
 | Consumption | [Measuring consumption](EN-Measuring-Consumption) · [PV self-sufficiency](EN-PV-Self-Sufficiency) |
 | Payments and costs | [Payments and costs](EN-Payments-and-Costs) · [Payment history and one-off items](EN-Payment-History-and-One-off-Items) |
 | Contract end and switching | [Contract end and switching](EN-Contract-End-and-Switching) · [Next contract or renew](EN-Next-Contract-or-Renew) · [Archive and history](EN-Archive-and-History) |
@@ -39,6 +39,6 @@ Tariffy manages your energy and service contracts in Home Assistant: electricity
 
 ## Version and status
 
-This wiki describes Tariffy **1.32.0** (stable). The sidebar panel exists since 1.27. New features arrive as a beta version first, see [Releases and beta](EN-Releases-and-Beta).
+This wiki describes Tariffy **1.33.0** (stable). The sidebar panel exists since 1.27. New features arrive as a beta version first, see [Releases and beta](EN-Releases-and-Beta).
 
 Source code, releases and changelog: [weskona/tariffy](https://github.com/weskona/tariffy) · [Changelog](https://github.com/weskona/tariffy/blob/main/CHANGELOG.md) · [Report a bug](https://github.com/weskona/tariffy/issues)

@@ -24,7 +24,7 @@ Der Tab **Verträge** ist die Arbeitsfläche des Panels: Hier klappst Du die Det
 
 ## Die Vertragsliste
 
-Die Verträge stehen in denselben Gruppen wie in der Übersicht: **Verbrauchsverträge**, **Pauschalverträge** und **Kredite / Finanzierungen**. Jede Zeile zeigt Symbol, Name, Anbieter und Tarif, die Kennzeichnung (zum Beispiel **Nachzahlung droht**, **Guthaben**, **Jetzt kündigen**, **Wechsel am 01.01.2027**) und rechts den Saldo zum Vertragsende (Verbrauch) oder den Betrag „39,99 € / Monat" (Pauschal). Ein Klick auf die Zeile klappt die Details auf (Pfeil ganz rechts).
+Die Verträge stehen in denselben Gruppen wie in der Übersicht: **Verbrauchsverträge**, **Pauschalverträge**, **Hauskosten** und **Kredite / Finanzierungen**. Jede Zeile zeigt Symbol, Name, Anbieter und Tarif, die Kennzeichnung (zum Beispiel **Nachzahlung droht**, **Guthaben**, **Jetzt kündigen**, **Wechsel am 01.01.2027**) und rechts den Saldo zum Vertragsende (Verbrauch) oder den Betrag „39,99 € / Monat" (Pauschal). Ein Klick auf die Zeile klappt die Details auf (Pfeil ganz rechts).
 
 <p align="center"><img src="https://raw.githubusercontent.com/wiki/weskona/tariffy/images/list-1280.png" alt="Tab Verträge auf einem Bildschirm mit 1280 Pixel Breite: oben rechts der Button Neuer Vertrag, darunter die Verträge als zugeklappte Zeilen mit Kennzeichnung, Saldo und Symbolen" width="100%"></p>
 

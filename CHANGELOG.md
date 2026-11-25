@@ -7,8 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.33.0] - 2026-11-25
+
+This release brings together everything that was tested in the betas `1.33.0-beta.1` and `1.33.0-beta.2`. **Existing contracts keep working without any change.**
+
+### Added
+
+- **New category "House costs"** (requested in #121) for the running costs around the house that have no meter: waste fees, street cleaning, rainwater (stormwater fee), property tax, chimney sweep, winter service and the like. It is a normal **flat-rate contract** (payment interval, amount per payment, start, end, reminder, one-time items, renew, plan next contract) with an additional, optional **type**: choose it from a list (waste fees, street cleaning, rainwater, property tax, chimney sweep, winter service, caretaker / building services) **or type your own**. House costs **count in the totals** (instalments per month, cost so far, the cost split, the yearly sums) and have a group of their own in the panel, **House costs**; the panel says "amount" instead of "instalment" for them. Other contracts are not changed.
+
 ### Changed
 
+- **A skipped instalment can be entered as 0 €.** In the dialog **Edit instalments** (and for an earlier term in the History tab) a payment can be **0**, for example when the supplier did not debit the instalment of a month: the payment then counts as nothing paid in "Paid so far", the balance and the forecast. Enter the normal amount again for the following month, because a change also applies to the following payments with the same amount. The **last** payment is the current instalment that goes on and still has to be above zero; the dialog says so. Negative amounts are still refused.
 - **New brand icon.** Tariffy has a new icon (a contract with a euro coin on a blue-violet gradient) and a logo with the name, also for the dark design. They are shown by Home Assistant in the list of integrations and by HACS. Only images change; nothing else is affected.
 
 ## [1.32.0] - 2026-11-19

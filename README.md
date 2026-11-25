@@ -44,7 +44,7 @@ Tariffy manages your utility and service contracts in Home Assistant: electricit
 
 ### Features
 
-- **Contracts of all kinds** – electricity (also dual-tariff), gas, water, internet, mobile, streaming, insurance, leasing (with a kilometre forecast), loans and other
+- **Contracts of all kinds** – electricity (also dual-tariff), gas, water, internet, mobile, streaming, insurance, leasing (with a kilometre forecast), house costs (waste fees, street cleaning, ...), loans and other
 - **Real consumption** – connect your meter sensor; Tariffy works out the billing forecast (credit or balance due) and a recommended instalment from the measured consumption, with optional PV self-sufficiency
 - **Instalments and costs** – instalments paid, balance so far, total cost over all terms, correctable instalment history, one-off items
 - **Reminders and switching** – cancellation reminder before the contract ends, plan the next contract that takes over automatically on the switch date, or renew a contract
@@ -73,7 +73,7 @@ Tariffy verwaltet Deine Energie- und Dienstleistungsverträge in Home Assistant:
 
 ### Funktionen
 
-- **Verträge aller Art** – Strom (auch Zweitarif), Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Leasing (mit Kilometer-Prognose), Kredit und Sonstiges
+- **Verträge aller Art** – Strom (auch Zweitarif), Gas, Wasser, Internet, Mobilfunk, Streaming, Versicherung, Leasing (mit Kilometer-Prognose), Hauskosten (Abfallgebühren, Straßenreinigung, …), Kredit und Sonstiges
 - **Echter Verbrauch** – Zähler-Sensor verbinden; Tariffy rechnet aus dem gemessenen Verbrauch die Prognose (Guthaben oder Nachzahlung) und einen empfohlenen Abschlag, optional mit PV-Autarkie
 - **Abschläge und Kosten** – gezahlte Abschläge, Saldo, Gesamtkosten über alle Laufzeiten, korrigierbarer Abschlagsverlauf, Einmalposten
 - **Erinnerung und Wechsel** – Kündigungserinnerung vor dem Vertragsende, Folgevertrag planen (wird zum Wechseldatum automatisch übernommen) oder Vertrag verlängern

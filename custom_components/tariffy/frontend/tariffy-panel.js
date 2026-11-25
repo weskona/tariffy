@@ -214,10 +214,11 @@ class TariffyPanel extends HTMLElement {
     return text;
   }
 
-  // a text that depends on the contract: a streaming subscription has a price, not an instalment (key + "_streaming")
+  // a text that depends on the contract: a streaming subscription has a price and house costs an amount, not an
+  // instalment (key + "_streaming" / "_hauskosten")
   _tc(key, c, vars) {
-    const alt = `${key}_streaming`;
-    return c && c.sparte === "streaming" && (I18N[this._lang][alt] || I18N.en[alt]) ? this._t(alt, vars) : this._t(key, vars);
+    const alt = c && (c.sparte === "streaming" || c.sparte === "hauskosten") ? `${key}_${c.sparte}` : null;
+    return alt && (I18N[this._lang][alt] || I18N.en[alt]) ? this._t(alt, vars) : this._t(key, vars);
   }
 
   get _locale() {
@@ -300,6 +301,11 @@ class TariffyPanel extends HTMLElement {
     return d ? Math.round((d - this._today()) / 86400000) : null;
   }
 
+  _houseCostType(key) {
+    const labels = (I18N[this._lang] && I18N[this._lang].hauskostenart) || I18N.en.hauskostenart;
+    return labels[key] || key; // a type the user typed is shown as it is
+  }
+
   _insuranceType(key) {
     const labels = (I18N[this._lang] && I18N[this._lang].versicherungsart) || I18N.en.versicherungsart;
     return labels[key] || key;
@@ -376,7 +382,8 @@ class TariffyPanel extends HTMLElement {
       // and leaves the whole panel empty for anyone who has only metered or only flat-rate contracts)
       for (const section of [
         group("groupMetered", this._live.filter((c) => METERED.has(c.sparte)), "metered"),
-        group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte) && c.sparte !== "leasing"), "flat"),
+        group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte) && c.sparte !== "leasing" && c.sparte !== "hauskosten"), "flat"),
+        group("groupHouse", this._house, "flat"),
         group("groupLoans", this._financing, "flat"),
       ]) {
         if (section) wrap.appendChild(section);
@@ -417,6 +424,11 @@ class TariffyPanel extends HTMLElement {
 
   /* the group "Loans / financing" of the overview and the list: the loans (kept apart from the totals) and the
      leases, which stand there too but count in the totals like any flat-rate contract */
+  /* house costs (waste fees, street cleaning, ...): flat-rate contracts that count in the totals, in a group of their own */
+  get _house() {
+    return this._live.filter((c) => c.sparte === "hauskosten");
+  }
+
   get _financing() {
     return [...this._loans, ...this._live.filter((c) => c.sparte === "leasing")];
   }
@@ -699,7 +711,7 @@ class TariffyPanel extends HTMLElement {
     return h(
       "div", { class: "who" },
       h("div", { class: "title", text: c.title }),
-      h("div", { class: "meta", text: [c.anbieter, c.tarif].filter(Boolean).join(" · ") })
+      h("div", { class: "meta", text: [c.sparte === "hauskosten" && c.hauskostenart && !String(c.title).toLowerCase().includes(this._houseCostType(c.hauskostenart).toLowerCase()) ? this._houseCostType(c.hauskostenart) : null, c.anbieter, c.tarif].filter(Boolean).join(" · ") })
     );
   }
 
@@ -998,6 +1010,7 @@ class TariffyPanel extends HTMLElement {
       min: kind === "number" && isNum(raw.selector.number.min) ? raw.selector.number.min : null,
       domains: kind === "entity" ? [].concat(raw.selector.entity.domain || []) : [],
       custom: Boolean(sel.custom_value),
+      labelled: Boolean(sel.translation_key), // the options have texts of their own (the stored value is the key)
       options: (sel.options || []).map((o) => {
         const value = typeof o === "string" ? o : o.value;
         return { value, label: optionLabel(value, typeof o === "string" ? o : o.label || o.value) };
@@ -1096,6 +1109,19 @@ class TariffyPanel extends HTMLElement {
     }
   }
 
+  /* a free-text select with listed options (house costs): show the text of a listed option, store its key;
+   * what the user typed himself is kept as typed */
+  _optionKey(f, text) {
+    const t = String(text).trim().toLowerCase();
+    const hit = f.options.find((o) => o.value.toLowerCase() === t || String(o.label).toLowerCase() === t);
+    return hit ? hit.value : String(text).trim();
+  }
+
+  _optionLabel(f, value) {
+    const hit = f.options.find((o) => o.value === value);
+    return hit ? hit.label : value;
+  }
+
   _collectFlow(dlg) {
     const values = {};
     const errors = {};
@@ -1114,7 +1140,7 @@ class TariffyPanel extends HTMLElement {
         if (!Number.isFinite(n) || (f.min !== null && n < f.min)) errors[f.name] = this._t("dlgInvalidNumber");
         else values[f.name] = n;
       } else {
-        values[f.name] = raw;
+        values[f.name] = f.kind === "select" && f.custom && f.labelled ? this._optionKey(f, raw) : raw;
       }
     }
     return { values, errors };
@@ -1237,7 +1263,7 @@ class TariffyPanel extends HTMLElement {
     }
     if (f.kind === "entity" || f.kind === "select") { // free text with suggestions
       const list = `dl-${f.name}`;
-      const ids = f.kind === "select" ? f.options.map((o) => o.value)
+      const ids = f.kind === "select" ? f.options.map((o) => (f.labelled ? o.label : o.value))
         : Object.keys((this._hass && this._hass.states) || {})
           .filter((id) => !f.domains.length || f.domains.includes(id.split(".")[0])).sort();
       return [
@@ -1343,7 +1369,7 @@ class TariffyPanel extends HTMLElement {
       const input = el.querySelector(`[name="${f.name}"]`);
       if (!input) continue;
       if (f.kind === "boolean") input.checked = Boolean(dlg.values[f.name]);
-      else input.value = dlg.values[f.name] ?? "";
+      else input.value = f.kind === "select" && f.custom && f.labelled ? this._optionLabel(f, dlg.values[f.name] ?? "") : (dlg.values[f.name] ?? "");
     }
     const confirmName = el.querySelector(".confirm-name");
     if (confirmName) confirmName.focus();
@@ -2522,7 +2548,8 @@ class TariffyPanel extends HTMLElement {
       list.map((c) => this._detail(c))) : null);
     return h("div", {}, head,
       group("groupMetered", this._live.filter((c) => METERED.has(c.sparte))),
-      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte) && c.sparte !== "leasing")),
+      group("groupFlat", this._live.filter((c) => !METERED.has(c.sparte) && c.sparte !== "leasing" && c.sparte !== "hauskosten")),
+      group("groupHouse", this._house),
       group("groupLoans", this._financing));
   }
 
@@ -2603,6 +2630,7 @@ class TariffyPanel extends HTMLElement {
         copyRow(this._t("meterNo"), c.zaehlernummer), copyRow(this._t("meterNoLow"), c.zaehlernummer_nt),
         copyRow(this._t("maloId"), c.marktlokation),
         row(this._t("insuranceType"), c.versicherungsart ? this._insuranceType(c.versicherungsart) : null),
+        row(this._t("houseCostType"), c.hauskostenart ? this._houseCostType(c.hauskostenart) : null),
         row(this._t("kmStart"), isNum(c.km_start) ? `${this._num(c.km_start, 0)} km` : null),
         row(this._t("kmPerYear"), isNum(c.km_pro_jahr) ? `${this._num(c.km_pro_jahr, 0)} km` : null),
         row(this._t("start"), c.beginn ? this._date(c.beginn) : null),

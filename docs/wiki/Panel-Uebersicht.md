@@ -60,6 +60,7 @@ Unter den Kacheln stehen die Verträge in Gruppen, je eine Karte pro Vertrag:
 
 - **Verbrauchsverträge** (Strom, Gas, Wasser),
 - **Pauschalverträge** (Internet, Mobilfunk, Versicherung, Streaming, Sonstiges),
+- **Hauskosten** (Abfallgebühren, Straßenreinigung und Ähnliches; sie zählen in den Summen mit),
 - **Kredite / Finanzierungen** (getrennt von den anderen, ihre Beträge zählen nicht in die Summen der Verträge).
 
 Die Karten sind nach dem Zustand getönt: grün bei Guthaben, rot bei Nachzahlung, orange wenn die Kündigung fällig ist. Oben rechts auf der Karte steht eine Kennzeichnung (Badge), zum Beispiel **Guthaben**, **Nachzahlung**, **Nachzahlung droht** (die Prognose liegt unter der Warnschwelle), **Jetzt kündigen**, **Wechsel am 01.01.2027** (ein Folgevertrag ist geplant) oder **Abgelaufen** (das Vertragsende ist vorbei, siehe [Panel-Historie](Panel-Historie)).

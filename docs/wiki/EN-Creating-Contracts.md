@@ -42,6 +42,7 @@ The **Category** selection offers these entries in this order:
 | Loan / financing | own repayment plan, not part of the totals of the contracts | **Loan / financing** | [Contract loan](EN-Contract-Loan) |
 | Leasing | flat rate plus kilometres | **Leasing**, then **Cost** | [Contract leasing](EN-Contract-Leasing) |
 | Insurance | flat rate | **Insurance**, for a car **Car insurance**, then **Cost** | [Contract insurance](EN-Contract-Insurance) |
+| House costs | flat rate plus type | **House costs** (type), then **Cost** | [Contract house costs](EN-Contract-House-Costs) |
 | Other | flat rate | **Cost** | [Contract other](EN-Contract-Other) |
 
 **Metered contracts** (electricity, electricity HT/NT, gas, water) use a meter sensor to work out real cost, balance and forecast. **Flat-rate contracts** have an amount per payment and a payment interval (monthly, quarterly, half-yearly, yearly). In the panel loan and leasing stand in the group **Loans / financing**.

@@ -70,6 +70,7 @@ CONTRACT_FIELDS = (
     "tarif",
     "icon",
     "versicherungsart",
+    "hauskostenart",
     "km_start",
     "km_pro_jahr",
     "km_sensor",

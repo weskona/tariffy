@@ -83,6 +83,7 @@ from .const import (
     CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE,
     CONF_VERBRAUCH_SENSOR,
     CONF_VERBRAUCH_START_WERT,
+    CONF_HAUSKOSTENART,
     CONF_VERSICHERUNGSART,
     CONF_ZAEHLERNUMMER,
     CONF_ZAHLWEISE,
@@ -191,7 +192,7 @@ def abschlag_plan(data: dict[str, Any]) -> list[tuple[date, float]]:
             continue
         tag = _parse_date(eintrag.get("ab"))
         betrag = _f(eintrag.get("betrag"))
-        if tag is None or betrag is None or betrag <= 0 or betrag != betrag:
+        if tag is None or betrag is None or betrag < 0 or betrag != betrag:
             continue
         je_tag[tag] = betrag
     return sorted(je_tag.items())
@@ -2097,6 +2098,7 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "verbrauch_kwh": verbrauch_kwh,
             CONF_ZAEHLERNUMMER: data.get(CONF_ZAEHLERNUMMER),
             CONF_VERSICHERUNGSART: data.get(CONF_VERSICHERUNGSART),
+            CONF_HAUSKOSTENART: data.get(CONF_HAUSKOSTENART),
             CONF_KENNZEICHEN: data.get(CONF_KENNZEICHEN),
             CONF_KM_START: _f(data.get(CONF_KM_START)),
             CONF_KM_PRO_JAHR: _f(data.get(CONF_KM_PRO_JAHR)),

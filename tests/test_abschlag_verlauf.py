@@ -47,6 +47,14 @@ def test_the_plan_is_sorted_one_entry_per_day_and_junk_is_ignored():
     assert coord.abschlag_plan({}) == [] and coord.abschlag_plan({"_abschlag_verlauf": "x"}) == []
 
 
+def test_a_skipped_instalment_is_a_zero_entry_of_the_plan():
+    plan = coord.abschlag_plan({"_abschlag_verlauf": [
+        {"ab": "2026-01-01", "betrag": 178}, {"ab": "2026-09-01", "betrag": 0}, {"ab": "2026-10-01", "betrag": 215}]})
+    assert plan == [(date(2026, 1, 1), 178.0), (date(2026, 9, 1), 0.0), (date(2026, 10, 1), 215.0)]
+    assert coord._abschlag_am(plan, 215.0, date(2026, 9, 15)) == 0.0
+    assert coord._abschlag_am(plan, 215.0, date(2026, 10, 1)) == 215.0
+
+
 def test_which_amount_applied_on_a_day():
     plan = coord.abschlag_plan({"_abschlag_verlauf": VERLAUF})
     assert coord._abschlag_am(plan, 215.0, date(2026, 3, 1)) == 178.0
@@ -174,7 +182,8 @@ async def test_a_quarterly_contract_takes_the_amount_per_payment(frontend_env, c
         ([{"ab": "2026-12-01", "betrag": 200}], "invalid_dates"),  # in the future
         ([{"ab": "kaputt", "betrag": 200}], "invalid_dates"),
         ([{"ab": "2026-01-01", "betrag": 100}, {"ab": "2026-01-01", "betrag": 120}], "invalid_dates"),  # the same day twice
-        ([{"ab": "2026-01-01", "betrag": 0}], "invalid_abschlag"),
+        ([{"ab": "2026-01-01", "betrag": 0}], "last_zero"),  # the last row is the current instalment that goes on
+        ([{"ab": "2026-01-01", "betrag": 100}, {"ab": "2026-09-01", "betrag": 0}], "last_zero"),
         ([{"ab": "2026-01-01", "betrag": -5}], "invalid_abschlag"),
         ([{"ab": "2026-01-01", "betrag": "abc"}], "invalid_abschlag"),
         ([{"ab": "2026-01-01"}], "invalid_abschlag"),
@@ -186,6 +195,43 @@ async def test_bad_rows_are_refused_and_nothing_changes(frontend_env, contract, 
     entry, _ = await contract.setup(GAS, **TAG)
     reply = await _call(client, entry_id=entry.entry_id, rows=rows)
     assert reply["success"] is False and reply["error"]["code"] == code
+    assert entry.data["_abschlag_verlauf"] == VERLAUF and entry.data["abschlag"] == 215.0
+
+
+SKIPPED = [
+    {"ab": "2026-01-01", "betrag": 178.0},
+    {"ab": "2026-08-01", "betrag": 174.41},
+    {"ab": "2026-09-01", "betrag": 0},  # the instalment of September was not debited
+    {"ab": "2026-10-01", "betrag": 215.0},
+]
+
+
+async def test_a_skipped_instalment_counts_as_nothing_paid(contract):
+    """Jan to Jul 178 (7), Aug 174.41, Sep 0, Oct and Nov 215: the 11 instalments due by 18 November."""
+    data = {**INTERNET, "_abschlag_verlauf": SKIPPED}
+    _, d = await contract.setup(data, **TAG)
+    assert d["abschlag_bisher_gezahlt"] == pytest.approx(7 * 178 + 174.41 + 0 + 2 * 215, abs=0.01)
+    assert [e["betrag"] for e in d["abschlagsverlauf"]][2] == 0.0
+    assert d["abschlag"] == 215.0  # the current instalment goes on
+
+
+async def test_a_zero_month_can_be_saved_when_a_later_month_has_the_normal_amount(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    client = await hass_ws_client()
+    entry, _ = await contract.setup({k: v for k, v in INTERNET.items() if k != "_abschlag_verlauf"}, **TAG)
+    reply = await _call(client, entry_id=entry.entry_id, rows=[{**row, "betrag": str(row["betrag"])} for row in SKIPPED])
+    assert reply["success"] is True
+    await hass.async_block_till_done()
+    assert entry.data["_abschlag_verlauf"][2] == {"ab": "2026-09-01", "betrag": 0.0}
+    assert entry.data["abschlag"] == 215.0  # the newest entry is the current instalment
+    assert entry.runtime_data.data["abschlag_bisher_gezahlt"] == pytest.approx(7 * 178 + 174.41 + 2 * 215, abs=0.01)
+
+
+async def test_a_zero_in_the_last_month_is_refused_and_nothing_changes(frontend_env, contract, hass, hass_ws_client):  # noqa: F811
+    """The last month is the current instalment that goes on: a skipped payment is entered for an earlier month."""
+    client = await hass_ws_client()
+    entry, _ = await contract.setup(GAS, **TAG)
+    reply = await _call(client, entry_id=entry.entry_id, rows=[*VERLAUF[:2], {"ab": "2026-11-01", "betrag": 0}])
+    assert reply["success"] is False and reply["error"]["code"] == "last_zero"
     assert entry.data["_abschlag_verlauf"] == VERLAUF and entry.data["abschlag"] == 215.0
 
 
@@ -289,6 +335,18 @@ async def test_an_old_term_works_out_what_was_paid_from_the_months(contract, has
     assert plain["values"]["abschlag_gezahlt"] == pytest.approx(215 * round(364 / 30.44, 2), abs=0.01)  # months rounded as before
 
 
+async def test_an_old_term_can_have_a_month_without_a_debit(contract, hass):
+    """Zero is allowed everywhere in an earlier term (nothing was debited in that month)."""
+    entry, _ = await contract.setup(GAS, **TAG)
+    rows = [{"ab": "2025-03-01", "betrag": 178}, {"ab": "2025-08-01", "betrag": 0}, {"ab": "2025-09-01", "betrag": 215}]
+    calc = await history.async_calc(hass, entry, ALT, rows)
+    a, b, v = 153 / 30.44, 184 / 30.44, 364 / 30.44
+    assert calc["values"]["abschlag_gezahlt"] == pytest.approx(178 * a + 0 * (b - a) + 215 * (v - b), abs=0.01)
+    # a zero as the very last row of an earlier term is fine too (the term is over)
+    last = await history.async_calc(hass, entry, ALT, [{"ab": "2025-03-01", "betrag": 178}, {"ab": "2026-02-01", "betrag": 0}])
+    assert last["values"]["abschlag_gezahlt"] > 0
+
+
 async def test_a_typed_amount_paid_wins_over_the_months(contract, hass):
     entry, _ = await contract.setup(GAS, **TAG)
     calc = await history.async_calc(hass, entry, {**ALT, "abschlag_gezahlt": 2000.0}, ALT_ROWS)
@@ -335,7 +393,7 @@ async def test_a_term_without_months_is_as_before(frontend_env, contract, hass, 
         ([{"ab": "2026-03-01", "betrag": 200}], "invalid_dates"),  # after the end of the term
         ([{"ab": "kaputt", "betrag": 200}], "invalid_dates"),
         ([{"ab": "2025-03-01", "betrag": 100}, {"ab": "2025-03-01", "betrag": 120}], "invalid_dates"),
-        ([{"ab": "2025-03-01", "betrag": 0}], "invalid_abschlag"),
+        ([{"ab": "2025-03-01", "betrag": -3}], "invalid_abschlag"),
         ([{"ab": "2025-03-01", "betrag": "abc"}], "invalid_abschlag"),
         ([{"ab": "2020-01-01", "betrag": 1}] * 61, "too_many"),
     ],

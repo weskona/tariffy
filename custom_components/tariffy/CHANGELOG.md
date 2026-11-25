@@ -7,8 +7,17 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.33.0] - 2026-11-25
+
+Diese Version fasst alles zusammen, was in den Betas `1.33.0-beta.1` und `1.33.0-beta.2` getestet wurde. **Bestehende Verträge funktionieren ohne jede Änderung weiter.**
+
+### Added
+
+- **Neue Sparte „Hauskosten“** (gewünscht in #121) für die laufenden Kosten rund ums Haus ohne Zähler: Abfallgebühren, Straßenreinigung, Niederschlagswasser (Regenwassergebühr), Grundsteuer, Schornsteinfeger, Winterdienst und Ähnliches. Sie ist ein normaler **Pauschalvertrag** (Zahlweise, Betrag pro Zahlung, Beginn, Ende, Erinnerung, Einmalposten, Verlängern, Folgevertrag planen) mit einer zusätzlichen, freiwilligen **Art**: aus einer Liste wählen (Abfallgebühren, Straßenreinigung, Niederschlagswasser, Grundsteuer, Schornsteinfeger, Winterdienst, Hausmeister / Gebäudeservice) **oder frei eintippen**. Hauskosten **zählen in den Summen mit** (Abschläge pro Monat, Kosten bisher, Kostenaufteilung, Jahressummen) und haben im Panel eine eigene Gruppe **Hauskosten**; das Panel spricht dort von „Betrag“ statt „Abschlag“. Andere Verträge ändern sich nicht.
+
 ### Changed
 
+- **Ein ausgefallener Abschlag kann als 0 € eingetragen werden.** Im Dialog **Abschläge bearbeiten** (und bei einer früheren Laufzeit im Tab Historie) darf eine Zahlung **0** sein, zum Beispiel wenn der Versorger den Abschlag eines Monats nicht abgebucht hat: Die Zahlung zählt dann bei „Gezahlt bisher“, beim Saldo und bei der Prognose als nichts gezahlt. Trage für den folgenden Monat wieder den normalen Betrag ein, denn eine Änderung gilt auch für die folgenden Zahlungen mit demselben Betrag. Die **letzte** Zahlung ist der aktuelle Abschlag, der weiterläuft, und muss weiterhin über null liegen; der Dialog sagt das. Negative Beträge werden weiterhin abgelehnt.
 - **Neues Markenzeichen.** Tariffy hat ein neues Icon (ein Vertrag mit einer Euro-Münze auf blau-violettem Verlauf) und ein Logo mit dem Namen, auch für das dunkle Design. Home Assistant zeigt sie in der Liste der Integrationen, HACS in seiner Liste. Es ändern sich nur Bilder, sonst ist nichts betroffen.
 
 ## [1.32.0] - 2026-11-19
