@@ -682,6 +682,10 @@ SENSOREN: tuple[VertragSensorDescription, ...] = (
                 if d.get("abschlag_anpassung_empfohlen") is not None and d.get(CONF_ABSCHLAG) is not None
                 else None
             ),
+            # unter 2 Restmonaten ist der Wert ein einzelner Monatsbetrag fuer die ganze Restnachzahlung: dann passt
+            # eher der Abschlag fuer eine ganze Laufzeit
+            "kurz_vor_ende": d.get("abschlag_kurz_vor_ende"),
+            "abschlag_naechste_laufzeit": d.get("abschlag_naechste_laufzeit"),
         },
     ),
 )

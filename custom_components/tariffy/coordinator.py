@@ -179,6 +179,11 @@ def _parse_date(value: Any) -> date | None:
         return None
 
 
+# Unter so vielen Restmonaten ist "Abschlag ab jetzt anpassen" kein sinnvoller Monatsbetrag mehr: die ganze erwartete
+# Nachzahlung (oder das Guthaben) faellt auf einen einzigen Monat. Dann gilt der Vorschlag fuer die naechste Laufzeit.
+ABSCHLAG_SPAET_MONATE = 2.0
+
+
 def abschlag_plan(data: dict[str, Any]) -> list[tuple[date, float]]:
     """Der Abschlagsverlauf des Vertrags (siehe const.CONF_ABSCHLAG_VERLAUF): aufsteigend nach Datum, je
     Tag ein Eintrag (der spaetere gilt). Unbrauchbare Eintraege (aus einer Sicherung) werden uebergangen;
@@ -382,6 +387,27 @@ def _entry_sum_state(entry: dict) -> tuple[float | None, float | None]:
     s = entry.get("sum")
     st = entry.get("state")
     return (float(s) if s is not None else None, float(st) if st is not None else None)
+
+
+def _verbrauch_letzte_laufzeit_aus_historie(
+    historie: Any,
+) -> tuple[float, float | None] | None:
+    """Eigener (manuell eingetragener) Verbrauch der letzten Laufzeit samt Dauer
+    in Monaten, oder None, wenn die Historie keinen solchen Wert hat."""
+    if not isinstance(historie, list) or not historie:
+        return None
+    letzte = historie[-1]
+    if not isinstance(letzte, dict) or "verbrauch" not in (letzte.get("eigene") or []):
+        return None
+    verbrauch = _f(letzte.get("verbrauch"))
+    if verbrauch is None or verbrauch <= 0:
+        return None
+    beginn = _parse_date(letzte.get("beginn"))
+    ende = _parse_date(letzte.get("ende"))
+    monate = None
+    if beginn is not None and ende is not None and ende >= beginn:
+        monate = round(((ende - beginn).days + 1) / 30.44, 2)
+    return verbrauch, monate
 
 
 async def _get_historic_value(
@@ -1006,6 +1032,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         prognose_real: float | None,
         abschlag_empfehlung: float | None,
         data: dict[str, Any],
+        *,
+        kurz_vor_ende: bool = False,
+        naechste_laufzeit: float | None = None,
     ) -> None:
         if not aktiv:
             # Bestaetigt-/Gesendet-Flags zuruecksetzen, damit eine kuenftige
@@ -1027,12 +1056,25 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         if data.get(CONF_ABSCHLAG_WARNUNG_BESTAETIGT):
             return
         title = f"Abschlag zu niedrig: {self.entry.title}"
-        empfehlung_zeile = (
-            f"Empfehlung: Abschlag für die restliche Laufzeit auf ca. "
-            f"**{abschlag_empfehlung:.2f} €/Monat** anpassen.\n\n"
-            if abschlag_empfehlung is not None
-            else ""
-        )
+        if kurz_vor_ende:
+            # Wenige Wochen vor dem Ende ist ein Monatsbetrag fuer den Rest unsinnig hoch: die Nachzahlung kommt
+            # mit der Schlussrechnung, geplant wird der Abschlag der naechsten Laufzeit
+            empfehlung_zeile = (
+                "Das Vertragsende ist nah, die Nachzahlung kommt mit der Schlussrechnung."
+                + (
+                    f" Für die nächste Laufzeit passt ein Abschlag von ca. **{naechste_laufzeit:.2f} €/Monat**."
+                    if naechste_laufzeit
+                    else ""
+                )
+                + "\n\n"
+            )
+        else:
+            empfehlung_zeile = (
+                f"Empfehlung: Abschlag für die restliche Laufzeit auf ca. "
+                f"**{abschlag_empfehlung:.2f} €/Monat** anpassen.\n\n"
+                if abschlag_empfehlung is not None
+                else ""
+            )
         message = (
             f"Beim aktuellen Verbrauch ist am Vertragsende eine Nachzahlung "
             f"von ca. **{abs(prognose_real):.2f} €** zu erwarten.\n\n"
@@ -1690,6 +1732,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         prognose_ohne_autarkie: float | None = None
         autark: dict[str, Any] | None = None
         abschlag_anpassung_empfohlen: float | None = None
+        abschlag_kurz_vor_ende = False  # unter ABSCHLAG_SPAET_MONATE Restmonaten: keine Anpassung des Monatsbetrags mehr
+        abschlag_naechste_laufzeit: float | None = None  # was ein Abschlag fuer eine ganze Laufzeit kosten muesste
 
         diag: dict[str, Any] = {}
         if verbrauch_sensor and beginn:
@@ -1805,12 +1849,15 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     )
 
         aussen: dict[str, Any] = {}
+        wasserpreis_voll: float | None = None  # nur mit Aussenzaehler: der Preis, ohne den Gartenanteil gewichtet
         if sparte == WASSER_SPARTE and data.get(CONF_AUSSENZAEHLER):
             aussen = await self._aussenzaehler(
                 list(data[CONF_AUSSENZAEHLER]), beginn, verbrauch_bisher, verbrauch_sensor,
                 arbeitspreis, arbeitspreis_gesamt_wasser,
             )
             if aussen["preis"] is not None:
+                # der volle Preis (Frischwasser + Abwasser) bleibt fuer die Anzeige erhalten
+                wasserpreis_voll = arbeitspreis_gesamt_wasser
                 # wie beim Zweizaehlertarif: ab hier rechnet alles mit dem gewichteten Preis weiter
                 arbeitspreis_gesamt_wasser = aussen["preis"]
 
@@ -1904,6 +1951,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                                 / restlaufzeit_monate,
                                 2,
                             )
+                            abschlag_kurz_vor_ende = restlaufzeit_monate < ABSCHLAG_SPAET_MONATE
+                    if laufzeit_monate and laufzeit_monate > 0 and geschaetzte_kosten_real is not None:
+                        abschlag_naechste_laufzeit = round(max(0.0, geschaetzte_kosten_real / laufzeit_monate), 2)
 
         einmal_liste, einmal_gesamt, einmal_laufend = _einmal_summen(data, beginn, heute)
 
@@ -1979,6 +2029,12 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Verbrauch letzte Laufzeit (eingefroren beim Tarifwechsel)
         verbrauch_letzte_laufzeit = _f(data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT))
         verbrauch_letzte_laufzeit_monate = _f(data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE))
+        # Hat der Nutzer fuer die letzte Laufzeit in der Historie einen eigenen
+        # Verbrauch eingetragen, gilt dieser Wert (er ist verlaesslicher als der
+        # beim Wechsel aus den Statistiken eingefrorene, siehe #126).
+        _eigen = _verbrauch_letzte_laufzeit_aus_historie(data.get(CONF_HISTORIE))
+        if _eigen is not None:
+            verbrauch_letzte_laufzeit, verbrauch_letzte_laufzeit_monate = _eigen
 
         # Empfohlener Abschlag auf Basis der letzten Vertragslaufzeit
         empfohlener_abschlag: float | None = None
@@ -2036,7 +2092,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             and not archiviert
         )
         await self._handle_abschlag_warnung(
-            warnung_aktiv, prognose_real, abschlag_anpassung_empfohlen, data
+            warnung_aktiv, prognose_real, abschlag_anpassung_empfohlen, data,
+            kurz_vor_ende=abschlag_kurz_vor_ende, naechste_laufzeit=abschlag_naechste_laufzeit,
         )
         # warnung_aktiv bleibt bewusst unabhaengig von "bestaetigt" (siehe
         # _handle_abschlag_warnung), damit sich eine erneut verschlechterte
@@ -2053,6 +2110,9 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CONF_ARBEITSPREIS_ABWASSER: arbeitspreis_abwasser,
             CONF_ABWASSER_TYP: abwasser_typ,
             "arbeitspreis_gesamt_wasser": arbeitspreis_gesamt_wasser,
+            # mit Aussenzaehler ist das der gewichtete Preis des Hauptzaehlers (Garten- und Abwasserwasser zusammen),
+            # der volle Preis aus Frischwasser und Abwasser steht hier
+            "wasserpreis_voll": round(wasserpreis_voll, 6) if wasserpreis_voll is not None else None,
             "abwasser_pauschal_monat": abwasser_pauschal_monat,
             "autarkie_aktiv": autark is not None,
             "autarkie_variante": autark["variante"] if autark is not None else None,
@@ -2129,6 +2189,8 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "verbrauch_hochgerechnet": verbrauch_hochgerechnet,
             "prognose_real": prognose_real,
             "abschlag_anpassung_empfohlen": abschlag_anpassung_empfohlen,
+            "abschlag_kurz_vor_ende": abschlag_kurz_vor_ende,
+            "abschlag_naechste_laufzeit": abschlag_naechste_laufzeit,
             "kosten_bisher": kosten_bisher,
             "guthaben_bisher": (
                 round(guthaben_bisher + einmal_laufend, 2) if guthaben_bisher is not None else None

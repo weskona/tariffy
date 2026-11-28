@@ -39,6 +39,6 @@ Tariffy manages your energy and service contracts in Home Assistant: electricity
 
 ## Version and status
 
-This wiki describes Tariffy **1.33.0** (stable). The sidebar panel exists since 1.27. New features arrive as a beta version first, see [Releases and beta](EN-Releases-and-Beta).
+This wiki describes Tariffy **1.33.1** (stable). The sidebar panel exists since 1.27. New features arrive as a beta version first, see [Releases and beta](EN-Releases-and-Beta).
 
 Source code, releases and changelog: [weskona/tariffy](https://github.com/weskona/tariffy) · [Changelog](https://github.com/weskona/tariffy/blob/main/CHANGELOG.md) · [Report a bug](https://github.com/weskona/tariffy/issues)

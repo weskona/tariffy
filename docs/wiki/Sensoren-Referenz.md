@@ -52,7 +52,7 @@ Diese Sensoren bekommt jeder Vertrag, unabhängig von der Sparte. Die vier Senso
 | Verbrauch (Bisher) | `verbrauch_bisher` | kWh bei Strom; bei Gas und Wasser die Einheit des Zählers (Wh und MWh als kWh) | gemessener Verbrauch seit Vertragsbeginn | `verbrauch_hochgerechnet`, `verbrauch_bisher_ht`, `verbrauch_bisher_nt` |
 | Verbrauch (Vertragslaufzeit hochgerechnet) | `verbrauch_hochgerechnet` | wie oben | Verbrauch auf die tatsächliche Vertragslaufzeit hochgerechnet | – |
 | Guthaben/Nachzahlung (Vertragsende) | `prognose_real` | Währung | Prognose: Abschläge über die Laufzeit minus geschätzte Kosten. Positiv Guthaben, negativ Nachzahlung. Symbol: Daumen hoch oder runter | `tendenz` (`Guthaben` oder `Nachzahlung`), `verbrauch_hochgerechnet`, `abschlag_warnung_aktiv`; mit PV-Autarkie zusätzlich `autarkie_variante`, `autarkie_monatswerte`, `autarkie_bisher`, `autarkie_bisher_nt`, `autarkie_naeherung`, `prognose_ohne_autarkie`; mit Gesamtverbrauchs-Sensor außerdem `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet` |
-| Abschlag (Anpassung empfohlen) | `abschlag_anpassung_empfohlen` | Währung/Monat | Abschlag, der von heute bis Vertragsende genau ausgleicht. Symbol: Daumen runter bei empfohlener Erhöhung | `aktueller_abschlag`, `differenz` |
+| Abschlag (Anpassung empfohlen) | `abschlag_anpassung_empfohlen` | Währung/Monat | Abschlag, der von heute bis Vertragsende genau ausgleicht. Symbol: Daumen runter bei empfohlener Erhöhung. Unter 2 Restmonaten ist der Wert ein einzelner Monatsbetrag für die ganze Rest-Nachzahlung, dann passt eher `abschlag_naechste_laufzeit` | `aktueller_abschlag`, `differenz`, `kurz_vor_ende`, `abschlag_naechste_laufzeit` |
 
 Die Werte des Attributs `tendenz` sind in jeder Sprache die deutschen Wörter `Guthaben` und `Nachzahlung`. Der Rechenweg dieser Werte steht in [Abschlaege-und-Kosten](Abschlaege-und-Kosten), die Attribute der Autarkie in [PV-Autarkie](PV-Autarkie).
 
@@ -112,7 +112,7 @@ Zusätzlich zu den Sensoren für alle Verträge:
 | Name | Schlüssel | Einheit | Bedeutung | Attribute |
 |---|---|---|---|---|
 | Arbeitspreis (Abwasser) | `arbeitspreis_abwasser` | Währung/Wassereinheit | Abwasserpreis (bei Angabe in Prozent der berechnete Preis, bei einer Monatspauschale der eingetragene Betrag) | `typ`, `pauschal_monat` |
-| Wasserpreis (Gesamt) | `arbeitspreis_gesamt_wasser` | Währung/Wassereinheit | Frischwasser plus Abwasser | – |
+| Wasserpreis (Gesamt) | `arbeitspreis_gesamt_wasser` | Währung/Wassereinheit | Frischwasser plus Abwasser. Mit Außenzähler der gewichtete Preis des Hauptzählers (siehe [Vertrag-Wasser](Vertrag-Wasser#außenzähler)) | – |
 
 Nur mit mindestens einem **Außenzähler** (Garten, Pool) erscheinen außerdem:
 

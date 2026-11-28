@@ -152,3 +152,37 @@ def test_the_panel_follows_the_theme_of_home_assistant():
     assert "this._hass.themes.darkMode" in SOURCE
     assert 'this.classList.toggle("light"' in SOURCE
     assert "this._applyTheme();" in SOURCE  # at every update of hass: a change of the theme shows at once
+
+
+def test_a_few_weeks_before_the_end_the_panel_names_the_balance_and_the_term_amount():
+    """No "raise the instalment to 381 € a month" three weeks before the end: the whole difference would fall on one month."""
+    for key in ("adviceLateDue", "adviceLateCredit", "noteWarningLate"):
+        assert TEXTS.count(f" {key}:") == 2, f"{key} must exist in English and German"
+    assert "abschlag_kurz_vor_ende === true" in SOURCE  # the backend decides (under two months), the panel does not guess
+    # the advice line, the red note on the card and the "recommended" column all use it
+    assert SOURCE.count("this._late(c)") >= 3
+
+
+def test_the_water_price_rows_name_the_full_and_the_mixed_price():
+    """With outdoor meters "Water price incl. wastewater" is the full price, the weighted price of the main meter is
+    shown as the mixed price (the costs are worked out with it)."""
+    assert TEXTS.count(" unitPriceMixed:") == 2
+    assert "c.wasserpreis_voll" in SOURCE and 'this._t("unitPriceMixed")' in SOURCE
+
+
+def test_the_own_price_of_an_outdoor_meter_says_without_wastewater():
+    """MartyBr (forum) typed the wastewater price into the field: the label and the hint say it is the fresh water only."""
+    assert "Own price per unit, without wastewater (optional)" in TEXTS
+    assert "Eigener Preis je Einheit, ohne Abwasser (optional)" in TEXTS
+    assert "filled with the fresh-water price of the contract" in TEXTS and "mit dem Frischwasserpreis des Vertrags vorbelegt" in TEXTS
+
+
+def test_the_price_of_an_outdoor_meter_starts_with_the_fresh_water_price_and_can_be_changed():
+    """The field is prefilled (new meter, or an old one without an own price); left unchanged it is sent as "no own price"."""
+    block = SOURCE[SOURCE.index("  _openAussen(c, index) {"):]
+    block = block[: block.index("\n  }\n")]
+    assert "const fresh = isNum(c.arbeitspreis) ? c.arbeitspreis : null;" in block
+    assert "fresh !== null ? String(fresh)" in block
+    save = SOURCE[SOURCE.index("  async _saveAussen() {"):]
+    save = save[: save.index("\n  }\n")]
+    assert "delete values.preis" in save and "dlg.fresh" in save
