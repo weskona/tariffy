@@ -7,9 +7,9 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
-## [1.33.1-beta.1] - 2026-11-28
+## [1.33.1] - 2026-11-28
 
-Erste Beta von 1.33.1. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+Diese Version fasst alles zusammen, was in der Beta `1.33.1-beta.1` getestet wurde. **Bestehende Verträge funktionieren ohne jede Änderung weiter**; die Sensorwerte und die Rechnung sind dieselben.
 
 ### Changed
 

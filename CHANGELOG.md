@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.33.1-beta.1] - 2026-11-28
+## [1.33.1] - 2026-11-28
 
-First beta of 1.33.1. Please report problems with the bug report form and mention this exact version.
+This release brings together everything that was tested in the beta `1.33.1-beta.1`. **Existing contracts keep working without any change**; the sensor values and the calculation are the same.
 
 ### Changed
 
