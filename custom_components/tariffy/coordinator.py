@@ -389,6 +389,27 @@ def _entry_sum_state(entry: dict) -> tuple[float | None, float | None]:
     return (float(s) if s is not None else None, float(st) if st is not None else None)
 
 
+def _verbrauch_letzte_laufzeit_aus_historie(
+    historie: Any,
+) -> tuple[float, float | None] | None:
+    """Eigener (manuell eingetragener) Verbrauch der letzten Laufzeit samt Dauer
+    in Monaten, oder None, wenn die Historie keinen solchen Wert hat."""
+    if not isinstance(historie, list) or not historie:
+        return None
+    letzte = historie[-1]
+    if not isinstance(letzte, dict) or "verbrauch" not in (letzte.get("eigene") or []):
+        return None
+    verbrauch = _f(letzte.get("verbrauch"))
+    if verbrauch is None or verbrauch <= 0:
+        return None
+    beginn = _parse_date(letzte.get("beginn"))
+    ende = _parse_date(letzte.get("ende"))
+    monate = None
+    if beginn is not None and ende is not None and ende >= beginn:
+        monate = round(((ende - beginn).days + 1) / 30.44, 2)
+    return verbrauch, monate
+
+
 async def _get_historic_value(
     hass: HomeAssistant, entity_id: str, at_date: date
 ) -> tuple[float | None, float | None]:
@@ -2008,6 +2029,12 @@ class TariffyCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         # Verbrauch letzte Laufzeit (eingefroren beim Tarifwechsel)
         verbrauch_letzte_laufzeit = _f(data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT))
         verbrauch_letzte_laufzeit_monate = _f(data.get(CONF_VERBRAUCH_LETZTE_LAUFZEIT_MONATE))
+        # Hat der Nutzer fuer die letzte Laufzeit in der Historie einen eigenen
+        # Verbrauch eingetragen, gilt dieser Wert (er ist verlaesslicher als der
+        # beim Wechsel aus den Statistiken eingefrorene, siehe #126).
+        _eigen = _verbrauch_letzte_laufzeit_aus_historie(data.get(CONF_HISTORIE))
+        if _eigen is not None:
+            verbrauch_letzte_laufzeit, verbrauch_letzte_laufzeit_monate = _eigen
 
         # Empfohlener Abschlag auf Basis der letzten Vertragslaufzeit
         empfohlener_abschlag: float | None = None
