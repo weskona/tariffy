@@ -266,7 +266,18 @@ class TariffyPanel extends HTMLElement {
     if (rec < 0) return this._t("adviceNone");
     const v = this._money(rec, c.currency, { digits: 2 });
     if (!isNum(c.abschlag) || Math.abs(rec - c.abschlag) < 0.5) return this._t("adviceOk");
+    if (this._late(c)) { // a few weeks before the end the whole difference would fall on one month: say what is expected instead
+      return this._t(c.prognose_real < 0 ? "adviceLateDue" : "adviceLateCredit", {
+        n: c.restlaufzeit, b: this._money(Math.abs(c.prognose_real), c.currency), s: this._money(c.abschlag_naechste_laufzeit, c.currency, { digits: 2 }),
+      });
+    }
     return this._t(rec > c.abschlag ? "adviceRaise" : "adviceLower", { v });
+  }
+
+  /* under two months to the end of the contract (the backend decides): no instalment for the rest of the term any more, but the
+   * amount that fits a whole term */
+  _late(c) {
+    return c.abschlag_kurz_vor_ende === true && isNum(c.abschlag_naechste_laufzeit) && isNum(c.prognose_real) && isNum(c.restlaufzeit);
   }
 
   _covered(value) {
@@ -848,7 +859,9 @@ class TariffyPanel extends HTMLElement {
     const notes = [];
     if (c.abschlag_warnung_zu_bestaetigen) {
       const value = this._money(Math.abs(c.prognose_real), c.currency);
-      notes.push(h("div", { class: "callout red", text: isNum(c.abschlag_anpassung_empfohlen) && c.abschlag_anpassung_empfohlen > 0
+      notes.push(h("div", { class: "callout red", text: this._late(c)
+        ? this._t("noteWarningLate", { v: value, a: this._money(c.abschlag_naechste_laufzeit, c.currency) })
+        : isNum(c.abschlag_anpassung_empfohlen) && c.abschlag_anpassung_empfohlen > 0
         ? this._t("noteWarning", { v: value, a: this._money(c.abschlag_anpassung_empfohlen, c.currency) })
         : this._t("noteWarningShort", { v: value }) }));
     }
@@ -1944,8 +1957,10 @@ class TariffyPanel extends HTMLElement {
       name, kind, label, required: false, min: null, domains: [], custom: false, options: [], initial: "", ...extra,
     });
     const item = index === null ? {} : (c.aussenzaehler || [])[index] || {};
+    // the price field starts with the fresh-water price of the contract (the price this water costs without an own price)
+    const fresh = isNum(c.arbeitspreis) ? c.arbeitspreis : null;
     this._dlg = {
-      mode: "aussen", stage: "form", id: c.entry_id, name: c.title, index, flowId: null, localize: () => "", asking: null,
+      mode: "aussen", stage: "form", id: c.entry_id, name: c.title, index, fresh, flowId: null, localize: () => "", asking: null,
       fields: [
         spec("name", "text", this._t("aussenName"), { required: true }),
         spec("sensor", "entity", this._t("aussenSensor"), { required: true, domains: ["sensor"] }),
@@ -1954,7 +1969,8 @@ class TariffyPanel extends HTMLElement {
       ],
       values: {
         name: item.name || "", sensor: item.sensor || "",
-        start_wert: isNum(item.start_wert) ? String(item.start_wert) : "", preis: isNum(item.preis) ? String(item.preis) : "",
+        start_wert: isNum(item.start_wert) ? String(item.start_wert) : "",
+        preis: isNum(item.preis) ? String(item.preis) : fresh !== null ? String(fresh) : "",
       },
       fieldErrors: {}, message: null,
     };
@@ -1967,6 +1983,8 @@ class TariffyPanel extends HTMLElement {
     dlg.fieldErrors = errors;
     dlg.message = null;
     if (Object.keys(errors).length) { this._renderAussenDialog(); return; }
+    // left as the prefilled fresh-water price: no own price, so the meter keeps following the price of the contract
+    if (isNum(dlg.fresh) && isNum(values.preis) && Math.abs(values.preis - dlg.fresh) < 1e-9) delete values.preis;
     await this._callAussen(dlg, { type: "tariffy/aussen_save", entry_id: dlg.id, values, ...(dlg.index === null ? {} : { index: dlg.index }) });
   }
 
@@ -2284,7 +2302,7 @@ class TariffyPanel extends HTMLElement {
   }
 
   _recommendedCell(c) {
-    const raw = c.empfohlener_abschlag ?? c.abschlag_anpassung_empfohlen;
+    const raw = c.empfohlener_abschlag ?? (this._late(c) ? c.abschlag_naechste_laufzeit : c.abschlag_anpassung_empfohlen);
     return h("td", {
       "data-label": this._t("colRecommended"), class: isNum(raw) ? "rec" : "rec empty",
     }, this._instalment(raw, c.currency),
@@ -2651,7 +2669,10 @@ class TariffyPanel extends HTMLElement {
         row(this._t("unitPriceLow"), isNum(c.arbeitspreis_nt) ? this._price(c.arbeitspreis_nt, c.currency, pu) : null),
         row(this._t("unitPriceNight"), isNum(c.arbeitspreis_nacht) ? this._price(c.arbeitspreis_nacht, c.currency, pu) : null),
         row(this._t("unitPriceEff"), isNum(c.effektiver_arbeitspreis) ? this._price(c.effektiver_arbeitspreis, c.currency, pu) : null),
-        row(this._t("unitPriceWater"), isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
+        row(this._t("unitPriceWater"), isNum(c.wasserpreis_voll) ? this._price(c.wasserpreis_voll, c.currency, pu)
+          : isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
+        // with outdoor meters the calculation uses the mixed price of the main meter (garden water and the rest together)
+        row(this._t("unitPriceMixed"), isNum(c.wasserpreis_voll) && isNum(c.arbeitspreis_gesamt_wasser) ? this._price(c.arbeitspreis_gesamt_wasser, c.currency, pu) : null),
         row(this._t("basePrice"), isNum(c.grundpreis) ? `${money(c.grundpreis)} ${this._t("perMonth")}` : null),
         row(this._tc("instalment", c), isNum(c.abschlag) ? `${money(c.abschlag)} ${this._t("perMonth")}` : null),
         // a flat-rate contract with one amount: the instalment per year is the same figure as "cost per year" right below

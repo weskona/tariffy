@@ -7,6 +7,16 @@ das Projekt folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
 
+## [1.33.1-beta.1] - 2026-11-28
+
+Erste Beta von 1.33.1. Bitte melde Probleme mit dem Bug-Formular und nenne diese genaue Version.
+
+### Changed
+
+- **„Abschlag anpassen“ wenige Wochen vor dem Vertragsende.** Bei weniger als **2 Monaten** Restlaufzeit fiele die ganze erwartete Nachzahlung (oder das Guthaben) auf einen einzigen Monat, das Panel empfahl deshalb unsinnige Monatsbeträge (zum Beispiel 381 € statt 43,50 €; gemeldet im Forum). Jetzt steht dort **„Nur noch 33 Tage: Die Nachzahlung von etwa 367 € kommt mit der Schlussrechnung. Für die nächste Laufzeit passen etwa 74 € pro Monat.“** Die Spalte „Empfohlen“ im Tab Kosten, der rote Hinweis auf der Karte und die Benachrichtigung der Abschlag-Warnung folgen demselben Gedanken. Der **Wert des Sensors** „Abschlag (Anpassung empfohlen)“ ändert sich nicht (Automationen funktionieren weiter); er bekommt die Attribute `kurz_vor_ende` und `abschlag_naechste_laufzeit`.
+- **Wasservertrag mit Außenzähler: die Preiszeilen.** „Wasserpreis inkl. Abwasser“ zeigte den gewichteten Preis des Hauptzählers (zum Beispiel 4,74 €/m³) und sah wie ein falscher Preis aus. Jetzt steht dort der **volle Preis** (Frischwasser plus Abwasser); der gewichtete Preis, mit dem die Kosten gerechnet werden, hat eine eigene Zeile, **„Mischpreis (mit Gartenwasser)“**.
+- **Außenzähler (Garten, Pool): das Preisfeld ist vorbelegt** mit dem Frischwasserpreis des Vertrags und sagt „ohne Abwasser“ (gemeldet im Forum: Dort war der Abwasserpreis eingetragen, dadurch wurde das Gartenwasser viel zu teuer). Ändere ihn, wenn dieses Wasser etwas anderes kostet; unverändert folgt der Zähler weiter dem Preis des Vertrags. Bestehende Außenzähler ändern sich nicht.
+
 ## [1.33.0] - 2026-11-25
 
 Diese Version fasst alles zusammen, was in den Betas `1.33.0-beta.1` und `1.33.0-beta.2` getestet wurde. **Bestehende Verträge funktionieren ohne jede Änderung weiter.**

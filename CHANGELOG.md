@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.33.1-beta.1] - 2026-11-28
+
+First beta of 1.33.1. Please report problems with the bug report form and mention this exact version.
+
+### Changed
+
+- **"Adjust the instalment" a few weeks before the contract end.** Under **2 months** of remaining term the whole expected balance due (or credit) would fall on one month, so the panel recommended absurd monthly amounts (for example 381 € instead of 43.50 €; reported in the forum). Now the panel says **"Only 33 days left: the balance due of about 367 € comes with the final bill. For the next term about 74 € per month fits."** The column "Recommended" in the tab Costs, the red note on the card and the notification of the instalment warning follow the same idea. The **value of the sensor** "Instalment adjustment (recommended)" does not change (automations keep working); it gets the attributes `kurz_vor_ende` and `abschlag_naechste_laufzeit`.
+- **Water contract with an outdoor meter: the price rows.** "Water price incl. wastewater" showed the weighted price of the main meter (for example 4.74 €/m³) and looked like a wrong price. It now shows the **full price** (fresh water plus wastewater); the weighted price the costs are worked out with is a row of its own, **"Mixed price (with garden water)"**.
+- **Outdoor meter (garden, pool): the price field is prefilled** with the fresh-water price of the contract and says "without wastewater" (reported in the forum: the wastewater price was typed there, which made the garden water far too expensive). Change it if this water costs something else; left as it is, the meter keeps following the price of the contract. Existing meters are not changed.
+
 ## [1.33.0] - 2026-11-25
 
 This release brings together everything that was tested in the betas `1.33.0-beta.1` and `1.33.0-beta.2`. **Existing contracts keep working without any change.**
