@@ -81,7 +81,7 @@ Water for the garden, the pool or irrigation does not run into the sewer and is 
 | Name | yes | Name of the meter, for example "Pool". |
 | Consumption sensor | yes | Sensor of the outdoor meter. It must not be the main meter of the contract. |
 | Start value (optional) | no | Meter reading at contract start, in the unit of the meter. Without a start value Tariffy reads the value from the long-term statistics. |
-| Own price per unit (optional) | no | Price used for the water of this meter. If empty, the fresh water price applies. |
+| Own price per unit, without wastewater (optional) | no | Price used for the water of this meter, **fresh water only, without wastewater** (garden water does not go into the sewer). The field is **prefilled with the fresh-water price of the contract**; change it if this water costs something else. If you leave it as it is, the meter follows the price of the contract (for example after a tariff switch). |
 
 You can delete a meter in the edit dialog with **Delete meter** (with the question "Delete this outdoor meter?" and **Yes, delete**). When you add the first outdoor meter, Home Assistant reloads the contract because it gets additional sensors.
 
@@ -90,6 +90,7 @@ You can delete a meter in the edit dialog with **Delete meter** (with the questi
 - **Wastewater-liable consumption = main meter − sum of the outdoor meters** (never below 0). If the outdoor meters together count more than the main meter, their share is capped at the main meter.
 - The outdoor water costs the **fresh water price** or the own price of the meter, the remaining water costs the full **Water price (combined)** of fresh water and wastewater.
 - **Cost (so far)**, the forecast and the recommended instalment use the **weighted price** of the main meter that follows from this, like the dual tariff for electricity.
+- In the panel the block **Prices** then shows two rows: **Water price incl. wastewater** is the **full price** (fresh water plus wastewater, for example 5.51 €/m³), **Mixed price (with garden water)** is the **weighted price** of the main meter that the costs are worked out with. The sensor **Water price (combined)** holds the weighted price.
 - A meter in litres is converted to the unit of the main meter (m³). A start value applies in the unit of the meter.
 - With a **flat monthly rate** for wastewater outdoor meters change nothing in the cost; **Wastewater cost** is then 0.
 - A contract with outdoor meters gets four additional sensors: **Outdoor water (consumption)**, **Outdoor water (cost)**, **Wastewater-liable consumption** and **Wastewater cost**. The total cost is in **Cost (so far)** as always. Without outdoor meters nothing changes.

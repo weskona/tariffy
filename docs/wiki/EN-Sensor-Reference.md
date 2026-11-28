@@ -52,7 +52,7 @@ Every contract gets these sensors, whatever the category. The four sensors for c
 | Consumption (so far) | `verbrauch_bisher` | kWh for electricity; for gas and water the unit of the meter (Wh and MWh as kWh) | measured consumption since the contract start | `verbrauch_hochgerechnet`, `verbrauch_bisher_ht`, `verbrauch_bisher_nt` |
 | Consumption (contract term projected) | `verbrauch_hochgerechnet` | as above | consumption projected over the real contract term | – |
 | Refund/balance due (contract end) | `prognose_real` | currency | forecast: instalments over the term minus estimated cost. Positive credit, negative balance due. Icon: thumb up or down | `tendenz` (`Guthaben` or `Nachzahlung`), `verbrauch_hochgerechnet`, `abschlag_warnung_aktiv`; with PV self-sufficiency also `autarkie_variante`, `autarkie_monatswerte`, `autarkie_bisher`, `autarkie_bisher_nt`, `autarkie_naeherung`, `prognose_ohne_autarkie`; with a total-consumption sensor also `verbrauch_gesamt_bisher`, `verbrauch_gesamt_hochgerechnet`, `verbrauch_pv_gedeckt_bisher`, `verbrauch_pv_gedeckt_hochgerechnet` |
-| Instalment adjustment (recommended) | `abschlag_anpassung_empfohlen` | currency/Monat | instalment that balances out exactly from today until the contract end. Icon: thumb down if a raise is recommended | `aktueller_abschlag`, `differenz` |
+| Instalment adjustment (recommended) | `abschlag_anpassung_empfohlen` | currency/Monat | instalment that balances out exactly from today until the contract end. Icon: thumb down if a raise is recommended. Under 2 remaining months the value is a single monthly amount for the whole remaining balance due, then `abschlag_naechste_laufzeit` fits better | `aktueller_abschlag`, `differenz`, `kurz_vor_ende`, `abschlag_naechste_laufzeit` |
 
 The values of the attribute `tendenz` are the German words `Guthaben` (credit) and `Nachzahlung` (balance due) in every language. The calculation path of these values is in [Payments-and-Costs](EN-Payments-and-Costs), the self-sufficiency attributes are in [PV-Self-Sufficiency](EN-PV-Self-Sufficiency).
 
@@ -112,7 +112,7 @@ In addition to the sensors for all contracts:
 | Name | Key | Unit | Meaning | Attributes |
 |---|---|---|---|---|
 | Unit price (wastewater) | `arbeitspreis_abwasser` | currency/water unit | wastewater price (for a percentage the calculated price, for a flat monthly rate the entered amount) | `typ`, `pauschal_monat` |
-| Water price (combined) | `arbeitspreis_gesamt_wasser` | currency/water unit | fresh water plus wastewater | – |
+| Water price (combined) | `arbeitspreis_gesamt_wasser` | currency/water unit | fresh water plus wastewater. With an outdoor meter the weighted price of the main meter (see [Contract: Water](EN-Contract-Water#outdoor-meters)) | – |
 
 Only with at least one **outdoor meter** (garden, pool) these appear as well:
 

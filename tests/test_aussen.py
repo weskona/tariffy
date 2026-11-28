@@ -57,6 +57,15 @@ async def test_the_outdoor_water_is_taken_out_of_the_wastewater(contract, hass):
     assert [e for e in hass.states.async_entity_ids("sensor") if "outdoor_water" in e]  # extra sensors exist
 
 
+async def test_the_full_price_stays_next_to_the_mixed_price(contract, hass):
+    """Panel: "Wasserpreis inkl. Abwasser" is the full price, the weighted one of the main meter is the mixed price."""
+    _, plain = await _setup(contract, hass)
+    assert plain["wasserpreis_voll"] is None  # without an outdoor meter there is only one price
+    _, d = await _setup(contract, hass, zaehler=[GARTEN])
+    assert d["wasserpreis_voll"] == pytest.approx(5.0)  # fresh water 2.0 + wastewater 3.0
+    assert d["arbeitspreis_gesamt_wasser"] == pytest.approx((110 * 5.0 + 40 * 2.0) / 150)  # the mixed price the costs use
+
+
 async def test_an_own_price_for_the_outdoor_meter(contract, hass):
     _, d = await _setup(contract, hass, zaehler=[{**GARTEN, "preis": 1.5}])
     assert d["garten_kosten"] == pytest.approx(60.0)

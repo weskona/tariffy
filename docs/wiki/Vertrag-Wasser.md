@@ -81,7 +81,7 @@ Wasser aus dem Garten, dem Pool oder der Bewässerung läuft nicht in die Kanali
 | Name | ja | Name des Zählers, zum Beispiel „Pool“. |
 | Verbrauchssensor | ja | Sensor des Außenzählers. Er darf nicht der Hauptzähler des Vertrags sein. |
 | Startwert (optional) | nein | Zählerstand am Vertragsbeginn, in der Einheit des Zählers. Ohne Startwert liest Tariffy den Stand aus den Langzeitstatistiken. |
-| Eigener Preis je Einheit (optional) | nein | Preis, mit dem das Wasser dieses Zählers gerechnet wird. Ohne Eintrag gilt der Frischwasserpreis. |
+| Eigener Preis je Einheit, ohne Abwasser (optional) | nein | Preis, mit dem das Wasser dieses Zählers gerechnet wird, **nur das Frischwasser, ohne Abwasser** (Gartenwasser läuft nicht in die Kanalisation). Das Feld ist mit dem **Frischwasserpreis des Vertrags vorbelegt**; ändere ihn, wenn dieses Wasser etwas anderes kostet. Lässt Du ihn unverändert, folgt der Zähler dem Preis des Vertrags (zum Beispiel nach einem Tarifwechsel). |
 
 Löschen kannst Du einen Zähler im Bearbeiten-Dialog mit **Zähler löschen** (mit Rückfrage „Diesen Außenzähler löschen?“ und **Ja, löschen**). Wenn Du den ersten Außenzähler anlegst, lädt Home Assistant den Vertrag neu, weil er dafür zusätzliche Sensoren bekommt.
 
@@ -90,6 +90,7 @@ Löschen kannst Du einen Zähler im Bearbeiten-Dialog mit **Zähler löschen** (
 - **Abwasserpflichtiger Verbrauch = Hauptzähler − Summe der Außenzähler** (nie unter 0). Zählen die Außenzähler zusammen mehr als der Hauptzähler, wird ihr Anteil auf den Hauptzähler begrenzt.
 - Das Außenwasser kostet den **Frischwasserpreis** oder den eigenen Preis des Zählers, das übrige Wasser den vollen **Wasserpreis (Gesamt)** aus Frischwasser und Abwasser.
 - Die **Kosten (Bisher)**, die Prognose und der empfohlene Abschlag rechnen mit dem daraus **gewichteten Preis** des Hauptzählers, wie beim Zweizählertarif bei Strom.
+- Im Panel zeigt der Block **Preise** dann zwei Zeilen: **Wasserpreis inkl. Abwasser** ist der **volle Preis** (Frischwasser plus Abwasser, zum Beispiel 5,51 €/m³), **Mischpreis (mit Gartenwasser)** ist der **gewichtete Preis** des Hauptzählers, mit dem die Kosten gerechnet werden. Der Sensor **Wasserpreis (Gesamt)** enthält den gewichteten Preis.
 - Ein Zähler in Litern wird in die Einheit des Hauptzählers (m³) umgerechnet. Ein Startwert gilt in der Einheit des Zählers.
 - Bei einer **Monatlichen Pauschale** fürs Abwasser ändern Außenzähler an den Kosten nichts; **Abwasserkosten** sind dann 0.
 - Für einen Vertrag mit Außenzähler gibt es vier zusätzliche Sensoren: **Gartenwasser (Verbrauch)**, **Gartenwasser (Kosten)**, **Abwasserpflichtiger Verbrauch** und **Abwasserkosten**. Die Gesamtkosten stehen wie immer in **Kosten (Bisher)**. Ohne Außenzähler ändert sich nichts.
